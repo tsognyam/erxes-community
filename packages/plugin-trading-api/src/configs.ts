@@ -9,7 +9,7 @@ export let mainDb;
 export let debug;
 export let graphqlPubsub;
 export let serviceDiscovery;
-export let prisma;
+
 export default {
   name: 'trading',
   graphql: async sd => {
@@ -25,7 +25,6 @@ export default {
     const models = await generateModels(subdomain);
     context.subdomain = req.hostname;
     context.models = models;
-
     return context;
   },
   onServerInit: async options => {

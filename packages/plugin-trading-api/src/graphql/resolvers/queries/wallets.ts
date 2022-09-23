@@ -3,15 +3,16 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { IWallet } from '../../../models/definitions/sql/wallet';
-import { prisma } from '../../../configs';
+import WalletService from '../../../service/wallet/wallet.service';
+let walletService = new WalletService();
 const walletQueries = {
-  wallets: async (
+  tradingWallets: async (
     _root: any,
-    params: IWallet,
-    { models, subdomain }: IContext
+    { type, status, walletIds },
+    { models, subdomain, user }: IContext
   ) => {
-    return await prisma.wallet.find();
+    return await walletService.getWalletList(type, status, walletIds);
   }
 };
+requireLogin(walletQueries, 'tradingWallets');
 export default walletQueries;

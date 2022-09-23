@@ -5,7 +5,7 @@ import {
   ITemplate,
   ITemplateDocument,
   templateSchema
-} from './definitions/nosql/template';
+} from './definitions/template';
 
 export interface ITemplateModel extends Model<ITemplateDocument> {
   createTemplate(doc: ITemplate): Promise<ITemplateDocument>;

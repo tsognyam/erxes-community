@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { ITemplateModel, loadTemplateClass } from './models/Template';
-import { ITemplateDocument } from './models/definitions/nosql/template';
+import { ITemplateDocument } from './models/definitions/template';
 export interface IModels {
   Templates: ITemplateModel;
 }

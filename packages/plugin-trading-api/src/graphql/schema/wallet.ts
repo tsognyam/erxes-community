@@ -1,5 +1,5 @@
 export const types = `
- type Wallet @key(fields:"id") {
+ type TradingWallet @key(fields:"id") {
     id: Int!
     currencyCode:String
     userId:String
@@ -16,13 +16,14 @@ export const types = `
  }
 `;
 export const queries = `
-wallets(type:Int,status:Int, walletIds:[Int]):[Wallet]
+tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
 `;
 const params = `
 currencyCode:String!,
 userId:String,
 name:String!,
+type:Int!
 `;
 export const mutations = `
-walletAdd(${params}): Wallet
+tradingWalletAdd(${params}): TradingWallet
 `;
