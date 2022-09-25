@@ -18,3 +18,7 @@ export const field = options => {
 
   return options;
 };
+
+export const schemaHooksWrapper = (schema, _cacheKey: string) => {
+  return schema;
+};

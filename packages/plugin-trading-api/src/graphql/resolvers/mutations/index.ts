@@ -1,3 +1,3 @@
 import WalletMutations from './wallets';
-
-export { WalletMutations };
+import SystemMutations from './systems';
+export { WalletMutations, SystemMutations };

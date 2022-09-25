@@ -1,24 +1,26 @@
 //import { IWallet } from '../../models/definitions/wallet';
-import { WalletRepository } from '../../repository/wallet/wallet.repository';
-import { WalletNumberService } from './walletNumber.service';
+import WalletRepository from '../../repository/wallet/wallet.repository';
+import { WalletNumberService } from './wallet.number.service';
 import { Prisma } from '@prisma/client';
-import WalletConst from '../../constants/wallets';
+import WalletValidator from '../validator/wallet/wallet.validator';
 class WalletService {
   private walletNumberService: WalletNumberService;
   private walletRepository: WalletRepository;
+  private walletValidator: WalletValidator;
   constructor() {
     this.walletNumberService = new WalletNumberService();
     this.walletRepository = new WalletRepository();
+    this.walletValidator = new WalletValidator();
   }
-  create = async (params: Prisma.WalletCreateInput) => {
-    params.status = WalletConst.STATUS_ACTIVE;
+  create = async (params: Prisma.WalletCreateInput, subdomain: string) => {
+    let { data } = await this.walletValidator.validateCreate(params, subdomain);
     let walletNumber = await this.walletNumberService.generate();
     let wallet = {
-      name: params.name,
-      currencyCode: params.currencyCode,
-      userId: params.userId,
-      status: params.status,
-      type: params.type,
+      name: data.name,
+      currencyCode: data.currency,
+      userId: data.userId,
+      status: data.status,
+      type: data.type,
       walletBalance: {
         create: {
           balance: 0,

@@ -1,15 +1,17 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import { WalletMutations } from './mutations';
-import { WalletQueries } from './queries';
+import { WalletMutations, SystemMutations } from './mutations';
+import { WalletQueries, SystemQueries } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   Mutation: {
-    ...WalletMutations
+    ...WalletMutations,
+    ...SystemMutations
   },
   Query: {
-    ...WalletQueries
+    ...WalletQueries,
+    ...SystemQueries
   }
 });
 

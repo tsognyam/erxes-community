@@ -1,2 +1,3 @@
 import WalletQueries from './wallets';
-export { WalletQueries };
+import SystemQueries from './systems';
+export { WalletQueries, SystemQueries };

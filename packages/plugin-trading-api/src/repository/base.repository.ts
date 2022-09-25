@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { WSAEHOSTUNREACH } from 'constants';
 const prisma = new PrismaClient({
   log: [
     {
@@ -17,12 +16,12 @@ const prisma = new PrismaClient({
   ]
 });
 prisma.$on('query', e => {});
-class BaseRepository {
+export default class BaseRepository {
   static STATUS_ACTIVE = 1;
   static STATUS_INACTIVE = 2;
   _model;
   _prisma;
-  constructor(model) {
+  constructor(model: any) {
     this._model = model;
     this._prisma = prisma;
   }
@@ -32,39 +31,43 @@ class BaseRepository {
       include: include
     });
   };
-  findMany = async (where, include: any = undefined) => {
+  findMany = async (
+    where: any = undefined,
+    include: any = undefined,
+    options: any = undefined
+  ) => {
     return await this._prisma[this._model].findMany({
       where,
-      include
+      include,
+      options
     });
   };
-  findUnique = async (where, include = undefined) =>
+  findUnique = async (where: any = undefined, include: any = undefined) =>
     await this._prisma[this._model].findUnique({
       where,
       include
     });
-  create = (entity, select: any = undefined, include: any = undefined) => {
+  create = (entity: any, select: any = undefined, include: any = undefined) => {
     return this._prisma[this._model].create({ data: entity, select, include });
   };
 
-  createMany = (entity, select: any = undefined) =>
+  createMany = (entity: any, select: any = undefined) =>
     this._prisma[this._model].createMany({ data: entity, select });
 
-  update = async (id, entity, select = undefined) => {
+  update = async (id: number, entity: any, select: any = undefined) => {
     return await this._prisma[this._model].update({
       where: { id: +id },
       data: entity,
       include: select
     });
   };
-  updateMany = async (where, data) => {
+  updateMany = async (where: any = undefined, data: any = undefined) => {
     return await this._prisma[this._model].updateMany({
       where: where,
       data: data
     });
   };
 
-  delete = async id =>
+  delete = async (id: Number | string) =>
     await this._prisma[this._model].delete({ where: { id: +id } });
 }
-export default BaseRepository;

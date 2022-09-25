@@ -1,28 +1,55 @@
-import { EROFS } from 'constants';
-import WalletConst from '../../../constants/wallets';
-import { WalletRepository } from '../../../repository/wallet/wallet.repository';
+import { WalletConst } from '../../../constants/wallet';
+import WalletRepository from '../../../repository/wallet/wallet.repository';
+import { defaultCurrency } from '../../../models/utils';
 import BaseValidator from '../base.validator';
 class WalletValidator extends BaseValidator {
   private walletRepository: WalletRepository = new WalletRepository();
-
-  checkWallet = async (
-    id,
-    status = WalletConst.STATUS_ACTIVE,
-    balance: boolean,
-    userId = undefined
-  ) => {
-    let where = {
-      id: id,
-      status: status,
-      userId: userId
-    };
-    let include = {
-      walletBalance: balance
-    };
+  checkWallet = async (where: any, include: any = undefined) => {
     let wallet = await this.walletRepository.findFirst(where, include);
     if (!wallet) throw new Error('Wallet not found');
-
     return wallet;
+  };
+  validateCreate = async (params: any, subdomain: string) => {
+    let currency = await defaultCurrency(subdomain);
+    var { data } = this.validate(
+      {
+        currency: this._joi
+          .string()
+          .min(3)
+          .max(6)
+          .default(currency),
+        name: this._joi
+          .string()
+          .min(2)
+          .max(30)
+          .required(),
+        type: this._joi
+          .any()
+          .allow(
+            WalletConst.WALLET_TYPES.NOMINAL,
+            WalletConst.WALLET_TYPES.ADMIN,
+            WalletConst.WALLET_TYPES.MCSD,
+            WalletConst.WALLET_TYPES.USER
+          )
+          .default(WalletConst.WALLET_TYPES.USER),
+        status: this._joi
+          .any()
+          .allow(WalletConst.STATUS_ACTIVE, WalletConst.STATUS_INACTIVE)
+          .default(WalletConst.STATUS_ACTIVE),
+        userId: this._joi.string().required()
+      },
+      params
+    );
+    let wallet = await this.walletRepository.findFirst(
+      {
+        currencyCode: data.currency,
+        userId: data.userId,
+        status: WalletConst.STATUS_ACTIVE
+      },
+      undefined
+    );
+    if (wallet) throw new Error('User wallet duplicated');
+    return { data };
   };
 }
 export default WalletValidator;

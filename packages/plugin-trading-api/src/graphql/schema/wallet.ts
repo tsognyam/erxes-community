@@ -19,7 +19,7 @@ export const queries = `
 tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
 `;
 const params = `
-currencyCode:String!,
+currencyCode:String,
 userId:String,
 name:String!,
 type:Int!

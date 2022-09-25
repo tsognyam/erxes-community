@@ -1,10 +1,10 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { ITemplateModel, loadTemplateClass } from './models/Template';
-import { ITemplateDocument } from './models/definitions/template';
+import { ITradingSystemsModel, loadTradingClass } from './models/Trading';
+import { ITradingSystemsDocument } from './models/definitions/systems';
 export interface IModels {
-  Templates: ITemplateModel;
+  TradingSystems: ITradingSystemsModel;
 }
 
 export interface IContext extends IMainContext {
@@ -17,10 +17,10 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Templates = db.model<ITemplateDocument, ITemplateModel>(
-    'template',
-    loadTemplateClass(models)
-  );
+  models.TradingSystems = db.model<
+    ITradingSystemsDocument,
+    ITradingSystemsModel
+  >('trading_systems', loadTradingClass(models));
 
   return models;
 };
