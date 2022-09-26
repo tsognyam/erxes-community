@@ -13,6 +13,7 @@ export const types = `
     walletNumberId:Int
     walletBalance:JSON
     stockBalances:JSON
+    user:JSON
  }
 `;
 export const queries = `

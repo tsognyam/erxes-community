@@ -1,5 +1,5 @@
 import { WalletConst, TransactionConst } from '../../../constants/wallet';
-import { TransactionOrderRepository } from '../../../repository/wallet/transaction.order.repository';
+import TransactionOrderRepository from '../../../repository/wallet/transaction.order.repository';
 import WalletValidator from './wallet.validator';
 
 export class TransactionValidator extends WalletValidator {

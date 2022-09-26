@@ -1,7 +1,6 @@
 import WalletRepository from '../../../repository/wallet/wallet.repository';
 import BaseValidator from '../base.validator';
 import WalletValidator from './wallet.validator';
-import { UserConst } from '../../../constants/user';
 export class BankTransactionValidator extends BaseValidator {
   private walletRepository: WalletRepository = new WalletRepository();
   private walletValidator: WalletValidator = new WalletValidator();
@@ -26,7 +25,7 @@ export class BankTransactionValidator extends BaseValidator {
         AccountName: this._joi.string().allow(''),
         bankCode: this._joi.string().allow(''),
         Currency: this._joi.string().required(),
-        Amount: this._joi.string().required(),
+        Amount: this._joi.number().required(),
         Date: this._joi.string(),
         TXNSIGN: this._joi.string(),
         JRNO: this._joi.string(),
@@ -41,17 +40,11 @@ export class BankTransactionValidator extends BaseValidator {
     return data;
   };
 
-  validateBankTransaction = async bankTransaction => {
-    let resRegex = UserConst.REGISTER_NUMBER_PATTERN.exec(
-      bankTransaction.description
-    );
-    if (resRegex == null) {
-      throw new Error('RegisterNumber is invalid');
-    }
-    let walletIdentity = resRegex[0];
-    var wallet = await this.walletRepository.findWithRegisterNumber(
+  validateBankTransaction = async (bankTransaction: any, subdomain: string) => {
+    let walletIdentity = bankTransaction.description;
+    var wallet = await this.walletRepository.findUserByWalletNumber(
       walletIdentity,
-      bankTransaction.currencyCode
+      subdomain
     );
     if (wallet == undefined) {
       throw new Error('Wallet not found');

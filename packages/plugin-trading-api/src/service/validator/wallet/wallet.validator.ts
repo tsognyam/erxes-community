@@ -13,7 +13,7 @@ class WalletValidator extends BaseValidator {
     let currency = await defaultCurrency(subdomain);
     var { data } = this.validate(
       {
-        currency: this._joi
+        currencyCode: this._joi
           .string()
           .min(3)
           .max(6)
@@ -42,7 +42,7 @@ class WalletValidator extends BaseValidator {
     );
     let wallet = await this.walletRepository.findFirst(
       {
-        currencyCode: data.currency,
+        currencyCode: data.currencyCode,
         userId: data.userId,
         status: WalletConst.STATUS_ACTIVE
       },

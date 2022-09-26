@@ -6,7 +6,7 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 let walletService = new WalletService();
-const walletMutations = {
+const WalletMutations = {
   tradingWalletAdd: async (
     _root: any,
     params: Prisma.WalletCreateInput,
@@ -17,5 +17,5 @@ const walletMutations = {
     return await walletService.create(params, subdomain);
   }
 };
-requireLogin(walletMutations, 'tradingWalletAdd');
-export default walletMutations;
+requireLogin(WalletMutations, 'tradingWalletAdd');
+export default WalletMutations;

@@ -16,13 +16,23 @@ export const defaultCurrency = async (subdomain: string) => {
   }
   return dealCurrency;
 };
-export const users = async (subdomain: string, data: any) => {
+export const getUsers = async (subdomain: string, data: any) => {
   const users = await sendCoreMessage({
     subdomain,
-    action: 'users.getIds',
+    action: 'users.find',
     data: data,
     isRPC: true,
     defaultValue: []
   });
   return users;
+};
+export const getUser = async (subdomain: string, data: any) => {
+  const user = await sendCoreMessage({
+    subdomain,
+    action: 'users.findOne',
+    data: data,
+    isRPC: true,
+    defaultValue: []
+  });
+  return user;
 };

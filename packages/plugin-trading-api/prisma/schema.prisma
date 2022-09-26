@@ -176,7 +176,7 @@ model Wallet {
   createUserId         Int?
   updatedAt            DateTime?
   updatedUserId        Int?
-  walletNumber         Decimal            @unique @db.Decimal(20, 0)
+  walletNumber         String             @unique
   walletNumberModel    WalletNumber       @relation(fields: [walletNumber], references: [number])
   walletNumberId       Int?
   walletBalance        WalletBalance?
@@ -194,7 +194,7 @@ model Wallet {
 
 model WalletNumber {
   id            Int       @id @default(autoincrement())
-  number        Decimal?  @unique @db.Decimal(20, 0)
+  number        String?   @unique
   wallet        Wallet?
   createdAt     DateTime  @default(now())
   createUserId  Int?

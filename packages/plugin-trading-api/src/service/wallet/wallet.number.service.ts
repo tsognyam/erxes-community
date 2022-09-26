@@ -18,10 +18,10 @@ export class WalletNumberService {
     });
     let upNumber = walletNumber.id;
     return await this.walletNumberRepository.update(walletNumber.id, {
-      number: upNumber + this.getPrefix()
+      number: (upNumber + this.getPrefix()).toString()
     });
   };
-  numDigits = x => {
+  numDigits = (x: number) => {
     return Math.max(Math.floor(Math.log10(Math.abs(x))), 0) + 1;
   };
 }

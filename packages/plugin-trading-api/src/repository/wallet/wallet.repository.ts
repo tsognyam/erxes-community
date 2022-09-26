@@ -1,6 +1,7 @@
 import BaseRepository from '../base.repository';
 import { WalletConst } from '../../constants/wallet';
 import { sendCoreMessage } from '../../messageBroker';
+import { getUser } from '../../models/utils';
 export default class WalletRepository extends BaseRepository {
   constructor() {
     super('wallet');
@@ -76,28 +77,32 @@ export default class WalletRepository extends BaseRepository {
     });
   };
 
-  findUserByWalletNumber = async (walletNumber: string) => {
-    return await this._prisma[this._model].findFirst({
+  findUserByWalletNumber = async (walletNumber: string, subdomain: string) => {
+    let wallet = await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
-        id: walletNumber
-      },
-      include: {
-        user: true
+        walletNumber: walletNumber
       }
     });
+    if (wallet) {
+      let user = await getUser(subdomain, { _id: wallet.userId });
+      wallet.user = user;
+    }
+    return wallet;
   };
 
-  findUserByWalletId = async (walletId: number) => {
-    return await this._prisma[this._model].findFirst({
+  findUserByWalletId = async (walletId: number, subdomain: string) => {
+    let wallet = await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
         id: walletId
-      },
-      include: {
-        user: true
       }
     });
+    if (wallet) {
+      let user = await getUser(subdomain, { _id: wallet.userId });
+      wallet.user = user;
+    }
+    return wallet;
   };
 
   findUserByWalletNumberId = async (walletNumberId: number) => {

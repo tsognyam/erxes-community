@@ -3,6 +3,7 @@ import WalletRepository from '../../repository/wallet/wallet.repository';
 import { WalletNumberService } from './wallet.number.service';
 import { Prisma } from '@prisma/client';
 import WalletValidator from '../validator/wallet/wallet.validator';
+import { getUsers } from '../../models/utils';
 class WalletService {
   private walletNumberService: WalletNumberService;
   private walletRepository: WalletRepository;
@@ -17,7 +18,7 @@ class WalletService {
     let walletNumber = await this.walletNumberService.generate();
     let wallet = {
       name: data.name,
-      currencyCode: data.currency,
+      currencyCode: data.currencyCode,
       userId: data.userId,
       status: data.status,
       type: data.type,
@@ -35,6 +36,7 @@ class WalletService {
   edit = async (params: any) => {};
   remove = async () => {};
   getWalletList = async (
+    subdomain: string,
     type?: Number,
     status?: Number,
     walletIds?: Number[]
@@ -50,6 +52,22 @@ class WalletService {
       stockTransactions: true
     };
     let wallets = await this.walletRepository.findMany(where, include);
+    let userIds = wallets.map(function(obj: any) {
+      return obj.userId;
+    });
+    let query = {
+      query: {
+        _id: { $in: userIds }
+      }
+    };
+    let users = await getUsers(subdomain, query);
+    let user: any;
+    wallets.forEach((el: any) => {
+      user = users.find((x: any) => x._id == el.userId);
+      if (user != undefined && user.details != undefined) {
+        el.user = user.details;
+      }
+    });
     return wallets;
   };
 }

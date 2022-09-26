@@ -5,14 +5,19 @@ import {
 import { IContext } from '../../../connectionResolver';
 import WalletService from '../../../service/wallet/wallet.service';
 let walletService = new WalletService();
-const walletQueries = {
+const WalletQueries = {
   tradingWallets: async (
     _root: any,
     { type, status, walletIds },
     { models, subdomain, user }: IContext
   ) => {
-    return await walletService.getWalletList(type, status, walletIds);
+    return await walletService.getWalletList(
+      subdomain,
+      type,
+      status,
+      walletIds
+    );
   }
 };
-requireLogin(walletQueries, 'tradingWallets');
-export default walletQueries;
+requireLogin(WalletQueries, 'tradingWallets');
+export default WalletQueries;
