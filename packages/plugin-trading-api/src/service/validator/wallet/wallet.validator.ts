@@ -9,6 +9,11 @@ class WalletValidator extends BaseValidator {
     if (!wallet) throw new Error('Wallet not found');
     return wallet;
   };
+  checkNominalWallet = async (currencyCode: string) => {
+    let wallet = await this.walletRepository.findNominalWallet(currencyCode);
+    if (!wallet) throw new Error('Nominal wallet not found');
+    return wallet;
+  };
   validateCreate = async (params: any, subdomain: string) => {
     let currency = await defaultCurrency(subdomain);
     var { data } = this.validate(

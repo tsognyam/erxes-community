@@ -20,67 +20,67 @@ class BankTransactionService {
     let REG_MNT = '100000';
     let FEE_AMOUNT = 5000;
     let bankTransaction: any;
-    if (data.Account == NOMINAL_USD && data.TXNSIGN == '+') {
+    if (data.account == NOMINAL_USD && data.txnsign == '+') {
       bankTransaction = {
         type: TransactionConst.TYPE_CHARGE,
         status: TransactionConst.STATUS_PENDING,
-        amount: data.Amount,
-        description: data.Desc,
+        amount: data.amount,
+        description: data.desc,
         dater: new Date(),
-        bank: data.bankCode,
-        contAccountNo: data.ContAccount,
-        recAccountNo: data.RecAccount,
-        accountNo: data.Account,
+        bankCode: data.bankCode,
+        contAccountNo: data.contAccount,
+        recAccountNo: data.recAccount,
+        accountNo: data.account,
         accountName: 'Харилцагч',
-        currencyCode: data.Currency,
-        jrno: data.JRNO,
-        txnSign: data.TXNSIGN
+        currencyCode: data.currency,
+        jrno: data.jrno,
+        txnSign: data.txnsign
       };
       bankTransaction = await this.bankTransactionRepository.create(
         bankTransaction
       );
       await this.checkRequest(bankTransaction, subdomain);
-    } else if (data.Account == NOMINAL_MNT && data.TXNSIGN == '+') {
+    } else if (data.account == NOMINAL_MNT && data.txnsign == '+') {
       bankTransaction = {
         type: TransactionConst.TYPE_CHARGE,
         status: TransactionConst.STATUS_PENDING,
-        amount: data.Amount,
-        description: data.Desc,
+        amount: data.amount,
+        description: data.desc,
         dater: new Date(),
-        bank: data.bankCode,
-        contAccountNo: data.ContAccount,
-        recAccountNo: data.RecAccount,
-        accountNo: data.Account,
+        bankCode: data.bankCode,
+        contAccountNo: data.contAccount,
+        recAccountNo: data.recAccount,
+        accountNo: data.account,
         accountName: 'Харилцагч',
-        currencyCode: data.Currency,
-        jrno: data.JRNO,
-        txnSign: data.TXNSIGN
+        currencyCode: data.currencyCode,
+        jrno: data.jrno,
+        txnSign: data.txnsign
       };
       bankTransaction = await this.bankTransactionRepository.create(
         bankTransaction
       );
       await this.checkRequest(bankTransaction, subdomain);
     } else if (
-      data.Account == REG_MNT &&
-      data.TXNSIGN == '+' &&
-      data.Amount == FEE_AMOUNT
+      data.account == REG_MNT &&
+      data.txnsign == '+' &&
+      data.amount == FEE_AMOUNT
     ) {
       bankTransaction = await this.registrationFee(params);
     } else {
       bankTransaction = {
         type: TransactionConst.TYPE_UNDEFINED,
         status: TransactionConst.STATUS_PENDING,
-        amount: data.Amount,
-        description: data.Desc,
+        amount: data.amount,
+        description: data.desc,
         dater: new Date(),
         bank: data.bankCode,
-        contAccountNo: data.ContAccount,
-        recAccountNo: data.RecAccount,
-        accountNo: data.Account,
+        contAccountNo: data.contAccount,
+        recAccountNo: data.recAccount,
+        accountNo: data.account,
         accountName: 'Харилцагч',
-        currencyCode: data.Currency,
-        jrno: data.JRNO,
-        txnSign: data.TXNSIGN
+        currencyCode: data.currencyCode,
+        jrno: data.jrno,
+        txnSign: data.txnsign
       };
       bankTransaction = await this.bankTransactionRepository.create(
         bankTransaction
@@ -89,7 +89,10 @@ class BankTransactionService {
     return bankTransaction;
   };
   checkRequest = async (bankTransaction: any, subdomain: string) => {
-    var wallet = await this.bankTransactionValidator.validateBankTransaction(
+    let {
+      wallet,
+      nominalWallet
+    } = await this.bankTransactionValidator.validateBankTransaction(
       bankTransaction,
       subdomain
     );
@@ -105,7 +108,16 @@ class BankTransactionService {
           description: bankTransaction.description
         }
       );
-
+      let nominalOrder = await this.transactionService.createTransactionOrder(
+        undefined,
+        nominalWallet,
+        {
+          amount: bankTransaction.amount,
+          feeAmount: 0,
+          type: TransactionConst.TYPE_CHARGE,
+          description: bankTransaction.description
+        }
+      );
       await this.bankTransactionRepository.update(bankTransaction.id, {
         orderId: order.id,
         status: TransactionConst.STATUS_BLOCKED,
@@ -116,7 +128,10 @@ class BankTransactionService {
         orderId: order.id,
         confirm: 1
       });
-
+      nominalOrder = await this.transactionService.confirmTransaction({
+        orderId: nominalOrder.id,
+        confirm: 1
+      });
       if (
         order != undefined &&
         order.status === TransactionConst.STATUS_SUCCESS
@@ -133,22 +148,22 @@ class BankTransactionService {
       });
     }
   };
-  registrationFee = async params => {
+  registrationFee = async (params: any) => {
     let data = this.bankTransactionValidator.validateRequest(params);
     let bankTransaction: any = {
       type: TransactionConst.TYPE_REGFEE,
       status: TransactionConst.STATUS_PENDING,
-      amount: data.Amount,
-      description: data.Desc,
+      amount: data.amount,
+      description: data.desc,
       dater: new Date(),
-      bank: 'TDB',
-      contAccountNo: data.ContAccount,
-      recAccountNo: data.RecAccount,
-      accountNo: data.Account,
+      bankCode: params.bankCode,
+      contAccountNo: data.contAccount,
+      recAccountNo: data.recAccount,
+      accountNo: data.account,
       accountName: 'Харилцагч',
-      currencyCode: data.Currency,
-      jrno: data.JRNO,
-      txnSign: data.TXNSIGN
+      currencyCode: data.currencyCode,
+      jrno: data.jrno,
+      txnSign: data.txnsign
     };
     bankTransaction = await this.bankTransactionRepository.create(
       bankTransaction

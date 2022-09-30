@@ -19,19 +19,19 @@ export class BankTransactionValidator extends BaseValidator {
   validateRequest = params => {
     var { data } = this.validate(
       {
-        ContAccount: this._joi.string().required(),
-        Account: this._joi.string().required(),
-        RecAccount: this._joi.string().allow(''),
-        AccountName: this._joi.string().allow(''),
+        contAccount: this._joi.string().required(),
+        account: this._joi.string().required(),
+        recAccount: this._joi.string().allow(''),
+        accountName: this._joi.string().allow(''),
         bankCode: this._joi.string().allow(''),
-        Currency: this._joi.string().required(),
-        Amount: this._joi.number().required(),
-        Date: this._joi.string(),
-        TXNSIGN: this._joi.string(),
-        JRNO: this._joi.string(),
-        JRITEMNO: this._joi.string(),
-        AvailableBalance: this._joi.string(),
-        Desc: this._joi.string().required()
+        currencyCode: this._joi.string().required(),
+        amount: this._joi.number().required(),
+        date: this._joi.string(),
+        txnsign: this._joi.string(),
+        jrno: this._joi.string(),
+        jritemno: this._joi.string(),
+        availableBalance: this._joi.string(),
+        desc: this._joi.string().required()
         // type: this._joi.number().required(),
       },
       params
@@ -49,7 +49,10 @@ export class BankTransactionValidator extends BaseValidator {
     if (wallet == undefined) {
       throw new Error('Wallet not found');
     }
-    return wallet;
+    let nominalWallet = await this.walletRepository.findNominalWallet(
+      wallet.currencyCode
+    );
+    return { wallet, nominalWallet };
   };
 
   validateTransactionBankGW = async params => {

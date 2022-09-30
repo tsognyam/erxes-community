@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -162,7 +163,7 @@ model Stock {
   stockTransactions StockTransaction[]
   stockOrders       StockOrder[]
   stockFav          StockFav[]
-  Order             Order[]
+  order             Order[]
 }
 
 model Wallet {
@@ -300,7 +301,7 @@ model BankTransaction {
   description    String            @db.VarChar(400)
   oldDescription String?           @db.VarChar(400)
   dater          DateTime          @db.Date
-  bank           String            @db.VarChar(50)
+  bankCode       String            @db.VarChar(50)
   recAccountNo   String            @default("") @db.VarChar(36)
   contAccountNo  String            @default("") @db.VarChar(36)
   accountNo      String            @db.VarChar(36)
@@ -311,7 +312,7 @@ model BankTransaction {
   updatedAt      DateTime?
   updatedUserId  Int?
   withdraw       Withdraw?
-  Wallet         Wallet?           @relation(fields: [walletId], references: [id])
+  wallet         Wallet?           @relation(fields: [walletId], references: [id])
   walletId       Int?
 }
 
@@ -325,6 +326,8 @@ model Transaction {
   status        Int
   description   String           @default("") @db.VarChar(400)
   amount        Decimal          @db.Decimal(30, 4)
+  beforeBalance Decimal          @db.Decimal(30, 4)
+  afterBalance  Decimal          @db.Decimal(30, 4)
   dater         DateTime         @db.Date
   createdAt     DateTime         @default(now())
   createUserId  Int?

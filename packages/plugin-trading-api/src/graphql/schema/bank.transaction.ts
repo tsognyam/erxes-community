@@ -23,7 +23,7 @@ type TradingBankTransaction @key(fields:"id") {
     updatedAt:Date
     updatedUserId:Int
     withdraw:JSON
-    Wallet:JSON
+    wallet:JSON
     walletId:Int
 }
 `;
@@ -32,19 +32,19 @@ tradingBankTransactions(ids:[Int]):[TradingBankTransaction]
 tradingBankTransactionDetail(id:Int!):TradingBankTransaction
 `;
 const params = `
-ContAccount:String!,
-Account:String!,
-RecAccount:String,
-AccountName:String,
+contAccount:String!,
+account:String!,
+recAccount:String,
+accountName:String,
 bankCode:String!,
-Currency:String!,
-Amount:Float!,
-Date:Date,
-TXNSIGN:String!,
-JRNO:String,
-JRITEMNO:String,
-AvailableBalance:Float
-Desc:String!
+currencyCode:String!,
+amount:Float!,
+date:Date,
+txnsign:String!,
+jrno:String,
+jritemno:String,
+availablebalance:Float
+desc:String!
 `;
 export const mutations = `
 tradingWalletCharge(${params}):TradingBankTransaction

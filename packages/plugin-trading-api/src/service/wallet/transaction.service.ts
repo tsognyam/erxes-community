@@ -228,7 +228,11 @@ class TransactionService {
     return await this.transactionOrderRepository.update(order.id, data);
   };
 
-  createTransactionOrder = async (senderWallet, receiverWallet, data) => {
+  createTransactionOrder = async (
+    senderWallet: any,
+    receiverWallet: any,
+    data: any
+  ) => {
     if (senderWallet == undefined && receiverWallet == undefined) {
       throw new Error('Invalid param exception');
     }
@@ -242,6 +246,8 @@ class TransactionService {
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount * -1,
           dater: new Date(),
+          beforeBalance: senderWallet.balance,
+          afterBalance: senderWallet.balance + data.amount * -1,
           description: data.description,
           createdAt: new Date()
         });
@@ -270,6 +276,8 @@ class TransactionService {
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount,
           dater: new Date(),
+          beforeBalance: receiverWallet.balance,
+          afterBalance: receiverWallet.balance + data.amount,
           description: data.description,
           createdAt: new Date()
         });
@@ -286,6 +294,11 @@ class TransactionService {
           data.feeAmount *
           (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         dater: new Date(),
+        beforeBalance: senderWallet.balance,
+        afterBalance:
+          senderWallet.balance +
+          data.feeAmount *
+            (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         description:
           data.type == TransactionConst.TYPE_WITHDRAW
             ? 'Зарлагын шимтгэл'
@@ -307,6 +320,11 @@ class TransactionService {
           amount:
             data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
+          beforeBalance: senderWallet.balance,
+          afterBalance:
+            senderWallet.balance +
+            data.feeAmount *
+              (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
           dater: new Date(),
           description: 'Арилжааны шимтгэл',
           createdAt: new Date()

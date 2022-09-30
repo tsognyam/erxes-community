@@ -48,7 +48,14 @@ export default class BaseRepository {
       include
     });
   create = (entity: any, select: any = undefined, include: any = undefined) => {
-    return this._prisma[this._model].create({ data: entity, select, include });
+    if (prisma != undefined)
+      return prisma[this._model].create({ data: entity, select, include });
+    else
+      return this._prisma[this._model].create({
+        data: entity,
+        select,
+        include
+      });
   };
 
   createMany = (entity: any, select: any = undefined) =>
