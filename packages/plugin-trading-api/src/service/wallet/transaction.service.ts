@@ -5,19 +5,19 @@ import {
   WalletConst
 } from '../../constants/wallet';
 import TransactionRepository from '../../repository/wallet/transaction.repository';
-import SettlementRepository from '../../repository/wallet/settlement.repository';
+import SettlementMCSDRepository from '../../repository/wallet/settlement.mcsd.repository';
 import TransactionOrderRepository from '../../repository/wallet/transaction.order.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
 class TransactionService {
   private transactionValidator: TransactionValidator;
   private transactionRepository: TransactionRepository;
-  private settlementRepository: SettlementRepository;
+  private settlementRepository: SettlementMCSDRepository;
   private transactionOrderRepository: TransactionOrderRepository;
   private walletRepository: WalletRepository;
   constructor() {
     this.transactionValidator = new TransactionValidator();
     this.transactionRepository = new TransactionRepository();
-    this.settlementRepository = new SettlementRepository();
+    this.settlementRepository = new SettlementMCSDRepository();
     this.transactionOrderRepository = new TransactionOrderRepository();
     this.walletRepository = new WalletRepository();
   }

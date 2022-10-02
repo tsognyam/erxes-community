@@ -1,6 +1,6 @@
 import BankTransactionRepository from '../../repository/wallet/bank.transaction.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
-import { BankTransactionValidator } from '../validator/wallet/bank.transaction.validator';
+import BankTransactionValidator from '../validator/wallet/bank.transaction.validator';
 import { TransactionConst } from '../../constants/wallet';
 import { UserConst } from '../../constants/user';
 import TransactionService from './transaction.service';
