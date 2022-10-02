@@ -16,6 +16,20 @@ export const defaultCurrency = async (subdomain: string) => {
   }
   return dealCurrency;
 };
+export const defaultCurrencies = async (subdomain: string) => {
+  let dealCurrency = await sendCoreMessage({
+    subdomain,
+    action: 'configs.getValues',
+    data: {
+      code: 'dealCurrency'
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+  if (dealCurrency.length <= 0)
+    throw new Error('Please choose currency from general settings!');
+  return dealCurrency;
+};
 export const getUsers = async (subdomain: string, data: any) => {
   const users = await sendCoreMessage({
     subdomain,

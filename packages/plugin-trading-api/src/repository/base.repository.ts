@@ -31,6 +31,33 @@ export default class BaseRepository {
       include: include
     });
   };
+  findAll = async (
+    where: any = undefined,
+    select: any = undefined,
+    options: any = []
+  ) => {
+    let data = await this._prisma[this._model].findMany({
+      skip: options != undefined ? options.skip : undefined,
+      take: options != undefined ? options.take : undefined,
+
+      where,
+      include: select,
+      orderBy: options != undefined ? options.orderBy : undefined
+    });
+
+    let total = await this._prisma[this._model].count({
+      where
+      // include: select,
+    });
+
+    let res = {
+      total: total,
+      count: data.length,
+      values: data
+    };
+
+    return res;
+  };
   findMany = async (
     where: any = undefined,
     include: any = undefined,

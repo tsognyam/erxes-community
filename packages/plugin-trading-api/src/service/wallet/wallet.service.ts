@@ -4,6 +4,8 @@ import { WalletNumberService } from './wallet.number.service';
 import { Prisma } from '@prisma/client';
 import WalletValidator from '../validator/wallet/wallet.validator';
 import { getUsers } from '../../models/utils';
+import { WalletConst } from '../../constants/wallet';
+const { NominalWalletNotFoundException } = require('../../exception/error');
 class WalletService {
   private walletNumberService: WalletNumberService;
   private walletRepository: WalletRepository;
@@ -69,6 +71,42 @@ class WalletService {
       }
     });
     return wallets;
+  };
+  getWallet = async params => {
+    var { wallet } = await this.walletValidator.validateGet(params);
+
+    return wallet;
+  };
+
+  getWalletWithUser = async params => {
+    var userWallet = await this.walletValidator.validateGetWalletWithUser(
+      params
+    );
+    let i = 0;
+    for (i = 0; i < userWallet.length; i++) {
+      userWallet[i].walletBalance.availableBalance =
+        userWallet[i].walletBalance.balance -
+        userWallet[i].walletBalance.holdBalance;
+    }
+    return userWallet;
+  };
+  getNominalWallet = async params => {
+    let nominalWallet = await this.walletValidator.validateGetNominalWallet(
+      params
+    );
+    if (!nominalWallet) throw new NominalWalletNotFoundException();
+    return nominalWallet;
+  };
+
+  getBalance = async params => {
+    var wallet = await this.walletValidator.validateGet(params, true);
+
+    return {
+      balance: wallet.walletBalance.balance,
+      holdBalance: wallet.walletBalance.holdBalance,
+      availableBalance:
+        wallet.walletBalance.balance - wallet.walletBalance.holdBalance
+    };
   };
 }
 export default WalletService;

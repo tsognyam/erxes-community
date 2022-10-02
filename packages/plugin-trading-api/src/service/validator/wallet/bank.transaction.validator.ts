@@ -1,7 +1,7 @@
 import WalletRepository from '../../../repository/wallet/wallet.repository';
 import BaseValidator from '../base.validator';
 import WalletValidator from './wallet.validator';
-export class BankTransactionValidator extends BaseValidator {
+export default class BankTransactionValidator extends BaseValidator {
   private walletRepository: WalletRepository = new WalletRepository();
   private walletValidator: WalletValidator = new WalletValidator();
   validateCharge = async params => {
