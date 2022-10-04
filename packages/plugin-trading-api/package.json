@@ -7,6 +7,9 @@
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-trading-api/.erxes && node src"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^4.3.1",
     "joi": "^17.6.1"

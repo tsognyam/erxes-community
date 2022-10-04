@@ -286,6 +286,8 @@ model Withdraw {
   createUserId      Int?
   updatedAt         DateTime?
   updatedUserId     Int?
+  UserBankAccount   UserBankAccount? @relation(fields: [userBankAccountId], references: [id])
+  userBankAccountId Int?
 }
 
 model BankTransaction {
@@ -461,4 +463,35 @@ model TransactionMCSD {
   transactionTypeId   Int
   transactionTypeName String
   createdDate         DateTime @default(now())
+}
+
+model UserMCSDAccount {
+  id            Int       @id @default(autoincrement())
+  userId        String
+  prefix        String?   @unique(map: "prefix")
+  clientSuffix  String?
+  fullPrefix    String?
+  bdcAccountId  String?
+  createdAt     DateTime  @default(now())
+  createdUserId Int?
+  updatedAt     DateTime?
+  updatedUserId String?
+}
+
+model UserBankAccount {
+  id            Int        @id @default(autoincrement())
+  userId        String
+  bankCode      String
+  accountNo     String     @db.VarChar(36)
+  accountName   String     @db.VarChar(100)
+  status        Int        @default(1)
+  createdAt     DateTime   @default(now())
+  createdUserId Int?
+  updatedAt     DateTime?
+  updatedUserId Int?
+  withdraws     Withdraw[]
+
+  @@index([accountNo], map: "accout_no_ix")
+  @@index([id], map: "id_ix")
+  @@index([userId], map: "user_id_ix")
 }

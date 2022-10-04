@@ -3,7 +3,6 @@ import { StockTypeConst } from '../constants/stock';
 import CustfeeRepository from '../repository/custfee.repository';
 import StockRepository from '../repository/stock.repository';
 import CustfeeValidator from './validator/custfee.validator';
-import StockValidator from './validator/stock.validator';
 
 export default class CustFeeService {
   private custFeeRepository: CustfeeRepository;

@@ -3,12 +3,14 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import {
   WalletMutations,
   SystemMutations,
-  BankTransactionMutations
+  BankTransactionMutations,
+  OrderMutations
 } from './mutations';
 import {
   WalletQueries,
   SystemQueries,
-  BankTransactionQueries
+  BankTransactionQueries,
+  OrderQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -16,12 +18,14 @@ const resolvers: any = async serviceDiscovery => ({
   Mutation: {
     ...WalletMutations,
     ...SystemMutations,
-    ...BankTransactionMutations
+    ...BankTransactionMutations,
+    ...OrderMutations
   },
   Query: {
     ...WalletQueries,
     ...SystemQueries,
-    ...BankTransactionQueries
+    ...BankTransactionQueries,
+    ...OrderMutations
   }
 });
 

@@ -7,8 +7,8 @@ export class TransactionValidator extends WalletValidator {
   validateCreateParams = async (params: any) => {
     var { data } = this.validate(
       {
-        senderWalletId: this._joi.string().required(),
-        receiverWalletId: this._joi.string(),
+        senderWalletId: this._joi.number().required(),
+        receiverWalletId: this._joi.number(),
         amount: this._joi.number().required(),
         feeAmount: this._joi.number().default(0),
         feeType: this._joi.number().default(TransactionConst.FEE_TYPE_SENDER),
@@ -25,12 +25,18 @@ export class TransactionValidator extends WalletValidator {
       params
     );
 
-    var senderWallet = await this.checkWallet({
-      id: data.senderWalletId
-    });
+    var senderWallet = await this.checkWallet(
+      {
+        id: data.senderWalletId
+      },
+      { walletBalance: true }
+    );
     var receiverWallet =
       data.receiverWalletId != undefined
-        ? await this.checkWallet(data.receiverWalletId)
+        ? await this.checkWallet(
+            { id: data.receiverWalletId },
+            { walletBalance: true }
+          )
         : undefined;
     return { senderWallet, receiverWallet, data };
   };
@@ -55,7 +61,7 @@ export class TransactionValidator extends WalletValidator {
     }
     if (
       receiverWallet != undefined &&
-      senderWallet.currency.id != receiverWallet.currency.id
+      senderWallet.currencyCode != receiverWallet.currencyCode
     ) {
       throw new Error('Invalid wallet. Currency didnt match');
     }
@@ -155,7 +161,7 @@ export class TransactionValidator extends WalletValidator {
         userId: data.userId
       },
       {
-        walletBalance: false
+        walletBalance: true
       }
     );
 
@@ -178,7 +184,7 @@ export class TransactionValidator extends WalletValidator {
         userId: data.userId
       },
       {
-        walletBalance: false
+        walletBalance: true
       }
     );
 

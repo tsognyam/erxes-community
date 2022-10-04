@@ -1,13 +1,12 @@
 import BaseRepository from '../base.repository';
 import { WalletConst } from '../../constants/wallet';
-import { sendCoreMessage } from '../../messageBroker';
 import { getUser } from '../../models/utils';
 export default class WalletRepository extends BaseRepository {
   constructor() {
     super('wallet');
   }
   findbyUserId = async (userId: string, currencyCode: string) => {
-    return await this.findMany({
+    return await this._prisma[this._model].findMany({
       where: {
         userId: userId,
         currencyCode: currencyCode
@@ -29,8 +28,7 @@ export default class WalletRepository extends BaseRepository {
         type: WalletConst.WALLET_TYPES.NOMINAL
       },
       include: {
-        walletBalance: true,
-        currency: true
+        walletBalance: true
       }
     });
   };
@@ -82,6 +80,9 @@ export default class WalletRepository extends BaseRepository {
         status: WalletConst.STATUS_ACTIVE,
         type: WalletConst.WALLET_TYPES.NOMINAL,
         currencyCode: currencyCode
+      },
+      include: {
+        walletBalance: true
       }
     });
   };
@@ -90,6 +91,9 @@ export default class WalletRepository extends BaseRepository {
       where: {
         status: WalletConst.STATUS_ACTIVE,
         walletNumber: walletNumber
+      },
+      include: {
+        walletBalance: true
       }
     });
     if (wallet) {

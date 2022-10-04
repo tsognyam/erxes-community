@@ -3,7 +3,6 @@ import {
   WalletConst,
   WithdrawConst
 } from '../../constants/wallet';
-import ErrorException from '../../exception/error-exception';
 import BankTransactionRepository from '../../repository/wallet/bank.transaction.repository';
 import TransactionOrderRepository from '../../repository/wallet/transaction.order.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
@@ -12,7 +11,7 @@ import WithdrawValidator from '../validator/wallet/withdraw.validator';
 import BankTransactionService from './bank.transaction.service';
 import TransactionService from './transaction.service';
 import WalletService from './wallet.service';
-
+import { ErrorCode, CustomException } from '../../exception/error-code';
 export default class WithdrawService {
   private transactionOrderRepository: TransactionOrderRepository;
   private bankTransactionRepository: BankTransactionRepository;
@@ -46,7 +45,10 @@ export default class WithdrawService {
         withdraw.bankTransaction == undefined ||
         withdraw.bankTransaction.orderId == null
       )
-        throw new ErrorException('BankTransaction Not found');
+        CustomException({
+          status: 500,
+          message: 'BankTransaction Not found'
+        });
       let cancelParams = {
         orderId: withdraw.bankTransaction.orderId,
         confirm: 0

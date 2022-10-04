@@ -5,11 +5,7 @@ import WalletRepository from '../../../repository/wallet/wallet.repository';
 import WithdrawRepository from '../../../repository/wallet/withdraw.repository';
 import BaseValidator from '../base.validator';
 import WalletValidator from './wallet.validator';
-const {
-  InvalidUserAccountException,
-  WithdrawNotFoundException,
-  WithdrawAlreadyConfirmedException
-} = require('../../../exception/error');
+import { ErrorCode, CustomException } from '../../../exception/error-code';
 export default class WithdrawValidator extends BaseValidator {
   private walletRepository: WalletRepository;
   private withdrawRepository: WithdrawRepository;
@@ -66,7 +62,7 @@ export default class WithdrawValidator extends BaseValidator {
       userBankAccount == undefined ||
       wallet.userId !== userBankAccount.userId
     ) {
-      throw new InvalidUserAccountException();
+      CustomException(ErrorCode.InvalidUserAccountException);
     }
 
     return { wallet, userBankAccount, data };
@@ -96,10 +92,10 @@ export default class WithdrawValidator extends BaseValidator {
       }
     );
     if (withdraw == undefined) {
-      throw new WithdrawNotFoundException();
+      CustomException(ErrorCode.WithdrawNotFoundException);
     }
     if (withdraw.status !== WithdrawConst.STATUS_NEW) {
-      throw new WithdrawAlreadyConfirmedException();
+      CustomException(ErrorCode.WithdrawAlreadyConfirmedException);
     }
 
     return { withdraw, data };
@@ -122,10 +118,10 @@ export default class WithdrawValidator extends BaseValidator {
       }
     );
     if (withdraw == undefined || withdraw.wallet.userId != data.userId) {
-      throw new WithdrawNotFoundException();
+      CustomException(ErrorCode.WithdrawNotFoundException);
     }
     if (withdraw.status !== WithdrawConst.STATUS_NEW) {
-      throw new WithdrawAlreadyConfirmedException();
+      CustomException(ErrorCode.WithdrawAlreadyConfirmedException);
     }
 
     return { withdraw };

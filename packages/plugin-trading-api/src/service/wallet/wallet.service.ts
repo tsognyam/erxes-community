@@ -1,11 +1,10 @@
-//import { IWallet } from '../../models/definitions/wallet';
 import WalletRepository from '../../repository/wallet/wallet.repository';
 import { WalletNumberService } from './wallet.number.service';
 import { Prisma } from '@prisma/client';
 import WalletValidator from '../validator/wallet/wallet.validator';
 import { getUsers } from '../../models/utils';
 import { WalletConst } from '../../constants/wallet';
-const { NominalWalletNotFoundException } = require('../../exception/error');
+import { ErrorCode, CustomException } from '../../exception/error-code';
 class WalletService {
   private walletNumberService: WalletNumberService;
   private walletRepository: WalletRepository;
@@ -94,7 +93,8 @@ class WalletService {
     let nominalWallet = await this.walletValidator.validateGetNominalWallet(
       params
     );
-    if (!nominalWallet) throw new NominalWalletNotFoundException();
+    if (!nominalWallet)
+      CustomException(ErrorCode.NominalWalletNotFoundException);
     return nominalWallet;
   };
 

@@ -19,17 +19,7 @@ import { TransactionValidator } from './validator/wallet/transaction.validator';
 import StockTransactionService from './wallet/stock.transaction.service';
 import TransactionService from './wallet/transaction.service';
 import WalletService from './wallet/wallet.service';
-const {
-  NotFoundIpoException,
-  IpoCannotUpdateException,
-  WalletNotFoundException,
-  MITOrderNotFoundException,
-  NotConnectedtoMITException,
-  NotFoundMCSDAccountException,
-  OrderCannotCancelException,
-  OrderCannotUpdateException,
-  OrderNotFoundException
-} = require('../exception/error');
+import { ErrorCode, CustomException } from '../exception/error-code';
 class OrderService {
   private orderValidator: OrderValidator;
   private orderRepository: OrderRepository;
@@ -68,6 +58,7 @@ class OrderService {
     data.status = OrderStatus.STATUS_NEW;
 
     data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
+    console.log('fee=', data.fee);
     // data.txndate = new Date();
 
     if (stockdata.stocktypeId == StockTypeConst.PCKG) {
@@ -86,7 +77,7 @@ class OrderService {
     // let amount = camount + feeamount;
     const wallets = await this.walletService.getWalletWithUser(params);
     if (wallets.length == 0) {
-      throw new WalletNotFoundException();
+      CustomException(ErrorCode.WalletNotFoundException);
     }
     let nominalWallet = await this.walletService.getNominalWallet({
       currencyCode: stockdata.currencyCode
@@ -97,8 +88,8 @@ class OrderService {
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
-    if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+    if (!userMCSD) {
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
 
     if (dataValid.txntype == OrderTxnType.Buy) {
@@ -133,7 +124,7 @@ class OrderService {
       if (live) {
         let edata = {
           otype: '1',
-          fullPrefix: userMCSD[0].fullPrefix,
+          fullPrefix: userMCSD.fullPrefix,
           orderid: order.txnid.toString(),
           symbol: stockdata.externalid,
           type: order.ordertype.toString(),
@@ -168,14 +159,14 @@ class OrderService {
     };
     const wallets = await this.walletService.getWalletWithUser(params);
     if (wallets.length == 0) {
-      throw new WalletNotFoundException();
+      CustomException(ErrorCode.WalletNotFoundException);
     }
     dataValid.walletId = wallets[0].id;
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
-    if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+    if (!userMCSD) {
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
     let nominalWallet = await this.walletService.getNominalWallet({
       currencyCode: stockdata.currencyCode
@@ -238,14 +229,14 @@ class OrderService {
     };
     const wallets = await this.walletService.getWalletWithUser(params);
     if (wallets.length == 0) {
-      throw new WalletNotFoundException();
+      CustomException(ErrorCode.WalletNotFoundException);
     }
     dataValid.walletId = wallets[0].id;
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
-    if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+    if (!userMCSD) {
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
 
     dataValid.status = OrderStatus.STATUS_RECEIVE;
@@ -261,32 +252,33 @@ class OrderService {
 
   updateOrder = async data => {
     // if (mseSocket.getSocket().isConnected() != 1)
-    //   throw new NotConnectedtoMITException();
+    //   CustomException(ErrorCode.NotConnectedtoMITException);
     let stockdata = await this.stockService.getStockCode({
       stockcode: data.stockcode
     });
     // data.status = '0';
 
     data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
-    if (stockdata.ipo == StockConst.IPO) throw new IpoCannotUpdateException();
+    if (stockdata.ipo == StockConst.IPO)
+      CustomException(ErrorCode.IpoCannotUpdateException);
     else return await this.updateSO(data, stockdata);
   };
   updateSO = async (data, stockdata) => {
     let dataValid = await this.orderValidator.validateUpdateSO(data);
     let order = await this.orderRepository.findOne(data.txnid);
-    if (!order) throw new OrderNotFoundException();
+    if (!order) CustomException(ErrorCode.OrderNotFoundException);
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
-    if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+    if (!userMCSD) {
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
 
     if (
       order.status != OrderStatus.STATUS_NEW &&
       order.status != OrderStatus.STATUS_RECEIVE
     ) {
-      throw new OrderCannotUpdateException();
+      CustomException(ErrorCode.OrderCannotUpdateException);
     }
     //Wallet balance check
 
@@ -377,7 +369,7 @@ class OrderService {
     if (order.status == OrderStatus.STATUS_RECEIVE) {
       edata = {
         otype: '2',
-        fullPrefix: userMCSD[0].fullPrefix,
+        fullPrefix: userMCSD.fullPrefix,
         orderid: order.txnid.toString(),
         symbol: stockdata.externalid,
         type: order.ordertype.toString(),
@@ -391,7 +383,7 @@ class OrderService {
     } else {
       edata = {
         otype: '1',
-        fullPrefix: userMCSD[0].fullPrefix,
+        fullPrefix: userMCSD.fullPrefix,
         orderid: order.txnid.toString(),
         symbol: stockdata.externalid,
         type: order.ordertype.toString(),
@@ -440,19 +432,19 @@ class OrderService {
   };
   cancelSO = async (data, stockdata) => {
     // if (mseSocket.getSocket().isConnected() != 1)
-    //   throw new NotConnectedtoMITException();
+    //   CustomException(ErrorCode.NotConnectedtoMITException);
     let dataValid = await this.orderValidator.validateCancelSO(data);
 
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
-    if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+    if (!userMCSD) {
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
 
     let order = await this.orderRepository.findOne(data.txnid);
     if (order.status == OrderStatus.STATUS_NEW) {
-      // throw new OrderCannotCancelException();
+      // CustomException(ErrorCode.OrderCannotCancelException);
       if (order.txntype == OrderTxnType.Buy) {
         let params = {
           orderId: order.tranOrderId,
@@ -488,7 +480,7 @@ class OrderService {
 
       let edata = {
         otype: '3',
-        fullPrefix: userMCSD[0].fullPrefix,
+        fullPrefix: userMCSD.fullPrefix,
         orderid: order.txnid.toString(),
         side: order.txntype.toString(),
         symbol: stockdata.externalid,
@@ -501,7 +493,7 @@ class OrderService {
 
       return res;
     }
-    throw new OrderCannotCancelException();
+    CustomException(ErrorCode.OrderCannotCancelException);
   };
   cancelIPO = async data => {
     let dataValid = await this.orderValidator.validateCancelIPO(data);
@@ -509,7 +501,7 @@ class OrderService {
       userId: data.userId
     });
     if (userMCSD.length == 0) {
-      throw new NotFoundMCSDAccountException();
+      CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
     let order = await this.orderRepository.findOne(data.txnid);
 
@@ -521,7 +513,7 @@ class OrderService {
         orderId: order.andIpoOrderId
       };
     }
-    throw new OrderCannotCancelException();
+    CustomException(ErrorCode.OrderCannotCancelException);
   };
   cancelOrder = async data => {
     let stockdata = await this.stockService.getStockCode({

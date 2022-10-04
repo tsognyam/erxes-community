@@ -1,12 +1,8 @@
 import { StockTypeConst } from '../../constants/stock';
+import { ErrorCode, CustomException } from '../../exception/error-code';
 import CustfeeRepository from '../../repository/custfee.repository';
 import StockRepository from '../../repository/stock.repository';
-import StockTypeRepository from '../../repository/stocktype.repository';
 import BaseValidator from './base.validator';
-const {
-  CustFeeNotFoundException,
-  CustFeeAlreadyException
-} = require('../../exception/error');
 export default class CustfeeValidator extends BaseValidator {
   private stockRepository = new StockRepository();
   private custFeeRepository = new CustfeeRepository();
@@ -85,7 +81,8 @@ export default class CustfeeValidator extends BaseValidator {
         id: data.userId,
         stocktypeId: data.stocktypeId
       });
-      if (custfee.values.length == 0) throw new CustFeeNotFoundException();
+      if (custfee.values.length == 0)
+        CustomException(ErrorCode.CustFeeNotFoundException);
     }
     return data;
   };
@@ -109,7 +106,7 @@ export default class CustfeeValidator extends BaseValidator {
       userId: data.userId,
       stocktypeId: data.stocktypeId
     });
-    if (custfee.count != 0) throw new CustFeeAlreadyException();
+    if (custfee.count != 0) CustomException(ErrorCode.CustFeeAlreadyException);
     return data;
   };
 

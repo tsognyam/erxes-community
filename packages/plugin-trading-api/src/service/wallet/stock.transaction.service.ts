@@ -4,7 +4,7 @@ import StockTransactionRepository from '../../repository/wallet/stock.transactio
 import StockTransactionValidator from '../validator/wallet/stock.transaction.validator';
 import StockWalletValidator from '../validator/wallet/stock.wallet.validator';
 import { TransactionConst } from '../../constants/wallet';
-const { InvalidParamException } = require('../../exception/error');
+import { ErrorCode, CustomException } from '../../exception/error-code';
 export default class StockTransactionService {
   private stockTransactionOrderRepository: StockOrderRepository;
   private stockTransactionValidator: StockTransactionValidator;
@@ -223,7 +223,7 @@ export default class StockTransactionService {
 
   createTransactionOrder = async (senderBalance, receiverBalance, params) => {
     if (senderBalance == undefined && receiverBalance == undefined) {
-      throw new InvalidParamException();
+      CustomException(ErrorCode.InvalidParamException);
     }
     var transactions: any = [];
 

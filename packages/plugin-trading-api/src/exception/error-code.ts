@@ -1,3 +1,5 @@
+import ErrorException from './error-exception';
+
 class ErrorCode {
   static Unauthenticated = 'Unauthenticated';
   static NotFound = 'NotFound';
@@ -343,4 +345,7 @@ class ErrorCode {
     return description;
   };
 }
-export default ErrorCode;
+export const CustomException = (data: any) => {
+  throw new ErrorException(data);
+};
+export { ErrorCode };

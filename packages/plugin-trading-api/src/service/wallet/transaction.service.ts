@@ -236,6 +236,8 @@ class TransactionService {
     if (senderWallet == undefined && receiverWallet == undefined) {
       throw new Error('Invalid param exception');
     }
+    console.log('senderWallet', senderWallet);
+    console.log('receiverWallet', receiverWallet);
     var transactions: any = [];
 
     if (senderWallet != undefined) {
@@ -246,8 +248,9 @@ class TransactionService {
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount * -1,
           dater: new Date(),
-          beforeBalance: senderWallet.balance,
-          afterBalance: senderWallet.balance + data.amount * -1,
+          beforeBalance: senderWallet.walletBalance.balance,
+          afterBalance:
+            parseFloat(senderWallet.walletBalance.balance) + data.amount * -1,
           description: data.description,
           createdAt: new Date()
         });
@@ -276,8 +279,8 @@ class TransactionService {
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount,
           dater: new Date(),
-          beforeBalance: receiverWallet.balance,
-          afterBalance: receiverWallet.balance + data.amount,
+          beforeBalance: receiverWallet.walletBalance.balance,
+          afterBalance: receiverWallet.walletBalance.balance + data.amount,
           description: data.description,
           createdAt: new Date()
         });
@@ -294,9 +297,9 @@ class TransactionService {
           data.feeAmount *
           (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         dater: new Date(),
-        beforeBalance: senderWallet.balance,
+        beforeBalance: senderWallet.walletBalance.balance,
         afterBalance:
-          senderWallet.balance +
+          parseFloat(senderWallet.walletBalance.balance) +
           data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         description:
@@ -320,11 +323,8 @@ class TransactionService {
           amount:
             data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
-          beforeBalance: senderWallet.balance,
-          afterBalance:
-            senderWallet.balance +
-            data.feeAmount *
-              (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
+          beforeBalance: 0,
+          afterBalance: 0,
           dater: new Date(),
           description: 'Арилжааны шимтгэл',
           createdAt: new Date()

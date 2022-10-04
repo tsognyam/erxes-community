@@ -3,12 +3,7 @@ import StockRepository from '../repository/stock.repository';
 import StockTransactionRepository from '../repository/wallet/stock.transaction.repository';
 import Helper from './helper.service';
 import StockValidator from './validator/stock.validator';
-const {
-  StockNotFoundException,
-  StockTypeNotFoundException,
-  StockAlreadyException,
-  ExchangeNotFoundException
-} = require('../exception/error');
+import { ErrorCode, CustomException } from '../exception/error-code';
 class StockService {
   private stockValidator: StockValidator;
   private stockRepository: StockRepository;
@@ -52,7 +47,7 @@ class StockService {
 
     let stock = await this.stockRepository.findAll(data, select, options);
     if (!stock) {
-      throw new StockNotFoundException();
+      CustomException(ErrorCode.StockNotFoundException);
     }
 
     let listIds = '';

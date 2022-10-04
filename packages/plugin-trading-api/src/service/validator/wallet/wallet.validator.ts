@@ -87,7 +87,7 @@ class WalletValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         walletId: this._joi.number().required(),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required()
       },
       params
     );
@@ -107,7 +107,7 @@ class WalletValidator extends BaseValidator {
   validateGetWalletWithUser = async params => {
     var { error, data } = this.validate(
       {
-        userId: this._joi.number().required(),
+        userId: this._joi.string().required(),
         currencyCode: this._joi
           .string()
           .min(3)

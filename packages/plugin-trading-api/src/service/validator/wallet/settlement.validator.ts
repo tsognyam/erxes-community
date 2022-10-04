@@ -2,14 +2,14 @@ import SettlementMCSDRepository from '../../../repository/wallet/settlement.mcsd
 import SettlementMSCCRepository from '../../../repository/wallet/settlement.mscc.repository';
 import BaseValidator from '../base.validator';
 import Helper from '../../helper.service';
-const { SettlementNotFoundException } = require('../../../exception/error');
+import { ErrorCode, CustomException } from '../../../exception/error-code';
 export default class SettlementValidator extends BaseValidator {
   private settlementMCSDRepository: SettlementMCSDRepository = new SettlementMCSDRepository();
   private settlementMSCCRepository: SettlementMSCCRepository = new SettlementMSCCRepository();
   check = async (id: number) => {
     var settlement = await this.settlementMCSDRepository.findUnique({ id: id });
     if (!settlement) {
-      throw new SettlementNotFoundException();
+      CustomException(ErrorCode.SettlementNotFoundException);
     }
 
     return settlement;
@@ -18,7 +18,7 @@ export default class SettlementValidator extends BaseValidator {
   checkMSCC = async params => {
     var settlements = await this.settlementMSCCRepository.findByDate(params);
     if (settlements.length == 0) {
-      throw new SettlementNotFoundException();
+      CustomException(ErrorCode.SettlementNotFoundException);
     }
 
     return settlements;

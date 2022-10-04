@@ -4,16 +4,7 @@ import BaseValidator from '../base.validator';
 import StockWalletValidator from './stock.wallet.validator';
 import WalletValidator from './wallet.validator';
 import { WalletConst } from '../../../constants/wallet';
-const {
-  DuplicateUserException,
-  TransactionOrderNotFoundException,
-  InvalidWalletException,
-  WalletCurrencyException,
-  TransactionAlreadyConfirmedException,
-  WalletStockBalanceException,
-  InvalidParamException,
-  InvalidParticipateAmountException
-} = require('../../../exception/error');
+import { ErrorCode, CustomException } from '../../../exception/error-code';
 
 export default class StockTransactionValidator extends BaseValidator {
   private stockTransactionOrderRepository: StockOrderRepository = new StockOrderRepository();
@@ -25,7 +16,7 @@ export default class StockTransactionValidator extends BaseValidator {
       select
     );
     if (!transactionOrder) {
-      throw new TransactionOrderNotFoundException();
+      CustomException(ErrorCode.TransactionOrderNotFoundException);
     }
     return transactionOrder;
   };
@@ -57,7 +48,7 @@ export default class StockTransactionValidator extends BaseValidator {
           })
         : undefined;
     if (senderBalance == undefined && receiverBalance == undefined) {
-      throw new InvalidParamException();
+      CustomException(ErrorCode.InvalidParamException);
     }
     return { data, senderBalance, receiverBalance };
   };
@@ -90,15 +81,15 @@ export default class StockTransactionValidator extends BaseValidator {
 
     if (senderBalance != undefined && receiverBalance != undefined) {
       if (senderBalance.wallet.userId == receiverBalance.wallet.userId) {
-        throw new DuplicateUserException();
+        CustomException(ErrorCode.DuplicateUserException);
       }
       if (senderBalance.wallet.type + receiverBalance.wallet.type !== 3) {
-        throw new InvalidWalletException();
+        CustomException(ErrorCode.InvalidWalletException);
       }
       if (
         senderBalance.wallet.currency.id != receiverBalance.wallet.currency.id
       ) {
-        throw new WalletCurrencyException();
+        CustomException(ErrorCode.WalletCurrencyException);
       }
     }
     if (
@@ -137,7 +128,7 @@ export default class StockTransactionValidator extends BaseValidator {
     }
     availableBalance += oldAmount;
     if (availableBalance < minBalance) {
-      throw new WalletStockBalanceException();
+      CustomException(ErrorCode.WalletStockBalanceException);
     }
   };
 
@@ -157,7 +148,7 @@ export default class StockTransactionValidator extends BaseValidator {
       stockTransactions: true
     });
     if (order.status !== TransactionConst.STATUS_PENDING) {
-      throw new TransactionAlreadyConfirmedException();
+      CustomException(ErrorCode.TransactionAlreadyConfirmedException);
     }
 
     return order;
@@ -177,10 +168,10 @@ export default class StockTransactionValidator extends BaseValidator {
     });
 
     if (order.status != TransactionConst.STATUS_PENDING) {
-      throw new TransactionAlreadyConfirmedException();
+      CustomException(ErrorCode.TransactionAlreadyConfirmedException);
     }
     if (order.stockCount <= data.stockCount) {
-      throw new InvalidParticipateAmountException();
+      CustomException(ErrorCode.InvalidParticipateAmountException);
     }
 
     return { data, order };

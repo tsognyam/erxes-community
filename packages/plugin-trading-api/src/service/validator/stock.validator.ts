@@ -10,13 +10,7 @@ import {
   StockTypeConst
 } from '../../constants/stock';
 import { defaultCurrencies, defaultCurrency } from '../../models/utils';
-const {
-  StockNotFoundException,
-  StockTypeNotFoundException,
-  StockAlreadyException,
-  ExchangeNotFoundException,
-  WalletNotFoundException
-} = require('../../exception/error');
+import { ErrorCode, CustomException } from '../../exception/error-code';
 class StockValidator extends BaseValidator {
   private walletValidator: WalletValidator = new WalletValidator();
   private stockTypeRepository: StockTypeRepository = new StockTypeRepository();
@@ -32,7 +26,7 @@ class StockValidator extends BaseValidator {
 
     let stock = await this.checkStock(data.stockcode);
     if (!stock) {
-      throw new StockNotFoundException();
+      CustomException(ErrorCode.StockNotFoundException);
     }
     return stock;
   };
@@ -54,7 +48,7 @@ class StockValidator extends BaseValidator {
 
     let stock = await this.checkStock(data.stockcode);
     if (!stock) {
-      throw new StockNotFoundException();
+      CustomException(ErrorCode.StockNotFoundException);
     }
     data.externalid = stock.externalid;
     return data;
@@ -137,7 +131,7 @@ class StockValidator extends BaseValidator {
 
     let stock = await this.checkStock(data.stockcode);
     if (!stock) {
-      throw new StockNotFoundException();
+      CustomException(ErrorCode.StockNotFoundException);
     }
     if (data.startdate) stock.startdate = new Date(data.startdate);
     if (data.enddate) stock.enddate = new Date(data.enddate);
@@ -217,7 +211,7 @@ class StockValidator extends BaseValidator {
 
     let stock = await this.checkStock(data.stockcode);
     if (stock) {
-      throw new StockAlreadyException();
+      CustomException(ErrorCode.StockAlreadyException);
     }
     await this.checkExchange(data.exchangeid);
 
@@ -230,7 +224,7 @@ class StockValidator extends BaseValidator {
     });
 
     if (!exchange) {
-      throw new ExchangeNotFoundException();
+      CustomException(ErrorCode.ExchangeNotFoundException);
     }
 
     return exchange;
@@ -254,7 +248,7 @@ class StockValidator extends BaseValidator {
       currencyCode: currency
     });
     // console.log('wallet',wallet)
-    if (wallet.length == 0) throw new WalletNotFoundException();
+    if (wallet.length == 0) CustomException(ErrorCode.WalletNotFoundException);
     data.walletId = wallet[0].id;
     return data;
   };

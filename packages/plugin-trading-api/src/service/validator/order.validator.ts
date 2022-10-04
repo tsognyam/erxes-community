@@ -8,12 +8,7 @@ import OrderRepository from '../../repository/order.repository';
 import StockRepository from '../../repository/stock.repository';
 import BaseValidator from './base.validator';
 import { getUser } from '../../models/utils';
-const {
-  StockNotFoundException,
-  CannotOrderMarketException,
-  OrderNotFoundException,
-  OrderTypeNotFoundException
-} = require('../../exception/error');
+import { ErrorCode, CustomException } from '../../exception/error-code';
 class OrderValidator extends BaseValidator {
   private stockRepository: StockRepository = new StockRepository();
   private orderRepository: OrderRepository = new OrderRepository();
@@ -55,11 +50,11 @@ class OrderValidator extends BaseValidator {
         descr2: this._joi.string(),
         txnsource: this._joi.number(),
         condid: this._joi.number(),
-        userId: this._joi.number(),
+        userId: this._joi.string(),
         brchno: this._joi.string(),
         status: this._joi.any(),
         updatedate: this._joi.date(),
-        updateUserId: this._joi.number(),
+        updateUserId: this._joi.string(),
         ostatus: this._joi.number(),
         tradecode: this._joi.string(),
         yield: this._joi.number(),
@@ -156,7 +151,7 @@ class OrderValidator extends BaseValidator {
       params
     );
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
     await this.checkUser(data.userId);
     return data;
   };
@@ -188,7 +183,7 @@ class OrderValidator extends BaseValidator {
       params
     );
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
     await this.checkUser(data.userId);
     return data;
   };
@@ -220,7 +215,7 @@ class OrderValidator extends BaseValidator {
         .required()
         .valid(TxnSourceConst.Self, TxnSourceConst.Broker),
 
-      userId: this._joi.number().required(),
+      userId: this._joi.string().required(),
       brchno: this._joi.string(),
       updatedate: this._joi.date(),
       updateUserId: this._joi.number(),
@@ -256,12 +251,12 @@ class OrderValidator extends BaseValidator {
       data.enddate = new Date(Date.now() + 3600 * 1000 * 24);
     }
     let stockdata = await this.stockRepository.getByStockcode(params.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
     if (data.ordertype == 1) {
       //let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
       // if (marketStock.length == 0)
-      //     throw new CannotOrderMarketException();
+      //     CustomException(ErrorCode.CannotOrderMarketException);
       // //if market order then price is openprice + 15%
       // let marketPrice = marketStock[0].openprice;
       // if (marketStock[0].openprice == null) {
@@ -284,7 +279,7 @@ class OrderValidator extends BaseValidator {
       ordertype: this._joi.number().required(),
       cnt: this._joi.number().required(),
       fee: this._joi.number().required(),
-      userId: this._joi.number().required()
+      userId: this._joi.string().required()
     };
     if (params.ordertype == 2) {
       schema.price = this._joi.number().required();
@@ -298,14 +293,14 @@ class OrderValidator extends BaseValidator {
     let { data } = this.validate(schema, params);
 
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
     this.checkUser(data.userId);
 
     if (data.ordertype == 1) {
       // let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
       // if (marketStock.length == 0)
-      //     throw new CannotOrderMarketException();
+      //     CustomException(ErrorCode.CannotOrderMarketException);
       // //if market order then price is openprice + 15%
       // let calcPrice = parseFloat(marketStock[0].openprice) + parseFloat((marketStock[0].openprice * 15 / 100).toFixed(2));
       let calcPrice = 100;
@@ -319,13 +314,13 @@ class OrderValidator extends BaseValidator {
       {
         txnid: this._joi.number().required(),
         stockcode: this._joi.number().required(),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required()
       },
       params
     );
 
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
     await this.checkUser(data.userId);
     return data;
@@ -335,12 +330,12 @@ class OrderValidator extends BaseValidator {
       {
         txnid: this._joi.number().required(),
         stockcode: this._joi.number().required(),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required()
       },
       params
     );
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) throw new StockNotFoundException();
+    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
     await this.checkUser(data.userId);
     return data;
   };
@@ -358,7 +353,7 @@ class OrderValidator extends BaseValidator {
     let user = await getUser('', userId);
 
     if (!user) {
-      throw new OrderNotFoundException();
+      CustomException(ErrorCode.OrderNotFoundException);
     }
 
     return user;
@@ -367,7 +362,7 @@ class OrderValidator extends BaseValidator {
     let order = await this.orderRepository.findOne(txnid);
 
     if (!order) {
-      throw new OrderNotFoundException();
+      CustomException(ErrorCode.OrderNotFoundException);
     }
 
     return order;
@@ -376,7 +371,7 @@ class OrderValidator extends BaseValidator {
     let stocktype = await this.orderRepository.getOrderType(id);
 
     if (!stocktype) {
-      throw new OrderTypeNotFoundException();
+      CustomException(ErrorCode.OrderTypeNotFoundException);
     }
 
     return stocktype;
