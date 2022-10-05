@@ -10,9 +10,14 @@ import BaseValidator from './base.validator';
 import { getUser } from '../../models/utils';
 import { ErrorCode, CustomException } from '../../exception/error-code';
 class OrderValidator extends BaseValidator {
-  private stockRepository: StockRepository = new StockRepository();
-  private orderRepository: OrderRepository = new OrderRepository();
-  validateGet = async (params: any) => {
+  private stockRepository: StockRepository;
+  private orderRepository: OrderRepository;
+  constructor() {
+    super();
+    this.stockRepository = new StockRepository();
+    this.orderRepository = new OrderRepository();
+  }
+  validateGet = async params => {
     let { data } = this.validate(
       {
         ordertype: this._joi.number(),
@@ -73,14 +78,17 @@ class OrderValidator extends BaseValidator {
       },
       params
     );
+    console.log(data);
     let options: any = [];
-    options.take = data.take;
-    options.skip = data.skip;
-    options.orderBy = data.orderBy;
-    data.skip = undefined;
-    data.take = undefined;
-    data.orderBy = undefined;
+    if (data != undefined && data.take != undefined) options.take = data.take;
+    if (data != undefined && data.skip != undefined) options.skip = data.skip;
+    if (data != undefined && data.orderBy != undefined)
+      options.orderBy = data.orderBy;
+    delete data.skip;
+    delete data.take;
+    delete data.orderBy;
     let select: any = undefined;
+
     // let stockType = true;
     if (data.stocktypeId != undefined) {
       data.stock = {
@@ -97,32 +105,23 @@ class OrderValidator extends BaseValidator {
       };
       data.prefix = undefined;
     }
-    if (data.detail != undefined && data.detail == true) {
-      select = {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            registerNumber: true,
-            UserMCSDAccount: true
-          }
-        },
-        stock: {
-          // where: {
-          //     stocktypeId: data.stocktypeId
-          // },
-          select: {
-            symbol: true,
-            stocktypeId: true,
-            stockname: true
-          }
+    select = {
+      stock: {
+        // where: {
+        //     stocktypeId: data.stocktypeId
+        // },
+        select: {
+          symbol: true,
+          stocktypeId: true,
+          stockname: true
         }
-      };
-      data.userId = undefined;
-    }
-    data.detail = undefined;
-    data.stocktypeId = undefined;
-    data.groupBy = undefined;
+      },
+      wallet: true
+    };
+
+    delete data.detail;
+    delete data.stocktypeId;
+    delete data.groupBy;
     let order = this.orderRepository.findMany(data, select, options);
     return order;
   };

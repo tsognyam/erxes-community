@@ -6,14 +6,15 @@ import { IContext } from '../../../connectionResolver';
 import OrderRepository from '../../../repository/order.repository';
 import OrderService from '../../../service/order.service';
 let orderRepository = new OrderRepository();
+let orderService = new OrderService();
 const OrderQueries = {
   tradingOrders: async (
     _root: any,
-    { userId, tradeDate }: { userId: string; tradeDate: Date },
+    { params }: { params: any },
     { models, subdomain, user }: IContext
   ) => {
-    console.log(userId);
-    return await orderRepository.getOrderList(userId, tradeDate);
+    console.log(user);
+    return await orderService.get(params);
   },
   tradingOrderDetail: async (
     _root: any,
@@ -23,4 +24,6 @@ const OrderQueries = {
     return await orderRepository.findOne(id);
   }
 };
+requireLogin(OrderQueries, 'tradingOrders');
+requireLogin(OrderQueries, 'tradingOrderDetail');
 export default OrderQueries;

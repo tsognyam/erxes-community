@@ -66,7 +66,7 @@ export default class BaseRepository {
     return await this._prisma[this._model].findMany({
       where,
       include,
-      options
+      ...options
     });
   };
   findUnique = async (where: any = undefined, include: any = undefined) =>

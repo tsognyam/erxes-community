@@ -50,7 +50,7 @@ type TradingOrder @key(fields:"txnid") {
 }
 `;
 export const queries = `
-tradingOrders(ids:[Int]):[TradingOrder]
+tradingOrders(params:JSON):[TradingOrder]
 tradingOrderDetail(id:Int!):TradingOrder
 `;
 const params = `

@@ -115,7 +115,7 @@ class WalletValidator extends BaseValidator {
       },
       params
     );
-
+    console.log(params);
     return await this.walletRepository.findbyUserId(
       data.userId,
       data.currencyCode

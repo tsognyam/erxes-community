@@ -25,7 +25,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...WalletQueries,
     ...SystemQueries,
     ...BankTransactionQueries,
-    ...OrderMutations
+    ...OrderQueries
   }
 });
 
