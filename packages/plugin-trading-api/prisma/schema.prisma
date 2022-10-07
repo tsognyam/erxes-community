@@ -8,6 +8,44 @@ datasource db {
   url      = env("MYSQL_URL")
 }
 
+model Bank {
+  id              Int               @id @default(autoincrement())
+  code            String            @unique
+  name            String            @db.VarChar(400)
+  shortName       String            @db.VarChar(400)
+  BankTransaction BankTransaction[]
+  UserBankAccount UserBankAccount[]
+}
+
+model BankTransaction {
+  id             Int               @id @default(autoincrement())
+  type           Int
+  amount         Decimal           @db.Decimal(30, 4)
+  jrno           String            @default("")
+  txnSign        String            @default("") @db.VarChar(1)
+  currencyCode   String            @db.VarChar(6)
+  status         Int
+  orderId        Int?              @unique
+  order          TransactionOrder? @relation(fields: [orderId], references: [id])
+  description    String            @db.VarChar(400)
+  oldDescription String?           @db.VarChar(400)
+  dater          DateTime          @db.Date
+  bankCode       String            @db.VarChar(50)
+  bank           Bank              @relation(fields: [bankCode], references: [code])
+  recAccountNo   String            @default("") @db.VarChar(36)
+  contAccountNo  String            @default("") @db.VarChar(36)
+  accountNo      String            @db.VarChar(36)
+  accountName    String            @db.VarChar(100)
+  message        String?           @db.VarChar(100)
+  createdAt      DateTime          @default(now())
+  createUserId   Int?
+  updatedAt      DateTime?
+  updatedUserId  Int?
+  withdraw       Withdraw?
+  wallet         Wallet?           @relation(fields: [walletId], references: [id])
+  walletId       Int?
+}
+
 model System {
   id          Int      @id @default(autoincrement())
   name        String
@@ -290,34 +328,6 @@ model Withdraw {
   userBankAccountId Int?
 }
 
-model BankTransaction {
-  id             Int               @id @default(autoincrement())
-  type           Int
-  amount         Decimal           @db.Decimal(30, 4)
-  jrno           String            @default("")
-  txnSign        String            @default("") @db.VarChar(1)
-  currencyCode   String            @db.VarChar(6)
-  status         Int
-  orderId        Int?              @unique
-  order          TransactionOrder? @relation(fields: [orderId], references: [id])
-  description    String            @db.VarChar(400)
-  oldDescription String?           @db.VarChar(400)
-  dater          DateTime          @db.Date
-  bankCode       String            @db.VarChar(50)
-  recAccountNo   String            @default("") @db.VarChar(36)
-  contAccountNo  String            @default("") @db.VarChar(36)
-  accountNo      String            @db.VarChar(36)
-  accountName    String            @db.VarChar(100)
-  message        String?           @db.VarChar(100)
-  createdAt      DateTime          @default(now())
-  createUserId   Int?
-  updatedAt      DateTime?
-  updatedUserId  Int?
-  withdraw       Withdraw?
-  wallet         Wallet?           @relation(fields: [walletId], references: [id])
-  walletId       Int?
-}
-
 model Transaction {
   id            Int              @id @default(autoincrement())
   orderId       Int
@@ -482,6 +492,7 @@ model UserBankAccount {
   id            Int        @id @default(autoincrement())
   userId        String
   bankCode      String
+  bank          Bank       @relation(fields: [bankCode], references: [code])
   accountNo     String     @db.VarChar(36)
   accountName   String     @db.VarChar(100)
   status        Int        @default(1)

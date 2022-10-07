@@ -4,6 +4,7 @@ import BankTransactionValidator from '../validator/wallet/bank.transaction.valid
 import { TransactionConst } from '../../constants/wallet';
 import { UserConst } from '../../constants/user';
 import TransactionService from './transaction.service';
+import { Prisma } from '@prisma/client';
 class BankTransactionService {
   private bankTransactionRepository: BankTransactionRepository;
   private bankTransactionValidator: BankTransactionValidator;
@@ -184,10 +185,11 @@ class BankTransactionService {
   getBankTransactionList = async (ids?: Number[]) => {
     let where: any = {};
     if (ids != null) where.id = { in: ids };
-    let include = {
+    let include: Prisma.BankTransactionInclude = {
       order: true,
       withdraw: true,
-      Wallet: true
+      wallet: true,
+      bank: true
     };
     let wallets = await this.bankTransactionRepository.findMany(where, include);
     return wallets;

@@ -11,10 +11,10 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^4.3.1",
+    "@prisma/client": "^4.4.0",
     "joi": "^17.6.1"
   },
   "devDependencies": {
-    "prisma": "^4.3.1"
+    "prisma": "^4.4.0"
   }
 }

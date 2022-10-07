@@ -1,7 +1,7 @@
 export const types = `
  type TradingWallet @key(fields:"id") {
-    id: Int!
-    currencyCode:String
+    id: Int! 
+    currencyCode:String 
     userId:String
     status:Int
     createdAt:Date
