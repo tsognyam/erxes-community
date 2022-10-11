@@ -2,9 +2,13 @@ import { WalletConst } from '../../../constants/wallet';
 import WalletRepository from '../../../repository/wallet/wallet.repository';
 import { defaultCurrency } from '../../../models/utils';
 import BaseValidator from '../base.validator';
+import { Prisma } from '@prisma/client';
 class WalletValidator extends BaseValidator {
   private walletRepository: WalletRepository = new WalletRepository();
-  checkWallet = async (where: any, include: any = undefined) => {
+  checkWallet = async (
+    where: any,
+    include: Prisma.WalletInclude | undefined = undefined
+  ) => {
     let wallet = await this.walletRepository.findFirst(where, include);
     if (!wallet) throw new Error('Wallet not found');
     return wallet;

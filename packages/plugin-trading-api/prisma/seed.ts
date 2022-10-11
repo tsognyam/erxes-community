@@ -3,6 +3,7 @@ import { ordertype } from "./seeds/ordertype";
 import { stocktype } from "./seeds/stocktype";
 import { migrationStock } from "./seeds/stock";
 import { exchange } from "./seeds/exchange";
+import { banks } from "./seeds/bank";
 const prisma = new PrismaClient();
 async function seed() {
     if (await prisma.exchange.count() == 0)
@@ -21,6 +22,11 @@ async function seed() {
         let stock: any = migrationStock();
         await prisma.stock.createMany({
             data: stock
+        })
+    }
+    if (await prisma.bank.count() == 0) {
+        await prisma.bank.createMany({
+            data: banks
         })
     }
 }

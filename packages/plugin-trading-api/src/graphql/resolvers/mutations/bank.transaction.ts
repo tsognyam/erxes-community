@@ -15,5 +15,10 @@ const BankTransactionMutations = {
     return await bankTransactionService.chargeRequest(params, subdomain);
   }
 };
-//requireLogin(walletMutations, 'tradingWalletAdd');
+requireLogin(BankTransactionMutations, 'tradingWalletCharge');
+checkPermission(
+  BankTransactionMutations,
+  'tradingWalletCharge',
+  'TradingBroker'
+);
 export default BankTransactionMutations;

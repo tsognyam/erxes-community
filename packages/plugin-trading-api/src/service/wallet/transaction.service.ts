@@ -8,6 +8,7 @@ import TransactionRepository from '../../repository/wallet/transaction.repositor
 import SettlementMCSDRepository from '../../repository/wallet/settlement.mcsd.repository';
 import TransactionOrderRepository from '../../repository/wallet/transaction.order.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
+import { Transaction } from '@prisma/client';
 class TransactionService {
   private transactionValidator: TransactionValidator;
   private transactionRepository: TransactionRepository;
@@ -145,8 +146,8 @@ class TransactionService {
       stockName = order?.mainOrder[0].stock.stockname;
       percent = order?.mainOrder[0].fee + '%';
     }
-    let description = '';
-    order.transactions.forEach(transaction => {
+    let description: string | undefined = '';
+    order.transactions.forEach((transaction: Transaction) => {
       if (order.type == TransactionConst.TYPE_W2W)
         description =
           transaction.type == TransactionConst.INCOME ||
@@ -207,6 +208,7 @@ class TransactionService {
                       holdBalance: {
                         increment: transaction.amount
                       },
+                      availableBalance: 0,
                       updatedAt: new Date()
                     }
                   }
@@ -236,8 +238,6 @@ class TransactionService {
     if (senderWallet == undefined && receiverWallet == undefined) {
       throw new Error('Invalid param exception');
     }
-    console.log('senderWallet', senderWallet);
-    console.log('receiverWallet', receiverWallet);
     var transactions: any = [];
 
     if (senderWallet != undefined) {
@@ -313,8 +313,16 @@ class TransactionService {
         receiverWalletId = receiverWallet.id;
       }
       if (data.type != TransactionConst.TYPE_WITHDRAW) {
+        let feeReceiverWallet = await this.transactionValidator.checkWallet(
+          {
+            id: receiverWalletId
+          },
+          {
+            walletBalance: true
+          }
+        );
         transactions.push({
-          walletId: receiverWalletId,
+          walletId: feeReceiverWallet.id,
           type:
             data.feeType == TransactionConst.FEE_TYPE_SENDER
               ? TransactionConst.FEE_INCOME
@@ -323,7 +331,7 @@ class TransactionService {
           amount:
             data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
-          beforeBalance: 0,
+          beforeBalance: feeReceiverWallet.walletBalance.balance,
           afterBalance: 0,
           dater: new Date(),
           description: 'Арилжааны шимтгэл',

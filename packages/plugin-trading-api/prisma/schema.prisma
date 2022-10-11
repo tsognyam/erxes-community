@@ -12,7 +12,8 @@ model Bank {
   id              Int               @id @default(autoincrement())
   code            String            @unique
   name            String            @db.VarChar(400)
-  shortName       String            @db.VarChar(400)
+  englishName     String            @db.VarChar(400)
+  gatewayCode     String            @unique @db.VarChar(400)
   BankTransaction BankTransaction[]
   UserBankAccount UserBankAccount[]
 }
@@ -242,15 +243,16 @@ model WalletNumber {
 }
 
 model WalletBalance {
-  id            Int       @id @default(autoincrement())
-  walletId      Int       @unique
-  wallet        Wallet?   @relation(fields: [walletId], references: [id])
-  balance       Decimal   @db.Decimal(30, 4)
-  holdBalance   Decimal   @db.Decimal(30, 4)
-  createdAt     DateTime  @default(now())
-  createUserId  Int?
-  updatedAt     DateTime?
-  updatedUserId Int?
+  id               Int       @id @default(autoincrement())
+  walletId         Int       @unique
+  wallet           Wallet?   @relation(fields: [walletId], references: [id])
+  balance          Decimal   @db.Decimal(30, 4)
+  holdBalance      Decimal   @db.Decimal(30, 4)
+  availableBalance Decimal   @db.Decimal(30, 4)
+  createdAt        DateTime  @default(now())
+  createUserId     Int?
+  updatedAt        DateTime?
+  updatedUserId    Int?
 }
 
 model StockBalance {

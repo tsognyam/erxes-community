@@ -82,11 +82,11 @@ class WalletService {
       params
     );
     let i = 0;
-    for (i = 0; i < userWallet.length; i++) {
-      userWallet[i].walletBalance.availableBalance =
-        userWallet[i].walletBalance.balance -
-        userWallet[i].walletBalance.holdBalance;
-    }
+    // for (i = 0; i < userWallet.length; i++) {
+    //   userWallet[i].walletBalance.availableBalance =
+    //     userWallet[i].walletBalance.balance -
+    //     userWallet[i].walletBalance.holdBalance;
+    // }
     return userWallet;
   };
   getNominalWallet = async params => {

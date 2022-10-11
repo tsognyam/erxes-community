@@ -14,6 +14,7 @@ class BankTransactionService {
     this.bankTransactionValidator = new BankTransactionValidator();
     this.transactionService = new TransactionService();
   }
+
   chargeRequest = async (params: any, subdomain: string) => {
     let data = this.bankTransactionValidator.validateRequest(params);
     let NOMINAL_MNT = '100000';
