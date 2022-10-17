@@ -141,10 +141,11 @@ class TransactionService {
     var transactions: any = [];
     let stockName = '',
       percent = '';
-    console.log('Order', order?.mainOrder[0]);
+    let isOrderBuyAndSell: boolean = false;
     if (order?.mainOrder.length > 0 && order?.mainOrder[0].stock != undefined) {
       stockName = order?.mainOrder[0].stock.stockname;
       percent = order?.mainOrder[0].fee + '%';
+      isOrderBuyAndSell = true;
     }
     let description: string | undefined = '';
     order.transactions.forEach((transaction: Transaction) => {
@@ -152,19 +153,44 @@ class TransactionService {
         description =
           transaction.type == TransactionConst.INCOME ||
           transaction.type == TransactionConst.OUTCOME
-            ? stockName + ' Хувьцааны төлбөр'
-            : stockName + ' Хувьцааны арилжааны шимтгэл ' + percent;
+            ? stockName + ' хувьцааны арилжааны төлбөр'
+            : stockName + ' хувьцааны арилжааны шимтгэл ' + percent;
       else description = transaction.description;
       switch (transaction.type) {
         case TransactionConst.INCOME:
         case TransactionConst.FEE_INCOME:
           var walletUpdate: any = undefined;
-          if (status == TransactionConst.STATUS_SUCCESS) {
+          if (
+            status == TransactionConst.STATUS_SUCCESS &&
+            isOrderBuyAndSell == false
+          ) {
             walletUpdate = {
               update: {
                 walletBalance: {
                   update: {
                     balance: {
+                      increment: transaction.amount
+                    },
+                    tradeBalance: {
+                      increment: transaction.amount
+                    },
+                    updatedAt: new Date()
+                  }
+                }
+              }
+            };
+          } else if (
+            status == TransactionConst.STATUS_SUCCESS &&
+            isOrderBuyAndSell == true
+          ) {
+            walletUpdate = {
+              update: {
+                walletBalance: {
+                  update: {
+                    balance: {
+                      increment: transaction.amount
+                    },
+                    tradeBalance: {
                       increment: transaction.amount
                     },
                     updatedAt: new Date()
@@ -208,7 +234,6 @@ class TransactionService {
                       holdBalance: {
                         increment: transaction.amount
                       },
-                      availableBalance: 0,
                       updatedAt: new Date()
                     }
                   }
@@ -254,11 +279,18 @@ class TransactionService {
           description: data.description,
           createdAt: new Date()
         });
-      var walletBalanceUpdate = {
+      let walletBalanceUpdate = {
         walletBalance: {
           update: {
             holdBalance: {
               increment:
+                data.amount +
+                (data.feeType == TransactionConst.FEE_TYPE_SENDER
+                  ? data.feeAmount
+                  : 0)
+            },
+            tradeBalance: {
+              decrement:
                 data.amount +
                 (data.feeType == TransactionConst.FEE_TYPE_SENDER
                   ? data.feeAmount
@@ -332,18 +364,24 @@ class TransactionService {
             data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
           beforeBalance: feeReceiverWallet.walletBalance.balance,
-          afterBalance: 0,
+          afterBalance:
+            feeReceiverWallet.walletBalance.balance -
+            data.feeAmount *
+              (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
           dater: new Date(),
           description: 'Арилжааны шимтгэл',
           createdAt: new Date()
         });
       }
       if (data.feeType == TransactionConst.FEE_TYPE_RECEIVER) {
-        var walletBalanceUpdate = {
+        let walletBalanceUpdate = {
           walletBalance: {
             update: {
               holdBalance: {
                 increment: data.feeAmount
+              },
+              tradeBalance: {
+                decrement: data.feeAmount
               },
               updatedAt: new Date()
             }
