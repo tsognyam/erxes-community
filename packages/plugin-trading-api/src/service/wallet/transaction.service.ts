@@ -187,9 +187,6 @@ class TransactionService {
               update: {
                 walletBalance: {
                   update: {
-                    balance: {
-                      increment: transaction.amount
-                    },
                     tradeBalance: {
                       increment: transaction.amount
                     },
