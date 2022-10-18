@@ -4,18 +4,17 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IAttachment, IField } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-
+import Select from 'react-select-plus';
 import BoardSelect from '../../containers/BoardSelect';
-import { SelectContainer } from '../../styles/common';
 import {
-  AddFormWidth,
+  SelectInput,
   FormFooter,
   HeaderContent,
-  HeaderRow
+  HeaderRow,
+  BoardSelectWrapper
 } from '../../styles/item';
-import { IItem, IItemParams, IOptions } from '../../types';
+import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
-import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
@@ -32,6 +31,10 @@ type Props = {
   callback?: (item?: IItem) => void;
   fields: IField[];
   refetchFields: ({ pipelineId }: { pipelineId: string }) => void;
+  stages?: IStage[];
+  tagIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
 };
 
 type State = {
@@ -50,6 +53,7 @@ type State = {
   assignedUserIds?: string[];
   attachments?: IAttachment[];
   description?: string;
+  tagIds?: string[];
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -67,7 +71,10 @@ class AddForm extends React.Component<Props, State> {
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
         '',
-      customFieldsData: []
+      customFieldsData: [],
+      tagIds: props.tagIds || '',
+      startDate: props.startDate || null,
+      closeDate: props.closeDate || null
     };
   }
 
@@ -104,7 +111,8 @@ class AddForm extends React.Component<Props, State> {
       closeDate,
       assignedUserIds,
       description,
-      attachments
+      attachments,
+      tagIds
     } = this.state;
     const { saveItem, closeModal, callback, fields } = this.props;
 
@@ -170,6 +178,10 @@ class AddForm extends React.Component<Props, State> {
       doc.description = description;
     }
 
+    if (tagIds) {
+      doc.tagIds = tagIds;
+    }
+
     // before save, disable save button
     this.setState({ disabled: true });
 
@@ -203,15 +215,17 @@ class AddForm extends React.Component<Props, State> {
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
     return (
-      <BoardSelect
-        type={options.type}
-        stageId={stageId}
-        pipelineId={pipelineId}
-        boardId={boardId}
-        onChangeStage={stgIdOnChange}
-        onChangePipeline={plIdOnChange}
-        onChangeBoard={brIdOnChange}
-      />
+      <BoardSelectWrapper>
+        <BoardSelect
+          type={options.type}
+          stageId={stageId}
+          pipelineId={pipelineId}
+          boardId={boardId}
+          onChangeStage={stgIdOnChange}
+          onChangePipeline={plIdOnChange}
+          onChangeBoard={brIdOnChange}
+        />
+      </BoardSelectWrapper>
     );
   }
 
@@ -237,44 +251,60 @@ class AddForm extends React.Component<Props, State> {
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
+  onSelectStage = ({ value }) => {
+    this.setState({ stageId: value });
+  };
+
   render() {
-    const { type } = this.props.options;
+    const { stages, stageId } = this.props;
+
+    let stageValues: any;
+
+    if (stages && stages.length > 0) {
+      stageValues = stages.map(stage => ({
+        label: stage.name,
+        value: stage._id
+      }));
+    }
 
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
-        <SelectContainer>
+        <HeaderRow>
+          <HeaderContent>
+            <ControlLabel required={true}>Name</ControlLabel>
+            <SelectInput>
+              <FormControl
+                value={this.state.name}
+                autoFocus={true}
+                placeholder="Create a new card"
+                onChange={this.onChangeName}
+              />
+            </SelectInput>
+          </HeaderContent>
+        </HeaderRow>
+        {!stageId && (
           <HeaderRow>
             <HeaderContent>
-              <ControlLabel required={true}>Name</ControlLabel>
-              <AddFormWidth>
-                {this.props.showSelect ? (
-                  <CardSelect
-                    placeholder={`Add a new ${type} or select one`}
-                    options={this.state.cards}
-                    onChange={this.onChangeCardSelect}
-                    type={type}
-                    additionalValue={this.state.name}
-                  />
-                ) : (
-                  <FormControl
-                    value={this.state.name}
-                    autoFocus={true}
-                    placeholder="Create a new card"
-                    onChange={this.onChangeName}
-                  />
-                )}
-              </AddFormWidth>
+              <ControlLabel required={true}>Stage</ControlLabel>
+              <Select
+                placeholder="Select a stage"
+                value={this.state.stageId}
+                options={stageValues}
+                name="stage"
+                onChange={e => this.onSelectStage(e)}
+              />
             </HeaderContent>
           </HeaderRow>
-          <GenerateAddFormFields
-            object={this.state}
-            pipelineId={this.state.pipelineId}
-            onChangeField={this.onChangeField}
-            customFieldsData={this.state.customFieldsData}
-            fields={this.props.fields}
-          />
-        </SelectContainer>
+        )}
+
+        <GenerateAddFormFields
+          object={this.state}
+          pipelineId={this.state.pipelineId}
+          onChangeField={this.onChangeField}
+          customFieldsData={this.state.customFieldsData}
+          fields={this.props.fields}
+        />
         <FormFooter>
           <Button
             btnStyle="simple"

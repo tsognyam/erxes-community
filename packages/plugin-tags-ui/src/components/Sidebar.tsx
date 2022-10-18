@@ -7,6 +7,8 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 
 function ListItem(value, type) {
   const className = type && type === value.contentType ? 'active' : '';
+  console.log('tags type: ', type);
+  console.log('tags value: ', value.contentType);
 
   return (
     <li key={value.contentType}>
@@ -19,7 +21,7 @@ function ListItem(value, type) {
 
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
-    <LeftSidebar hasBorder={true} header={<SidebarHeader />}>
+    <LeftSidebar header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Tags type')}
       </LeftSidebar.Header>
