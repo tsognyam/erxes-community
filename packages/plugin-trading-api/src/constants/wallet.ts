@@ -27,6 +27,7 @@ export class TransactionConst extends BaseConst {
   static TYPE_CHARGE = 3;
   static TYPE_WITHDRAW = 4;
   static TYPE_REGFEE = 5;
+  static TYPE_ORDER = 6;
 
   static FEE_TYPE_SENDER = 0;
   static FEE_TYPE_RECEIVER = 1;

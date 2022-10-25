@@ -102,6 +102,6 @@ export default class BaseRepository {
     });
   };
 
-  delete = async (id: Number | string) =>
+  delete = async (id: number | string) =>
     await this._prisma[this._model].delete({ where: { id: +id } });
 }

@@ -14,7 +14,51 @@ class BankTransactionService {
     this.bankTransactionValidator = new BankTransactionValidator();
     this.transactionService = new TransactionService();
   }
-
+  chargeV2 = async (params: any, subdomain: string) => {
+    // if (process.env.NODE_ENV !== "development") {
+    //   throw new Error("This service only working dev mode");
+    // }
+    var { data, wallet } = await this.bankTransactionValidator.validateCharge(
+      params
+    );
+    var bankTransactionParam = {
+      type: TransactionConst.TYPE_CHARGE,
+      status: TransactionConst.STATUS_PENDING,
+      amount: data.amount,
+      description: 'Орлого',
+      dater: new Date(),
+      bankCode: 'TDB',
+      contAccountNo: '0',
+      recAccountNo: '0',
+      accountNo: '0',
+      accountName: 'Харилцагч',
+      currencyCode: wallet.currencyCode,
+      jrno: '0',
+      txnSign: '+'
+    };
+    let bankTransaction = await this.bankTransactionRepository.create(
+      bankTransactionParam
+    );
+    let order = await this.transactionService.createTransactionOrder(
+      undefined,
+      wallet,
+      {
+        amount: bankTransaction.amount,
+        feeAmount: 0,
+        type: TransactionConst.TYPE_CHARGE,
+        description: bankTransaction.description
+      }
+    );
+    order = await this.transactionService.confirmTransaction({
+      orderId: order.id,
+      confirm: 1
+    });
+    await this.bankTransactionRepository.update(bankTransaction.id, {
+      status: TransactionConst.STATUS_SUCCESS,
+      message: 'test success'
+    });
+    return bankTransaction;
+  };
   chargeRequest = async (params: any, subdomain: string) => {
     let data = this.bankTransactionValidator.validateRequest(params);
     let NOMINAL_MNT = '100000';
@@ -90,6 +134,7 @@ class BankTransactionService {
     }
     return bankTransaction;
   };
+
   checkRequest = async (bankTransaction: any, subdomain: string) => {
     let {
       wallet,

@@ -1,5 +1,6 @@
 {
   "name": "@erxes/plugin-trading-api",
+  "private": true,
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",

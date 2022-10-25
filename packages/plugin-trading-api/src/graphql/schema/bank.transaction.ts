@@ -32,19 +32,8 @@ tradingBankTransactions(ids:[Int]):[TradingBankTransaction]
 tradingBankTransactionDetail(id:Int!):TradingBankTransaction
 `;
 const params = `
-contAccount:String!,
-account:String!,
-recAccount:String,
-accountName:String,
-bankCode:String!,
-currencyCode:String!,
-amount:Float!,
-date:Date,
-txnsign:String!,
-jrno:String,
-jritemno:String,
-availablebalance:Float
-desc:String!
+walletId:Int!,
+amount:Float!
 `;
 export const mutations = `
 tradingWalletCharge(${params}):TradingBankTransaction

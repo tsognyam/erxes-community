@@ -17,7 +17,8 @@ export class TransactionValidator extends WalletValidator {
           .allow(
             TransactionConst.TYPE_W2W,
             TransactionConst.TYPE_CHARGE,
-            TransactionConst.TYPE_WITHDRAW
+            TransactionConst.TYPE_WITHDRAW,
+            TransactionConst.TYPE_ORDER
           )
           .required(),
         description: this._joi.string().default('')
