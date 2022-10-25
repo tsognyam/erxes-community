@@ -30,27 +30,11 @@ class Row extends React.Component<Props> {
       return <Label lblStyle={style}>{text}</Label>;
     };
 
-    // const renderProducts = products => {
-    //   if (products.length) {
-    //     return products.map(e => (
-    //       <>
-    //         <FormGroup>
-    //           <TextInfo>
-    //             {e.product.name + ' - ' + e.quantity + ' /Qty/'}
-    //           </TextInfo>
-    //         </FormGroup>
-    //       </>
-    //     ));
-    //   } else {
-    //     return '';
-    //   }
-    // };
-
     const onTrClick = () => {
       history.push(`/processes/flows/details/${flow._id}`);
     };
 
-    const { name, status, jobs, flowJobStatus } = flow;
+    const { name, status, jobCount, flowValidation, product } = flow;
 
     return (
       <tr onClick={onTrClick}>
@@ -62,12 +46,13 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{name}</td>
+        <td>{(product && `${product.code} - ${product.name}`) || ''}</td>
         <td>{status}</td>
         <td>
-          {flowJobStatus === true && renderLabelInfo('success', 'True')}
-          {flowJobStatus === false && renderLabelInfo('danger', 'False')}
+          {flowValidation === '' && renderLabelInfo('success', 'True')}
+          {flowValidation && renderLabelInfo('danger', flowValidation)}
         </td>
-        <td>{(jobs && jobs.length) || 0}</td>
+        <td>{jobCount || 0}</td>
       </tr>
     );
   }

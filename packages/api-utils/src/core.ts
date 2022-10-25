@@ -81,7 +81,9 @@ export const regexSearchText = (
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+    });
   }
 
   return { $and: result };
@@ -310,6 +312,19 @@ export const userActionsMap = async (
   return allowedActions;
 };
 
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
+};
+
 export const getSubdomain = (req): string => {
   const hostname = req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
@@ -338,15 +353,21 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
   };
 };
 
-export const authCookieOptions = (options = {}) => {
+export const authCookieOptions = (options: any = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
+
+  const secure = !['test', 'development'].includes(NODE_ENV);
+
+  if (!secure && options.sameSite) {
+    delete options.sameSite;
+  }
 
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + twoWeek),
     maxAge: twoWeek,
-    secure: !['test', 'development'].includes(NODE_ENV),
+    secure,
     ...options
   };
 

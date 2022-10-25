@@ -120,8 +120,15 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'products:find',
-    async ({ subdomain, data: { query, sort, skip, limit, categoryId } }) => {
+    async ({
+      subdomain,
+      data: { query, sort, skip, limit, categoryId, fields }
+    }) => {
       const models = await generateModels(subdomain);
+
+      if (!query) {
+        query = {};
+      }
 
       if (categoryId) {
         const category = await models.ProductCategories.findOne({
@@ -135,7 +142,7 @@ export const initBroker = async cl => {
       }
 
       return {
-        data: await models.Products.find(query)
+        data: await models.Products.find(query, fields || {})
           .sort(sort)
           .skip(skip || 0)
           .limit(limit || 100)
@@ -153,6 +160,18 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  consumeRPCQueue(
+    'products:categories.count',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ProductCategories.find(query).countDocuments(),
+        status: 'success'
+      };
+    }
+  );
 
   consumeRPCQueue(
     'products:createProduct',
