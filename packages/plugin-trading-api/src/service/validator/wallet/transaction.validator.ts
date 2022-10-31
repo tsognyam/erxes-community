@@ -56,7 +56,7 @@ export class TransactionValidator extends WalletValidator {
     }
     if (
       receiverWallet != undefined &&
-      senderWallet.type + receiverWallet.type !== 3
+      senderWallet.type + receiverWallet.type !== 4
     ) {
       throw new Error('Invalid wallet exception');
     }

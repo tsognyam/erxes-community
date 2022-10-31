@@ -18,26 +18,39 @@ class BankTransactionService {
     // if (process.env.NODE_ENV !== "development") {
     //   throw new Error("This service only working dev mode");
     // }
-    var { data, wallet } = await this.bankTransactionValidator.validateCharge(
-      params
-    );
+    var {
+      data,
+      wallet,
+      nominalWallet
+    } = await this.bankTransactionValidator.validateCharge(params);
     var bankTransactionParam = {
       type: TransactionConst.TYPE_CHARGE,
       status: TransactionConst.STATUS_PENDING,
       amount: data.amount,
       description: 'Орлого',
       dater: new Date(),
-      bankCode: 'TDB',
+      bankCode: '01',
       contAccountNo: '0',
       recAccountNo: '0',
       accountNo: '0',
       accountName: 'Харилцагч',
       currencyCode: wallet.currencyCode,
       jrno: '0',
-      txnSign: '+'
+      txnSign: '+',
+      walletId: wallet.id
     };
     let bankTransaction = await this.bankTransactionRepository.create(
-      bankTransactionParam
+      bankTransactionParam,
+      undefined,
+      {
+        wallet: {
+          include: {
+            walletBalance: true
+          }
+        },
+        withdraw: true,
+        order: true
+      }
     );
     let order = await this.transactionService.createTransactionOrder(
       undefined,
@@ -49,8 +62,22 @@ class BankTransactionService {
         description: bankTransaction.description
       }
     );
+    let nominalOrder = await this.transactionService.createTransactionOrder(
+      undefined,
+      nominalWallet,
+      {
+        amount: bankTransaction.amount,
+        feeAmount: 0,
+        type: TransactionConst.TYPE_CHARGE,
+        description: bankTransaction.description
+      }
+    );
     order = await this.transactionService.confirmTransaction({
       orderId: order.id,
+      confirm: 1
+    });
+    nominalOrder = await this.transactionService.confirmTransaction({
+      orderId: nominalOrder.id,
       confirm: 1
     });
     await this.bankTransactionRepository.update(bankTransaction.id, {

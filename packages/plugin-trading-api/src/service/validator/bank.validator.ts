@@ -16,14 +16,16 @@ export default class BankValidator extends BaseValidator {
     });
     if (bank) throw new Error('Bank code duplicated');
   };
-  validateUpdate = async (params: any) => {
-    let bank = await this.bankRepository.findUnique({
-      code: params.bankCode,
-      NOT: {
-        id: params.id
+  validateUpdate = async (id: number, params: any) => {
+    let bank: any;
+    if (params.code != undefined) {
+      bank = await this.bankRepository.findUnique({
+        code: params.code
+      });
+      if (bank && bank.id !== id) {
+        throw new Error('Bank code duplicated');
       }
-    });
-    if (bank) throw new Error('Bank code duplicated');
+    }
     return bank;
   };
   validateRemove = async (id: number) => {

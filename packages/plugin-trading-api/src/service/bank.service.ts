@@ -14,7 +14,7 @@ export default class BankService {
     return this.bankRepository.create(params);
   };
   update = async (id: number, params: Prisma.BankUpdateInput) => {
-    await this.bankValidator.validateUpdate(params);
+    await this.bankValidator.validateUpdate(id, params);
     return this.bankRepository.update(id, params);
   };
   remove = async (id: number) => {
@@ -23,7 +23,6 @@ export default class BankService {
   };
   list = async () => {
     let data = await this.bankRepository.findMany();
-    console.log(data);
     return data;
   };
   detail = async (id: number) => {

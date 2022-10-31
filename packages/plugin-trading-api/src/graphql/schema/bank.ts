@@ -8,16 +8,22 @@ type TradingBank @key(fields:"id") {
 }`;
 export const queries = `
 tradingBanks:[TradingBank]
-tradingBankDetail(id:Int):TradingBank
+tradingBankDetail(id:Int!):TradingBank
 `;
-const inputParams = `
+const createParams = `
 code:String!,
 name:String!,
 englishName:String!,
 gatewayCode:String!
 `;
+const updateParams = `
+code:String,
+name:String,
+englishName:String,
+gatewayCode:String
+`;
 export const mutations = `
-tradingBankAdd(${inputParams}):TradingBank
-tradingBankEdit(id:Int!,${inputParams}):TradingBank
+tradingBankAdd(${createParams}):TradingBank
+tradingBankEdit(id:Int!,${updateParams}):TradingBank
 tradingBankRemove(id:Int!):JSON
 `;

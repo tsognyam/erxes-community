@@ -2,7 +2,7 @@ import WalletRepository from '../../repository/wallet/wallet.repository';
 import { WalletNumberService } from './wallet.number.service';
 import { Prisma } from '@prisma/client';
 import WalletValidator from '../validator/wallet/wallet.validator';
-import { getUsers } from '../../models/utils';
+import { getUsers, getUser } from '../../models/utils';
 import { WalletConst } from '../../constants/wallet';
 import { ErrorCode, CustomException } from '../../exception/error-code';
 class WalletService {
@@ -16,8 +16,9 @@ class WalletService {
   }
   create = async (params: Prisma.WalletCreateInput, subdomain: string) => {
     let { data } = await this.walletValidator.validateCreate(params, subdomain);
+    await this.createNominal(data.currencyCode);
     let walletNumber = await this.walletNumberService.generate();
-    let wallet = {
+    let wallet: any = {
       name: data.name,
       currencyCode: data.currencyCode,
       userId: data.userId,
@@ -26,14 +27,23 @@ class WalletService {
       walletBalance: {
         create: {
           balance: 0,
-          holdBalance: 0
+          holdBalance: 0,
+          tradeBalance: 0
         }
       },
       walletNumber: walletNumber.number,
       walletNumberId: walletNumber.id
     };
-    return await this.walletRepository.create(wallet);
+    wallet = await this.walletRepository.create(wallet);
+    let query = {
+      _id: wallet.userId
+    };
+    let user = await getUser(subdomain, query);
+    console.log(user);
+    wallet.user = user;
+    return wallet;
   };
+
   edit = async (params: any) => {};
   remove = async () => {};
   getWalletList = async (
@@ -107,6 +117,51 @@ class WalletService {
       availableBalance:
         wallet.walletBalance.balance - wallet.walletBalance.holdBalance
     };
+  };
+  createNominal = async (currencyCode: string) => {
+    let wallet = await this.walletRepository.findNominalWallet(currencyCode);
+    let feeWallet = await this.walletRepository.findNominalFeeWallet(
+      currencyCode
+    );
+    if (!wallet && !feeWallet) {
+      let walletNumberNominal = await this.walletNumberService.generate();
+      let walletNumberNominalFee = await this.walletNumberService.generate();
+      let nominalWallet = {
+        name: 'Үндсэн номинал',
+        currencyCode: currencyCode,
+        userId: null,
+        status: WalletConst.STATUS_ACTIVE,
+        type: WalletConst.WALLET_TYPES.NOMINAL,
+        walletBalance: {
+          create: {
+            balance: 0,
+            holdBalance: 0,
+            tradeBalance: 0
+          }
+        },
+        walletNumber: walletNumberNominal.number,
+        walletNumberId: walletNumberNominal.id
+      };
+      await this.walletRepository.create(nominalWallet);
+      let nominalWalletFee = {
+        name: 'Шимтгэлийн номинал',
+        currencyCode: currencyCode,
+        userId: null,
+        status: WalletConst.STATUS_ACTIVE,
+        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        walletBalance: {
+          create: {
+            balance: 0,
+            holdBalance: 0,
+            tradeBalance: 0
+          }
+        },
+        walletNumber: walletNumberNominalFee.number,
+        walletNumberId: walletNumberNominalFee.id
+      };
+      await this.walletRepository.create(nominalWalletFee);
+      return 'success';
+    } else return 'Already created';
   };
 }
 export default WalletService;

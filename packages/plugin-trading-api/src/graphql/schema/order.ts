@@ -70,6 +70,6 @@ txnid:Int!,
 userId:Int
 `;
 export const mutations = `
-tradingOrderCreate(${params}):TradingOrder,
-tradingOrderUpdate(${params}):TradingOrder,
+tradingOrderAdd(${params}):TradingOrder,
+tradingOrderEdit(${params}):TradingOrder,
 tradingOrderCancel(${cancelParams}):JSON`;

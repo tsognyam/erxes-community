@@ -4,12 +4,12 @@ module.exports = {
         description: 'Trading',
         actions: [
             {
-                name: 'TradingBroker',
-                description: 'Broker',
+                name: 'All',
+                description: 'All',
             },
             {
                 name: 'WalletManage',
-                description: 'WalletManage',
+                description: 'wallet manage',
             },
         ]
     },

@@ -23,7 +23,7 @@ const params = `
 currencyCode:String,
 userId:String,
 name:String!,
-type:Int!
+type:Int
 `;
 export const mutations = `
 tradingWalletAdd(${params}): TradingWallet

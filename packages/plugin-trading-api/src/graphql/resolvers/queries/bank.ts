@@ -6,7 +6,11 @@ import { IContext } from '../../../connectionResolver';
 import BankService from '../../../service/bank.service';
 let bankService = new BankService();
 const BankQueries = {
-  tradingBanks: async (_root: any, { models, subdomain, user }: IContext) => {
+  tradingBanks: async (
+    _root: any,
+    {},
+    { models, subdomain, user }: IContext
+  ) => {
     return await bankService.list();
   },
   tradingBankDetail: async (
@@ -17,4 +21,5 @@ const BankQueries = {
     return await bankService.detail(id);
   }
 };
+requireLogin(BankQueries, 'tradingBanks');
 export default BankQueries;

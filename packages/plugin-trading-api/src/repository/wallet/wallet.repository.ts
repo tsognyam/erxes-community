@@ -74,6 +74,18 @@ export default class WalletRepository extends BaseRepository {
       }
     });
   };
+  findNominalFeeWallet = async (currencyCode: string) => {
+    return await this._prisma[this._model].findFirst({
+      where: {
+        status: WalletConst.STATUS_ACTIVE,
+        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        currencyCode: currencyCode
+      },
+      include: {
+        walletBalance: true
+      }
+    });
+  };
   findNominalWallet = async (currencyCode: string) => {
     return await this._prisma[this._model].findFirst({
       where: {

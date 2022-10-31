@@ -9,14 +9,17 @@ import SettlementMCSDRepository from '../../repository/wallet/settlement.mcsd.re
 import TransactionOrderRepository from '../../repository/wallet/transaction.order.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
 import { Transaction } from '@prisma/client';
+import WalletValidator from '../validator/wallet/wallet.validator';
 class TransactionService {
   private transactionValidator: TransactionValidator;
   private transactionRepository: TransactionRepository;
   private settlementRepository: SettlementMCSDRepository;
   private transactionOrderRepository: TransactionOrderRepository;
   private walletRepository: WalletRepository;
+  private walletValidator: WalletValidator;
   constructor() {
     this.transactionValidator = new TransactionValidator();
+    this.walletValidator = new WalletValidator();
     this.transactionRepository = new TransactionRepository();
     this.settlementRepository = new SettlementMCSDRepository();
     this.transactionOrderRepository = new TransactionOrderRepository();
@@ -309,7 +312,9 @@ class TransactionService {
           amount: data.amount,
           dater: new Date(),
           beforeBalance: receiverWallet.walletBalance.balance,
-          afterBalance: receiverWallet.walletBalance.balance + data.amount,
+          afterBalance:
+            parseFloat(receiverWallet.walletBalance.balance) +
+            parseFloat(data.amount),
           description: data.description,
           createdAt: new Date()
         });
@@ -337,7 +342,9 @@ class TransactionService {
             : 'Арилжааны шимтгэл',
         createdAt: new Date()
       });
-      let receiverWalletId = WalletConst.FEE_RECEIVER;
+      let receiverWalletId = this.walletValidator.validateGetNominalFeeWallet({
+        currencyCode: senderWallet.currencyCode
+      });
       if (receiverWalletId == senderWallet.id && receiverWallet != undefined) {
         receiverWalletId = receiverWallet.id;
       }
@@ -362,7 +369,7 @@ class TransactionService {
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
           beforeBalance: feeReceiverWallet.walletBalance.balance,
           afterBalance:
-            feeReceiverWallet.walletBalance.balance -
+            parseFloat(feeReceiverWallet.walletBalance.balance) -
             data.feeAmount *
               (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
           dater: new Date(),
