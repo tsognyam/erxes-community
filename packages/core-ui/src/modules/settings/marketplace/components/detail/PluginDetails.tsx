@@ -82,10 +82,6 @@ class PluginDetails extends React.Component<Props, State> {
       );
     }
 
-    if (tabType === 'Changelog') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.changeLog }} />;
-    }
-
     return null;
   };
 
@@ -128,7 +124,7 @@ class PluginDetails extends React.Component<Props, State> {
     const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Marketplace'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/marketplace' },
       { title: plugin.title || '' }
     ];
 
@@ -230,12 +226,6 @@ class PluginDetails extends React.Component<Props, State> {
               className={tabType === 'Guide' ? 'active' : ''}
             >
               Guide
-            </TabTitle>
-            <TabTitle
-              onClick={() => handleSelect('Changelog')}
-              className={tabType === 'Changelog' ? 'active' : ''}
-            >
-              Changelog
             </TabTitle>
           </Tabs>
 
