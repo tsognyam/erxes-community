@@ -11,6 +11,8 @@ class WalletValidator extends BaseValidator {
   ) => {
     let wallet = await this.walletRepository.findFirst(where, include);
     if (!wallet) throw new Error('Wallet not found');
+    wallet.walletBalance.availableBalance =
+      wallet.walletBalance.balance - wallet.walletBalance.holdBalance;
     return wallet;
   };
   checkNominalWallet = async (currencyCode: string) => {

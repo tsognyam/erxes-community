@@ -144,15 +144,13 @@ class TransactionService {
     var transactions: any = [];
     let stockName = '',
       percent = '';
-    let isOrderBuyAndSell: boolean = false;
     if (order?.mainOrder.length > 0 && order?.mainOrder[0].stock != undefined) {
       stockName = order?.mainOrder[0].stock.stockname;
       percent = order?.mainOrder[0].fee + '%';
-      isOrderBuyAndSell = true;
     }
     let description: string | undefined = '';
     order.transactions.forEach((transaction: Transaction) => {
-      if (order.type == TransactionConst.TYPE_W2W)
+      if (order.type == TransactionConst.TYPE_ORDER)
         description =
           transaction.type == TransactionConst.INCOME ||
           transaction.type == TransactionConst.OUTCOME
@@ -165,7 +163,7 @@ class TransactionService {
           var walletUpdate: any = undefined;
           if (
             status == TransactionConst.STATUS_SUCCESS &&
-            isOrderBuyAndSell == false
+            order.type != TransactionConst.TYPE_ORDER
           ) {
             walletUpdate = {
               update: {
@@ -184,7 +182,7 @@ class TransactionService {
             };
           } else if (
             status == TransactionConst.STATUS_SUCCESS &&
-            isOrderBuyAndSell == true
+            order.type == TransactionConst.TYPE_ORDER
           ) {
             walletUpdate = {
               update: {
@@ -233,6 +231,12 @@ class TransactionService {
                       },
                       holdBalance: {
                         increment: transaction.amount
+                      },
+                      tradeBalance: {
+                        increment:
+                          status == TransactionConst.STATUS_SUCCESS
+                            ? transaction.amount
+                            : 0
                       },
                       updatedAt: new Date()
                     }

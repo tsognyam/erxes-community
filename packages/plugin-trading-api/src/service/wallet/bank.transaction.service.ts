@@ -62,22 +62,8 @@ class BankTransactionService {
         description: bankTransaction.description
       }
     );
-    let nominalOrder = await this.transactionService.createTransactionOrder(
-      undefined,
-      nominalWallet,
-      {
-        amount: bankTransaction.amount,
-        feeAmount: 0,
-        type: TransactionConst.TYPE_CHARGE,
-        description: bankTransaction.description
-      }
-    );
     order = await this.transactionService.confirmTransaction({
       orderId: order.id,
-      confirm: 1
-    });
-    nominalOrder = await this.transactionService.confirmTransaction({
-      orderId: nominalOrder.id,
       confirm: 1
     });
     await this.bankTransactionRepository.update(bankTransaction.id, {
