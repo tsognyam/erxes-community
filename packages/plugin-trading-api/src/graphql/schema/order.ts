@@ -52,6 +52,7 @@ type TradingOrder @key(fields:"txnid") {
 export const queries = `
 tradingOrders(params:JSON):[TradingOrder]
 tradingOrderDetail(id:Int!):TradingOrder
+tradingOrderTypes:[JSON]
 `;
 const params = `
 ordertype:Int!,
