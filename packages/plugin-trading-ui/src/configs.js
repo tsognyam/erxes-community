@@ -25,8 +25,8 @@ module.exports = {
       scope: 'trading',
     },
     {
-      text: 'Skills',
-      to: '/settings/skills',
+      text: 'Stock List',
+      to: '/tradings/stock-list',
       image: '/images/icons/erxes-29.png',
       location: 'settings',
       scope: 'trading',

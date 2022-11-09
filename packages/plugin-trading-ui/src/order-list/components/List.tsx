@@ -180,7 +180,7 @@ class ListComp extends React.Component<IProps> {
   render() {
     const { queryParams, bulk } = this.props;
     const breadcrumb = [
-      { title: __('Secondary Tradings'), link: '/tradings/secondary' }
+      { title: __('Order List'), link: '/tradings/order-list' }
     ];
 
     let actionBarLeft: React.ReactNode;

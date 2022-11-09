@@ -200,3 +200,90 @@ export const SEC_STATUS = [
   { value: 'new', label: 'New' },
   { value: 'cancel', label: 'Canceled' }
 ];
+
+export const STOCK_LIST = [
+  {
+    symbol: 'APU',
+    yesterdaysLastPrice: 6700,
+    startingPrice: 6700,
+    peak: 6900,
+    bottom: 6200,
+    change: -374,
+    changePercent: -5.42,
+    quantity: 7768,
+    bullish: 70,
+    bearish: 50
+  },
+  {
+    symbol: 'LEND',
+    yesterdaysLastPrice: 4000,
+    startingPrice: 4000,
+    peak: 5000,
+    bottom: 3500,
+    change: 1000,
+    changePercent: 10.9,
+    quantity: 7000,
+    bullish: 50,
+    bearish: 20
+  },
+  {
+    symbol: 'GOBI',
+    yesterdaysLastPrice: 800,
+    startingPrice: 1000,
+    peak: 2000,
+    bottom: 500,
+    change: 1800,
+    changePercent: 40.34,
+    quantity: 80000,
+    bullish: 80,
+    bearish: 30
+  },
+  {
+    symbol: 'CU',
+    yesterdaysLastPrice: 6000,
+    startingPrice: 6700,
+    peak: 9000,
+    bottom: 5000,
+    change: -5090,
+    changePercent: -40.23,
+    quantity: 7000,
+    bullish: 40,
+    bearish: 5
+  },
+  {
+    symbol: 'APEX',
+    yesterdaysLastPrice: 800,
+    startingPrice: 1000,
+    peak: 4000,
+    bottom: 700,
+    change: 0,
+    changePercent: 0,
+    quantity: 9000,
+    bullish: 75,
+    bearish: 34
+  },
+  {
+    symbol: 'ADX',
+    yesterdaysLastPrice: 500,
+    startingPrice: 400,
+    peak: 700,
+    bottom: 70,
+    change: -709,
+    changePercent: -61,
+    quantity: 40808,
+    bullish: 21,
+    bearish: 34
+  },
+  {
+    symbol: 'KHAN',
+    yesterdaysLastPrice: 300,
+    startingPrice: 300,
+    peak: 400,
+    bottom: 400,
+    change: 60,
+    changePercent: 23,
+    quantity: 4678,
+    bullish: 34,
+    bearish: 43
+  }
+];

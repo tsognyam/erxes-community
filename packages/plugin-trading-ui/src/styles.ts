@@ -98,3 +98,8 @@ export const StyledTr = styled.tr`
 export const MenuFooter = styled.footer`
   padding: 10px 20px;
 `;
+
+export const StockChange = styledTS<{ isIncreased: boolean }>(styled.td)`
+  color: ${props =>
+    props.isIncreased ? colors.colorCoreGreen : colors.colorCoreRed} !important;
+`;
