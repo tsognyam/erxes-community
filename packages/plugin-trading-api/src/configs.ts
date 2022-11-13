@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-
+import permissions = require('./permissions');
 export let mainDb;
 export let debug;
 export let graphqlPubsub;
@@ -12,6 +12,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'trading',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -23,15 +24,12 @@ export default {
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
-
     context.subdomain = req.hostname;
     context.models = models;
-
     return context;
   },
   onServerInit: async options => {
     mainDb = options.db;
-
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;

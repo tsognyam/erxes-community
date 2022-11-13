@@ -131,6 +131,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('branchId', true, 'Branch')}
       {renderFilterWithData('tag', 'tag')}
       {renderFilterWithData('segment', 'segment')}
+      {renderFilterParam('segmentData', true, 'Temporary segment')}
       {renderFilterParam('kind', false)}
       {renderFilterWithData('brand', 'brand')}
       {renderFilterWithDate()}
