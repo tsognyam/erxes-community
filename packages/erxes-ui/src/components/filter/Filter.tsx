@@ -118,6 +118,14 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('status', false)}
       {renderFilterParam('ipo', false)}
       {renderFilterParam('stock', false)}
+      {renderFilterParam('usedAccount', false)}
+      {renderFilterParam('realAccount', false)}
+      {renderFilterParam('name', false)}
+      {renderFilterParam('journalNumber', false)}
+      {renderFilterParam('transactionMeaning', false)}
+      {renderFilterParam('transactionAmount', false)}
+      {renderFilterParam('nominalAccount', false)}
+      {renderFilterParam('register', false)}
       {renderFilterParam('type', false)}
       {renderFilterParam('orderType', false)}
       {renderFilterParam('provision', false)}

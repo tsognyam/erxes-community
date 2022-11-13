@@ -19,7 +19,7 @@ const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
-const defaultParams = ['tradingType'];
+const defaultParams = ['statementType'];
 
 class ListContainer extends React.Component<FinalProps> {
   onSearch = (search: string, type: string) => {

@@ -2,40 +2,30 @@ import { __, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Button from '@erxes/ui/src/components/Button';
 import Table from '@erxes/ui/src/components/Table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Sidebar from '../containers/Sidebar';
 import RightMenu from '../components/RightMenu';
-import { Flex } from '@erxes/ui/src/styles/main';
 import {
   DATA_DOMESTIC,
-  DATA_IPO,
   DATA_INTERNATIONAL,
   DATA_BOND,
-  DATA_AUTOMATED,
   LIST
 } from '../constants';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { IOrder } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
-  toggleAll: (targets: IOrder[], containerId: string) => void;
-  isAllSelected: boolean;
-  bulk: any[];
   clearFilter: () => void;
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
-  toggleBulk: (target: any, toAdd: boolean) => void;
 }
 
 type State = {
-  tradingType: any;
+  statementType: any;
 };
 
 class ListComp extends React.Component<IProps, State> {
@@ -43,7 +33,7 @@ class ListComp extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      tradingType: []
+      statementType: []
     };
   }
 
@@ -51,56 +41,31 @@ class ListComp extends React.Component<IProps, State> {
     const { queryParams, history } = this.props;
 
     if (Object.keys(queryParams).length === 0) {
-      router.setParams(history, { tradingType: 'DomesticTrading' });
-      this.setState({ tradingType: DATA_DOMESTIC });
+      router.setParams(history, { statementType: 'Domestic' });
+      this.setState({ statementType: DATA_DOMESTIC });
     }
-    if (queryParams.tradingType === 'IPO') {
-      this.setState({ tradingType: DATA_IPO });
+    if (queryParams.statementType === 'Domestic') {
+      this.setState({ statementType: DATA_DOMESTIC });
     }
-    if (queryParams.tradingType === 'DomesticTrading') {
-      this.setState({ tradingType: DATA_DOMESTIC });
+    if (queryParams.statementType === 'International') {
+      this.setState({ statementType: DATA_INTERNATIONAL });
     }
-    if (queryParams.tradingType === 'InternationalTrading') {
-      this.setState({ tradingType: DATA_INTERNATIONAL });
-    }
-    if (queryParams.tradingType === 'BondTrading') {
-      this.setState({ tradingType: DATA_BOND });
-    }
-    if (queryParams.tradingType === 'IPO') {
-      this.setState({ tradingType: DATA_AUTOMATED });
+    if (queryParams.statementType === 'Bond') {
+      this.setState({ statementType: DATA_BOND });
     }
   }
 
-  chooseTradingType = (obj: any) => {
-    this.setState({ tradingType: obj });
+  chooseStatementType = (obj: any) => {
+    this.setState({ statementType: obj });
   };
 
   renderContent = () => {
-    const {
-      toggleAll,
-      isAllSelected,
-      queryParams,
-      bulk,
-      toggleBulk
-    } = this.props;
-
-    const { tradingType } = this.state;
-
-    const onChangeAll = () => {
-      toggleAll(tradingType, 'commission');
-    };
+    const { statementType } = this.state;
 
     return (
       <Table>
         <thead>
           <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={onChangeAll}
-              />
-            </th>
             <th>№</th>
             {(LIST || []).map(({ name, label }) => (
               <th key={name}>
@@ -109,14 +74,9 @@ class ListComp extends React.Component<IProps, State> {
             ))}
           </tr>
         </thead>
-        <tbody id="commission">
-          {(tradingType || []).map((commission, index) => (
-            <Row
-              index={index}
-              commission={commission}
-              isChecked={bulk.includes(commission)}
-              toggleBulk={toggleBulk}
-            />
+        <tbody id="statement">
+          {(statementType || []).map((statement, index) => (
+            <Row index={index} statement={statement} />
           ))}
         </tbody>
       </Table>
@@ -138,9 +98,7 @@ class ListComp extends React.Component<IProps, State> {
 
   render() {
     const { queryParams } = this.props;
-    const breadcrumb = [
-      { title: __('Primary Trading'), link: '/primarytrade' }
-    ];
+    const breadcrumb = [{ title: __('Statement'), link: '/statement' }];
 
     return (
       <Wrapper
@@ -151,25 +109,10 @@ class ListComp extends React.Component<IProps, State> {
             queryParams={queryParams}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            right={
-              <Flex>
-                <Button
-                  id={'ExportButton'}
-                  btnStyle="success"
-                  href="/settings/exportHistories"
-                >
-                  Export
-                </Button>
-                {this.renderFilter()}
-              </Flex>
-            }
-          />
-        }
+        actionBar={<Wrapper.ActionBar right={this.renderFilter()} />}
         leftSidebar={
           <Sidebar
-            tradingType={this.chooseTradingType}
+            statementType={this.chooseStatementType}
             queryParams={queryParams}
           />
         }
@@ -183,7 +126,7 @@ class ListComp extends React.Component<IProps, State> {
           />
         }
         footer={<Pagination count={90} />}
-        noPadding
+        noPadding={true}
         hasBorder
       />
     );
