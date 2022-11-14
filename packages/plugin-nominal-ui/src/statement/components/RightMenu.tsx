@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import dayjs from 'dayjs';
@@ -13,8 +13,8 @@ import {
   RightMenuContainer,
   BarItems,
   MenuFooter
-} from '../styles';
-import { TYPE_ARRAY } from '../constants';
+} from '../../styles';
+import { TYPE_ARRAY } from '../../constants';
 import { IOption } from '@erxes/ui/src/types';
 
 type Props = {
@@ -144,18 +144,21 @@ export default class RightMenu extends React.Component<Props, State> {
         <ControlLabel>{__('Register number')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.register}
+          type="number"
           placeholder={__('Enter register number')}
           onKeyPress={e => this.onSearch(e, 'register')}
         />
         <ControlLabel>{__('Used Account')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.usedAccount}
+          type="number"
           placeholder={__('Enter used account')}
           onKeyPress={e => this.onSearch(e, 'usedAccount')}
         />
         <ControlLabel>{__('Real Account')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.realAccount}
+          type="number"
           placeholder={__('Enter real account')}
           onKeyPress={e => this.onSearch(e, 'realAccount')}
         />
@@ -178,6 +181,7 @@ export default class RightMenu extends React.Component<Props, State> {
         <ControlLabel>{__('Journal Number')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.journalNumber}
+          type="number"
           placeholder={__('Enter journal number')}
           onKeyPress={e => this.onSearch(e, 'journalNumber')}
         />
@@ -190,12 +194,14 @@ export default class RightMenu extends React.Component<Props, State> {
         <ControlLabel>{__('Transaction Amount')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.transactionAmount}
+          type="number"
           placeholder={__('Enter transaction amount')}
           onKeyPress={e => this.onSearch(e, 'transactionAmount')}
         />
         <ControlLabel>{__('Nominal Account')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.nominalAccount}
+          type="number"
           placeholder={__('Enter nominal account')}
           onKeyPress={e => this.onSearch(e, 'nominalAccount')}
         />

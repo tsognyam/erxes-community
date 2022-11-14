@@ -1,20 +1,16 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
-import { Route } from 'react-router-dom';
-
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Nominals" */ './containers/List')
-);
-
-const nominal = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <List queryParams={queryParams} history={history} />;
-};
+import StatementRoutes from './statement/routes';
+import MoneyTransferRoutes from './moneyTransfer/routes';
+import TransactionStatementRoutes from './transactionStatement/routes';
 
 const routes = () => {
-  return <Route path="/nominal" component={nominal} />;
+  return (
+    <React.Fragment>
+      <StatementRoutes />
+      <MoneyTransferRoutes />
+      <TransactionStatementRoutes />
+    </React.Fragment>
+  );
 };
 
 export default routes;

@@ -39,6 +39,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             componentClass="select"
             defaultValue={object.prefix}
+            type="number"
             options={PREFIX}
           />
         </FormGroup>
@@ -48,7 +49,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.register}
-            type="text"
+            type="number"
           />
         </FormGroup>
         <FormGroup>
@@ -90,7 +91,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.price}
-            type="text"
+            type="number"
           />
         </FormGroup>
         <FormGroup>
@@ -99,7 +100,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.quantity}
-            type="text"
+            type="number"
           />
         </FormGroup>
         <FormGroup>
@@ -108,7 +109,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.successful}
-            type="text"
+            type="number"
           />
         </FormGroup>
       </>

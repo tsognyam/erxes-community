@@ -183,7 +183,6 @@ class ListComp extends React.Component<IProps, State> {
           />
         }
         footer={<Pagination count={90} />}
-        noPadding
         hasBorder
       />
     );

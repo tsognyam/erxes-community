@@ -6,7 +6,7 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import { STATEMENT_TYPE, TYPE_ARRAY } from '../constants';
+import { STATEMENT_TYPE, TYPE_ARRAY } from '../../constants';
 import Box from '@erxes/ui/src/components/Box';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -91,7 +91,7 @@ class SideBar extends React.Component<FinalProps> {
                 onClick={onClick}
               >
                 <FieldStyle>{item}</FieldStyle>
-                {/* <SidebarCounter>{TYPE_COUNTS[item]}</SidebarCounter> */}
+                <SidebarCounter>9</SidebarCounter>
               </a>
             </li>
           );

@@ -37,6 +37,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
         <FormGroup>
           <ControlLabel>{__('Prefix')}</ControlLabel>
           <FormControl
+            type="number"
             componentClass="select"
             defaultValue={object.prefix}
             options={PREFIX}
@@ -46,9 +47,9 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <ControlLabel>{__('Register number')}</ControlLabel>
           <FormControl
             {...formProps}
+            type="number"
             name="name"
             defaultValue={object.register}
-            type="text"
             autoFocus={true}
           />
         </FormGroup>
@@ -76,7 +77,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.price}
-            type="text"
+            type="number"
             autoFocus={true}
           />
         </FormGroup>
@@ -86,7 +87,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.amount}
-            type="text"
+            type="number"
             autoFocus={true}
           />
         </FormGroup>
@@ -96,7 +97,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.commission}
-            type="text"
+            type="number"
             autoFocus={true}
           />
         </FormGroup>
@@ -106,7 +107,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.total}
-            type="text"
+            type="number"
             autoFocus={true}
           />
         </FormGroup>

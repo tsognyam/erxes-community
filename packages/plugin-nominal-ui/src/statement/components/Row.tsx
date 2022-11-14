@@ -1,6 +1,5 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
-import { StyledTr } from '../styles';
+import { StyledTr } from '../../styles';
 import Label from '@erxes/ui/src/components/Label';
 import { __ } from '@erxes/ui/src/utils';
 

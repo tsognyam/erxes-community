@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import dayjs from 'dayjs';
@@ -146,11 +146,13 @@ export default class RightMenu extends React.Component<Props, State> {
         <FormControl
           defaultValue={queryParams.prefix}
           placeholder={__('Enter prefix')}
+          type="number"
           onKeyPress={e => this.onSearch(e, 'prefix')}
         />
         <ControlLabel>{__('Register number')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.register}
+          type="number"
           placeholder={__('Enter register number')}
           onKeyPress={e => this.onSearch(e, 'register')}
         />
@@ -178,6 +180,7 @@ export default class RightMenu extends React.Component<Props, State> {
         <FormControl
           defaultValue={queryParams.price}
           placeholder={__('Enter price')}
+          type="number"
           onKeyPress={e => this.onSearch(e, 'price')}
         />
       </FilterBox>

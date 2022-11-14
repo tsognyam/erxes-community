@@ -93,8 +93,65 @@ export const StyledTr = styled.tr`
   &:hover {
     background: #f5f5f5;
   }
+  td:last-child {
+    text-align: left;
+  }
 `;
 
 export const MenuFooter = styled.footer`
   padding: 10px 20px;
+`;
+
+export const FilterHeader = styled.div`
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eee;
+
+  b {
+    margin-bottom: 20px;
+  }
+
+  button {
+    margin-left: 20px;
+  }
+
+  select {
+    margin-right: 80px;
+  }
+`;
+
+export const Filter = styled.div`
+  margin-left: auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  width: 50%;
+  > div {
+    margin-left: 15px;
+
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
+export const AdditionalInfo = styled.div`
+  font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 20px;
 `;

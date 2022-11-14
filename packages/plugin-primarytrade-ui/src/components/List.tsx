@@ -190,12 +190,11 @@ class ListComp extends React.Component<IProps> {
             data={this.renderContent()}
             loading={false}
             count={90}
-            emptyText="There is no order."
+            emptyText="There is no primary trading."
             emptyImage="/images/actions/20.svg"
           />
         }
         footer={<Pagination count={90} />}
-        noPadding
         hasBorder
       />
     );

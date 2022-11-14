@@ -124,6 +124,8 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('journalNumber', false)}
       {renderFilterParam('transactionMeaning', false)}
       {renderFilterParam('transactionAmount', false)}
+      {renderFilterParam('transactionAccount', false)}
+      {renderFilterParam('receiveAccount', false)}
       {renderFilterParam('nominalAccount', false)}
       {renderFilterParam('register', false)}
       {renderFilterParam('type', false)}

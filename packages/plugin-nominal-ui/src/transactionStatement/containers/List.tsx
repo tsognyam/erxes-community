@@ -6,7 +6,6 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
 
 type Props = {
   queryParams: any;
@@ -22,14 +21,6 @@ const generateQueryParams = ({ location }) => {
 const defaultParams = ['statementType'];
 
 class ListContainer extends React.Component<FinalProps> {
-  onSearch = (search: string, type: string) => {
-    if (!search) {
-      return routerUtils.removeParams(this.props.history, type);
-    }
-
-    routerUtils.setParams(this.props.history, search);
-  };
-
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
 
@@ -40,29 +31,13 @@ class ListContainer extends React.Component<FinalProps> {
     return routerUtils.setParams(this.props.history, { [key]: values });
   };
 
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-
-    const remainedParams = Object.keys(params).filter(
-      key => !defaultParams.includes(key)
-    );
-
-    routerUtils.removeParams(this.props.history, ...remainedParams);
-  };
-
   render() {
     const extendedProps = {
       ...this.props,
-      onSelect: this.onSelect,
-      clearFilter: this.clearFilter,
-      onSearch: this.onSearch
+      onSelect: this.onSelect
     };
 
-    const content = props => {
-      return <List {...extendedProps} {...props} />;
-    };
-
-    return <Bulk content={content} />;
+    return <List {...extendedProps} />;
   }
 }
 

@@ -13,8 +13,8 @@ import {
   RightMenuContainer,
   BarItems,
   MenuFooter
-} from '../styles';
-import { STOCK, TYPE_ARRAY } from '../constants';
+} from '../../styles';
+import { STATUS_ARRAY } from '../../constants';
 import { IOption } from '@erxes/ui/src/types';
 
 type Props = {
@@ -68,14 +68,17 @@ export default class RightMenu extends React.Component<Props, State> {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
       let data;
-      if (type === 'prefix') {
-        data = { prefix: target.value || '' };
+      if (type === 'receiveAccount') {
+        data = { receiveAccount: target.value || '' };
       }
-      if (type === 'register') {
-        data = { register: target.value || '' };
+      if (type === 'transactionAccount') {
+        data = { transactionAccount: target.value || '' };
       }
-      if (type === 'name') {
-        data = { name: target.value || '' };
+      if (type === 'transactionAmount') {
+        data = { transactionAmount: target.value || '' };
+      }
+      if (type === 'transactionMeaning') {
+        data = { transactionMeaning: target.value || '' };
       }
       this.props.onSearch(data, type);
     }
@@ -94,11 +97,8 @@ export default class RightMenu extends React.Component<Props, State> {
   renderFilter() {
     const { queryParams, onSelect } = this.props;
 
-    const typeValues = TYPE_ARRAY.map(p => ({ label: p, value: p }));
-    const type = queryParams ? queryParams.type : [];
-
-    const stockValues = STOCK.map(p => ({ label: p.label, value: p.value }));
-    const stock = queryParams ? queryParams.stock : [];
+    const statusValues = STATUS_ARRAY.map(p => ({ label: p, value: p }));
+    const status = queryParams ? queryParams.status : [];
 
     const onFilterSelect = (ops: IOption[], type: string) =>
       onSelect(ops[ops.length - 1].value, type);
@@ -129,45 +129,42 @@ export default class RightMenu extends React.Component<Props, State> {
             />
           </div>
         </CustomRangeContainer>
-        <ControlLabel>{__('Type')}</ControlLabel>
+        <ControlLabel>{__('Receive Account')}</ControlLabel>
+        <FormControl
+          defaultValue={queryParams.receiveAccount}
+          placeholder={__('Enter receiveAccount')}
+          type="number"
+          onKeyPress={e => this.onSearch(e, 'receiveAccount')}
+        />
+        <ControlLabel>{__('Transaction Account')}</ControlLabel>
+        <FormControl
+          defaultValue={queryParams.transactionAccount}
+          type="number"
+          placeholder={__('Enter transactionAccount')}
+          onKeyPress={e => this.onSearch(e, 'transactionAccount')}
+        />
+        <ControlLabel>{__('Transaction Amount')}</ControlLabel>
+        <FormControl
+          defaultValue={queryParams.transactionAmount}
+          type="number"
+          placeholder={__('Enter transactionAmount')}
+          onKeyPress={e => this.onSearch(e, 'transactionAmount')}
+        />
+        <ControlLabel>{__('Transaction Mean')}</ControlLabel>
+        <FormControl
+          defaultValue={queryParams.transactionMeaning}
+          placeholder={__('Enter transactionMeaning')}
+          onKeyPress={e => this.onSearch(e, 'transactionMeaning')}
+        />
+        <ControlLabel>{__('Status')}</ControlLabel>
         <Select
-          placeholder={__('Filter by type')}
-          value={type}
-          options={typeValues}
-          name="type"
-          onChange={ops => onFilterSelect(ops, 'type')}
+          placeholder={__('Filter by status')}
+          value={status}
+          options={statusValues}
+          name="status"
+          onChange={ops => onFilterSelect(ops, 'status')}
           multi={true}
           loadingPlaceholder={__('Loading...')}
-        />
-        <ControlLabel>{__('Stock')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by stock')}
-          value={stock}
-          options={stockValues}
-          name="stock"
-          onChange={ops => onFilterSelect(ops, 'stock')}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
-        />
-        <ControlLabel>{__('Prefix')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.prefix}
-          placeholder={__('Enter prefix')}
-          type="number"
-          onKeyPress={e => this.onSearch(e, 'prefix')}
-        />
-        <ControlLabel>{__('Register number')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.register}
-          type="number"
-          placeholder={__('Enter register number')}
-          onKeyPress={e => this.onSearch(e, 'register')}
-        />
-        <ControlLabel>{__('Name')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.name}
-          placeholder={__('Enter name')}
-          onKeyPress={e => this.onSearch(e, 'name')}
         />
       </FilterBox>
     );
@@ -177,7 +174,7 @@ export default class RightMenu extends React.Component<Props, State> {
     const { showMenu } = this.state;
     const { queryParams } = this.props;
 
-    const isFiltered = Object.keys(queryParams).length !== 1;
+    const isFiltered = Object.keys(queryParams).length !== 0;
 
     return (
       <div ref={this.setWrapperRef}>

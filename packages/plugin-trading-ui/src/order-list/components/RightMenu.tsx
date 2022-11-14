@@ -160,11 +160,13 @@ export default class RightMenu extends React.Component<Props, State> {
         <FormControl
           defaultValue={queryParams.prefix}
           placeholder={__('Enter prefix')}
+          type="number"
           onKeyPress={e => this.onSearch(e, 'prefix')}
         />
         <ControlLabel>{__('Register number')}</ControlLabel>
         <FormControl
           defaultValue={queryParams.register}
+          type="number"
           placeholder={__('Enter register number')}
           onKeyPress={e => this.onSearch(e, 'register')}
         />

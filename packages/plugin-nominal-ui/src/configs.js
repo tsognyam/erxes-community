@@ -12,8 +12,24 @@ module.exports = {
   },
   menus:[
     {
-      "text":"Nominal",
-      "url":"/nominal",
+      "text":"Nominal Account",
+      "url":"/nominal/statement",
       "icon":"icon-star",
-      "location":"mainNavigation"}]
+      "location":"mainNavigation"
+    },
+    {
+      'text': 'Money Transfer',
+      'to': '/nominal/money-transfer',
+      'image': '/images/icons/erxes-29.png',
+      'location': 'settings',
+      'scope': 'nominal',
+    },
+    {
+      'text': 'Transaction Statement',
+      'to': '/nominal/transaction-statement',
+      'image': '/images/icons/erxes-28.png',
+      'location': 'settings',
+      'scope': 'nominal',
+    },
+  ]
 };

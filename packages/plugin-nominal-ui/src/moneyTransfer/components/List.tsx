@@ -1,17 +1,16 @@
-import { __, router } from '@erxes/ui/src/utils';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __, Alert } from '@erxes/ui/src/utils';
 import React from 'react';
+import Form from './Form';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Button from '@erxes/ui/src/components/Button';
 import Table from '@erxes/ui/src/components/Table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Sidebar from '../containers/Sidebar';
 import RightMenu from '../components/RightMenu';
-import {
-  DATA_DOMESTIC,
-  DATA_INTERNATIONAL,
-  DATA_BOND,
-  LIST
-} from '../constants';
+import { Flex } from '@erxes/ui/src/styles/main';
+import { TRANSACTIONS, TRANSACTION_LIST } from '../../constants';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
@@ -19,64 +18,39 @@ import Row from './Row';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
   clearFilter: () => void;
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
 }
 
-type State = {
-  statementType: any;
-};
-
-class ListComp extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      statementType: []
-    };
-  }
-
-  componentDidMount() {
-    const { queryParams, history } = this.props;
-
-    if (Object.keys(queryParams).length === 0) {
-      router.setParams(history, { statementType: 'Domestic' });
-      this.setState({ statementType: DATA_DOMESTIC });
-    }
-    if (queryParams.statementType === 'Domestic') {
-      this.setState({ statementType: DATA_DOMESTIC });
-    }
-    if (queryParams.statementType === 'International') {
-      this.setState({ statementType: DATA_INTERNATIONAL });
-    }
-    if (queryParams.statementType === 'Bond') {
-      this.setState({ statementType: DATA_BOND });
-    }
-  }
-
-  chooseStatementType = (obj: any) => {
-    this.setState({ statementType: obj });
+class ListComp extends React.Component<IProps> {
+  renderForm = props => {
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
   renderContent = () => {
-    const { statementType } = this.state;
+    const { renderButton } = this.props;
 
     return (
       <Table>
         <thead>
           <tr>
             <th>№</th>
-            {(LIST || []).map(({ name, label }) => (
+            {(TRANSACTION_LIST || []).map(({ name, label }) => (
               <th key={name}>
                 <SortHandler sortField={name} label={__(label)} />
               </th>
             ))}
           </tr>
         </thead>
-        <tbody id="statement">
-          {(statementType || []).map((statement, index) => (
-            <Row index={index} statement={statement} />
+        <tbody id="orders">
+          {(TRANSACTIONS || []).map((transaction, index) => (
+            <Row
+              index={index}
+              transaction={transaction}
+              renderButton={renderButton}
+            />
           ))}
         </tbody>
       </Table>
@@ -98,7 +72,11 @@ class ListComp extends React.Component<IProps, State> {
 
   render() {
     const { queryParams } = this.props;
-    const breadcrumb = [{ title: __('Statement'), link: '/statement' }];
+    const breadcrumb = [
+      { title: __('Money Transfer'), link: '/nominal/money-transfer' }
+    ];
+
+    let actionBarLeft: React.ReactNode;
 
     return (
       <Wrapper
@@ -109,11 +87,29 @@ class ListComp extends React.Component<IProps, State> {
             queryParams={queryParams}
           />
         }
-        actionBar={<Wrapper.ActionBar right={this.renderFilter()} />}
-        leftSidebar={
-          <Sidebar
-            statementType={this.chooseStatementType}
-            queryParams={queryParams}
+        actionBar={
+          <Wrapper.ActionBar
+            left={actionBarLeft}
+            right={
+              <Flex>
+                <ModalTrigger
+                  title={__('Advance Money Transfer')}
+                  size={'lg'}
+                  trigger={
+                    <Button
+                      id={'NewTransactionButton'}
+                      btnStyle="success"
+                      block={true}
+                      icon="plus-circle"
+                    >
+                      {__('Transaction')}
+                    </Button>
+                  }
+                  content={this.renderForm}
+                />
+                {this.renderFilter()}
+              </Flex>
+            }
           />
         }
         content={
@@ -121,12 +117,11 @@ class ListComp extends React.Component<IProps, State> {
             data={this.renderContent()}
             loading={false}
             count={90}
-            emptyText="There is no order."
+            emptyText="There is no transaction."
             emptyImage="/images/actions/20.svg"
           />
         }
         footer={<Pagination count={90} />}
-        noPadding={true}
         hasBorder
       />
     );
