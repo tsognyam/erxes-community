@@ -23,7 +23,7 @@ interface IProps extends IRouterProps {
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
-  orders?: IOrder[]; //buh order
+  requests?: IOrder[]; //buh request
   isAllSelected: boolean;
   bulk: any[];
   // emptyBulk: () => void;
@@ -39,16 +39,10 @@ class ListComp extends React.Component<IProps> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  // remove = (order) => {
-  //   const { remove } = this.props;
-
-  //   remove(order._id);
-  // };
-
   renderContent = () => {
     const {
       toggleAll,
-      orders,
+      requests,
       isAllSelected,
       bulk,
       toggleBulk,
@@ -56,7 +50,7 @@ class ListComp extends React.Component<IProps> {
     } = this.props;
 
     const onChangeAll = () => {
-      toggleAll(DATA, 'orders');
+      toggleAll(DATA, 'requests');
     };
 
     return (
@@ -71,22 +65,47 @@ class ListComp extends React.Component<IProps> {
               />
             </th>
             <th>№</th>
-            {(LIST || []).map(({ name, label }) => (
-              <th key={name}>
-                <SortHandler sortField={name} label={__(label)} />
-              </th>
-            ))}
-            <th>{__('Commission')}</th>
+            <th>
+              <SortHandler sortField="requests.name" label={__('Name')} />
+            </th>
+            <th>
+              <SortHandler
+                sortField="requests.register"
+                label={__('Register Number')}
+              />
+            </th>
+            <th>{__('Phone')}</th>
+            <th>{__('Registered Stock Company')}</th>
+            <th>{__('Registered Stock Account')}</th>
+            <th>{__('Stock')}</th>
+            <th>
+              <SortHandler
+                sortField="requests.quantity"
+                label={__('Quantity')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField="requests.requestedDate"
+                label={__('Requested Date')}
+              />
+            </th>
             <th>{__('Status')}</th>
+            <th>
+              <SortHandler
+                sortField="requests.approvedDate"
+                label={__('Approved Date')}
+              />
+            </th>
             <th>{__('Actions')}</th>
           </tr>
         </thead>
-        <tbody id="orders">
-          {(DATA || []).map((order, index) => (
+        <tbody id="requests">
+          {(DATA || []).map((request, index) => (
             <Row
               index={index}
-              order={order}
-              isChecked={bulk.includes(order)}
+              request={request}
+              isChecked={bulk.includes(request)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
             />
@@ -109,46 +128,11 @@ class ListComp extends React.Component<IProps> {
     return <RightMenu {...rightMenuProps} />;
   }
 
-  // removeOrders = orders => {
-  //   const orderIds: string[] = [];
-
-  //   orders.forEach(order => {
-  //     orderIds.push(order._id);
-  //   });
-
-  //   const { removeOrders, emptyBulk } = this.props;
-
-  //   removeOrders({ orderIds }, emptyBulk);
-  // };
-
   render() {
-    const { queryParams, bulk } = this.props;
+    const { queryParams } = this.props;
     const breadcrumb = [
-      { title: __('Primary Trading'), link: '/primarytrade' }
+      { title: __('Stock Transfer Request'), link: '/stockTransfer' }
     ];
-
-    let actionBarLeft: React.ReactNode;
-
-    if (bulk.length > 0) {
-      const onClick = () => confirm('Are you sure? This cannot be undone.');
-      // .then(() => {
-      //     this.removeOrders(bulk);
-      //   })
-      //   .catch(e => {
-      //     Alert.error(e.message);
-      //   });
-
-      actionBarLeft = (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="times-circle"
-          onClick={onClick}
-        >
-          Remove
-        </Button>
-      );
-    }
 
     return (
       <Wrapper
@@ -161,20 +145,19 @@ class ListComp extends React.Component<IProps> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={actionBarLeft}
             right={
               <Flex>
                 <ModalTrigger
-                  title="Primary market order"
+                  title="Add Price Information of Stock Transfer Request"
                   size={'lg'}
                   trigger={
                     <Button
-                      id={'NewOrderButton'}
+                      id={'NewPriceInfoButton'}
                       btnStyle="success"
                       block={true}
                       icon="plus-circle"
                     >
-                      Add Order
+                      {__('Add Price Information')}
                     </Button>
                   }
                   content={this.renderForm}
@@ -190,7 +173,7 @@ class ListComp extends React.Component<IProps> {
             data={this.renderContent()}
             loading={false}
             count={90}
-            emptyText="There is no primary trading."
+            emptyText="There is no stock transfer request."
             emptyImage="/images/actions/20.svg"
           />
         }

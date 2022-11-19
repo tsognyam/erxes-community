@@ -121,6 +121,10 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('usedAccount', false)}
       {renderFilterParam('realAccount', false)}
       {renderFilterParam('name', false)}
+      {renderFilterParam('prefix', false)}
+      {renderFilterParam('phone', false)}
+      {renderFilterParam('stockCompany', false)}
+      {renderFilterParam('stockAccount', false)}
       {renderFilterParam('journalNumber', false)}
       {renderFilterParam('transactionMeaning', false)}
       {renderFilterParam('transactionAmount', false)}
