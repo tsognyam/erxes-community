@@ -78,24 +78,25 @@ class OrderValidator extends BaseValidator {
       },
       params
     );
-    console.log(data);
     let options: any = [];
     if (data != undefined && data.take != undefined) options.take = data.take;
     if (data != undefined && data.skip != undefined) options.skip = data.skip;
     if (data != undefined && data.orderBy != undefined)
       options.orderBy = data.orderBy;
-    delete data.skip;
-    delete data.take;
-    delete data.orderBy;
+    if (data != undefined) {
+      delete data.skip;
+      delete data.take;
+      delete data.orderBy;
+    }
     let select: any = undefined;
 
     // let stockType = true;
-    if (data.stocktypeId != undefined) {
+    if (data != undefined && data.stocktypeId != undefined) {
       data.stock = {
         stocktypeId: data.stocktypeId
       };
     }
-    if (data.prefix != undefined) {
+    if (data != undefined && data.prefix != undefined) {
       data.user = {
         UserMCSDAccount: {
           some: {
@@ -118,10 +119,11 @@ class OrderValidator extends BaseValidator {
       },
       wallet: true
     };
-
-    delete data.detail;
-    delete data.stocktypeId;
-    delete data.groupBy;
+    if (data != undefined) {
+      delete data.detail;
+      delete data.stocktypeId;
+      delete data.groupBy;
+    }
     let order = this.orderRepository.findMany(data, select, options);
     return order;
   };
