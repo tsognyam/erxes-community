@@ -3,34 +3,26 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import OrderRepository from '../../../repository/order.repository';
-import OrderService from '../../../service/order.service';
-let orderRepository = new OrderRepository();
-let orderService = new OrderService();
-const OrderQueries = {
-  tradingOrders: async (
+import StockRepository from '../../../repository/stock.repository';
+import StockService from '../../../service/stock.service';
+let stockRepository = new StockRepository();
+let stockService = new StockService();
+const StockQueries = {
+  tradingStocks: async (
     _root: any,
     { params }: { params: any },
     { models, subdomain, user }: IContext
   ) => {
-    console.log(user);
-    return await orderService.get(params);
+    return await stockService.getStock(params);
   },
-  tradingOrderDetail: async (
+  tradingStockDetail: async (
     _root: any,
     { id },
     { models, subdomain, user }: IContext
   ) => {
-    return await orderRepository.findOne(id);
-  },
-  tradingOrderTypes: async (
-    _root: any,
-    {},
-    { models, subdomain, user }: IContext
-  ) => {
-    return await orderRepository.getOrderTypeList();
+    return await stockRepository.findUnique({
+      id: id
+    });
   }
 };
-requireLogin(OrderQueries, 'tradingOrders');
-requireLogin(OrderQueries, 'tradingOrderDetail');
-export default OrderQueries;
+export default StockQueries;
