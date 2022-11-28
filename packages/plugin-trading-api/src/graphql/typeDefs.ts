@@ -21,6 +21,11 @@ import {
   queries as OrderQueries,
   mutations as OrderMutations
 } from './schema/order';
+import {
+  types as BankTypes,
+  queries as BankQueries,
+  mutations as BankMutations
+} from './schema/bank';
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -30,12 +35,14 @@ const typeDefs = async _serviceDiscovery => {
     ${SystemTypes}
     ${BankTransactionTypes}
     ${OrderTypes}
+    ${BankTypes}
     
     extend type Query {
       ${WalletQueries}
       ${SystemQueries}
       ${BankTransactionQueries}
       ${OrderQueries}
+      ${BankQueries}
     }
     
     extend type Mutation {
@@ -43,6 +50,7 @@ const typeDefs = async _serviceDiscovery => {
       ${SystemMutations}
       ${BankTransactionMutations}
       ${OrderMutations}
+      ${BankMutations}
     }
   `;
 };

@@ -1,3 +1,4 @@
+import { WalletConst } from '../../../constants/wallet';
 import WalletRepository from '../../../repository/wallet/wallet.repository';
 import BaseValidator from '../base.validator';
 import WalletValidator from './wallet.validator';
@@ -12,9 +13,16 @@ export default class BankTransactionValidator extends BaseValidator {
       },
       params
     );
-    let wallet = await this.walletValidator.checkWallet(data.walletId);
-
-    return { data, wallet };
+    let wallet = await this.walletValidator.checkWallet(
+      { id: data.walletId },
+      { walletBalance: true }
+    );
+    if (wallet.type != WalletConst.WALLET_TYPES.USER)
+      throw new Error('Only user wallet can deposit');
+    let nominalWallet = await this.walletValidator.validateGetNominalWallet({
+      currencyCode: wallet.currencyCode
+    });
+    return { data, wallet, nominalWallet };
   };
   validateRequest = params => {
     var { data } = this.validate(

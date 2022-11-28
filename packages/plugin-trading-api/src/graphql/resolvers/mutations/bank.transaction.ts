@@ -12,13 +12,8 @@ const BankTransactionMutations = {
     params: Prisma.BankTransactionCreateInput,
     { user, models, subdomain }: IContext
   ) => {
-    return await bankTransactionService.chargeRequest(params, subdomain);
+    return await bankTransactionService.chargeV2(params, subdomain);
   }
 };
 requireLogin(BankTransactionMutations, 'tradingWalletCharge');
-checkPermission(
-  BankTransactionMutations,
-  'tradingWalletCharge',
-  'TradingBroker'
-);
 export default BankTransactionMutations;

@@ -2,12 +2,11 @@ import BaseConst from './base';
 export class WalletConst extends BaseConst {
   static readonly WALLET_TYPES = {
     NOMINAL: 1,
-    USER: 2,
-    ADMIN: 3,
-    MCSD: 4
+    NOMINAL_FEE: 2,
+    USER: 3,
+    ADMIN: 4,
+    MCSD: 5
   };
-  static NOMINAL = Number(process.env.NOMINAL_WALLET_ID);
-  static FEE_RECEIVER = WalletConst.NOMINAL;
   static STATUS_BLOCKED = 3;
 }
 export class TransactionConst extends BaseConst {
@@ -27,6 +26,7 @@ export class TransactionConst extends BaseConst {
   static TYPE_CHARGE = 3;
   static TYPE_WITHDRAW = 4;
   static TYPE_REGFEE = 5;
+  static TYPE_ORDER = 6;
 
   static FEE_TYPE_SENDER = 0;
   static FEE_TYPE_RECEIVER = 1;

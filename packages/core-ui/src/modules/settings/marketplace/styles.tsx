@@ -480,11 +480,16 @@ const DetailCard = styled.div`
 const MemberPic = styled.div`
   width: 39px;
   height: 39px;
-  border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
+  border: 1px solid ${colors.borderPrimary};
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
 
   img {
-    height: 35px;
+    max-height: 100%;
+    max-width: 100%;
   }
 `;
 
@@ -492,10 +497,14 @@ const CardInformation = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 12px;
+
+  p {
+    font-size: 12px;
+  }
 `;
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
-  font-size: 11px;
+  font-size: 12px;
   margin-top: ${props => props.withMargin && '5'}px;
 `;
 

@@ -11,11 +11,17 @@ class WalletValidator extends BaseValidator {
   ) => {
     let wallet = await this.walletRepository.findFirst(where, include);
     if (!wallet) throw new Error('Wallet not found');
+    wallet.walletBalance.availableBalance =
+      wallet.walletBalance.balance - wallet.walletBalance.holdBalance;
     return wallet;
   };
   checkNominalWallet = async (currencyCode: string) => {
     let wallet = await this.walletRepository.findNominalWallet(currencyCode);
+    let walletFee = await this.walletRepository.findNominalFeeWallet(
+      currencyCode
+    );
     if (!wallet) throw new Error('Nominal wallet not found');
+    if (!walletFee) throw new Error('Nominal fee wallet not found');
     return wallet;
   };
   validateCreate = async (params: any, subdomain: string) => {
@@ -35,7 +41,6 @@ class WalletValidator extends BaseValidator {
         type: this._joi
           .any()
           .allow(
-            WalletConst.WALLET_TYPES.NOMINAL,
             WalletConst.WALLET_TYPES.ADMIN,
             WalletConst.WALLET_TYPES.MCSD,
             WalletConst.WALLET_TYPES.USER
@@ -136,6 +141,26 @@ class WalletValidator extends BaseValidator {
       params
     );
     return await this.walletRepository.findByType(data.currencyCode);
+  };
+  validateGetNominalFeeWallet = async (params: any) => {
+    let { error, data } = this.validate(
+      {
+        currencyCode: this._joi
+          .string()
+          .min(3)
+          .max(6)
+      },
+      params
+    );
+    return await this.walletRepository.findFirst(
+      {
+        currencyCode: data.currencyCode,
+        type: WalletConst.WALLET_TYPES.NOMINAL_FEE
+      },
+      {
+        walletBalance: true
+      }
+    );
   };
 }
 export default WalletValidator;

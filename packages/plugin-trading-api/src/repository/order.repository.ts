@@ -33,6 +33,9 @@ export default class OrderRepository extends BaseRepository {
       }
     });
   };
+  getOrderTypeList = () => {
+    return this._prisma.ordertype.findMany();
+  };
   getbyExecuted = (where: any) => {
     return this._prisma.order.findMany(where);
   };

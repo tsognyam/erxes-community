@@ -20,10 +20,10 @@ export const commonPaginateValue = `
 `;
 
 export const riskAssessmentDef = `
-    $categoryId: String!,
-    $description: String!,
+    $categoryId: String,
+    $description: String,
     $name: String!,
-    $calculateMethod: String!,
+    $calculateMethod: String,
 `;
 
 export const riskAssessmentValues = `
@@ -50,6 +50,7 @@ export const riskAssessmentParams = `
     statusColor,
     categoryId,
     createdAt,
+    resultScore,
     category{
         _id
         formId

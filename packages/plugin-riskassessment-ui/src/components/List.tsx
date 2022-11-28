@@ -1,4 +1,4 @@
-import { BarItems, Button, FormControl, ModalTrigger, Table } from '@erxes/ui/src';
+import { BarItems, Button, FormControl, ModalTrigger, Table, __ } from '@erxes/ui/src';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import _loadash from 'lodash';
 import React from 'react';
@@ -143,9 +143,11 @@ class ListComp extends React.Component<Props, IState> {
               )}
             </th>
             <th>Name</th>
-            <th>Category Name</th>
-            <th>Status</th>
-            <th>Create At</th>
+            <th>{__('Category Name')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Score')}</th>
+            <th>{__('Create At')}</th>
+            <th>{__('Action')}</th>
           </tr>
         </thead>
         <tbody>
@@ -157,6 +159,7 @@ class ListComp extends React.Component<Props, IState> {
                 selectedValue={selectedValue}
                 onchange={this.selectValue}
                 renderButton={this.props.renderButton}
+                queryParams={this.props.queryParams}
               />
             );
           })}

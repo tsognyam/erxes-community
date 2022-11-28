@@ -6,14 +6,15 @@ import { MESSAGE_TYPES } from '../../models/definitions/constants';
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { AUTO_BOT_MESSAGES } from '../../models/definitions/constants';
-import { debug } from '../../configs';
+import { debug, serviceDiscovery } from '../../configs';
 import {
   sendContactsMessage,
   sendCardsMessage,
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook
+  sendToWebhook,
+  sendCommonMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -583,13 +584,19 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('changeStatus');
+
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
     });
 
     await models.Conversations.changeStatusConversation(_ids, status, user._id);
+
+    serverTiming.endTime('changeStatus');
+
+    serverTiming.startTime('sendNotifications');
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
@@ -604,6 +611,10 @@ const conversationMutations = {
       type: 'conversationStateChange'
     });
 
+    serverTiming.endTime('sendNotifications');
+
+    serverTiming.startTime('putLog');
+
     for (const conversation of updatedConversations) {
       await putUpdateLog(
         models,
@@ -617,7 +628,24 @@ const conversationMutations = {
         },
         user
       );
+
+      if (await serviceDiscovery.isEnabled('zerocodeai')) {
+        // const messagesCount = await models.ConversationMessages.count({ conversationId: conversation._id });
+        // const messages = await models.ConversationMessages.find({ conversationId: conversation._id }).sort({ createdAt: -1 }).limit(messagesCount / 10);
+
+        sendCommonMessage({
+          subdomain,
+          serviceName: 'zerocodeai',
+          action: 'analyze',
+          data: {
+            conversation,
+            messages: [{ content: 'muu' }, { content: 'sain' }]
+          }
+        });
+      }
     }
+
+    serverTiming.endTime('putLog');
 
     return updatedConversations;
   },

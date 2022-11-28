@@ -24,6 +24,7 @@ export type RiskAssessmentsType = {
   status: string;
   statusColor: string;
   createdAt?: string;
+  resultScore?: number;
   category?: RiskAssessmentCategory;
   calculateMethod: string;
   calculateLogics: RiskCalculateLogicType[];
@@ -83,8 +84,7 @@ export interface ICardRiskAssements {
   _id: string;
   cardId: string;
   riskAssessmentId: string;
-  name?: string;
-  statusColor?: string;
+  riskAssessment: RiskAssessmentsType;
 }
 
 export type ICardRiskConfirmitiesQueryResponse = {

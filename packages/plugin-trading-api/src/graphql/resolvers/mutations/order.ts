@@ -8,7 +8,7 @@ import OrderService from '../../../service/order.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
 let orderService = new OrderService();
 const OrderMutations = {
-  tradingOrderCreate: async (
+  tradingOrderAdd: async (
     _root: any,
     params: Prisma.OrderCreateInput,
     { user, models, subdomain }: IContext
@@ -19,7 +19,7 @@ const OrderMutations = {
     }
     return await orderService.create(params);
   },
-  tradingOrderUpdate: async (
+  tradingOrderEdit: async (
     _root: any,
     params: any,
     { user, models, subdomain }: IContext

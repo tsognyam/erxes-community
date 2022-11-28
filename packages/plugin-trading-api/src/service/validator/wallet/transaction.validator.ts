@@ -17,7 +17,8 @@ export class TransactionValidator extends WalletValidator {
           .allow(
             TransactionConst.TYPE_W2W,
             TransactionConst.TYPE_CHARGE,
-            TransactionConst.TYPE_WITHDRAW
+            TransactionConst.TYPE_WITHDRAW,
+            TransactionConst.TYPE_ORDER
           )
           .required(),
         description: this._joi.string().default('')
@@ -55,7 +56,7 @@ export class TransactionValidator extends WalletValidator {
     }
     if (
       receiverWallet != undefined &&
-      senderWallet.type + receiverWallet.type !== 3
+      senderWallet.type + receiverWallet.type !== 4
     ) {
       throw new Error('Invalid wallet exception');
     }

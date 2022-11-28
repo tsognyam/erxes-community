@@ -74,20 +74,21 @@ export default class BaseRepository {
       where,
       include
     });
-  create = (entity: any, select: any = undefined, include: any = undefined) => {
-    if (prisma != undefined)
-      return prisma[this._model].create({ data: entity, select, include });
-    else
-      return this._prisma[this._model].create({
-        data: entity,
-        select,
-        include
-      });
+  create = async (
+    entity: any,
+    select: any = undefined,
+    include: any = undefined
+  ) => {
+    return await this._prisma[this._model].create({
+      data: entity,
+      select,
+      include
+    });
   };
 
-  createMany = (entity: any, select: any = undefined) =>
-    this._prisma[this._model].createMany({ data: entity, select });
-
+  createMany = async (entity: any, select: any = undefined) => {
+    return await this._prisma[this._model].createMany({ data: entity, select });
+  };
   update = async (id: number, entity: any, select: any = undefined) => {
     return await this._prisma[this._model].update({
       where: { id: +id },
@@ -102,6 +103,6 @@ export default class BaseRepository {
     });
   };
 
-  delete = async (id: Number | string) =>
+  delete = async (id: number | string) =>
     await this._prisma[this._model].delete({ where: { id: +id } });
 }

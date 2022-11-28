@@ -44,6 +44,7 @@ export const types = `
         status: String
         statusColor: String
         createdAt:Date
+        resultScore:Int
         category:RiskAssessmentCategoryInput
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
@@ -56,7 +57,7 @@ export const types = `
 
 export const queries = `
     riskAssessments (categoryId:String,${commonPaginateTypes},status:String):list
-    riskAssessmentDetail(_id: String): RiskAssessment
+    riskAssessmentDetail(_id: String,fieldsSkip:JSON): RiskAssessment
 `;
 export const mutations = `
     addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},calculateLogics:[CalculateLogicInput]):JSON
