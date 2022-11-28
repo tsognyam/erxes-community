@@ -3,7 +3,7 @@ name: Plugin trading Api CI
 on:
   push:
     branches:
-      - dev
+      - trading
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
