@@ -133,7 +133,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
         <FormGroup>
           <ControlLabel>{__('Stock Company to Receive')}</ControlLabel>
           <FormControl
-            defaultValue={object.stockCompanyToReceive}
+            value={object.stockCompanyToReceive}
             componentClass="select"
             options={STOCK_COMPANY}
             disabled={true}

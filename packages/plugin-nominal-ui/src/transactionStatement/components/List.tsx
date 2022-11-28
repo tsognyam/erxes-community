@@ -84,8 +84,8 @@ class ListComp extends React.Component<IProps, State> {
             {__('Date to check the balance of the collateral')}
           </FormLabel>
           <DateControl
-            value={this.props.queryParams.filterDate}
-            required={false}
+            value={this.props.queryParams.filterDate || new Date()}
+            required={true}
             name="filterDate"
             onChange={date => this.onChangeRangeFilter('filterDate', date)}
             placeholder={'Filter by date'}

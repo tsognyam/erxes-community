@@ -49,15 +49,24 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             {...formProps}
             name="name"
             defaultValue={object.register}
-            type="number"
+            type="text"
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Name')}</ControlLabel>
+          <ControlLabel>{__('First Name')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.name}
+            defaultValue={object.firstname}
+            type="text"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Last Name')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="name"
+            defaultValue={object.lastname}
             type="text"
           />
         </FormGroup>

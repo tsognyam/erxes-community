@@ -3,10 +3,10 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { PREFIX, IPO } from '../constants';
+import { PREFIX, TYPE, ORDER_TYPE, TIME_FRAME } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
@@ -34,51 +34,64 @@ class Forms extends React.Component<Props & ICommonFormProps> {
 
     return (
       <>
+        <FormGroup horizontal>
+          <ControlLabel>{__('Your Account Balance')}:</ControlLabel>{' '}
+          {(2500000).toLocaleString(undefined, {
+            maximumFractionDigits: 2
+          })}
+          ₮
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Prefix')}</ControlLabel>
           <FormControl
-            type="number"
             componentClass="select"
             defaultValue={object.prefix}
+            type="number"
             options={PREFIX}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Register number')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            type="text"
-            name="name"
-            defaultValue={object.register}
-            autoFocus={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Name')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.name}
-            type="text"
-            autoFocus={true}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('IPO')}</ControlLabel>
+          <ControlLabel>{__('Type')}</ControlLabel>
           <FormControl
             componentClass="select"
-            options={IPO}
-            defaultValue={object.ipo}
+            options={TYPE}
+            defaultValue={object.type}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Price')}</ControlLabel>
+          <ControlLabel>{__('Order Type')}</ControlLabel>
+          <FormControl
+            componentClass="select"
+            options={ORDER_TYPE}
+            defaultValue={object.orderType}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Lowest Price')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name="lowestPrice"
             defaultValue={object.price}
             type="number"
-            autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Highest Price')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="highestPrice"
+            defaultValue={object.price}
+            type="number"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Potential Balance')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="potentialBalance"
+            disabled
+            defaultValue={object.price}
+            type="number"
           />
         </FormGroup>
         <FormGroup>
@@ -86,29 +99,36 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             {...formProps}
             name="name"
-            defaultValue={object.amount}
+            defaultValue={object.quantity}
             type="number"
-            autoFocus={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Time Frame')}</ControlLabel>
+          <FormControl
+            componentClass="select"
+            options={TIME_FRAME}
+            defaultValue={object.timeframe}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Commission')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name="commission"
             defaultValue={object.commission}
             type="number"
-            autoFocus={true}
+            disabled
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Total')}</ControlLabel>
+          <ControlLabel>{__('Total (sum + commission)')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name="total"
             defaultValue={object.total}
             type="number"
-            autoFocus={true}
+            disabled
           />
         </FormGroup>
       </>

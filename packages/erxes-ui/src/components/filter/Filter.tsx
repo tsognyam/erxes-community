@@ -123,6 +123,8 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('name', false)}
       {renderFilterParam('prefix', false)}
       {renderFilterParam('phone', false)}
+      {renderFilterParam('firstName', false)}
+      {renderFilterParam('lastName', false)}
       {renderFilterParam('stockCompany', false)}
       {renderFilterParam('stockAccount', false)}
       {renderFilterParam('journalNumber', false)}

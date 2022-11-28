@@ -221,7 +221,7 @@ class ListComp extends React.Component<IProps> {
             right={
               <Flex>
                 <ModalTrigger
-                  title="Primary merket order"
+                  title="Place an order"
                   size={'lg'}
                   trigger={
                     <Button

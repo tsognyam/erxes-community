@@ -44,6 +44,7 @@ class Row extends React.Component<Props> {
           {stock.changePercent.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
+          %
         </td>
         <td>
           {stock.quantity.toLocaleString(undefined, {

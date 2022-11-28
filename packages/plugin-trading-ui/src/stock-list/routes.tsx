@@ -7,14 +7,14 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Tradings" */ './containers/List')
 );
 
-const tradings = ({ history, location }) => {
+const domestic = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <List history={history} queryParams={queryParams} />;
 };
 
 const routes = () => {
-  return <Route path="/tradings/stock-list" component={tradings} />;
+  return <Route path="/domestic/stock-list" component={domestic} />;
 };
 
 export default routes;

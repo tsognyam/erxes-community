@@ -103,3 +103,165 @@ export const StockChange = styledTS<{ isIncreased: boolean }>(styled.td)`
   color: ${props =>
     props.isIncreased ? colors.colorCoreGreen : colors.colorCoreRed} !important;
 `;
+
+export const StockDataContainer = styled.div`
+  display: flex;
+  overflow-y: hidden;
+  overflow-x: auto;
+  border-bottom: 1px solid #eee;
+`;
+
+export const StockData = styledTS<{ isIncreased?: boolean }>(styled.div)`
+  min-width: 140px;
+  color: ${colors.textPrimary};
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 15px;
+
+  h5 {
+    margin: 0;
+  }
+
+  *{
+    width: 50%;
+  }
+
+  &:last-child {
+    border-right: none;
+  }
+`;
+
+export const Filter = styled.div`
+  width: 500px;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: space-between;
+  padding: ${dimensions.unitSpacing}px 0;
+`;
+
+export const ListContainer = styled.div`
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: ${dimensions.unitSpacing}px;
+  display: flex;
+`;
+
+export const List = styled.table`
+  width: 33%;
+  margin-right: 10px;
+  background: #fff;
+  border: 1px solid #eee;
+  text-align: center;
+
+  &:last-child {
+    margin-right: 0px;
+  }
+
+  thead {
+    text-align: center;
+
+    tr {
+      &:first-child {
+        background: #fff;
+        height: 35px;
+      }
+      background: #ddd;
+    }
+    th {
+      text-align: center;
+    }
+  }
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background: #eee;
+      }
+    }
+  }
+`;
+
+export const FilterContainer = styledTS<{
+  width?: number;
+  noPadding?: boolean;
+}>(styled.div)`
+  padding: ${props => !props.noPadding && '8px'};
+  border-radius: ${dimensions.unitSpacing - 2}px;
+  border: 1px solid ${colors.borderPrimary};
+  flex: ${props => !props.width && 1};
+  position: relative;
+  width: ${props => props.width && `${props.width}px`};
+  margin: ${dimensions.unitSpacing}px;
+
+  > label {
+    margin-right: ${dimensions.coreSpacing}px;
+  }
+
+  > input {
+    border: 0;
+    outline: 0;
+    width: 100%;
+  }
+`;
+
+export const SearchInput = styled.input`
+  flex: 1;
+  border: none;
+  width: 0px;
+  transition: width 1s;
+
+  &:focus-visible {
+    outline: none !important;
+  }
+`;
+
+export const SearchBar = styled(FilterContainer)`
+  &:hover {
+    ${SearchInput} {
+      width: 295px;
+    }
+  }
+`;
+
+export const SearchIcon = styled.div`
+  margin: 4px 6px;
+`;
+
+export const EmptyContent = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  > img {
+    width: 300px;
+  }
+
+  p {
+    text-align: center;
+    max-width: 400px;
+
+    b {
+      margin: ${dimensions.unitSpacing}px 0;
+      display: block;
+    }
+  }
+`;
+
+export const Number = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 50px;
+  height: 100%;
+  align-items: center;
+`;
+
+export const ChartTable = styled.div`
+  overflow-y: auto;
+  height: 90%;
+  width: 100%;
+  display: block;
+`;

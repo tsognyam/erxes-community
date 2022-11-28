@@ -1,12 +1,12 @@
 module.exports = {
   name: 'commission',
-  port: 3014,
+  port: 3021,
   scope: 'commission',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
-    url: 'http://localhost:3014/remoteEntry.js',
+    url: 'http://localhost:3021/remoteEntry.js',
     scope: 'commission',
     module: './routes'
   },

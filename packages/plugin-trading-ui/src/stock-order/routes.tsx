@@ -3,18 +3,18 @@ import React from 'react';
 import queryString from 'query-string';
 import { Route } from 'react-router-dom';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tradings" */ './containers/List')
+const Board = asyncComponent(() =>
+  import(/* webpackChunkName: "Board - Tradings" */ './containers/Board')
 );
 
 const domestic = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <List history={history} queryParams={queryParams} />;
+  return <Board history={history} queryParams={queryParams} />;
 };
 
 const routes = () => {
-  return <Route path="/domestic/order-list" component={domestic} />;
+  return <Route path="/domestic/stock-order" component={domestic} />;
 };
 
 export default routes;

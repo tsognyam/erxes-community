@@ -1,12 +1,12 @@
 module.exports = {
   name: 'nominal',
-  port: 3017,
+  port: 3018,
   scope: 'nominal',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
-    url: 'http://localhost:3017/remoteEntry.js',
+    url: 'http://localhost:3018/remoteEntry.js',
     scope: 'nominal',
     module: './routes'
   },

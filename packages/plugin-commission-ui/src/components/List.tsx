@@ -138,9 +138,7 @@ class ListComp extends React.Component<IProps, State> {
 
   render() {
     const { queryParams } = this.props;
-    const breadcrumb = [
-      { title: __('Primary Trading'), link: '/primarytrade' }
-    ];
+    const breadcrumb = [{ title: __('Commission'), link: '/commission' }];
 
     return (
       <Wrapper

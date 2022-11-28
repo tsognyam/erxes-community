@@ -24,7 +24,8 @@ export const SECONDARY_DATA = [
     _id: '1',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Saruul',
+    firstname: 'Saruul',
+    lastname: 'HOHO',
     stock: 'LEND',
     type: 'Buy',
     orderType: 'Conditional',
@@ -40,7 +41,8 @@ export const SECONDARY_DATA = [
     _id: '2',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Tugs',
+    firstname: 'Tugs',
+    lastname: 'HOHO',
     stock: 'LEND',
     type: 'Sell',
     orderType: 'Market Price',
@@ -56,7 +58,8 @@ export const SECONDARY_DATA = [
     _id: '3',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Bold',
+    firstname: 'Bold',
+    lastname: 'HOHO',
     stock: 'LEND',
     type: 'Buy',
     orderType: 'Stop Limit',
@@ -72,7 +75,8 @@ export const SECONDARY_DATA = [
     _id: '4',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Anu',
+    firstname: 'Anu',
+    lastname: 'HOHO',
     stock: 'LEND',
     type: 'Sell',
     orderType: 'Stop Loss',
@@ -88,7 +92,8 @@ export const SECONDARY_DATA = [
     _id: '5',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Zaya',
+    firstname: 'Zaya',
+    lastname: 'HOHO',
     stock: 'CU',
     type: 'Buy',
     orderType: 'Conditional',
@@ -104,7 +109,8 @@ export const SECONDARY_DATA = [
     _id: '6',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Bat',
+    firstname: 'Bat',
+    lastname: 'HOHO',
     stock: 'CU',
     type: 'Sell',
     orderType: 'Stop Loss',
@@ -120,7 +126,8 @@ export const SECONDARY_DATA = [
     _id: '7',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Tuuguu',
+    firstname: 'Tuuguu',
+    lastname: 'HOHO',
     stock: 'CU',
     type: 'Buy',
     orderType: 'Conditional',
@@ -136,7 +143,8 @@ export const SECONDARY_DATA = [
     _id: '8',
     prefix: '909090',
     register: 'aa12121212',
-    name: 'Tuvshuu',
+    firstname: 'Tuvshuu',
+    lastname: 'HOHO',
     stock: 'CU',
     type: 'Sell',
     orderType: 'Conditional',
@@ -286,4 +294,259 @@ export const STOCK_LIST = [
     bullish: 34,
     bearish: 43
   }
+];
+
+export const STOCK_DATA = [
+  {
+    name: 'LEND',
+    change: 15,
+    changePercent: -1.99,
+    quantity: 39
+  },
+  {
+    name: 'CU',
+    change: 20,
+    changePercent: -2.33,
+    quantity: 55
+  },
+  {
+    name: 'APU',
+    change: 20,
+    changePercent: 5.98,
+    quantity: 1597
+  },
+  {
+    name: 'SUU',
+    change: 14,
+    changePercent: 2.33,
+    quantity: 300
+  },
+  {
+    name: 'MNP',
+    change: 10,
+    changePercent: -1.99,
+    quantity: 39
+  },
+  {
+    name: 'INV',
+    change: 8,
+    changePercent: -2.33,
+    quantity: 55
+  },
+  {
+    name: 'GOV',
+    change: 22,
+    changePercent: 5.98,
+    quantity: 1597
+  },
+  {
+    name: 'BOGD',
+    change: 10,
+    changePercent: 1.99,
+    quantity: 300
+  },
+  {
+    name: 'LEND',
+    change: 15,
+    changePercent: -1.99,
+    quantity: 39
+  },
+  {
+    name: 'CU',
+    change: 20,
+    changePercent: -2.33,
+    quantity: 55
+  },
+  {
+    name: 'APU',
+    change: 20,
+    changePercent: 5.98,
+    quantity: 1597
+  },
+  {
+    name: 'SUU',
+    change: 14,
+    changePercent: 2.33,
+    quantity: 300
+  },
+  {
+    name: 'MNP',
+    change: 10,
+    changePercent: -1.99,
+    quantity: 39
+  },
+  {
+    name: 'INV',
+    change: 8,
+    changePercent: -2.33,
+    quantity: 55
+  },
+  {
+    name: 'GOV',
+    change: 22,
+    changePercent: 5.98,
+    quantity: 1597
+  },
+  {
+    name: 'BOGD',
+    change: 10,
+    changePercent: 1.99,
+    quantity: 300
+  }
+];
+
+export const ORDER_BUY_SELL = [
+  {
+    price: 30,
+    quantity: 3000
+  },
+  {
+    price: 200,
+    quantity: 300
+  },
+  {
+    price: 55,
+    quantity: 1000
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 50,
+    quantity: 250
+  },
+  {
+    price: 10,
+    quantity: 200
+  },
+  {
+    price: 20,
+    quantity: 300
+  },
+  {
+    price: 15,
+    quantity: 2
+  },
+  {
+    price: 30,
+    quantity: 55
+  },
+  {
+    price: 100,
+    quantity: 5
+  }
+];
+
+export const TIME_FRAME = [
+  { label: 'Until the order is cancelled', value: 'cancel' },
+  { label: 'Until the order is cancelled', value: 'cancel' }
+];
+
+export const STOCK_ORDER = [
+  {
+    prefix: '9099090',
+    stock: 'CU',
+    type: 'Buy',
+    orderType: 'Conditional',
+    price: 200,
+    successful: 0,
+    left: 0,
+    status: 'Pending',
+    total: 40040,
+    commission: 40,
+    timeFrame: 'GTC',
+    timeframe: 'Until the order is cancelled',
+    lowestPrice: 200,
+    highestPrice: 400,
+    balance: 2540,
+    quantity: 200,
+    commissionPercent: 1
+  },
+  {
+    prefix: '80808080',
+    stock: 'CU',
+    type: 'Sell',
+    orderType: 'Conditional',
+    price: 200,
+    successful: 0,
+    left: 0,
+    status: 'Successful',
+    total: 40040,
+    commission: 40,
+    timeFrame: 'GTC',
+    timeframe: 'Until the order is cancelled',
+    lowestPrice: 200,
+    highestPrice: 400,
+    balance: 2540,
+    quantity: 200,
+    commissionPercent: 1
+  },
+  {
+    prefix: '707070707070',
+    stock: 'CU',
+    type: 'Buy',
+    orderType: 'Conditional',
+    price: 200,
+    successful: 0,
+    left: 0,
+    status: 'Pending',
+    total: 40040,
+    commission: 40,
+    timeFrame: 'GTC',
+    timeframe: 'Until the order is cancelled',
+    lowestPrice: 200,
+    highestPrice: 400,
+    balance: 2540,
+    quantity: 200,
+    commissionPercent: 1
+  },
+  {
+    prefix: '606060600',
+    stock: 'CU',
+    type: 'Sell',
+    orderType: 'Conditional',
+    price: 200,
+    successful: 0,
+    left: 0,
+    status: 'Canceled',
+    total: 40040,
+    commission: 40,
+    timeFrame: 'GTC',
+    timeframe: 'Until the order is cancelled',
+    lowestPrice: 200,
+    highestPrice: 400,
+    balance: 2540,
+    quantity: 200,
+    commissionPercent: 1
+  },
+  {
+    prefix: '5050505050',
+    stock: 'CU',
+    type: 'Buy',
+    orderType: 'Conditional',
+    price: 200,
+    successful: 0,
+    left: 0,
+    status: 'Pending',
+    total: 40040,
+    commission: 40,
+    timeFrame: 'GTC',
+    timeframe: 'Until the order is cancelled',
+    lowestPrice: 200,
+    highestPrice: 400,
+    balance: 2540,
+    quantity: 200,
+    commissionPercent: 1
+  }
+];
+
+export const chartColors = [
+  '#6569DF',
+  '#63D2D6',
+  '#FF7C78',
+  '#81CC49',
+  '#7c2bba',
+  '#d1a924',
+  '#503b2c'
 ];

@@ -1,12 +1,12 @@
 module.exports = {
   name: 'primarytrade',
-  port: 3013,
+  port: 3023,
   scope: 'primarytrade',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
-    url: 'http://localhost:3013/remoteEntry.js',
+    url: 'http://localhost:3023/remoteEntry.js',
     scope: 'primarytrade',
     module: './routes'
   },

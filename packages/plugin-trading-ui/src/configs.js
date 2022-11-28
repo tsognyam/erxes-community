@@ -13,20 +13,27 @@ module.exports = {
   menus: [
     {
       text: 'Domestic trading',
-      url: '/tradings/order-list',
+      url: '/domestic/order-list',
       icon: 'icon-laptop',
       location: 'mainNavigation'
     },
     {
-      text: 'Order List',
-      to: '/tradings/order-list',
+      text: 'Stock List',
+      to: '/domestic/stock-list',
       image: '/images/icons/erxes-29.png',
       location: 'settings',
       scope: 'trading',
     },
     {
-      text: 'Stock List',
-      to: '/tradings/stock-list',
+      text: 'Stock Order',
+      to: '/domestic/stock-order',
+      image: '/images/icons/erxes-29.png',
+      location: 'settings',
+      scope: 'trading',
+    },
+    {
+      text: 'Order List',
+      to: '/domestic/order-list',
       image: '/images/icons/erxes-29.png',
       location: 'settings',
       scope: 'trading',
