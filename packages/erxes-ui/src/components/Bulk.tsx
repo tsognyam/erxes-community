@@ -36,6 +36,10 @@ export default abstract class Bulk extends React.Component<Props, State> {
     }
 
     this.setState({ bulk });
+
+    if (this.state.isAllSelected === true) {
+      this.setState({ isAllSelected: false });
+    }
   };
 
   toggleAll = (targets, containerId) => {
