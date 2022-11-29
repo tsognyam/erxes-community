@@ -9,12 +9,12 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Form from './Form';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
+import { __, getEnv } from '@erxes/ui/src/utils';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
-  request: any;
+  contract: any;
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,13 +25,13 @@ class Row extends React.Component<Props> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  renderEditAction = object => {
+  renderAttachAction = object => {
     const { save } = this.props;
 
-    const editTrigger = (
+    const attachTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+        <Tip text={__('Attach')} placement="bottom">
+          <Icon icon="file-plus" />
         </Tip>
       </Button>
     );
@@ -42,28 +42,60 @@ class Row extends React.Component<Props> {
 
     return (
       <ModalTrigger
-        title="Edit Price Information of Stock Transfer Request"
         size="lg"
-        trigger={editTrigger}
+        title="Attach"
+        trigger={attachTrigger}
         content={content}
       />
     );
   };
 
-  renderActions = object => {
-    if (object.status === 'Transfered') {
-      return null;
-    }
+  renderExportAction = () => {
+    // const { integration } = this.props;
+    const { REACT_APP_API_URL } = getEnv();
 
-    return <ActionButtons>{this.renderEditAction(object)}</ActionButtons>;
+    const onClick = () => {
+      window.open(
+        // `${REACT_APP_API_URL}/pl:contacts/file-export?type=customer&popupData=true&form=${integration.formId}`,
+        '_blank'
+      );
+    };
+
+    return (
+      <Tip text={__('Download')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="down-arrow" />
+      </Tip>
+    );
+  };
+
+  renderShowAction = () => {
+    return (
+      <Tip text={__('Show')} placement="top">
+        <Button btnStyle="link" icon="eye" />
+      </Tip>
+    );
+  };
+
+  renderActions = object => {
+    return (
+      <ActionButtons>
+        {this.renderAttachAction(object)}
+        {object.status === 'Contract Signed' && (
+          <>
+            {this.renderShowAction()}
+            {this.renderExportAction()}
+          </>
+        )}
+      </ActionButtons>
+    );
   };
 
   render() {
-    const { isChecked, index, request, toggleBulk } = this.props;
+    const { isChecked, index, contract, toggleBulk } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(request, e.target.checked);
+        toggleBulk(contract, e.target.checked);
       }
     };
 
@@ -73,7 +105,7 @@ class Row extends React.Component<Props> {
 
     return (
       <StyledTr key={index}>
-        <td id="requestsCheckBox" onClick={onClick}>
+        <td id="ordersCheckBox" onClick={onClick}>
           <FormControl
             checked={isChecked}
             componentClass="checkbox"
@@ -81,33 +113,21 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index + 1}</td>
-        <td>{request.firstName}</td>
-        <td>{request.register}</td>
-        <td>{request.phone}</td>
-        <td>{request.stockCompany}</td>
-        <td>{request.stockAccount}</td>
-        <td>{request.stock}</td>
-        <td>
-          {request.quantity.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <td>{request.requestedDate}</td>
+        <td>{contract.firstName}</td>
+        <td>{contract.registry}</td>
+        <td>{contract.sentDate}</td>
+        <td>{contract.contractNumber}</td>
         <td>
           <Label
             lblStyle={
-              request.status === 'Transfered'
-                ? 'success'
-                : request.status === 'New'
-                ? 'warning'
-                : 'simple'
+              contract.status === 'Contract Signed' ? 'success' : 'warning'
             }
           >
-            {request.status}
+            {contract.status}
           </Label>
         </td>
-        <td>{request.approvedDate}</td>
-        <td>{this.renderActions(request)}</td>
+        <td>{contract.signedDate}</td>
+        <td>{this.renderActions(contract)}</td>
       </StyledTr>
     );
   }

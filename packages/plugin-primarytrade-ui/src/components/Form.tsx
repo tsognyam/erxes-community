@@ -3,7 +3,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { PREFIX, IPO } from '../constants';
@@ -14,7 +14,7 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
-class Forms extends React.Component<Props & ICommonFormProps> {
+class Forms extends React.Component<Props> {
   generateDoc = (values: { _id?: string; name: string; content: string }) => {
     const { object } = this.props;
     const finalValues = values;

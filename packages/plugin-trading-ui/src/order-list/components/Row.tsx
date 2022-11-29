@@ -58,16 +58,14 @@ class Row extends React.Component<Props> {
 
     return (
       <ActionButtons>
-        <ActionButtons>
-          {this.renderEditAction(object)}
-          <Tip text={__('Delete')} placement="bottom">
-            <Button
-              btnStyle="link"
-              // onClick={() => this.remove(object)}
-              icon="cancel-1"
-            />
-          </Tip>
-        </ActionButtons>
+        {this.renderEditAction(object)}
+        <Tip text={__('Delete')} placement="bottom">
+          <Button
+            btnStyle="link"
+            // onClick={() => this.remove(object)}
+            icon="cancel-1"
+          />
+        </Tip>
       </ActionButtons>
     );
   };
