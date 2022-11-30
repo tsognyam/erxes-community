@@ -71,8 +71,8 @@ export default class RightMenu extends React.Component<Props, State> {
       if (type === 'prefix') {
         data = { prefix: target.value || '' };
       }
-      if (type === 'register') {
-        data = { register: target.value || '' };
+      if (type === 'registry') {
+        data = { registry: target.value || '' };
       }
       if (type === 'contractNumber') {
         data = { contractNumber: target.value || '' };
@@ -97,7 +97,10 @@ export default class RightMenu extends React.Component<Props, State> {
   renderFilter() {
     const { queryParams, onSelect } = this.props;
 
-    const statusValues = STATUS.map(p => ({ label: p.label, value: p.value }));
+    const statusValues = STATUS.map(p => ({
+      label: p.label,
+      value: p.value
+    }));
     const status = queryParams ? queryParams.status : [];
 
     const onFilterSelect = (ops: IOption[], type: string) =>
@@ -138,10 +141,10 @@ export default class RightMenu extends React.Component<Props, State> {
         />
         <ControlLabel>{__('Registry number')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.register}
+          defaultValue={queryParams.registry}
           type="text"
           placeholder={__('Enter registry number')}
-          onKeyPress={e => this.onSearch(e, 'register')}
+          onKeyPress={e => this.onSearch(e, 'registry')}
         />
         <ControlLabel>{__('First Name')}</ControlLabel>
         <FormControl

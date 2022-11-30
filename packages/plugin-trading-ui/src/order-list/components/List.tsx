@@ -76,8 +76,8 @@ class ListComp extends React.Component<IProps> {
             </th>
             <th>
               <SortHandler
-                sortField={'order.register'}
-                label={__('Register Number')}
+                sortField={'order.registry'}
+                label={__('Registry Number')}
               />
             </th>
             <th>

@@ -35,7 +35,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
               maximumFractionDigits: 2
             })}{' '}
             {bulk[0].currency} for customer with registration number{' '}
-            {bulk[0].register}?
+            {bulk[0].registry}?
           </div>
         )}
         {bulk.length !== 1 && (
@@ -47,7 +47,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
                   maximumFractionDigits: 2
                 })}{' '}
                 {item.currency} for customer with registration number{' '}
-                {item.register}
+                {item.registry}
                 <br />
               </>
             ))}

@@ -8,7 +8,7 @@ export const PREFIX = [
 
 export const LIST = [
   { label: 'Prefix', name: 'order.prefix' },
-  { label: 'Register number', name: 'order.register' },
+  { label: 'Registry number', name: 'order.registry' },
   { label: 'IPO', name: 'order.ipo' },
   { label: 'Created date', name: 'order.date' },
   { label: 'Price', name: 'order.price' },
@@ -23,7 +23,7 @@ export const SECONDARY_DATA = [
   {
     _id: '1',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Saruul',
     lastname: 'HOHO',
     stock: 'LEND',
@@ -40,7 +40,7 @@ export const SECONDARY_DATA = [
   {
     _id: '2',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Tugs',
     lastname: 'HOHO',
     stock: 'LEND',
@@ -57,7 +57,7 @@ export const SECONDARY_DATA = [
   {
     _id: '3',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Bold',
     lastname: 'HOHO',
     stock: 'LEND',
@@ -74,7 +74,7 @@ export const SECONDARY_DATA = [
   {
     _id: '4',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Anu',
     lastname: 'HOHO',
     stock: 'LEND',
@@ -91,7 +91,7 @@ export const SECONDARY_DATA = [
   {
     _id: '5',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Zaya',
     lastname: 'HOHO',
     stock: 'CU',
@@ -108,7 +108,7 @@ export const SECONDARY_DATA = [
   {
     _id: '6',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Bat',
     lastname: 'HOHO',
     stock: 'CU',
@@ -125,7 +125,7 @@ export const SECONDARY_DATA = [
   {
     _id: '7',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Tuuguu',
     lastname: 'HOHO',
     stock: 'CU',
@@ -142,7 +142,7 @@ export const SECONDARY_DATA = [
   {
     _id: '8',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     firstname: 'Tuvshuu',
     lastname: 'HOHO',
     stock: 'CU',

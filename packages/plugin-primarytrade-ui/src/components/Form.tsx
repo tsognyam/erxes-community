@@ -44,12 +44,12 @@ class Forms extends React.Component<Props> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Register number')}</ControlLabel>
+          <ControlLabel>{__('Registry number')}</ControlLabel>
           <FormControl
             {...formProps}
             type="text"
             name="name"
-            defaultValue={object.register}
+            defaultValue={object.registry}
             autoFocus={true}
           />
         </FormGroup>

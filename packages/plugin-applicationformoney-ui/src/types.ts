@@ -2,7 +2,7 @@ export interface IApplications {
   _id: string;
   firstName: string;
   lastName?: string;
-  register: string;
+  registry: string;
   cash: number;
   currency: string;
   receivingBank: string;

@@ -98,7 +98,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>{index + 1}</td>
         <td>{order.prefix}</td>
-        <td>{order.register}</td>
+        <td>{order.registry}</td>
         <td>{order.name}</td>
         <td>{order.stock}</td>
         <td>

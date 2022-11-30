@@ -105,7 +105,7 @@ class ListComp extends React.Component<IProps, State> {
                 label={__('First Name')}
               />
             </th>
-            <th>{__('Register number')}</th>
+            <th>{__('Registry number')}</th>
             {LIST.map(list => (
               <th>
                 <SortHandler sortField={list.name} label={__(list.label)} />

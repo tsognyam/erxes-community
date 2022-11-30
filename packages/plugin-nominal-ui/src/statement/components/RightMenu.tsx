@@ -71,8 +71,8 @@ export default class RightMenu extends React.Component<Props, State> {
       if (type === 'usedAccount') {
         data = { usedAccount: target.value || '' };
       }
-      if (type === 'register') {
-        data = { register: target.value || '' };
+      if (type === 'registry') {
+        data = { registry: target.value || '' };
       }
       if (type === 'realAccount') {
         data = { realAccount: target.value || '' };
@@ -141,12 +141,12 @@ export default class RightMenu extends React.Component<Props, State> {
             />
           </div>
         </CustomRangeContainer>
-        <ControlLabel>{__('Register number')}</ControlLabel>
+        <ControlLabel>{__('Registry number')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.register}
+          defaultValue={queryParams.registry}
           type="text"
-          placeholder={__('Enter register number')}
-          onKeyPress={e => this.onSearch(e, 'register')}
+          placeholder={__('Enter registry number')}
+          onKeyPress={e => this.onSearch(e, 'registry')}
         />
         <ControlLabel>{__('Used Account')}</ControlLabel>
         <FormControl

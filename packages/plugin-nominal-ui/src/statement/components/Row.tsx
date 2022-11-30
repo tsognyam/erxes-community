@@ -15,7 +15,7 @@ class Row extends React.Component<Props> {
     return (
       <StyledTr key={index}>
         <td>{index + 1}</td>
-        <td>{statement.register}</td>
+        <td>{statement.registry}</td>
         <td>{statement.journalNumber}</td>
         <td>
           {statement.transaction.toLocaleString(undefined, {

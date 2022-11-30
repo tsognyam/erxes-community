@@ -38,7 +38,7 @@ class Row extends React.Component<Props> {
         </td>
         <td>{index + 1}</td>
         <td>{application.firstName}</td>
-        <td>{application.register}</td>
+        <td>{application.registry}</td>
         <td>
           {application.cashAmount.toLocaleString(undefined, {
             maximumFractionDigits: 2

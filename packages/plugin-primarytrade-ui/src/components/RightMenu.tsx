@@ -71,8 +71,8 @@ export default class RightMenu extends React.Component<Props, State> {
       if (type === 'prefix') {
         data = { prefix: target.value || '' };
       }
-      if (type === 'register') {
-        data = { register: target.value || '' };
+      if (type === 'registry') {
+        data = { registry: target.value || '' };
       }
       if (type === 'price') {
         data = { price: target.value || '' };
@@ -100,7 +100,10 @@ export default class RightMenu extends React.Component<Props, State> {
     const statusValues = STATUS_ARRAY.map(p => ({ label: p, value: p }));
     const status = queryParams ? queryParams.status : [];
 
-    const provisionValues = PROVISION_ARRAY.map(p => ({ label: p, value: p }));
+    const provisionValues = PROVISION_ARRAY.map(p => ({
+      label: p,
+      value: p
+    }));
     const provision = queryParams ? queryParams.provision : [];
 
     const onFilterSelect = (ops: IOption[], type: string) =>
@@ -149,12 +152,12 @@ export default class RightMenu extends React.Component<Props, State> {
           type="number"
           onKeyPress={e => this.onSearch(e, 'prefix')}
         />
-        <ControlLabel>{__('Register number')}</ControlLabel>
+        <ControlLabel>{__('Registry number')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.register}
+          defaultValue={queryParams.registry}
           type="number"
-          placeholder={__('Enter register number')}
-          onKeyPress={e => this.onSearch(e, 'register')}
+          placeholder={__('Enter registry number')}
+          onKeyPress={e => this.onSearch(e, 'registry')}
         />
         <ControlLabel>{__('IPO')}</ControlLabel>
         <Select

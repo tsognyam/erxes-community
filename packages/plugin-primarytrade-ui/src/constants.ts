@@ -2,7 +2,7 @@ export const DATA = [
   {
     _id: '1',
     prefix: '676767',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     ipo: 'CU',
     createdDate: '2022-02-21',
     price: 200,
@@ -16,7 +16,7 @@ export const DATA = [
   {
     _id: '2',
     prefix: '898989',
-    register: 'aa11332244',
+    registry: 'aa11332244',
     ipo: 'GOBI',
     createdDate: '2022-02-22',
     price: 210,
@@ -30,7 +30,7 @@ export const DATA = [
   {
     _id: '3',
     prefix: '909090',
-    register: 'aa12121212',
+    registry: 'aa12121212',
     ipo: 'APU',
     createdDate: '2022-02-23',
     price: 220,
@@ -105,7 +105,7 @@ export const IPO_COUNTS = {
 
 export const LIST = [
   { label: 'Prefix', name: 'order.prefix' },
-  { label: 'Register number', name: 'order.register' },
+  { label: 'Registry number', name: 'order.registry' },
   { label: 'IPO', name: 'order.ipo' },
   { label: 'Created date', name: 'order.date' },
   { label: 'Price', name: 'order.price' },

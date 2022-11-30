@@ -1,6 +1,6 @@
 export const DATA_DOMESTIC = [
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -12,7 +12,7 @@ export const DATA_DOMESTIC = [
     nominalAccount: ''
   },
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -24,7 +24,7 @@ export const DATA_DOMESTIC = [
     nominalAccount: ''
   },
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -36,7 +36,7 @@ export const DATA_DOMESTIC = [
     nominalAccount: ''
   },
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -48,7 +48,7 @@ export const DATA_DOMESTIC = [
     nominalAccount: ''
   },
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -60,7 +60,7 @@ export const DATA_DOMESTIC = [
     nominalAccount: ''
   },
   {
-    register: 'aa12121212',
+    registry: 'aa12121212',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -75,7 +75,7 @@ export const DATA_DOMESTIC = [
 
 export const DATA_INTERNATIONAL = [
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -87,7 +87,7 @@ export const DATA_INTERNATIONAL = [
     nominalAccount: ''
   },
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -99,7 +99,7 @@ export const DATA_INTERNATIONAL = [
     nominalAccount: ''
   },
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -111,7 +111,7 @@ export const DATA_INTERNATIONAL = [
     nominalAccount: ''
   },
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -123,7 +123,7 @@ export const DATA_INTERNATIONAL = [
     nominalAccount: ''
   },
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -135,7 +135,7 @@ export const DATA_INTERNATIONAL = [
     nominalAccount: ''
   },
   {
-    register: 'bb23232323',
+    registry: 'bb23232323',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -150,7 +150,7 @@ export const DATA_INTERNATIONAL = [
 
 export const DATA_BOND = [
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -162,7 +162,7 @@ export const DATA_BOND = [
     nominalAccount: ''
   },
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -174,7 +174,7 @@ export const DATA_BOND = [
     nominalAccount: ''
   },
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -186,7 +186,7 @@ export const DATA_BOND = [
     nominalAccount: ''
   },
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -198,7 +198,7 @@ export const DATA_BOND = [
     nominalAccount: ''
   },
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Income',
@@ -210,7 +210,7 @@ export const DATA_BOND = [
     nominalAccount: ''
   },
   {
-    register: 'tt45454545',
+    registry: 'tt45454545',
     journalNumber: '123456',
     transaction: 20000,
     type: 'Withdraw',
@@ -236,7 +236,7 @@ export const STATEMENT_TYPE = [
 export const TYPE_ARRAY = ['Income', 'Withdraw'];
 
 export const LIST = [
-  { label: 'Register number', name: 'statement.register' },
+  { label: 'Registry number', name: 'statement.registry' },
   { label: 'Journal Number', name: 'statement.journalNumber' },
   { label: 'Transaction', name: 'statement.transaction' },
   { label: 'Type', name: 'statement.type' },
