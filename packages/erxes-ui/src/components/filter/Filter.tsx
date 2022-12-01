@@ -121,6 +121,14 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('usedAccount', false)}
       {renderFilterParam('realAccount', false)}
       {renderFilterParam('name', false)}
+      {renderFilterParam('interestPayment', false)}
+      {renderFilterParam('mainPayment', false)}
+      {renderFilterParam('bond', false)}
+      {renderFilterParam('cupon', false)}
+      {renderFilterParam('unitPrice', false)}
+      {renderFilterParam('bondPeriod', false)}
+      {renderFilterParam('interestRate', false)}
+      {renderFilterParam('name', false)}
       {renderFilterParam('prefix', false)}
       {renderFilterParam('phone', false)}
       {renderFilterParam('firstName', false)}
