@@ -1,66 +1,63 @@
 import React from 'react';
-import { StyledTr } from '../../styles';
+import { StyledTr } from '../styles';
 import { __ } from '@erxes/ui/src/utils';
-import { StockChange } from '../../styles';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import { Link } from 'react-router-dom';
 
 type Props = {
-  stock: any;
+  organization: any;
   index: number;
-};
+} & ICommonListProps;
 
 class Row extends React.Component<Props> {
+  renderActions = object => {
+    return (
+      <ActionButtons>
+        <ActionButtons>
+          <Link to="/organizaion/edit-register">
+            <Button btnStyle="link">
+              <Tip text={__('Edit')} placement="bottom">
+                <Icon icon="edit" />
+              </Tip>
+            </Button>
+          </Link>
+          <Tip text={__('Delete')} placement="bottom">
+            <Button
+              btnStyle="link"
+              // onClick={() => this.remove(object)}
+              icon="cancel-1"
+            />
+          </Tip>
+        </ActionButtons>
+      </ActionButtons>
+    );
+  };
+
   render() {
-    const { index, stock } = this.props;
-    console.log('stock.change', stock.change);
+    const { index, organization } = this.props;
+
     return (
       <StyledTr key={index}>
-        <td>{stock.symbol}</td>
+        <td>&nbsp;&nbsp;{index + 1}</td>
+        <td>{organization.date}</td>
+        <td>{organization.symbol}</td>
+        <td>{organization.companyName}</td>
         <td>
-          {stock.yesterdaysLastPrice.toLocaleString(undefined, {
+          {organization.closePrice.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
         </td>
         <td>
-          {stock.startingPrice.toLocaleString(undefined, {
+          {organization.marketValue.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
         </td>
-        <td>
-          {stock.peak.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <td>
-          {stock.bottom.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <StockChange isIncreased={stock.change >= 0}>
-          {stock.change.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </StockChange>
-        <td>
-          {stock.changePercent.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-          %
-        </td>
-        <td>
-          {stock.quantity.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <td>
-          {stock.bullish.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <td>
-          {stock.bearish.toLocaleString(undefined, {
-            maximumFractionDigits: 2
-          })}
-        </td>
+        <td>{organization.activity}</td>
+        <td>{this.renderActions(organization)}</td>
       </StyledTr>
     );
   }

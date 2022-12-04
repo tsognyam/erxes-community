@@ -10,7 +10,7 @@ const List = asyncComponent(() =>
 );
 
 const CreateRegister = asyncComponent(() =>
-  import(/* webpackChunkName: "createRegister" */ './containers/CreateRegister')
+  import(/* webpackChunkName: "createRegister" */ './containers/Register')
 );
 
 const topOrganizations = ({ location, history }) => {
@@ -19,8 +19,10 @@ const topOrganizations = ({ location, history }) => {
   return <List queryParams={queryParams} history={history} />;
 };
 
-const createRegister = () => {
-  return <CreateRegister />;
+const createRegister = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <CreateRegister queryParams={queryParams} history={history} />;
 };
 
 const routes = () => {
@@ -29,9 +31,9 @@ const routes = () => {
       <Route path="/topOrganizations/" component={topOrganizations} />
 
       <Route
-        key="/organizaion/register/create"
+        key="/organizaion/register"
         exact={true}
-        path="/organizaion/register/create"
+        path="/organizaion/register"
         component={createRegister}
       />
     </React.Fragment>

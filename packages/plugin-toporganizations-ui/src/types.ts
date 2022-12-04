@@ -37,3 +37,32 @@ export type AddIntegrationMutationResponse = {
     variables: AddIntegrationMutationVariables;
   }) => Promise<any>;
 };
+
+export type Shareholders = {
+  fullName: string;
+  holdingShares: number;
+  hasOtherCompaniesShare?: string;
+  sameInterestPerson?: string;
+};
+
+export type RegisterConfig = {
+  _id?: string;
+  companyName?: string;
+  registry?: string;
+  establishedDate?: any;
+  phoneNumber?: number;
+  address?: string;
+  email?: string;
+  registeredDate?: any;
+  stockType?: string;
+  businessDirection?: string;
+  activityDirection?: string;
+  actionField?: string;
+  operationalStatus?: string;
+  isin?: string;
+  totalShares?: number;
+  issuedShares?: number;
+  marketValue?: number;
+  weeks?: number;
+  shareHolders?: Shareholders[];
+};

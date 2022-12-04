@@ -20,7 +20,7 @@ class ListComp extends React.Component<Props> {
       <Table>
         <thead>
           <tr>
-            <th>№</th>
+            <th>&nbsp;&nbsp;№</th>
             <th>{__('Date')}</th>
             <th>{__('Symbol')}</th>
             <th>{__('Company Name')}</th>
@@ -31,8 +31,8 @@ class ListComp extends React.Component<Props> {
           </tr>
         </thead>
         <tbody id="orders">
-          {(ORGANIZATION_LIST || []).map((stock, index) => (
-            <Row index={index} stock={stock} />
+          {(ORGANIZATION_LIST || []).map((organization, index) => (
+            <Row index={index} organization={organization} />
           ))}
         </tbody>
       </Table>
@@ -50,7 +50,7 @@ class ListComp extends React.Component<Props> {
         actionBar={
           <Wrapper.ActionBar
             right={
-              <Link to="/organizaion/register/create">
+              <Link to="/organizaion/register">
                 <Button
                   id={'NewRegisterButton'}
                   btnStyle="success"

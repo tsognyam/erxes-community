@@ -245,3 +245,50 @@ export const ISIN = [
   { value: 'APU', label: 'APU' },
   { value: 'APEX', label: 'APEX' }
 ];
+
+export const REGISTER_TYPES = {
+  GENERAL: {
+    LABEL: 'General Settings',
+    VALUE: 'general'
+  },
+  FINANCE: {
+    LABEL: 'Finance Information',
+    VALUE: 'finance'
+  },
+  ACTIVITY: {
+    LABEL: 'Activity Report',
+    VALUE: 'activity'
+  }
+};
+
+export const INFLUENTIAL_SHAREHOLDERS = [
+  {
+    fullName: 'Bat Dorj',
+    holdingShares: 28.56
+  },
+  {
+    fullName: 'Suren Dulam',
+    holdingShares: 50
+  }
+];
+
+export const ACTIVITY_REPORT = [
+  {
+    companyName: 'APU Corp',
+    symbol: 'APU',
+    briefDesc: '',
+    date: '2022-12-21'
+  },
+  {
+    companyName: 'APU Corp',
+    symbol: 'APU',
+    briefDesc: '2021 year report',
+    date: '2022-12-21'
+  },
+  {
+    companyName: 'APU Corp',
+    symbol: 'APU',
+    briefDesc: '2021 year report',
+    date: '2022-12-21'
+  }
+];
