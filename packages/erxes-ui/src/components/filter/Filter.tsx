@@ -123,6 +123,9 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('name', false)}
       {renderFilterParam('interestPayment', false)}
       {renderFilterParam('mainPayment', false)}
+      {renderFilterParam('frequency', false)}
+      {renderFilterParam('orderTime', false)}
+      {renderFilterParam('orderDay', false)}
       {renderFilterParam('bond', false)}
       {renderFilterParam('cupon', false)}
       {renderFilterParam('unitPrice', false)}
@@ -141,7 +144,7 @@ function Filter({ queryParams = {}, history }: IProps) {
       {renderFilterParam('transactionAccount', false)}
       {renderFilterParam('receiveAccount', false)}
       {renderFilterParam('nominalAccount', false)}
-      {renderFilterParam('register', false)}
+      {renderFilterParam('registry', false)}
       {renderFilterParam('type', false)}
       {renderFilterParam('orderType', false)}
       {renderFilterParam('provision', false)}

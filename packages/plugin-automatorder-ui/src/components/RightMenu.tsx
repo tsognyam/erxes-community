@@ -14,10 +14,16 @@ import {
   BarItems,
   MenuFooter
 } from '../styles';
-import { TYPE } from '../constants';
+import {
+  FREQUENCY,
+  STOCK,
+  ORDER_TYPE,
+  ORDER_DAY,
+  ORDER_TIME,
+  STATUS
+} from '../constants';
 import { IOption } from '@erxes/ui/src/types';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { FormGroup } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { router as routerUtils } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -30,7 +36,7 @@ type Props = {
 
 type State = {
   showMenu: boolean;
-  canRecall?: boolean;
+  isActive?: boolean;
 };
 
 export default class RightMenu extends React.Component<Props, State> {
@@ -73,14 +79,17 @@ export default class RightMenu extends React.Component<Props, State> {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
       let data;
-      if (type === 'unitPrice') {
-        data = { unitPrice: target.value || '' };
+      if (type === 'prefix') {
+        data = { prefix: target.value || '' };
       }
-      if (type === 'interestRate') {
-        data = { interestRate: target.value || '' };
+      if (type === 'registry') {
+        data = { registry: target.value || '' };
       }
-      if (type === 'bondPeriod') {
-        data = { bondPeriod: target.value || '' };
+      if (type === 'lastName') {
+        data = { lastName: target.value || '' };
+      }
+      if (type === 'firstName') {
+        data = { firstName: target.value || '' };
       }
       this.props.onSearch(data, type);
     }
@@ -97,33 +106,52 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { queryParams, onSelect } = this.props;
+    const { queryParams, onSelect, history } = this.props;
 
-    const typeValues = TYPE.map(p => ({ label: p.label, value: p.value }));
-    const type = queryParams ? queryParams.type : [];
+    const stockValues = STOCK.map(p => ({ label: p.label, value: p.value }));
+    const stock = queryParams ? queryParams.stock : [];
 
-    const bondValues = TYPE.map(p => ({ label: p.label, value: p.value }));
-    const bond = queryParams ? queryParams.bond : [];
-
-    const cuponValues = TYPE.map(p => ({ label: p.label, value: p.value }));
-    const cupon = queryParams ? queryParams.cupon : [];
-
-    const mainPaymentValues = TYPE.map(p => ({
+    const statusValues = STATUS.map(p => ({
       label: p.label,
       value: p.value
     }));
-    const mainPayment = queryParams ? queryParams.mainPayment : [];
+    const status = queryParams ? queryParams.status : [];
 
-    const toggleCanRecall = () => {
-      this.setState({ canRecall: !this.state.canRecall });
-      if (!this.state.canRecall) {
-        return routerUtils.setParams(this.props.history, { canRecall: 'true' });
-      }
-      return routerUtils.removeParams(this.props.history, 'canRecall');
-    };
+    const frequencyValues = FREQUENCY.map(p => ({
+      label: p.label,
+      value: p.value
+    }));
+    const frequency = queryParams ? queryParams.frequency : [];
+
+    const orderDayValues = ORDER_DAY.map(p => ({
+      label: p.label,
+      value: p.value
+    }));
+    const orderDay = queryParams ? queryParams.orderDay : [];
+
+    const orderTimeValues = ORDER_TIME.map(p => ({
+      label: p.label,
+      value: p.value
+    }));
+    const orderTime = queryParams ? queryParams.orderTime : [];
+
+    const orderTypeValues = ORDER_TYPE.map(p => ({
+      label: p.label,
+      value: p.value
+    }));
+    const orderType = queryParams ? queryParams.orderType : [];
 
     const onFilterSelect = (ops: IOption[], type: string) =>
       onSelect(ops[ops.length - 1].value, type);
+
+    const toggleIsActive = () => {
+      this.setState({ isActive: !this.state.isActive });
+      if (!this.state.isActive) {
+        return routerUtils.setParams(history, { isActive: 'Active' });
+      }
+
+      return routerUtils.removeParams(history, 'isActive');
+    };
 
     return (
       <FilterBox>
@@ -151,82 +179,102 @@ export default class RightMenu extends React.Component<Props, State> {
             />
           </div>
         </CustomRangeContainer>
-        <ControlLabel>{__('Type')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by type')}
-          value={type}
-          options={typeValues}
-          name="type"
-          onChange={ops => onFilterSelect(ops, 'type')}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
-        />
-        <ControlLabel>{__('Bond')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by bond')}
-          value={bond}
-          options={bondValues}
-          name="bond"
-          onChange={ops => onFilterSelect(ops, 'bond')}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
-        />
-        <ControlLabel>{__('Unit Price')}</ControlLabel>
+        <ControlLabel>{__('Prefix')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.unitPrice}
+          defaultValue={queryParams.prefix}
+          placeholder={__('Enter prefix')}
           type="number"
-          placeholder={__('Enter unitPrice')}
-          onKeyPress={e => this.onSearch(e, 'unitPrice')}
+          onKeyPress={e => this.onSearch(e, 'prefix')}
         />
-        <ControlLabel>{__('Bond period')}</ControlLabel>
+        <ControlLabel>{__('Registry number')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.bondPeriod}
-          placeholder={__('Enter Bond Period')}
+          defaultValue={queryParams.registry}
           type="text"
-          onKeyPress={e => this.onSearch(e, 'bondPeriod')}
+          placeholder={__('Enter registry number')}
+          onKeyPress={e => this.onSearch(e, 'registry')}
         />
-        <ControlLabel>{__('Interest Rate')}</ControlLabel>
+        <ControlLabel>{__('Last Name')}</ControlLabel>
         <FormControl
-          defaultValue={queryParams.interestRate}
-          placeholder={__('Enter interest')}
-          type="number"
-          onKeyPress={e => this.onSearch(e, 'interestRate')}
+          defaultValue={queryParams.lastName}
+          placeholder={__('Enter Last Name')}
+          type="text"
+          onKeyPress={e => this.onSearch(e, 'lastName')}
         />
-        <ControlLabel>{__('Cupon payment')}</ControlLabel>
+        <ControlLabel>{__('First Name')}</ControlLabel>
+        <FormControl
+          defaultValue={queryParams.firstName}
+          placeholder={__('Enter First Name')}
+          type="text"
+          onKeyPress={e => this.onSearch(e, 'firstName')}
+        />
+        <ControlLabel>{__('Stock')}</ControlLabel>
         <Select
-          placeholder={__('Filter by cupon payment')}
-          value={cupon}
-          options={cuponValues}
-          name="cupon"
-          onChange={ops => onFilterSelect(ops, 'cupon')}
+          placeholder={__('Filter by Stock')}
+          value={stock}
+          options={stockValues}
+          name="stock"
+          onChange={ops => onFilterSelect(ops, 'stock')}
           multi={true}
           loadingPlaceholder={__('Loading...')}
         />
-        <ControlLabel>{__('Main payment')}</ControlLabel>
+        <ControlLabel>{__('Order Type')}</ControlLabel>
         <Select
-          placeholder={__('Filter by main payment')}
-          value={mainPayment}
-          options={mainPaymentValues}
-          name="mainPayment"
-          onChange={ops => onFilterSelect(ops, 'mainPayment')}
+          placeholder={__('Filter by order type')}
+          value={orderType}
+          options={orderTypeValues}
+          name="orderType"
+          onChange={ops => onFilterSelect(ops, 'orderType')}
           multi={true}
           loadingPlaceholder={__('Loading...')}
         />
-        <ControlLabel>{__('Registered Employee')}</ControlLabel>
-        <SelectTeamMembers
-          label="Filter by Registered Employee"
-          name="userIds"
-          queryParams={queryParams}
-          onSelect={onSelect}
+        <ControlLabel>{__('Status')}</ControlLabel>
+        <Select
+          placeholder={__('Filter by status')}
+          value={status}
+          options={statusValues}
+          name="status"
+          onChange={ops => onFilterSelect(ops, 'status')}
+          multi={true}
+          loadingPlaceholder={__('Loading...')}
+        />
+        <ControlLabel>{__('Frequency')}</ControlLabel>
+        <Select
+          placeholder={__('Filter by frequency')}
+          value={frequency}
+          options={frequencyValues}
+          name="frequency"
+          onChange={ops => onFilterSelect(ops, 'frequency')}
+          multi={true}
+          loadingPlaceholder={__('Loading...')}
+        />
+        <ControlLabel>{__('Order Day')}</ControlLabel>
+        <Select
+          placeholder={__('Filter by Order Day')}
+          value={orderDay}
+          options={orderDayValues}
+          name="orderDay"
+          onChange={ops => onFilterSelect(ops, 'orderDay')}
+          multi={true}
+          loadingPlaceholder={__('Loading...')}
+        />
+        <ControlLabel>{__('Order Time')}</ControlLabel>
+        <Select
+          placeholder={__('Filter by Order Time')}
+          value={orderTime}
+          options={orderTimeValues}
+          name="orderTime"
+          onChange={ops => onFilterSelect(ops, 'orderTime')}
+          multi={true}
+          loadingPlaceholder={__('Loading...')}
         />
         <FormGroup>
           <FormControl
-            name="toPrimaryTrade"
-            checked={this.state.canRecall}
+            name="isActive"
+            checked={this.state.isActive}
             componentClass="checkbox"
-            onChange={toggleCanRecall}
+            onChange={toggleIsActive}
           />
-          <ControlLabel>{__('Can Recalled')}</ControlLabel>
+          <ControlLabel>{__('Is Active')}</ControlLabel>
         </FormGroup>
       </FilterBox>
     );

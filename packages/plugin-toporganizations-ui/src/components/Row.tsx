@@ -18,7 +18,7 @@ class Row extends React.Component<Props> {
     return (
       <ActionButtons>
         <ActionButtons>
-          <Link to="/organizaion/edit-register">
+          <Link to="/organizaion/register">
             <Button btnStyle="link">
               <Tip text={__('Edit')} placement="bottom">
                 <Icon icon="edit" />
