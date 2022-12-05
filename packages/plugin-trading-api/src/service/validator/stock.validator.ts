@@ -167,7 +167,7 @@ class StockValidator extends BaseValidator {
           .min(0)
           .max(100)
           .required(),
-        userId: this._joi.number().required(),
+        userId: this._joi.string(),
         brchno: this._joi.string().allow(''),
         no: this._joi.string(),
         cnt: this._joi.number().required(),

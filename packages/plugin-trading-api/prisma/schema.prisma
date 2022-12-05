@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -172,12 +171,12 @@ model Stock {
   startdate         DateTime           @default(now())
   enddate           DateTime           @default(now())
   intrate           Decimal            @default(0) @db.Decimal(30, 4)
-  userId            Int
+  userId            String?
   brchno            String?
   regdate           DateTime           @default(now())
   status            String             @default("1")
   no                String? // Монголын хөрөнгийн биржийн үнэт цаасны гэрээний дугаар MN00
-  cnt               Decimal            @db.Decimal(30, 0)
+  cnt               Int
   boardname         String? // Монголын хөрөнгийн биржийн самбарын дугаар
   inducode          String?
   lsttxndate        DateTime?          @default(now())
