@@ -36,6 +36,7 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';
 import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
+import ChangeCommission from '@erxes/ui-trading/src/containers/ChangeCommission';
 
 import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
@@ -206,7 +207,22 @@ class CustomersList extends React.Component<IProps, State> {
                   )}
                 </th>
               ))}
-              <th>{__('Tags')}</th>
+              {isEnabled('tradingcontacts') && (
+                <>
+                  <th>{__('Prefix')}</th>
+                  <th>{__('Registry Number')}</th>
+                  <th>{__('Gender')}</th>
+                  <th>{__('Domestic Nominal Account')}</th>
+                  <th>{__('Status')}</th>
+                  <th>{__('International Nominal Account')}</th>
+                  <th>{__('Status')}</th>
+                  <th>{__('User Status')}</th>
+                  <th>{__('Commission Rate')}</th>
+                  <th>{__('Bond Commission Rate')}</th>
+                  <th>{__('Bond Tax')}</th>
+                  <th>{__('Tags')}</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody id="customers" className={isExpand ? 'expand' : ''}>
@@ -376,6 +392,10 @@ class CustomersList extends React.Component<IProps, State> {
       );
     };
 
+    const changeCommission = (props, type?) => {
+      return <ChangeCommission {...props} type={type && type} />;
+    };
+
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -393,6 +413,29 @@ class CustomersList extends React.Component<IProps, State> {
 
         {isEnabled('segments') && (
           <TemporarySegment contentType={`contacts:${type}`} />
+        )}
+
+        {isEnabled('tradingcontacts') && (
+          <>
+            <ModalTrigger
+              title="Change commission"
+              trigger={
+                <Button btnStyle="link" size="small" icon="exchange-alt">
+                  {__('Change commission')}
+                </Button>
+              }
+              content={changeCommission}
+            />
+            <ModalTrigger
+              title="Change commission of Bond"
+              trigger={
+                <Button btnStyle="link" size="small" icon="exchange-alt">
+                  {__('Change commission of Bond')}
+                </Button>
+              }
+              content={props => changeCommission(props, 'bond')}
+            />
+          </>
         )}
 
         <Dropdown className="dropdown-btn" alignRight={true}>

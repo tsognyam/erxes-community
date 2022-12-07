@@ -485,7 +485,7 @@ class SegmentFormAutomations extends React.Component<Props, State> {
         </>
       );
     }
-
+    console.log('state', state);
     if (state === 'list') {
       return segments.map((segment, index) => {
         return (

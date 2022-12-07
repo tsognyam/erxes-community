@@ -5,6 +5,7 @@ import LeadFilter from '../../containers/filters/LeadFilter';
 import LeadStatusFilter from '../../containers/filters/LeadStatusFilter';
 import React from 'react';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
+import TradingFilter from '../../containers/filters/TradingFilter';
 import TagFilter from '../../containers/filters/TagFilter';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
@@ -21,6 +22,7 @@ function Sidebar({
       {isEnabled('segments') && (
         <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
       )}
+      {isEnabled('tradingcontacts') && <TradingFilter />}
       {isEnabled('tags') && (
         <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
       )}

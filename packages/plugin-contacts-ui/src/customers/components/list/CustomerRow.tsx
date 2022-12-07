@@ -22,6 +22,9 @@ import _ from 'lodash';
 import { formatValue } from '@erxes/ui/src/utils';
 import parse from 'ua-parser-js';
 import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __, Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   index: number;
@@ -49,6 +52,11 @@ function displayObjectListItem(customer, customerFieldName, subFieldName) {
 
 function displayValue(customer, name, index) {
   const value = _.get(customer, name);
+
+  const changeStatus = (id: string, type): void => {
+    Alert.success('Congrats, Successfully updated.');
+  };
+  const onToggleChange = (e, type) => changeStatus(e, type);
 
   if (name === 'firstName') {
     return (
@@ -139,6 +147,45 @@ function displayValue(customer, name, index) {
     return <TextInfo>{index.toString()}</TextInfo>;
   }
 
+  if (name === 'domesticAccountStatus') {
+    return (
+      <Toggle
+        defaultChecked={true}
+        icons={{
+          checked: <span>Yes</span>,
+          unchecked: <span>No</span>
+        }}
+        onChange={e => onToggleChange(e, 'domestic')}
+      />
+    );
+  }
+
+  if (name === 'internationalAccountStatus') {
+    return (
+      <Toggle
+        defaultChecked={true}
+        icons={{
+          checked: <span>Yes</span>,
+          unchecked: <span>No</span>
+        }}
+        onChange={e => onToggleChange(e, 'international')}
+      />
+    );
+  }
+
+  if (name === 'userStatus') {
+    return (
+      <Toggle
+        defaultChecked={true}
+        icons={{
+          checked: <span>Yes</span>,
+          unchecked: <span>No</span>
+        }}
+        onChange={e => onToggleChange(e, 'user')}
+      />
+    );
+  }
+
   if (typeof value === 'boolean') {
     return (
       <BooleanStatus isTrue={value}>
@@ -174,6 +221,20 @@ function CustomerRow({
     history.push(`/contacts/details/${customer._id}`);
   };
 
+  const tradingRow = [
+    { name: 'prefix' },
+    { name: 'registry' },
+    { name: 'sex' },
+    { name: 'domesticAccount' },
+    { name: 'domesticAccountStatus' },
+    { name: 'internationalAccount' },
+    { name: 'internationalAccountStatus' },
+    { name: 'userStatus' },
+    { name: 'commission' },
+    { name: 'bondCommission' },
+    { name: 'bondTax' }
+  ];
+
   return (
     <tr className="crow">
       <td id="customersCheckBox" style={{ width: '50px' }} onClick={onClick}>
@@ -190,6 +251,14 @@ function CustomerRow({
           </ClickableRow>
         </td>
       ))}
+      {isEnabled('tradingcontacts') &&
+        tradingRow.map(({ name }, i) => (
+          <td key={i}>
+            {/* <ClickableRow onClick={onTrClick}> */}
+            {displayValue(customer, name, index)}
+            {/* </ClickableRow> */}
+          </td>
+        ))}
       <td onClick={onTrClick}>
         <Tags tags={tags || []} limit={3} />
       </td>
