@@ -41,10 +41,13 @@ jobs:
           cp -r builder dist
           cd dist
           yarn install
+          pwd
           npx prisma generate
+          pwd
           yarn build plugin trading
           cd plugin-trading-api/.erxes
           cd dist/main/.erxes/src
+          ls -la
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/trading'  )
