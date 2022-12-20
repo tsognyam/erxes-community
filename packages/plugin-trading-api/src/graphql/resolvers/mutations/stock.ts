@@ -10,7 +10,7 @@ let stockService = new StockService();
 const StockMutations = {
   tradingStockAdd: async (
     _root: any,
-    params: Prisma.OrderCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
     if (params.userId == null || params.userId == undefined) {

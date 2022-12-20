@@ -2,10 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator typegraphql {
-  provider = "typegraphql-prisma"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("MYSQL_URL")
@@ -180,7 +176,7 @@ model Stock {
   regdate           DateTime           @default(now())
   status            String             @default("1")
   no                String? // Монголын хөрөнгийн биржийн үнэт цаасны гэрээний дугаар MN00
-  cnt               Int
+  cnt               Decimal            @db.Decimal(30, 0)
   boardname         String? // Монголын хөрөнгийн биржийн самбарын дугаар
   inducode          String?
   lsttxndate        DateTime?          @default(now())

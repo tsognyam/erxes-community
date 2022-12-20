@@ -48,11 +48,19 @@ type TradingOrder @key(fields:"txnid") {
     transactionOrder:JSON
     stockOrder:JSON
 }
+type TradingOrderTypes @key(fields:"id") {
+    id:Int
+    name:String
+    name2:String
+    listorder:Int
+    activeTime:String!
+    status:Int
+}
 `;
 export const queries = `
 tradingOrders(params:JSON):[TradingOrder]
 tradingOrderDetail(id:Int!):TradingOrder
-tradingOrderTypes:[JSON]
+tradingOrderTypes:[TradingOrderTypes]
 `;
 const params = `
 ordertype:Int!,

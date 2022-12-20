@@ -44,8 +44,8 @@ type TradingStockList {
 `;
 export const queries = `
 tradingStocks(
-    page:Int,
-    perPage:Int,
+    skip:Int,
+    take:Int,
     stockcode:Int,
     stockname:String,
     symbol:String
