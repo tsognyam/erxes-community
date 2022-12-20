@@ -42,7 +42,7 @@ jobs:
           cd dist
           yarn install
           pwd
-          npx prisma generate
+          npx prisma generate --schema=../packages/plugin-trading-api/src/prisma/schema.prisma
           pwd
           yarn build plugin trading
           cd plugin-trading-api/.erxes
