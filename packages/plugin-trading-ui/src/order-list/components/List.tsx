@@ -6,7 +6,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Button from '@erxes/ui/src/components/Button';
-import Table from '@erxes/ui/src/components/Table';
+import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Sidebar from '../containers/Sidebar';
 import RightMenu from '../components/RightMenu';
