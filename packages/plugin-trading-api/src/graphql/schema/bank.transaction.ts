@@ -12,7 +12,7 @@ type TradingBankTransaction @key(fields:"id") {
     description:String!
     oldDescription:String
     dater:Date!
-    bank:String!
+    bank:JSON!
     recAccountNo:String!
     contAccountNo:String!
     accountNo:String!

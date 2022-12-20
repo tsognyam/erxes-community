@@ -3,7 +3,7 @@ name: Plugin trading Api CI
 on:
   push:
     branches:
-      - dev
+      - trading
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -20,7 +20,7 @@ on:
 
 jobs:
   api:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v2
@@ -54,9 +54,9 @@ jobs:
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/trading'  )
         run: |
           cd dist/plugin-trading-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker build -t erxes/plugin-trading-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/plugin-trading-api:${GITHUB_REF#refs/heads/}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/erxes/plugin-trading-api:${GITHUB_REF#refs/heads/}
