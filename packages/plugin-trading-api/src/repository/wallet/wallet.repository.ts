@@ -2,6 +2,15 @@ import BaseRepository from '../base.repository';
 import { WalletConst } from '../../constants/wallet';
 import { getUser } from '../../models/utils';
 export default class WalletRepository extends BaseRepository {
+  static instance:WalletRepository;
+
+  static get() {
+    if (this.instance == null) {
+      this.instance = new WalletRepository();
+    }
+
+    return this.instance;
+  }
   constructor() {
     super('wallet');
   }
@@ -25,7 +34,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         currencyCode: currencyCode,
-        type: WalletConst.WALLET_TYPES.NOMINAL
+        type: WalletConst.NOMINAL
       },
       include: {
         walletBalance: true
@@ -78,7 +87,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        type: WalletConst.NOMINAL_FEE,
         currencyCode: currencyCode
       },
       include: {
@@ -90,7 +99,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL,
+        type: WalletConst.NOMINAL,
         currencyCode: currencyCode
       },
       include: {

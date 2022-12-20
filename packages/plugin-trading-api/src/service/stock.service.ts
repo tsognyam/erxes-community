@@ -1,7 +1,7 @@
 import OrderRepository from '../repository/order.repository';
 import StockRepository from '../repository/stock.repository';
 import StockTransactionRepository from '../repository/wallet/stock.transaction.repository';
-import Helper from './helper.service';
+import Helper from '../middleware/helper.service';
 import StockValidator from './validator/stock.validator';
 import { ErrorCode, CustomException } from '../exception/error-code';
 class StockService {

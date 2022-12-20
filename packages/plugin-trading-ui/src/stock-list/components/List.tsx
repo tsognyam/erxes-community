@@ -2,7 +2,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Table from '@erxes/ui/src/components/Table';
+import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { STOCK_LIST } from '../../constants';
 import Row from './Row';

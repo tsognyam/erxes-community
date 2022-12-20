@@ -94,7 +94,7 @@ export class TransactionValidator extends WalletValidator {
   ) => {
     var maxBalance = 1000000000;
     var minBalance = 0;
-    if (wallet.type == WalletConst.WALLET_TYPES.NOMINAL) {
+    if (wallet.type == WalletConst.NOMINAL) {
       minBalance = -1000000000;
     }
 

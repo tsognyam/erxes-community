@@ -41,11 +41,11 @@ class WalletValidator extends BaseValidator {
         type: this._joi
           .any()
           .allow(
-            WalletConst.WALLET_TYPES.ADMIN,
-            WalletConst.WALLET_TYPES.MCSD,
-            WalletConst.WALLET_TYPES.USER
+            WalletConst.TYPE_ADMIN,
+            WalletConst.TYPE_MCSD,
+            WalletConst.TYPE_USER
           )
-          .default(WalletConst.WALLET_TYPES.USER),
+          .default(WalletConst.TYPE_USER),
         status: this._joi
           .any()
           .allow(WalletConst.STATUS_ACTIVE, WalletConst.STATUS_INACTIVE)
@@ -155,7 +155,7 @@ class WalletValidator extends BaseValidator {
     return await this.walletRepository.findFirst(
       {
         currencyCode: data.currencyCode,
-        type: WalletConst.WALLET_TYPES.NOMINAL_FEE
+        type: WalletConst.NOMINAL_FEE
       },
       {
         walletBalance: true

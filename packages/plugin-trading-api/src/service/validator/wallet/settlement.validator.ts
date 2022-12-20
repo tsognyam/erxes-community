@@ -1,7 +1,7 @@
 import SettlementMCSDRepository from '../../../repository/wallet/settlement.mcsd.repository';
 import SettlementMSCCRepository from '../../../repository/wallet/settlement.mscc.repository';
 import BaseValidator from '../base.validator';
-import Helper from '../../helper.service';
+import Helper from '../../../middleware/helper.service';
 import { ErrorCode, CustomException } from '../../../exception/error-code';
 export default class SettlementValidator extends BaseValidator {
   private settlementMCSDRepository: SettlementMCSDRepository = new SettlementMCSDRepository();

@@ -14,7 +14,7 @@ class WalletService {
     this.walletRepository = new WalletRepository();
     this.walletValidator = new WalletValidator();
   }
-  create = async (params: Prisma.WalletCreateInput, subdomain: string) => {
+  createWallet = async (params: any, subdomain: string) => {
     let { data } = await this.walletValidator.validateCreate(params, subdomain);
     await this.createNominal(data.currencyCode);
     let walletNumber = await this.walletNumberService.generate();
@@ -131,7 +131,7 @@ class WalletService {
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL,
+        type: WalletConst.NOMINAL,
         walletBalance: {
           create: {
             balance: 0,
@@ -148,7 +148,7 @@ class WalletService {
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        type: WalletConst.NOMINAL_FEE,
         walletBalance: {
           create: {
             balance: 0,

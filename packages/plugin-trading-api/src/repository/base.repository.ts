@@ -15,7 +15,7 @@ const prisma = new PrismaClient({
     }
   ]
 });
-prisma.$on('query', e => {});
+prisma.$on('query', e => { });
 export default class BaseRepository {
   static STATUS_ACTIVE = 1;
   static STATUS_INACTIVE = 2;
@@ -25,6 +25,16 @@ export default class BaseRepository {
     this._model = model;
     this._prisma = prisma;
   }
+  find = async (where: any, select = undefined) =>
+    await this._prisma[this._model].findMany({
+      where,
+      include: select,
+    });
+  findById = async (id:number, select = undefined) =>
+    await this._prisma[this._model].findUnique({
+      where: { id: +id },
+      include: select,
+    });
   findFirst = async (where: any = undefined, include: any = undefined) => {
     return await this._prisma[this._model].findFirst({
       where: where,
