@@ -17,6 +17,13 @@ const WalletQueries = {
       status,
       walletIds
     );
+  },
+  tradingUserWallets: async (
+    _root: any,
+    { userId, currencyCode },
+    { models, subdomain, user }: IContext
+  ) => {
+    return await walletService.getWalletWithUser(userId);
   }
 };
 requireLogin(WalletQueries, 'tradingWallets');

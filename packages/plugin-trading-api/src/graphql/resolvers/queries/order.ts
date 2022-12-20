@@ -13,7 +13,6 @@ const OrderQueries = {
     { params }: { params: any },
     { models, subdomain, user }: IContext
   ) => {
-    console.log(user);
     return await orderService.get(params);
   },
   tradingOrderDetail: async (

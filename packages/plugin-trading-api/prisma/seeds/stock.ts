@@ -22,7 +22,6 @@ export const migrationStock = () => {
             el.no = "";
         el.cnt = parseInt(element.s_gargasan);
         el.ipo = 1;
-        el.userId = 1;
         el.externalid = element.s_mit;
         el.stockfee = 0.01;
         el.exchangeid = 1;
