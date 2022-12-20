@@ -43,7 +43,7 @@ jobs:
           yarn install
           pwd
           cd ../
-          yarn prisma generate --schema=./packages/plugin-trading-api/src/prisma/schema.prisma
+          npx prisma generate --schema=./packages/plugin-trading-api/src/prisma/schema.prisma
           pwd
           cd dist
           yarn build plugin trading
