@@ -41,7 +41,6 @@ jobs:
           cp -r builder dist
           cd dist
           yarn install
-          npx prisma generate
           yarn build plugin trading
           cd plugin-trading-api/.erxes
           cd dist/main/.erxes/src
