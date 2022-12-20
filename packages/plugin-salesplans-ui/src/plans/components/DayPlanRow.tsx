@@ -25,9 +25,16 @@ class Row extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
+    const { timeFrames, dayPlan } = this.props;
 
     this.state = {
-      values: props.dayPlan.values || []
+      values:
+        (dayPlan.values?.length && dayPlan.values) ||
+        timeFrames.map(tf => ({
+          _id: Math.random().toString(),
+          timeId: tf._id || '',
+          count: 0
+        }))
     };
   }
 
@@ -38,6 +45,7 @@ class Row extends React.Component<Props, State> {
     const timeId = e.target.name;
 
     const ind = values.findIndex(v => v.timeId === timeId);
+
     values[ind].count = count;
     this.setState({ values }, () => {
       if (this.timer) {
@@ -75,8 +83,9 @@ class Row extends React.Component<Props, State> {
     } = dayPlan;
     const { values } = this.state;
 
-    const sumValue =
-      values.reduce((sum, i) => Number(sum) + Number(i.count), 0) || 0;
+    const sumValue = values.length
+      ? values.reduce((sum, i) => Number(sum) + Number(i.count), 0)
+      : 0;
     const diff = sumValue - (planCount || 0);
     const valueById = {};
     for (const val of values) {
@@ -108,8 +117,8 @@ class Row extends React.Component<Props, State> {
             />
           </td>
         ))}
-        <td>{sumValue.toLocaleString()}</td>
-        <td>{diff.toLocaleString()}</td>
+        <td>{(sumValue || 0).toLocaleString()}</td>
+        <td>{(diff || 0).toLocaleString()}</td>
         <td>
           <ActionButtons>
             <Label
