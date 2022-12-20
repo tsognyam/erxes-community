@@ -39,12 +39,13 @@ jobs:
       - name: Build
         run: |
           cp -r builder dist
-          cat ./packages/plugin-trading-api/src/prisma/schema.prisma
           cd dist
           yarn install
           pwd
-          yarn prisma generate --schema=../packages/plugin-trading-api/src/prisma/schema.prisma
+          cd ../
+          yarn prisma generate --schema=./packages/plugin-trading-api/src/prisma/schema.prisma
           pwd
+          cd dist
           yarn build plugin trading
           cd plugin-trading-api/.erxes
           cd dist/main/.erxes/src
