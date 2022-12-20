@@ -14,7 +14,7 @@ const WalletMutations = {
   ) => {
     if (params.userId == null || params.userId == undefined)
       params.userId = user._id;
-    return await walletService.create(params, subdomain);
+    return await walletService.createWallet(params, subdomain);
   }
 };
 requireLogin(WalletMutations, 'tradingWalletAdd');

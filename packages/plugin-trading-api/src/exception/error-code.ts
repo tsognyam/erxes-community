@@ -325,6 +325,29 @@ class ErrorCode {
     status: 1403,
     message: 'Duplicate error'
   };
+
+  static NotBondException = {
+    status: 1404,
+    message: "That stock must be bond"
+  }
+
+  static NotQualifyDataException = {
+    status: 1405,
+    message: "Does not qualify data of stock, intrate startdate enddate notiftype"
+  }
+
+  static NotQualifyPriceException = {
+    status: 1406,
+    message: "Not qualify bond price"
+  }
+  static NotRequireToUpdateException = {
+    status: 1407,
+    message: "Not required to update"
+  }
+  static UserMCSDAccountNotFoundException = {
+    status: 1408,
+    message: "Not found User MCSD Account"
+  }
   static getExceptionList = () => {
     return Object.keys(ErrorCode).filter(
       value => value.substring(value.length - 9) == 'Exception'

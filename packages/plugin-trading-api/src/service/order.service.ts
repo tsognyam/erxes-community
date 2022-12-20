@@ -10,7 +10,7 @@ import { TransactionConst } from '../constants/wallet';
 import OrderRepository from '../repository/order.repository';
 import UserMCSDAccountRepository from '../repository/user/user.mcsd.repository';
 import CustFeeService from './custfee.service';
-import Helper from './helper.service';
+import Helper from '../middleware/helper.service';
 import StockService from './stock.service';
 import OrderValidator from './validator/order.validator';
 import StockTransactionValidator from './validator/wallet/stock.transaction.validator';

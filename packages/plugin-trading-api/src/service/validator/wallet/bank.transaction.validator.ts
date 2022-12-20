@@ -17,7 +17,7 @@ export default class BankTransactionValidator extends BaseValidator {
       { id: data.walletId },
       { walletBalance: true }
     );
-    if (wallet.type != WalletConst.WALLET_TYPES.USER)
+    if (wallet.type != WalletConst.TYPE_USER)
       throw new Error('Only user wallet can deposit');
     let nominalWallet = await this.walletValidator.validateGetNominalWallet({
       currencyCode: wallet.currencyCode

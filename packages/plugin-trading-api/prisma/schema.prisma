@@ -3,6 +3,10 @@ generator client {
   previewFeatures = ["interactiveTransactions"]
 }
 
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("MYSQL_URL")

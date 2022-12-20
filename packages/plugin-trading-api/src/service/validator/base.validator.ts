@@ -1,4 +1,5 @@
 const Joi = require('joi');
+import { ErrorCode, CustomException } from '../../exception/error-code';
 class BaseValidator {
   _joi;
   constructor() {
@@ -12,6 +13,13 @@ class BaseValidator {
       throw new Error(message);
     }
     return { error, data: value };
+  };
+  isNumber = (value, helpers) => {
+    if (typeof value !== 'number') {
+      CustomException(ErrorCode.MustBeNumberException);
+    }
+
+    return value;
   };
 }
 export default BaseValidator;

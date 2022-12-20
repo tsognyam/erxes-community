@@ -94,7 +94,7 @@ export default class StockTransactionValidator extends BaseValidator {
     }
     if (
       senderBalance != undefined &&
-      senderBalance.wallet.type != WalletConst.WALLET_TYPES.NOMINAL
+      senderBalance.wallet.type != WalletConst.NOMINAL
     )
       this.checkBalance(
         senderBalance.wallet,
@@ -104,7 +104,7 @@ export default class StockTransactionValidator extends BaseValidator {
       );
     if (
       receiverBalance != undefined &&
-      receiverBalance.wallet.type != WalletConst.WALLET_TYPES.NOMINAL
+      receiverBalance.wallet.type != WalletConst.NOMINAL
     )
       this.checkBalance(
         receiverBalance.wallet,
