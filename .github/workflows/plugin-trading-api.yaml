@@ -44,6 +44,9 @@ jobs:
           ls -la
           yarn build plugin trading
           cd plugin-trading-api
+          cat package.json
+          yarn add -D prisma
+          yarn add @prisma/client
           yarn prisma
           cd .erxes
           cd dist/main/.erxes/src
