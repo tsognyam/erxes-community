@@ -43,8 +43,9 @@ jobs:
           yarn install
           ls -la
           yarn build plugin trading
-          yarn prisma generate
-          cd plugin-trading-api/.erxes
+          cd plugin-trading-api
+          yarn prisma
+          cd .erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image
