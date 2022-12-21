@@ -41,10 +41,10 @@ jobs:
           cp -r builder dist
           cd dist
           yarn install
-          pwd
           cd ../
-          npx prisma generate --schema=./packages/plugin-trading-api/src/prisma/schema.prisma
-          pwd
+          ls -la
+          yarn dlx prisma generate --schema=./packages/plugin-trading-api/src/prisma/schema.prisma
+          ls -la
           cd dist
           yarn build plugin trading
           cd plugin-trading-api/.erxes
