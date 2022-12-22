@@ -12,13 +12,15 @@ import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-
 type Props = {
   queryParams: any;
   history: any;
 };
 
-type FinalProps = {} & Props & IRouterProps;
+type FinalProps = {
+  ordersQuery;
+} & Props &
+  IRouterProps;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -96,7 +98,14 @@ class ListContainer extends React.Component<FinalProps> {
     return <Bulk content={content} />;
   }
 }
-
+const getRefetchQueries = () => {
+  return [
+    {
+      query: gql(queries.orderList),
+      variables: {}
+    }
+  ];
+};
 export default withProps<Props>(
-  compose()(withRouter<FinalProps>(ListContainer))
+  compose()(graphql<Props>(gql(queries.orderList), {}), ListContainer)
 );

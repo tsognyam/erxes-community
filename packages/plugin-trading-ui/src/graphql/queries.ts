@@ -6,7 +6,15 @@ const list = `
     }
   }
 `;
-
+const orderList = `
+query TradingOrders {
+  tradingOrders {
+    cnt,
+    condid,
+    stock
+  }
+}
+`;
 const totalCount = `
   query tradingsTotalCountQuery {
     tradingsTotalCount
@@ -15,5 +23,6 @@ const totalCount = `
 
 export default {
   list,
-  totalCount
+  totalCount,
+  orderList
 };
