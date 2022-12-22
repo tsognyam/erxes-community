@@ -15,9 +15,9 @@ class BankTransactionService {
     this.transactionService = new TransactionService();
   }
   chargeV2 = async (params: any, subdomain: string) => {
-    // if (process.env.NODE_ENV !== "development") {
-    //   throw new Error("This service only working dev mode");
-    // }
+    if (process.env.NODE_ENV !== 'development') {
+      throw new Error('This service only working dev mode');
+    }
     var {
       data,
       wallet,
@@ -52,6 +52,9 @@ class BankTransactionService {
         order: true
       }
     );
+    bankTransaction.wallet.walletBalance.balance =
+      parseFloat(bankTransaction.wallet.walletBalance.balance) +
+      parseFloat(bankTransaction.amount);
     let order = await this.transactionService.createTransactionOrder(
       undefined,
       wallet,
