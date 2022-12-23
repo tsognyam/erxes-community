@@ -9,9 +9,24 @@ const list = `
 const orderList = `
 query TradingOrders {
   tradingOrders {
+    txnid,
+    ordertype,
+    txntype,
+    walletId,
+    wallet,
+    orderno,
+    stockcode,
+    stock,
+    txndate,
+    originalCnt,
     cnt,
-    condid,
-    stock
+    price,
+    fee,
+    donedate,
+    donecnt,
+    doneprice,
+    descr,
+    descr2,
   }
 }
 `;

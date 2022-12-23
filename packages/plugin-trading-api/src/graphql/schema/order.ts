@@ -1,8 +1,8 @@
 export const types = `
 type TradingOrder @key(fields:"txnid") {
     txnid: Int!
-    orderType:Int
-    txnType:Int!
+    ordertype:Int
+    txntype:Int!
     walletId:Int
     wallet:JSON!
     orderno:String!

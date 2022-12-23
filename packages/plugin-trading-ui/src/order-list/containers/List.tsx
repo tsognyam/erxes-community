@@ -12,13 +12,17 @@ import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { OrderQueryResponse } from '../../types/orderTypes';
+import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   queryParams: any;
   history: any;
+  currentUser: IUser;
 };
 
 type FinalProps = {
-  ordersQuery;
+  ordersQuery: OrderQueryResponse;
 } & Props &
   IRouterProps;
 
@@ -41,7 +45,7 @@ class ListContainer extends React.Component<FinalProps> {
         mutation={object}
         variables={values}
         callback={callback}
-        // refetchQueries={getRefetchQueries(queryParams, currentOrderId)}
+        refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -81,8 +85,14 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
+    console.log('props=', this.props);
+    const { ordersQuery } = this.props;
+    console.log('ordersQuery=', ordersQuery);
+    const orders = ordersQuery.tradingOrders || [];
     const extendedProps = {
       ...this.props,
+      orders,
+      loading: ordersQuery.loading,
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
       onSearch: this.onSearch,
@@ -90,7 +100,10 @@ class ListContainer extends React.Component<FinalProps> {
       // remove: this.remove,
       // removeOrders,
     };
-
+    // const { ordersQuery } = this.props;
+    // if (ordersQuery.loading) {
+    //   return <Spinner />;
+    // }
     const content = props => {
       return <List {...extendedProps} {...props} />;
     };
@@ -107,5 +120,9 @@ const getRefetchQueries = () => {
   ];
 };
 export default withProps<Props>(
-  compose()(graphql<Props>(gql(queries.orderList), {}), ListContainer)
+  compose(
+    graphql<Props, OrderQueryResponse>(gql(queries.orderList), {
+      name: 'ordersQuery'
+    })
+  )(ListContainer)
 );

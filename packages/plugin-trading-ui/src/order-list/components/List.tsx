@@ -14,7 +14,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import { SECONDARY_DATA } from '../../constants';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { IOrder } from '../../types';
+import { IOrder } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 
@@ -23,7 +23,7 @@ interface IProps extends IRouterProps {
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
-  orders?: IOrder[]; //buh order
+  orders: IOrder[]; //buh order
   isAllSelected: boolean;
   bulk: any[];
   // emptyBulk: () => void;
@@ -34,7 +34,7 @@ interface IProps extends IRouterProps {
   toggleBulk: (target: any, toAdd: boolean) => void;
 }
 
-class ListComp extends React.Component<IProps> {
+class List extends React.Component<IProps> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -48,15 +48,14 @@ class ListComp extends React.Component<IProps> {
   renderContent = () => {
     const {
       toggleAll,
-      orders,
       isAllSelected,
       bulk,
       toggleBulk,
-      renderButton
+      renderButton,
+      orders
     } = this.props;
-
     const onChangeAll = () => {
-      toggleAll(SECONDARY_DATA, 'orders');
+      toggleAll(orders, 'orders');
     };
 
     return (
@@ -72,21 +71,21 @@ class ListComp extends React.Component<IProps> {
             </th>
             <th>№</th>
             <th>
-              <SortHandler sortField={'order.prefix'} label={__('Prefix')} />
-            </th>
-            <th>
               <SortHandler
-                sortField={'order.registry'}
-                label={__('Registry Number')}
+                sortField={'order.stock.symbol'}
+                label={__('Хувьцаа')}
               />
             </th>
             <th>
-              <SortHandler sortField={'order.name'} label={__('Name')} />
+              <SortHandler sortField={'order.txntype'} label={__('Төрөл')} />
             </th>
             <th>
-              <SortHandler sortField={'order.stock'} label={__('Stock')} />
+              <SortHandler sortField={'order.price'} label={__('Үнэ')} />
             </th>
-            <th>{__('Type')}</th>
+            <th>
+              <SortHandler sortField={'order.cnt'} label={__('Тоо ширхэг')} />
+            </th>
+            <th>{__('Биелсэн')}</th>
             <th>
               <SortHandler
                 sortField={'order.orderType'}
@@ -138,7 +137,7 @@ class ListComp extends React.Component<IProps> {
           </tr>
         </thead>
         <tbody id="orders">
-          {(SECONDARY_DATA || []).map((order, index) => (
+          {(orders || []).map((order, index) => (
             <Row
               index={index}
               order={order}
@@ -257,4 +256,4 @@ class ListComp extends React.Component<IProps> {
   }
 }
 
-export default ListComp;
+export default List;
