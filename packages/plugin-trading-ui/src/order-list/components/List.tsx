@@ -85,55 +85,31 @@ class List extends React.Component<IProps> {
             <th>
               <SortHandler sortField={'order.cnt'} label={__('Тоо ширхэг')} />
             </th>
-            <th>{__('Биелсэн')}</th>
             <th>
-              <SortHandler
-                sortField={'order.orderType'}
-                label={__('Order Type')}
-              />
+              <SortHandler sortField={'order.donecnt'} label={__('Биелсэн')} />
             </th>
             <th>
-              <SortHandler sortField={'order.price'} label={__('Price')} />
+              <SortHandler sortField={'order.donecnt'} label={__('Үлдсэн')} />
             </th>
             <th>
-              <SortHandler
-                sortField={'order.quantity'}
-                label={__('Quantity')}
-              />
+              <SortHandler sortField={'order.status'} label={__('Төлөв')} />
             </th>
             <th>
-              <SortHandler
-                sortField={'order.successful'}
-                label={__('Successful')}
-              />
+              <SortHandler sortField={'order.regdate'} label={__('Огноо')} />
             </th>
             <th>
-              <SortHandler sortField={'order.left'} label={__('Left')} />
-            </th>
-            <th>{__('Status')}</th>
-            <th>
-              <SortHandler
-                sortField={'order.createdDate'}
-                label={__('Created Date')}
-              />
+              <SortHandler sortField={'order.successful'} label={__('Нийт')} />
             </th>
             <th>
-              <SortHandler sortField={'order.total'} label={__('Total')} />
+              <SortHandler sortField={'order.left'} label={__('Шимтгэл  ')} />
             </th>
             <th>
               <SortHandler
-                sortField={'order.commission'}
-                label={__('Commission')}
+                sortField={'order.userId'}
+                label={__('Оруулсан хэрэглэгч')}
               />
             </th>
-            <th>{__('Time Frame')}</th>
-            <th>
-              <SortHandler
-                sortField={'order.createdUser'}
-                label={__('Created User')}
-              />
-            </th>
-            <th>{__('Actions')}</th>
+            <th>{__('')}</th>
           </tr>
         </thead>
         <tbody id="orders">

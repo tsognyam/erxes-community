@@ -86,7 +86,6 @@ class Row extends React.Component<Props> {
     const createdDate = dayjs(new Date()).format('lll');
     const left = order.quantity - order.successful;
     const total = order.quantity * order.price;
-    console.log(order);
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
@@ -103,34 +102,40 @@ class Row extends React.Component<Props> {
             {order.txntype === 1 ? 'Авах' : 'Зарах'}
           </Label>
         </td>
-        <td>{order.price}</td>
-        {/* <td>{order.registry}</td>
-        <td>{order.name}</td>
-        <td>{order.stock}</td>
-        <td>{order.orderType}</td>
         <td>
           {order.price.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
         </td>
-        <td>{order.quantity.toLocaleString()}</td>
-        <td>{order.successful.toLocaleString()}</td>
-        <td>{left}</td>
+        <td>{order.cnt}</td>
+        <td>{order.donecnt === null ? 0 : order.donecnt}</td>
+        <td>
+          {order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt)}
+        </td>
         <td>
           <Label
             lblStyle={
-              order.status === 'Successful'
-                ? 'success'
+              order.status === 1
+                ? 'default'
                 : order.status === 'Canceled'
-                  ? 'danger'
-                  : order.status === 'New'
-                    ? 'default'
-                    : 'warning'
+                ? 'danger'
+                : order.status === 'New'
+                ? 'default'
+                : 'warning'
             }
           >
             {order.status}
           </Label>
         </td>
+        {/* <td>{order.registry}</td>
+        <td>{order.name}</td>
+        <td>{order.stock}</td>
+        <td>{order.orderType}</td>
+   
+        <td>{order.quantity.toLocaleString()}</td>
+        <td>{order.successful.toLocaleString()}</td>
+        <td>{left}</td>
+
         <td>{createdDate}</td>
         <td>{total.toLocaleString()}</td>
         <td>
@@ -139,8 +144,8 @@ class Row extends React.Component<Props> {
           })}
         </td>
         <td>{order.timeFrame}</td>
-        <td>{order.createdUser}</td>
-        <td>{this.renderActions(order)}</td> */}
+        <td>{order.createdUser}</td> */}
+        <td>{this.renderActions(order)}</td>
       </StyledTr>
     );
   }
