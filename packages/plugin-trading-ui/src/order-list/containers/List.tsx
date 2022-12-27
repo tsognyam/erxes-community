@@ -14,6 +14,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { OrderQueryResponse } from '../../types/orderTypes';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   queryParams: any;
@@ -22,7 +23,7 @@ type Props = {
 };
 
 type FinalProps = {
-  ordersQuery: OrderQueryResponse;
+  tradingOrdersQuery: any;
 } & Props &
   IRouterProps;
 
@@ -45,7 +46,7 @@ class ListContainer extends React.Component<FinalProps> {
         mutation={object}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
@@ -85,14 +86,16 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    console.log('props=', this.props);
-    const { ordersQuery } = this.props;
-    console.log('ordersQuery=', ordersQuery);
-    const orders = ordersQuery.tradingOrders || [];
+    const { tradingOrdersQuery } = this.props;
+    const orders = tradingOrdersQuery?.tradingOrders?.values || [];
+    const total = tradingOrdersQuery?.tradingOrders?.total || 0;
+    const count = tradingOrdersQuery?.tradingOrders?.count || 0;
     const extendedProps = {
       ...this.props,
       orders,
-      loading: ordersQuery.loading,
+      loading: tradingOrdersQuery.loading,
+      total,
+      count,
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
       onSearch: this.onSearch,
@@ -100,10 +103,9 @@ class ListContainer extends React.Component<FinalProps> {
       // remove: this.remove,
       // removeOrders,
     };
-    // const { ordersQuery } = this.props;
-    // if (ordersQuery.loading) {
-    //   return <Spinner />;
-    // }
+    if (tradingOrdersQuery.loading) {
+      return <Spinner />;
+    }
     const content = props => {
       return <List {...extendedProps} {...props} />;
     };
@@ -112,17 +114,18 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 const getRefetchQueries = () => {
-  return [
-    {
-      query: gql(queries.orderList),
-      variables: {}
-    }
-  ];
+  return ['tradingOrders'];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props, OrderQueryResponse>(gql(queries.orderList), {
-      name: 'ordersQuery'
+    graphql<Props>(gql(queries.orderList), {
+      name: 'tradingOrdersQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          ...generatePaginationParams(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
     })
   )(ListContainer)
 );

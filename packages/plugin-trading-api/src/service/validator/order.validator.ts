@@ -117,14 +117,15 @@ class OrderValidator extends BaseValidator {
           stockname: true
         }
       },
-      wallet: true
+      wallet: true,
+      transactionOrder: true
     };
     if (data != undefined) {
       delete data.detail;
       delete data.stocktypeId;
       delete data.groupBy;
     }
-    let order = this.orderRepository.findMany(data, select, options);
+    let order = await this.orderRepository.findAll(data, select, options);
     return order;
   };
 

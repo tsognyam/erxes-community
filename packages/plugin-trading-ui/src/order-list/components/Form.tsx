@@ -44,7 +44,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Registry number')}</ControlLabel>
+          <ControlLabel>{__('Регистр')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -53,7 +53,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('First Name')}</ControlLabel>
+          <ControlLabel>{__('Овог нэр')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -62,16 +62,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Last Name')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.lastname}
-            type="text"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Stock')}</ControlLabel>
+          <ControlLabel>{__('Хувьцаа')}</ControlLabel>
           <FormControl
             componentClass="select"
             options={STOCK}
@@ -79,7 +70,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Type')}</ControlLabel>
+          <ControlLabel>{__('Авах/Зарах')}</ControlLabel>
           <FormControl
             componentClass="select"
             options={TYPE}

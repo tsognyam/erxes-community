@@ -1,3 +1,4 @@
+import { QueryResponse } from '@erxes/ui/src/types';
 export interface IOrder {
   tnxid: number;
   ordertype: number;
@@ -9,9 +10,14 @@ export interface IOrder {
   stock: JSON;
   txndate: Date;
   price: number;
+  transactionOrder: JSON;
+  contid: number;
+}
+export interface IOrderList {
+  values: IOrder[];
+  count: number;
+  total: number;
 }
 export type OrderQueryResponse = {
-  tradingOrders: IOrder[];
-  refetch: () => void;
-  loading: boolean;
-};
+  tradingOrders: IOrderList;
+} & QueryResponse;

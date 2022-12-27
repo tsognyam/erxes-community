@@ -72,7 +72,17 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, index, order, toggleBulk } = this.props;
-
+    const stateList = [
+      { status: 0, statusName: 'Цуцлагдсан', styleName: 'danger' },
+      { status: 1, statusName: 'Шинэ', styleName: 'primary' },
+      { status: 2, statusName: 'Хүлээн авсан', styleName: 'primary' },
+      { status: 3, statusName: 'Review', styleName: 'warning' },
+      { status: 4, statusName: 'Хэсэгчилж биелсэн', styleName: 'success' },
+      { status: 5, statusName: 'Биелсэн', styleName: 'success' },
+      { status: 6, statusName: 'Түтгэлзсэн', styleName: 'danger' },
+      { status: 7, statusName: 'Хугацаа нь дууссан', styleName: 'danger' },
+      { status: 9, statusName: 'Шинэчлэгдсэн', styleName: 'default' }
+    ];
     const onChange = e => {
       if (toggleBulk) {
         toggleBulk(order, e.target.checked);
@@ -82,10 +92,10 @@ class Row extends React.Component<Props> {
     const onClick = e => {
       e.stopPropagation();
     };
-
-    const createdDate = dayjs(new Date()).format('lll');
-    const left = order.quantity - order.successful;
-    const total = order.quantity * order.price;
+    const left =
+      order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt);
+    const total = order.cnt * order.price;
+    const fee = (total * order.fee) / 100;
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
@@ -96,6 +106,9 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index + 1}</td>
+        <td></td>
+        <td></td>
+        <td></td>
         <td>{order.stock.symbol}</td>
         <td>
           <Label lblStyle={order.txntype === 1 ? 'primary' : 'danger'}>
@@ -103,48 +116,51 @@ class Row extends React.Component<Props> {
           </Label>
         </td>
         <td>
+          {order.ordertype == 1
+            ? 'Зах зээл'
+            : order.ordertype == 2
+            ? 'Нөхцөлт'
+            : ''}
+        </td>
+        <td>
           {order.price.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}
         </td>
         <td>{order.cnt}</td>
         <td>{order.donecnt === null ? 0 : order.donecnt}</td>
-        <td>
-          {order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt)}
-        </td>
+        <td>{left}</td>
         <td>
           <Label
-            lblStyle={
-              order.status === 1
-                ? 'default'
-                : order.status === 'Canceled'
-                ? 'danger'
-                : order.status === 'New'
-                ? 'default'
-                : 'warning'
-            }
+            lblStyle={stateList.find(x => x.status == order.status)?.styleName}
           >
-            {order.status}
+            {stateList.find(x => x.status == order.status)?.statusName}
           </Label>
         </td>
-        {/* <td>{order.registry}</td>
-        <td>{order.name}</td>
-        <td>{order.stock}</td>
-        <td>{order.orderType}</td>
-   
-        <td>{order.quantity.toLocaleString()}</td>
-        <td>{order.successful.toLocaleString()}</td>
-        <td>{left}</td>
-
-        <td>{createdDate}</td>
-        <td>{total.toLocaleString()}</td>
+        <td>{dayjs(order.regdate).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td>
-          {order.commission.toLocaleString(undefined, {
+          {total.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
             maximumFractionDigits: 2
           })}
         </td>
-        <td>{order.timeFrame}</td>
-        <td>{order.createdUser}</td> */}
+        <td>
+          {fee.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}
+        </td>
+        <td>
+          {order.condid == 0
+            ? 'Day'
+            : order.condid == 1
+            ? 'GTC'
+            : order.conid == 6
+            ? 'GTD'
+            : ''}
+        </td>
+        <td>{order.user?.details?.shortName}</td>
         <td>{this.renderActions(order)}</td>
       </StyledTr>
     );

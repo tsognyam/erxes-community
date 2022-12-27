@@ -47,6 +47,8 @@ type TradingOrder @key(fields:"txnid") {
     settlementMCSD:JSON
     transactionOrder:JSON
     stockOrder:JSON
+    user:JSON
+    userMCSDAccount:JSON
 }
 type TradingOrderTypes @key(fields:"id") {
     id:Int
@@ -56,9 +58,20 @@ type TradingOrderTypes @key(fields:"id") {
     activeTime:String!
     status:Int
 }
+type TradingOrderList {
+    total:Int,
+    count:Int,
+    values:[TradingOrder]
+}
 `;
 export const queries = `
-tradingOrders(params:JSON):[TradingOrder]
+tradingOrders(
+    page:Int!,
+    perPage:Int!,
+    stockcode:Int,
+    status:Int,
+    txntype:Int,
+):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 tradingOrderTypes:[TradingOrderTypes]
 `;

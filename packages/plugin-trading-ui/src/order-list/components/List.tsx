@@ -14,7 +14,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import { SECONDARY_DATA } from '../../constants';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { IOrder } from '../../types/orderTypes';
+import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 
@@ -24,6 +24,8 @@ interface IProps extends IRouterProps {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
   orders: IOrder[]; //buh order
+  total: number;
+  count: number;
   isAllSelected: boolean;
   bulk: any[];
   // emptyBulk: () => void;
@@ -52,12 +54,13 @@ class List extends React.Component<IProps> {
       bulk,
       toggleBulk,
       renderButton,
-      orders
+      orders,
+      total,
+      count
     } = this.props;
     const onChangeAll = () => {
       toggleAll(orders, 'orders');
     };
-
     return (
       <Table>
         <thead>
@@ -70,6 +73,9 @@ class List extends React.Component<IProps> {
               />
             </th>
             <th>№</th>
+            <th>Prefix</th>
+            <th>Регистр</th>
+            <th>Нэр</th>
             <th>
               <SortHandler
                 sortField={'order.stock.symbol'}
@@ -78,6 +84,12 @@ class List extends React.Component<IProps> {
             </th>
             <th>
               <SortHandler sortField={'order.txntype'} label={__('Төрөл')} />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'order.ordertype'}
+                label={__('Захиалгын төрөл')}
+              />
             </th>
             <th>
               <SortHandler sortField={'order.price'} label={__('Үнэ')} />
@@ -101,7 +113,10 @@ class List extends React.Component<IProps> {
               <SortHandler sortField={'order.successful'} label={__('Нийт')} />
             </th>
             <th>
-              <SortHandler sortField={'order.left'} label={__('Шимтгэл  ')} />
+              <SortHandler sortField={'order.left'} label={__('Шимтгэл')} />
+            </th>
+            <th>
+              <SortHandler sortField={'order.condid'} label={__('Хугацаа')} />
             </th>
             <th>
               <SortHandler
@@ -153,11 +168,10 @@ class List extends React.Component<IProps> {
   // };
 
   render() {
-    const { queryParams, bulk } = this.props;
+    const { queryParams, bulk, orders, total, count } = this.props;
     const breadcrumb = [
       { title: __('Order List'), link: '/tradings/order-list' }
     ];
-
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
@@ -195,7 +209,7 @@ class List extends React.Component<IProps> {
             left={actionBarLeft}
             right={
               <Flex>
-                <ModalTrigger
+                {/* <ModalTrigger
                   title="Place an order"
                   size={'lg'}
                   trigger={
@@ -209,7 +223,15 @@ class List extends React.Component<IProps> {
                     </Button>
                   }
                   content={this.renderForm}
-                />
+                /> */}
+                <Button
+                  id={'NewOrderButton'}
+                  btnStyle="success"
+                  block={true}
+                  icon="plus-circle"
+                >
+                  Add Order
+                </Button>
                 {this.renderFilter()}
               </Flex>
             }
@@ -220,12 +242,12 @@ class List extends React.Component<IProps> {
           <DataWithLoader
             data={this.renderContent()}
             loading={false}
-            count={90}
+            count={total}
             emptyText="There is no order."
             emptyImage="/images/actions/20.svg"
           />
         }
-        footer={<Pagination count={90} />}
+        footer={<Pagination count={total} />}
         hasBorder
       />
     );
