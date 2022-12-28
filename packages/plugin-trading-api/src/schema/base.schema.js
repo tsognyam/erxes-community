@@ -1,8 +1,9 @@
 const Joi = require('joi');
-const ErrorCode = require('../exception/error-code');
+// const ErrorCode = require('../exception/error-code');
 const ErrorException = require('../exception/error-exception');
-const Helper = require('../middleware/helper.middleware');
-const CityRepository = require('../repository/user/city.repository');
+// const Helper = require('../middleware/helper.middleware');
+import Helper from '../middleware/helper.service'
+// const CityRepository = require('../repository/user/city.repository');
 
 class BaseSchema {
   REGISTER_NUMBER_PATTERN = RegExp(/^[А-Яа-я]{2}[0-9]{8}$/);
@@ -10,7 +11,7 @@ class BaseSchema {
 
   Joi = Joi;
   helper = Helper;
-  #cityRepository = new CityRepository();
+  // #cityRepository = new CityRepository();
 
   validateId = (id) => {
     const { error } = this.Joi.object({
@@ -50,14 +51,14 @@ class BaseSchema {
     this.helper.checkError(error);
   };
 
-  checkCity = async (id) => {
-    const city = await this.#cityRepository.findById(id);
-    if (!city) {
-      throw new ErrorException(500, ErrorCode.InvalidParam);
-    }
+  // checkCity = async (id) => {
+  //   const city = await this.#cityRepository.findById(id);
+  //   if (!city) {
+  //     throw new ErrorException(500, ErrorCode.InvalidParam);
+  //   }
 
-    return city;
-  };
+  //   return city;
+  // };
 
   validateRegNumber = async (registerNumber) => {
     const { error } = this.Joi.object({

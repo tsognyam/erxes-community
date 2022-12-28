@@ -38,7 +38,7 @@ class WalletService {
     let query = {
       _id: wallet.userId
     };
-    let user = await getUser(subdomain, query);
+    let user = await getUser(query);
     console.log(user);
     wallet.user = user;
     return wallet;
@@ -71,7 +71,7 @@ class WalletService {
         _id: { $in: userIds }
       }
     };
-    let users = await getUsers(subdomain, query);
+    let users = await getUsers(query);
     let user: any;
     wallets.forEach((el: any) => {
       user = users.find((x: any) => x._id == el.userId);

@@ -1,7 +1,7 @@
 import BaseRepository from '../base.repository';
 
 export default class UserAdditionalInfoRepository extends BaseRepository {
-  static instance:any = null;
+  static instance: any = null;
 
   static get() {
     if (this.instance == null) {
@@ -18,10 +18,10 @@ export default class UserAdditionalInfoRepository extends BaseRepository {
   participateTransaction = async (updateQuery, createQuery) => {
     return await this._prisma.$transaction([
       this._prisma[this._model].updateMany(updateQuery),
-      this._prisma[this._model].create(createQuery),
+      this._prisma[this._model].create(createQuery)
     ]);
   };
 
-  updateMany = async (schema) => await this._prisma[this._model].updateMany(schema);
+  updateMany = async schema =>
+    await this._prisma[this._model].updateMany(schema);
 }
-

@@ -38,9 +38,9 @@ model BankTransaction {
   accountName    String            @db.VarChar(100)
   message        String?           @db.VarChar(100)
   createdAt      DateTime          @default(now())
-  createUserId   Int?
+  createUserId   String?
   updatedAt      DateTime?
-  updatedUserId  Int?
+  updatedUserId  String?
   withdraw       Withdraw?
   wallet         Wallet?           @relation(fields: [walletId], references: [id])
   walletId       Int?
@@ -87,7 +87,7 @@ model Order {
   descr2           String?
   txnsource        Int?
   condid           Int?
-  userId           String
+  userId           Int
   brchno           String?
   regdate          DateTime          @default(now())
   status           Int
@@ -109,8 +109,6 @@ model Order {
   andIpoOrderId    String?
   settlementMSCCId Int?
   settlementMSCC   SettlementMSCC?   @relation(fields: [settlementMSCCId], references: [id])
-  settlementMCSDId Int?
-  settlementMCSD   SettlementMCSD?   @relation(fields: [settlementMCSDId], references: [id])
   transactionOrder TransactionOrder? @relation(fields: [tranOrderId], references: [id])
   stockOrder       StockOrder?       @relation(fields: [stockOrderId], references: [id])
 }
@@ -140,20 +138,11 @@ model Custfee {
   @@index([stocktypeId], map: "Custfee_stocktypeId_fkey")
 }
 
-model Ordertype {
-  id         Int     @id @default(autoincrement())
-  name       String
-  name2      String
-  listorder  Int
-  activeTime String?
-  status     Int
-}
-
 model StockFav {
   id        Int      @id @default(autoincrement())
   stockcode Int
   stock     Stock    @relation(fields: [stockcode], references: [stockcode])
-  userId    Int
+  userId    String
   regdate   DateTime @default(now())
 }
 
@@ -170,13 +159,13 @@ model Stock {
   closeprice        Decimal?           @default(0) @db.Decimal(30, 4)
   startdate         DateTime           @default(now())
   enddate           DateTime           @default(now())
-  intrate           Decimal            @default(0) @db.Decimal(30, 4)
+  intrate           Decimal?            @default(0) @db.Decimal(30, 4)
   userId            String?
   brchno            String?
   regdate           DateTime           @default(now())
   status            String             @default("1")
   no                String? // Монголын хөрөнгийн биржийн үнэт цаасны гэрээний дугаар MN00
-  cnt               Decimal            @db.Decimal(30, 0)
+  cnt               Decimal?            @db.Decimal(30, 0)
   boardname         String? // Монголын хөрөнгийн биржийн самбарын дугаар
   inducode          String?
   lsttxndate        DateTime?          @default(now())
@@ -189,7 +178,7 @@ model Stock {
   order_begindate   DateTime?
   order_enddate     DateTime?
   notiftype         Int? // Бонд хүү төлөгдөх давтамж; 1 - Сар 2 - Улирал 3 - Жил 4 - Дуусах хугацаанд
-  stockfee          Decimal            @db.Decimal(30, 4)
+  stockfee          Decimal?            @db.Decimal(30, 4) @default(0)
   exchangeid        Int // Хөрөнгийн биржийн дугаар
   ipotype           Int?
   ipoexecution      Decimal?           @default(0) @db.Decimal(30, 4)
@@ -212,9 +201,9 @@ model Wallet {
   name                 String             @db.VarChar(30)
   type                 Int
   createdAt            DateTime           @default(now())
-  createUserId         Int?
+  createUserId         String?
   updatedAt            DateTime?
-  updatedUserId        Int?
+  updatedUserId        String?
   walletNumber         String             @unique
   walletNumberModel    WalletNumber       @relation(fields: [walletNumber], references: [number])
   walletNumberId       Int?
@@ -236,9 +225,9 @@ model WalletNumber {
   number        String?   @unique
   wallet        Wallet?
   createdAt     DateTime  @default(now())
-  createUserId  Int?
+  createUserId  String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
 }
 
 model WalletBalance {
@@ -249,9 +238,9 @@ model WalletBalance {
   holdBalance   Decimal   @db.Decimal(30, 4)
   tradeBalance  Decimal   @db.Decimal(30, 4)
   createdAt     DateTime  @default(now())
-  createUserId  Int?
+  createUserId  String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
 }
 
 model StockBalance {
@@ -263,9 +252,9 @@ model StockBalance {
   balance       Int
   holdBalance   Int
   createdAt     DateTime  @default(now())
-  createUserId  Int?
+  createUserId  String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
 }
 
 model StockTransaction {
@@ -281,9 +270,9 @@ model StockTransaction {
   stock         Stock      @relation(fields: [stockCode], references: [stockcode])
   stockCount    Int
   createdAt     DateTime   @default(now())
-  createUserId  Int?
+  createUserId  String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
 }
 
 model StockOrder {
@@ -301,9 +290,9 @@ model StockOrder {
   parentOrderId     Int?
   parentOrder       StockOrder?        @relation(name: "parent", fields: [parentOrderId], references: [id])
   createdAt         DateTime           @default(now())
-  createUserId      Int?
+  createUserId      String?
   updatedAt         DateTime?
-  updatedUserId     Int?
+  updatedUserId     String?
   stockTransactions StockTransaction[]
   childOrders       StockOrder[]       @relation(name: "parent")
   mainOrder         Order[]
@@ -322,11 +311,12 @@ model Withdraw {
   description       String           @db.VarChar(400)
   dater             DateTime         @db.Date
   createdAt         DateTime         @default(now())
-  createUserId      Int?
+  createUserId      String?
   updatedAt         DateTime?
-  updatedUserId     Int?
+  updatedUserId     String?
   UserBankAccount   UserBankAccount? @relation(fields: [userBankAccountId], references: [id])
   userBankAccountId Int?
+  userId            String?
 }
 
 model Transaction {
@@ -343,9 +333,9 @@ model Transaction {
   afterBalance  Decimal          @db.Decimal(30, 4)
   dater         DateTime         @db.Date
   createdAt     DateTime         @default(now())
-  createUserId  Int?
+  createUserId  String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
 }
 
 model TransactionOrder {
@@ -362,9 +352,9 @@ model TransactionOrder {
   parentOrder     TransactionOrder?  @relation(name: "parentOrder", fields: [parentOrderId], references: [id])
   dater           DateTime           @db.Date
   createdAt       DateTime           @default(now())
-  createUserId    Int?
+  createUserId    String?
   updatedAt       DateTime?
-  updatedUserId   Int?
+  updatedUserId   String?
   transactions    Transaction[]
   childOrders     TransactionOrder[] @relation(name: "parentOrder")
   bankTransaction BankTransaction?
@@ -382,40 +372,9 @@ model Settlement {
   startDate      DateTime  @db.Date
   endDate        DateTime  @db.Date
   createdAt      DateTime  @default(now())
-  createUserId   Int?
+  createUserId   String?
   updatedAt      DateTime?
-  updatedUserId  Int?
-}
-
-model SettlementMCSD {
-  id                Int       @id @default(autoincrement())
-  userId            String
-  tradeDate         DateTime
-  settlementDate    DateTime
-  cmId              String    @db.VarChar(100)
-  participantId     String    @db.VarChar(10)
-  participantType   String    @db.VarChar(10)
-  clientPrefix      String    @db.VarChar(150)
-  clientSuffix      String    @db.VarChar(10)
-  clientJointNo     Int?
-  securityMCategory String?   @db.VarChar(10)
-  securityCategory  String?   @db.VarChar(10)
-  issuerCode        String?   @db.VarChar(10)
-  debtType          String?   @db.VarChar(10)
-  securityDesc      String?   @db.VarChar(100)
-  mainType          String?   @db.VarChar(10)
-  subType           String?   @db.VarChar(10)
-  quantity          Int
-  obligation        Decimal   @db.Decimal(30, 4)
-  status            Int
-  statusDescription String?   @db.VarChar(500)
-  settlementStatus  Int
-  executedDate      DateTime?
-  createdAt         DateTime  @default(now())
-  createUserId      Int?
-  updatedAt         DateTime?
-  updatedUserId     Int?
-  orders            Order[]
+  updatedUserId  String?
 }
 
 model SettlementMSCC {
@@ -451,7 +410,7 @@ model SettlementMSCC {
   statusDescription String?   @db.VarChar(500)
   executedDate      DateTime?
   createdAt         DateTime  @default(now())
-  createUserId      Int?
+  createUserId      String?
   orders            Order[]
 }
 
@@ -478,20 +437,20 @@ model TransactionMCSD {
 
 model UserMCSDAccount {
   id            Int       @id @default(autoincrement())
-  userId        String
+  userId        String  @unique
   prefix        String?   @unique(map: "prefix")
   clientSuffix  String?
   fullPrefix    String?
   bdcAccountId  String?
   createdAt     DateTime  @default(now())
-  createdUserId Int?
+  createdUserId String?
   updatedAt     DateTime?
   updatedUserId String?
 }
 
 model UserBankAccount {
   id            Int        @id @default(autoincrement())
-  userId        String
+  userId        String @unique
   bankCode      String
   bank          Bank       @relation(fields: [bankCode], references: [code])
   accountNo     String     @db.VarChar(36)
@@ -506,4 +465,14 @@ model UserBankAccount {
   @@index([accountNo], map: "accout_no_ix")
   @@index([id], map: "id_ix")
   @@index([userId], map: "user_id_ix")
+}
+
+model Calendar {
+  id            Int      @id @default(autoincrement())
+  year          Int
+  month         Int
+  day           Int
+  fullDate      DateTime
+  createdDate   DateTime @default(now())
+  createdUserId String
 }

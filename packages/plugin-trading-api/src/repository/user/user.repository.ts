@@ -1,10 +1,10 @@
 // const { getValueR } = require('../../middleware/helper.middleware');
-
+import Helper from '../../middleware/helper.service';
 import BaseConst from '../../constants/base';
 import ContractConst from '../../constants/contract';
 import { UserFilesConst, UserConst } from '../../constants/user';
 import { CurrencyConst } from '../../constants/wallet';
-const BaseRepository = require('../base.repository');
+import BaseRepository from '../base.repository';
 
 export default class UserRepository extends BaseRepository {
   constructor() {
@@ -24,8 +24,8 @@ export default class UserRepository extends BaseRepository {
         lastName: true,
         firstName: true,
         birthday: true,
-        workphone: true,
-        handphone: true,
+        workPhone: true,
+        handPhone: true,
         phone: true,
         status: true,
         gender: true,
@@ -34,40 +34,40 @@ export default class UserRepository extends BaseRepository {
         position: true,
         externalId: true,
         isAdditional: true,
-        UserGroup: {
-          select: {
-            id: true,
-            groupId: true,
-            startDate: true,
-            endDate: true,
-            status: true,
-            Group: {
-              select: {
-                id: true,
-                name: true,
-                name2: true,
-                group: true,
-                status: true,
-                roles: {
-                  select: {
-                    status: true,
-                    Role: {
-                      select: {
-                        role: true,
-                        status: true,
-                      },
+        // UserGroup: {
+        //   select: {
+        //     id: true,
+        //     groupId: true,
+        //     startDate: true,
+        //     endDate: true,
+        //     status: true,
+        //     Group: {
+        //       select: {
+        //         id: true,
+        //         name: true,
+        //         name2: true,
+        //         group: true,
+        //         status: true,
+        //         roles: {
+        //           select: {
+        //             status: true,
+        //             Role: {
+        //               select: {
+        //                 role: true,
+        //                 status: true,
+        //               },
 
-                    },
-                  },
-                },
-              },
+        //             },
+        //           },
+        //         },
+        //       },
 
-            },
-          },
-          where: {
-            status: BaseConst.STATUS_ACTIVE
-          }
-        },
+        //     },
+        //   },
+        //   where: {
+        //     status: BaseConst.STATUS_ACTIVE
+        //   }
+        // },
         UserAddress: {
           select: {
             id: true,
@@ -124,14 +124,14 @@ export default class UserRepository extends BaseRepository {
             bdcAccountId: true
           }
         },
-        UserFiles: {
-          select: {
-            imagePath: true,
-            imageFullPath: true,
-            type: true,
-            status: true,
-          },
-        },
+        // UserFiles: {
+        //   select: {
+        //     imagePath: true,
+        //     imageFullPath: true,
+        //     type: true,
+        //     status: true,
+        //   },
+        // },
         UserContract: {
           select: {
             Contract: {
@@ -150,9 +150,9 @@ export default class UserRepository extends BaseRepository {
       return user;
     }
 
-    user.UserGroup = user.UserGroup.filter(
-      (group) => BaseConst.STATUS_ACTIVE === group.status && BaseConst.STATUS_ACTIVE === group.Group.status
-    );
+    // user.UserGroup = user.UserGroup.filter(
+    //   (group) => BaseConst.STATUS_ACTIVE === group.status && BaseConst.STATUS_ACTIVE === group.Group.status
+    // );
     if (user.UserContract.length != 0) {
       user.term = user.UserContract.filter(
         (contract) => ContractConst.TYPE_SERVICE === contract.Contract.type
@@ -171,13 +171,13 @@ export default class UserRepository extends BaseRepository {
       }
     });
 
-    const roles = user.UserGroup.map((grpObj) => {
-      let grpRoles = grpObj.Group.roles
-        .filter((role) => BaseConst.STATUS_ACTIVE === role.status && BaseConst.STATUS_ACTIVE === role.Role.status)
-        .map((role) => role.Role.role);
-      delete grpObj.Group.roles;
-      return grpRoles;
-    });
+    // const roles = user.UserGroup.map((grpObj) => {
+    //   let grpRoles = grpObj.Group.roles
+    //     .filter((role) => BaseConst.STATUS_ACTIVE === role.status && BaseConst.STATUS_ACTIVE === role.Role.status)
+    //     .map((role) => role.Role.role);
+    //   delete grpObj.Group.roles;
+    //   return grpRoles;
+    // });
 
     if (profile) {
       const profilePicture = user.UserFiles.filter(
@@ -199,10 +199,10 @@ export default class UserRepository extends BaseRepository {
     user.step = user.externalId;
     delete user.externalId;
 
-    user.roles = roles.flat();
+    // user.roles = roles.flat();
     if (user.UserBankAccounts.length != 0) {
-      user.UserBankAccounts[0].transactionFee = user.UserBankAccounts[0].bankCode == '04' ? await getValueR('TDBTransactionFee') : await getValueR('BankTransactionFee')
-      user.UserBankAccounts[0].transactionFeeLarge = user.UserBankAccounts[0].bankCode == '04' ? await getValueR('TDBTransactionFeeLarge') : await getValueR('BankTransactionFeeLarge')
+      user.UserBankAccounts[0].transactionFee = user.UserBankAccounts[0].bankCode == '04' ? await Helper.getValueR('TDBTransactionFee') : await Helper.getValueR('BankTransactionFee')
+      user.UserBankAccounts[0].transactionFeeLarge = user.UserBankAccounts[0].bankCode == '04' ? await Helper.getValueR('TDBTransactionFeeLarge') : await Helper.getValueR('BankTransactionFeeLarge')
     }
 
     return user;
@@ -226,8 +226,8 @@ export default class UserRepository extends BaseRepository {
         lastName: true,
         firstName: true,
         birthday: true,
-        workphone: true,
-        handphone: true,
+        workPhone: true,
+        handPhone: true,
         phone: true,
         status: true,
         gender: true,
@@ -291,8 +291,8 @@ export default class UserRepository extends BaseRepository {
         lastName: true,
         firstName: true,
         birthday: true,
-        workphone: true,
-        handphone: true,
+        workPhone: true,
+        handPhone: true,
         phone: true,
         status: true,
         gender: true,
@@ -355,8 +355,8 @@ export default class UserRepository extends BaseRepository {
         lastName: true,
         firstName: true,
         birthday: true,
-        workphone: true,
-        handphone: true,
+        workPhone: true,
+        handPhone: true,
         phone: true,
         status: true,
         gender: true,
@@ -365,40 +365,40 @@ export default class UserRepository extends BaseRepository {
         position: true,
         externalId: true,
         isAdditional: true,
-        UserGroup: {
-          select: {
-            id: true,
-            groupId: true,
-            startDate: true,
-            endDate: true,
-            status: true,
-            Group: {
-              select: {
-                id: true,
-                name: true,
-                name2: true,
-                group: true,
-                status: true,
-                roles: {
-                  select: {
-                    status: true,
-                    Role: {
-                      select: {
-                        role: true,
-                        status: true,
-                      },
+        // UserGroup: {
+        //   select: {
+        //     id: true,
+        //     groupId: true,
+        //     startDate: true,
+        //     endDate: true,
+        //     status: true,
+        //     Group: {
+        //       select: {
+        //         id: true,
+        //         name: true,
+        //         name2: true,
+        //         group: true,
+        //         status: true,
+        //         roles: {
+        //           select: {
+        //             status: true,
+        //             Role: {
+        //               select: {
+        //                 role: true,
+        //                 status: true,
+        //               },
 
-                    },
-                  },
-                },
-              },
+        //             },
+        //           },
+        //         },
+        //       },
 
-            },
-          },
-          where: {
-            status: BaseConst.STATUS_ACTIVE
-          }
-        }
+        //     },
+        //   },
+        //   where: {
+        //     status: BaseConst.STATUS_ACTIVE
+        //   }
+        // }
       },
     });
 

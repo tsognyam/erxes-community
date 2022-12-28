@@ -1,4 +1,4 @@
-import { sendCoreMessage } from '../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 export const defaultCurrency = async (subdomain: string) => {
   let dealCurrency = await sendCoreMessage({
     subdomain,
@@ -30,20 +30,20 @@ export const defaultCurrencies = async (subdomain: string) => {
     throw new Error('Please choose currency from general settings!');
   return dealCurrency;
 };
-export const getUsers = async (subdomain: string, data: any) => {
-  const users = await sendCoreMessage({
+export const getUsers = async (data: any, subdomain: string = 'localhost') => {
+  const users = await sendContactsMessage({
     subdomain,
-    action: 'users.find',
+    action: 'customers.find',
     data: data,
     isRPC: true,
     defaultValue: []
   });
   return users;
 };
-export const getUser = async (subdomain: string, data: any) => {
-  const user = await sendCoreMessage({
+export const getUser = async (data: any, subdomain: string = 'localhost') => {
+  const user = await sendContactsMessage({
     subdomain,
-    action: 'users.findOne',
+    action: 'customers.findOne',
     data: data,
     isRPC: true,
     defaultValue: []

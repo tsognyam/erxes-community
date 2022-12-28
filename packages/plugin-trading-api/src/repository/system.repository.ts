@@ -16,10 +16,10 @@ export default class SystemRepository extends BaseRepository {
     super('system');
   }
 
-  getbyName = (name) =>
+  getbyName = name =>
     this._prisma[this._model].findMany({
       where: {
-        name,
-      },
+        name
+      }
     });
 }

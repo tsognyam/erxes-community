@@ -5,14 +5,20 @@ import {
   SystemMutations,
   BankTransactionMutations,
   OrderMutations,
-  BankMutations
+  BankMutations,
+  UserBankMutations,
+  UserMutations,
+  StockMutations
 } from './mutations';
 import {
   WalletQueries,
   SystemQueries,
   BankTransactionQueries,
   OrderQueries,
-  BankQueries
+  BankQueries,
+  UserBankQueries,
+  UserQueries,
+  StockQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -22,14 +28,20 @@ const resolvers: any = async serviceDiscovery => ({
     ...SystemMutations,
     ...BankTransactionMutations,
     ...OrderMutations,
-    ...BankMutations
+    ...BankMutations,
+    ...UserBankMutations,
+    ...UserMutations,
+    ...StockMutations
   },
   Query: {
     ...WalletQueries,
     ...SystemQueries,
     ...BankTransactionQueries,
     ...OrderQueries,
-    ...BankQueries
+    ...BankQueries,
+    ...UserBankQueries,
+    ...UserQueries,
+    ...StockQueries
   }
 });
 

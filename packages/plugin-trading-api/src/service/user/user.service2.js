@@ -87,7 +87,7 @@ class UserService {
         { uuid: uuid },
         {
           identityType: identityType,
-          handphone: identity
+          handPhone: identity
         }
       );
 
@@ -113,7 +113,7 @@ class UserService {
         uuid,
         identityType,
         email: identity,
-        handphone: additional.extra_identity,
+        handPhone: additional.extra_identity,
         registerNumber: additional.regNumber,
         passportNumber: additional.passportNumber,
         status: UserConst.STATUS_CONFIRMED,
@@ -133,7 +133,7 @@ class UserService {
         uuid,
         identityType,
         email: additional.extra_identity,
-        handphone: identity,
+        handPhone: identity,
         registerNumber: additional.regNumber,
         passportNumber: additional.passportNumber,
         status: UserConst.STATUS_CONFIRMED,
@@ -407,9 +407,9 @@ class UserService {
       FirstName: user.firstName,
       Gender: user.gender,
       HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-      HomePhone: user.handphone,
+      HomePhone: user.handPhone,
       LastName: user.lastName,
-      MobilePhone: user.handphone,
+      MobilePhone: user.handPhone,
       Occupation: user.profession,
       RegistryNumber: user.registerNumber,
     }
@@ -516,9 +516,9 @@ class UserService {
       FirstName: user.firstName,
       Gender: user.gender,
       HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-      HomePhone: user.handphone,
+      HomePhone: user.handPhone,
       LastName: user.lastName,
-      MobilePhone: user.handphone,
+      MobilePhone: user.handPhone,
       Occupation: user.profession,
       RegistryNumber: user.registerNumber,
     }
@@ -608,9 +608,9 @@ class UserService {
         FirstName: user.firstName,
         Gender: user.gender,
         HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-        HomePhone: user.handphone,
+        HomePhone: user.handPhone,
         LastName: user.lastName,
-        MobilePhone: user.handphone,
+        MobilePhone: user.handPhone,
         Occupation: user.profession,
         RegistryNumber: user.registerNumber,
       }

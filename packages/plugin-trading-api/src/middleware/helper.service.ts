@@ -47,4 +47,23 @@ export default class Helper {
     res += day;
     return res;
   }
+  static checkError(error) {
+    if (error) {
+      const { details } = error;
+      const message = details.map(i => i.message).join(',');
+      // throw new Error(message);
+      throw new Error(message);
+    }
+  }
+
+  static isNumber = (value, helpers) => {
+    // console.log('typeof',value,typeof value == 'number');
+    // Throw an error (will be replaced with 'any.custom' error)
+    if (typeof value !== 'number') {
+      throw new Error('type is not number!');
+    }
+
+    // Return the value unchanged
+    return value;
+  };
 }

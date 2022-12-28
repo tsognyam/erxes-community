@@ -29,41 +29,70 @@ import BaseConst from '../../constants/base';
 import * as moment from 'moment';
 import { CustomException, ErrorCode } from '../../exception/error-code';
 import ErrorException from '../../exception/error-exception';
+import { sendContactsMessage, sendCoreMessage, sendLogsMessage } from '../../messageBroker';
+import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repository';
 
 export default class UserService {
-  #validator = new UserValidator();
-  #mcsdService = new MCSDService();
+  #validator: UserValidator;
+  #mcsdService: MCSDService;
   // #fileService = new FileService();
-  #walletService = new WalletService();
-  #custFeeService = new CustFeeService();
-  #userRepository = new UserRepository();
+  #walletService: WalletService;
+  #custFeeService: CustFeeService;
+  #userRepository: UserRepository;
+  #userMcsdRepository: UserMCSDAccountRepository;
   // #userFilesRepository = new UserFilesRepository();
-  #userBankAccountRepository = UserBankAccountRepository.get();
+  #userBankAccountRepository: UserBankAccountRepository;
   // #nationalCardRepository = NationalCardRepository.get();
-  #walletRepository = WalletRepository.get();
+  #walletRepository: WalletRepository;
   #userRelationRepository = UserRelationRepository.get();
   #userAdditionalInfoRepository = UserAdditionalInfoRepository.get();
   // #userAddressRepository = UserAddressRepository.get();
   _notificationService = new NotificationService();
-  #msccService = new MSCCService();
-
+  #msccService: MSCCService;
+  constructor() {
+    this.#validator = new UserValidator();
+    this.#mcsdService = new MCSDService();
+    // #fileService = new FileService();
+    this.#walletService = new WalletService();
+    this.#custFeeService = new CustFeeService();
+    this.#userRepository = new UserRepository();
+    // #userFilesRepository = new UserFilesRepository();
+    this.#userBankAccountRepository = UserBankAccountRepository.get();
+    // #nationalCardRepository = NationalCardRepository.get();
+    this.#walletRepository = WalletRepository.get();
+    this.#userRelationRepository = UserRelationRepository.get();
+    this.#userAdditionalInfoRepository = UserAdditionalInfoRepository.get();
+    // #userAddressRepository = UserAddressRepository.get();
+    this._notificationService = new NotificationService();
+    this.#msccService = new MSCCService();
+    this.#userMcsdRepository = new UserMCSDAccountRepository();
+  }
   getFullInfo = (user) => this.#userRepository.findById(+user.id, true);
 
   changeStep = async (user, step = UserStepConst.STEP_1) =>
-    await this.#userRepository.update({ id: +user.id }, { externalId: step });
+    // await this.#userRepository.update({ id: +user.id }, { externalId: step });
+    console.log('user step completed:',step)
 
   getUserInfoById = async (userId) => {
     const user = await this.#userRepository.findById(+userId, true);
 
     if (!user) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
 
     return user;
   };
 
-  getUser = async (userUuid) => {
-    let user = this.#userRepository.findByUuid(userUuid);
+  getUser = async (subdomain,userUuid) => {
+    // let user = this.#userRepository.findByUuid(userUuid);
+    let user = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: userUuid
+      },
+      isRPC: true
+    })
     return user;
   };
   registerUserPut = async (params) => {
@@ -88,7 +117,7 @@ export default class UserService {
         { uuid: uuid },
         {
           identityType: identityType,
-          handphone: identity
+          handPhone: identity
         }
       );
 
@@ -114,7 +143,7 @@ export default class UserService {
         uuid,
         identityType,
         email: identity,
-        handphone: additional.extra_identity,
+        handPhone: additional.extra_identity,
         registerNumber: additional.regNumber,
         passportNumber: additional.passportNumber,
         status: UserConst.STATUS_CONFIRMED,
@@ -134,7 +163,7 @@ export default class UserService {
         uuid,
         identityType,
         email: additional.extra_identity,
-        handphone: identity,
+        handPhone: identity,
         registerNumber: additional.regNumber,
         passportNumber: additional.passportNumber,
         status: UserConst.STATUS_CONFIRMED,
@@ -157,8 +186,13 @@ export default class UserService {
 
   createAccount = async (params) => {
 
-    let user = await this.#userRepository.findById(+params.userId);
-    const { data } = await this.#validator.validateUserInfo(user, params);
+    let user = await this.#userRepository.findByUuid(params.uuid);
+    if(user){
+      throw new Error("User already created");
+    }
+
+    
+    const { data } = await this.#validator.validateUserInfo(params);
 
     data.custType = data.type;
     // data.custType = McsdConst.CUSTOMER_TYPE_CITIZEN;
@@ -185,8 +219,7 @@ export default class UserService {
       //   },
 
       // )
-      updatedUser = await this.#userRepository.update(
-        { uuid: user.uuid },
+      updatedUser = await this.#userRepository.create(
         {
           ...userData,
           status: UserConst.STATUS_PENDING_PAYMENT,
@@ -205,8 +238,7 @@ export default class UserService {
         }
       );
     } else {
-      updatedUser = await this.#userRepository.update(
-        { uuid: user.uuid },
+      updatedUser = await this.#userRepository.create(
         {
           ...userData,
           status: UserConst.STATUS_PENDING_PAYMENT
@@ -214,7 +246,7 @@ export default class UserService {
       );
     }
 
-    await this.changeStep(user, UserStepConst.STEP_3);
+    await this.changeStep(updatedUser, UserStepConst.STEP_3);
 
     return updatedUser;
   };
@@ -245,7 +277,7 @@ export default class UserService {
     //   }
     // );
 
-    let ankets:any = [];
+    let ankets: any = [];
     if (anket != undefined) {
       anket.forEach((el) => {
         el.userId = +data.userId;
@@ -292,15 +324,11 @@ export default class UserService {
 
     if (user.status == UserConst.STATUS_PENDING_PAYMENT) {
       try {
-        await this.#userRepository.update(
-          { email: user.email },
+        //change status on customer erxes
+        await this.#userMcsdRepository.create(
           {
-            status: UserConst.STATUS_PAID,
-            UserMCSDAccount: {
-              create: {
-                createdAt: new Date(),
-              },
-            },
+            userId: data.userId,
+            createdAt: new Date(),
           }
         );
         await this.#custFeeService.create({
@@ -337,11 +365,11 @@ export default class UserService {
         currencyCode: 'MNT'
       }, 'MNT');
 
-      await this.#walletService.createWallet({
-        name: user.firstName,
-        userId: user.id
-        // currency: CurrencyConst.USD,
-      }, 'USD');
+      // await this.#walletService.createWallet({
+      //   name: user.firstName,
+      //   userId: user.id
+      //   // currency: CurrencyConst.USD,
+      // }, 'USD');
 
       await this.changeStep(user, UserStepConst.STEP_5);
     }
@@ -371,7 +399,7 @@ export default class UserService {
     );
     let user = rawUsers.values[0];
     if (user == undefined) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
 
     const feeCorpDebt = await Helper.getValue('FeeCorpDebt');
@@ -411,9 +439,9 @@ export default class UserService {
       FirstName: user.firstName,
       Gender: user.gender,
       HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-      HomePhone: user.handphone,
+      HomePhone: user.handPhone,
       LastName: user.lastName,
-      MobilePhone: user.handphone,
+      MobilePhone: user.handPhone,
       Occupation: user.profession,
       RegistryNumber: user.registerNumber,
     }
@@ -473,7 +501,7 @@ export default class UserService {
     );
     let user = rawUsers.values[0];
     if (user == undefined) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
     if (user.status != UserConst.STATUS_MCSD_ERROR) {
       CustomException(ErrorCode.NotRequireToUpdateException);
@@ -526,9 +554,9 @@ export default class UserService {
       FirstName: user.firstName,
       Gender: user.gender,
       HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-      HomePhone: user.handphone,
+      HomePhone: user.handPhone,
       LastName: user.lastName,
-      MobilePhone: user.handphone,
+      MobilePhone: user.handPhone,
       Occupation: user.profession,
       RegistryNumber: user.registerNumber,
     }
@@ -626,9 +654,9 @@ export default class UserService {
         FirstName: user.firstName,
         Gender: user.gender,
         HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-        HomePhone: user.handphone,
+        HomePhone: user.handPhone,
         LastName: user.lastName,
-        MobilePhone: user.handphone,
+        MobilePhone: user.handPhone,
         Occupation: user.profession,
         RegistryNumber: user.registerNumber,
       }
@@ -680,7 +708,7 @@ export default class UserService {
 
     const users = rawUsers.values;
 
-    let accountIds:any = [];
+    let accountIds: any = [];
 
     users.forEach((user) => {
       // const wallet = user.wallets.find(
@@ -878,11 +906,11 @@ export default class UserService {
     const { data, sUser } = await this.#validator.validateUserBankAccount(params);
 
     const userBankAccount = await this.#userBankAccountRepository.create({
-      userId: sUser ? sUser.id : user.id,
+      userId: sUser ? sUser.id : user._id,
       bankCode: data.bankCode,
       accountNo: data.accountNo,
       accountName: data.accountName,
-      createdUserId: user.id,
+      createdUserId: user._id,
     });
 
     await this.changeStep(sUser || user, UserStepConst.STEP_3);
@@ -890,13 +918,11 @@ export default class UserService {
     return userBankAccount;
   };
 
-  getBank = async (userId) => {
-    const userBankAccount = await this.#userBankAccountRepository.findAll({
-      userId: parseInt(userId),
-      status: BaseConst.STATUS_ACTIVE
-    });
+  getBank = async (params) => {
+    
+    const userBankAccount = await this.#userBankAccountRepository.findAll(params);
 
-    return userBankAccount;
+    return userBankAccount.values;
   };
 
   getAdditionalInfo = async (userId) => {
@@ -1005,7 +1031,7 @@ export default class UserService {
     let { user, data } = await this.#validator.validateMCSDTransactions(params);
     let result = await this.#mcsdService.GetTransactions({ BeginDate: params.BeginDate, EndDate: params.EndDate });
     // let result = await this.#msccService.CustStatement({prefix: user.UserMCSDAccount[0].prefix, startdate: data.BeginDate, enddate: data.EndDate});
-    let userTransactions:any = [];
+    let userTransactions: any = [];
     console.log(user, data)
     loggerMCSD.info({ params: data, result: result });
     if (!Object.prototype.hasOwnProperty.call(result, 'GetTransactionsResult')) {
@@ -1037,6 +1063,5 @@ export default class UserService {
     loggerMCSD.info({ userTransactions: userTransactions });
     return userTransactions;
   }
-}
 
-module.exports = UserService;
+}
