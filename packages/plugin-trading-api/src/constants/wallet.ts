@@ -7,7 +7,7 @@ export class WalletConst extends BaseConst {
   //   ADMIN: 4,
   //   MCSD: 5
   // };
-  
+
   //check
   static NOMINAL = 1;
   static NOMINAL_FEE = 2;
@@ -21,7 +21,7 @@ export class WalletConst extends BaseConst {
 
 export class CurrencyConst extends BaseConst {
   static DEFAULT = process.env.DEFAULT_CURRENCY;
-  static USD = "USD";
+  static USD = 'USD';
 }
 export class TransactionConst extends BaseConst {
   static STATUS_SUCCESS = 1;

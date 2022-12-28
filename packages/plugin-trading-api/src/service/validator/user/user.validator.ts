@@ -1,5 +1,5 @@
 import BaseValidator from '../base.validator';
-const Joi = require('joi');
+// const Joi = require('joi');
 
 import UserRepository from '../../../repository/user/user.repository';
 // const NationRepository = require('../../../repository/user/nation.repository');
@@ -10,24 +10,32 @@ import UserRepository from '../../../repository/user/user.repository';
 import UserBankAccountRepository from '../../../repository/user/user.bank.account.repository';
 import UserMCSDAccountRepository from '../../../repository/user/user.mcsd.repository';
 
-const {
-  RegisterNumberDuplicatedException,
-  UserNotFoundException,
-  InvalidParamException,
-  UnconfirmedUserException,
-  UserActivatedException,
-  UserCreatedException,
-  BankNotFoundException,
-  UserMCSDAccountNotFoundException
-} = require('../../../exception/error');
+// const {
+//   RegisterNumberDuplicatedException,
+//   UserNotFoundException,
+//   InvalidParamException,
+//   UnconfirmedUserException,
+//   UserActivatedException,
+//   UserCreatedException,
+//   BankNotFoundException,
+//   UserMCSDAccountNotFoundException
+// } = require('../../../exception/error');
 
-const { UserConst, UserFilesConst } = require('../../../typing/user.const');
-const Helper = require('../../../middleware/helper.middleware');
-const BaseConst = require('../../../typing/base.const');
-const { McsdConst } = require('../../../typing/mcsd.const');
-const ErrorException = require('../../../exception/error-exception');
+// const { UserConst, UserFilesConst } = require('../../../typing/user.const');
+import { UserConst } from '../../../constants/user';
+// const Helper = require('../../../middleware/helper.middleware');
+import Helper from '../../../middleware/helper.service';
+// const BaseConst = require('../../../typing/base.const');
+import BaseConst from '../../../constants/base';
+// const { McsdConst } = require('../../../typing/mcsd.const');
+import { McsdConst } from '../../../constants/mcsd';
+import { getUser } from '../../../models/utils';
+// const ErrorException = require('../../../exception/error-exception');
 
-export default class UserValidator extends BaseValidator {
+class UserValidator extends BaseValidator {
+  // #userRepository: UserRepository;
+  // #userBankAccountRepository: UserBankAccountRepository;
+  // #userMCSDAccountRepository: UserMCSDAccountRepository;
   #userRepository = new UserRepository();
   // #nationRepository = new NationRepository();
   // #countryRepository = new CountryRepository();
@@ -36,12 +44,22 @@ export default class UserValidator extends BaseValidator {
   // #nationalCardRepository = NationalCardRepository.get();
   #userBankAccountRepository = new UserBankAccountRepository();
   #userMCSDAccountRepository = new UserMCSDAccountRepository();
-
+  // constructor() {
+  //   super();
+  //   this.#userRepository = new UserRepository();
+  //   // #nationRepository = new NationRepository();
+  //   // #countryRepository = new CountryRepository();
+  //   // #cityRepository = new CityRepository();
+  //   // #districtRepository = new DistrictRepository();
+  //   // #nationalCardRepository = NationalCardRepository.get();
+  //   this.#userBankAccountRepository = new UserBankAccountRepository();
+  //   this.#userMCSDAccountRepository = new UserMCSDAccountRepository();
+  // }
   #checkUserByEmail = async ({ email }) => {
     const user = await this.#userRepository.findByEmail(email);
 
     if (!user) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
 
     return user;
@@ -53,7 +71,7 @@ export default class UserValidator extends BaseValidator {
     })
 
     if (userMCSDAccount.length == 0) {
-      throw new UserMCSDAccountNotFoundException();
+      throw new Error('User MCSD account not found');
     }
 
     return userMCSDAccount[0];
@@ -64,7 +82,7 @@ export default class UserValidator extends BaseValidator {
     const user = await this.#userRepository.findByRegisterNumber(registerNumber);
 
     if (!user) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
 
     return user;
@@ -82,17 +100,21 @@ export default class UserValidator extends BaseValidator {
    * @return user - хэрэглэгч
    */
   #checkSecondUser = async ({ userId }) => {
-    const user = await this.#userRepository.findById(userId);
-
+    // const user = await this.#userRepository.findById(userId);
+    let query = {
+      _id: userId
+    };
+    let user = await getUser(query);
+    console.log('getUser', user)
     if (user) {
       if (!user.uuid) {
-        throw new UnconfirmedUserException();
+        throw new Error('Unconfirmed user');
       }
 
       return user;
     }
 
-    throw new UserNotFoundException();
+    throw new Error('User not found');
   };
 
   #getUserMCSDAccount = async ({ userId }) => {
@@ -100,19 +122,19 @@ export default class UserValidator extends BaseValidator {
 
     if (user) {
       if (!user.uuid) {
-        throw new UnconfirmedUserException();
+        throw new Error('Unconfirmed user');
       }
 
       return user;
     }
 
-    throw new UserNotFoundException();
+    throw new Error('User not found');
   };
 
   validateStatus = async (status) => {
     const { data } = this.validate(
       {
-        status: Joi.custom(Helper.isNumber, 'custom validation').valid(
+        status: this._joi.custom(Helper.isNumber, 'custom validation').valid(
           UserConst.STATUS_ACTIVE,
           UserConst.STATUS_INACTIVE,
           UserConst.STATUS_PENDING,
@@ -129,7 +151,7 @@ export default class UserValidator extends BaseValidator {
     const user = await this.#userRepository.findByRegisterNumber(registerNumber);
 
     if (user) {
-      throw new RegisterNumberDuplicatedException();
+      throw new Error('Register number duplicated');
     }
 
     return false;
@@ -137,37 +159,37 @@ export default class UserValidator extends BaseValidator {
   validateRegisterPut = async (params) => {
     const { data } = this.validate(
       {
-        uuid: Joi.string().required(),
-        identity: Joi.string().required(),
-        identityType: Joi.string().required(),
-        additional: Joi.object({
-          oldIdentity: Joi.string()
+        uuid: this._joi.string().required(),
+        identity: this._joi.string().required(),
+        identityType: this._joi.string().required(),
+        additional: this._joi.object({
+          oldIdentity: this._joi.string()
         }).required(),
       },
       params
     );
 
-    
+
 
     return { data };
   };
   validateRegister = async (params) => {
     const { data } = this.validate(
       {
-        uuid: Joi.string().required(),
-        identity: Joi.string().required(),
-        identityType: Joi.string().required(),
-        additional: Joi.object({
-          regNumber: Joi.string().regex(UserConst.REGISTER_NUMBER_PATTERN),
-          passportNumber: Joi.string(),
-          extra_identity: Joi.string(),
-          type: Joi.custom(Helper.isNumber, 'custom validation'),
+        uuid: this._joi.string().required(),
+        identity: this._joi.string().required(),
+        identityType: this._joi.string().required(),
+        additional: this._joi.object({
+          regNumber: this._joi.string().regex(UserConst.REGISTER_NUMBER_PATTERN),
+          passportNumber: this._joi.string(),
+          extra_identity: this._joi.string(),
+          type: this._joi.custom(Helper.isNumber, 'custom validation'),
         }).required(),
       },
       params
     );
 
-    if(data.additional.regNumber != undefined){
+    if (data.additional.regNumber != undefined) {
       await this.validateUserDuplicated({ registerNumber: data.additional.regNumber });
     }
 
@@ -189,45 +211,45 @@ export default class UserValidator extends BaseValidator {
 
     // const {
     //   userId,
-    //   handphone,
+    //   handPhone,
     //   birthday,
     //   educationId,
     //   gender,
     //   nationId,
     //   profession,
     //   position,
-    //   workphone,
+    //   workPhone,
     //   ...adminParams
     // } = params;
 
     const { data } = this.validate(
       {
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
-        familyName: Joi.string().min(1),
-        firstName: Joi.string().min(1),
-        lastName: Joi.string().min(1),
-        registerNumber: Joi.string().allow(''),
-        phone: Joi.string().allow(''),
-        handphone: Joi.string().allow(''),
-        birthday: Joi.date(),
-        educationId: Joi.custom(Helper.isNumber, 'custom validation'),
-        gender: Joi.custom(Helper.isNumber, 'custom validation').valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE),
-        // nationId: Joi.custom(Helper.isNumber, 'custom validation').valid(...nations),
-        profession: Joi.string().allow(''),
-        position: Joi.string().allow(''),
-        workphone: Joi.string().allow(''),
-        custType: Joi.custom(Helper.isNumber, 'custom validation').valid(
+        userId: this._joi.custom(Helper.isNumber, 'custom validation'),
+        familyName: this._joi.string().min(1),
+        firstName: this._joi.string().min(1),
+        lastName: this._joi.string().min(1),
+        registerNumber: this._joi.string().allow(''),
+        phone: this._joi.string().allow(''),
+        handPhone: this._joi.string().allow(''),
+        birthday: this._joi.date(),
+        educationId: this._joi.custom(Helper.isNumber, 'custom validation'),
+        gender: this._joi.custom(Helper.isNumber, 'custom validation').valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE),
+        // nationId: this._joi.custom(Helper.isNumber, 'custom validation').valid(...nations),
+        profession: this._joi.string().allow(''),
+        position: this._joi.string().allow(''),
+        workPhone: this._joi.string().allow(''),
+        custType: this._joi.custom(Helper.isNumber, 'custom validation').valid(
           UserConst.TYPE_ADULT_CUSTOMER,
           UserConst.TYPE_FOREIGN_CUSTOMER,
           UserConst.TYPE_ORGINIZATION_CUSTOMER,
           UserConst.TYPE_CHILD_CUSTOMER
         ),
-        passportNumber: Joi.string().allow(''),
-        // country: Joi.custom(Helper.isNumber, 'custom validation').valid(...countries),
-        // city: Joi.custom(Helper.isNumber, 'custom validation').valid(...cities),
-        // district: Joi.custom(Helper.isNumber, 'custom validation').valid(...districts),
-        subDistrict: Joi.string().allow(''),
-        address: Joi.string().allow(''),
+        passportNumber: this._joi.string().allow(''),
+        // country: this._joi.custom(Helper.isNumber, 'custom validation').valid(...countries),
+        // city: this._joi.custom(Helper.isNumber, 'custom validation').valid(...cities),
+        // district: this._joi.custom(Helper.isNumber, 'custom validation').valid(...districts),
+        subDistrict: this._joi.string().allow(''),
+        address: this._joi.string().allow(''),
       },
       params
     );
@@ -237,21 +259,21 @@ export default class UserValidator extends BaseValidator {
 
     //   const { data: adminData } = this.validate(
     //     {
-    //       familyName: Joi.string().min(1),
-    //       firstName: Joi.string().min(1),
-    //       lastName: Joi.string().min(1),
-    //       registerNumber: Joi.string().allow(''),
-    //       phone: Joi.string().allow(''),
-    //       country: Joi.custom(Helper.isNumber, 'custom validation').valid(...countries),
-    //       city: Joi.custom(Helper.isNumber, 'custom validation').valid(...cities),
-    //       district: Joi.custom(Helper.isNumber, 'custom validation').valid(...districts),
-    //       subDistrict: Joi.string().allow(''),
-    //       address: Joi.string().allow(''),
-    //       custType: Joi.custom(Helper.isNumber, 'custom validation').valid(
+    //       familyName: this._joi.string().min(1),
+    //       firstName: this._joi.string().min(1),
+    //       lastName: this._joi.string().min(1),
+    //       registerNumber: this._joi.string().allow(''),
+    //       phone: this._joi.string().allow(''),
+    //       country: this._joi.custom(Helper.isNumber, 'custom validation').valid(...countries),
+    //       city: this._joi.custom(Helper.isNumber, 'custom validation').valid(...cities),
+    //       district: this._joi.custom(Helper.isNumber, 'custom validation').valid(...districts),
+    //       subDistrict: this._joi.string().allow(''),
+    //       address: this._joi.string().allow(''),
+    //       custType: this._joi.custom(Helper.isNumber, 'custom validation').valid(
     //         McsdConst.CUSTOMER_TYPE_AAN,
     //         McsdConst.CUSTOMER_TYPE_CITIZEN
     //       ),
-    //       passportNumber: Joi.string().allow(''),
+    //       passportNumber: this._joi.string().allow(''),
     //     },
     //     adminParams
     //   );
@@ -264,16 +286,27 @@ export default class UserValidator extends BaseValidator {
     return { data };
   };
 
-  validateUserInfo = async (user, params) => {
+  validateUserInfo = async (params) => {
     // if (UserConst.STATUS_CONFIRMED !== user.status) {
-    //   throw new UserCreatedException();
+    //   throw new Error('User created');
     // }
-    // if(params.registerNumber){
-    //   await this.validateUserDuplicated({ registerNumber: params.registerNumber });
-    // }
-    let schema:any = {
-      userId: Joi.custom(Helper.isNumber, 'custom validation'),
-      type: Joi.custom(Helper.isNumber, 'custom validation')
+
+    if (params.registerNumber) {
+      await this.validateUserDuplicated({ registerNumber: params.registerNumber });
+    }
+    let user = getUser({
+      _id: params.uuid
+    })
+    if (!user) {
+      // throw new Error('User not found');
+    }
+    params.birthday = '2010-05-05';
+    let schema: any = {
+      // userId: this._joi.custom(Helper.isNumber, 'custom validation'),
+      uuid: this._joi.string(),
+      email: this._joi.string(),
+      phone: this._joi.string(),
+      type: this._joi.custom(Helper.isNumber, 'custom validation')
         .valid(
           UserConst.TYPE_ADULT_CUSTOMER,
           UserConst.TYPE_FOREIGN_CUSTOMER,
@@ -297,81 +330,82 @@ export default class UserValidator extends BaseValidator {
 
     switch (params.type) {
       case UserConst.TYPE_ADULT_CUSTOMER:
-        schema.firstName = Joi.string().min(1);
-        schema.lastName = Joi.string().min(1);
-        schema.nationId = Joi.custom(Helper.isNumber, 'custom validation')
-          // .valid(...nations);
-        schema.birthday = Joi.date().required();
-        schema.country = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.firstName = this._joi.string().min(1);
+        schema.lastName = this._joi.string().min(1);
+        schema.registerNumber = this._joi.string().min(1);
+        schema.nationId = this._joi.custom(Helper.isNumber, 'custom validation')
+        // .valid(...nations);
+        schema.birthday = this._joi.date().required();
+        schema.country = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...countries)
           .required();
-        schema.city = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.city = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...cities)
           .required();
-        schema.district = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.district = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...districts)
           .required();
-        schema.subDistrict = Joi.string().required();
-        schema.address = Joi.string().required();
-        schema.workphone = Joi.string().required();
-        schema.profession = Joi.string().required();
-        schema.position = Joi.string().required();
-        schema.companyName = Joi.string();
-        schema.gender = Joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE).required();
+        schema.subDistrict = this._joi.string().required();
+        schema.address = this._joi.string().required();
+        schema.workPhone = this._joi.string().required();
+        schema.profession = this._joi.string().required();
+        schema.position = this._joi.string().required();
+        schema.companyName = this._joi.string();
+        schema.gender = this._joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE).required();
         break;
       case UserConst.TYPE_FOREIGN_CUSTOMER:
-        schema.firstName = Joi.string().min(1);
-        schema.lastName = Joi.string().min(1);
-        schema.passportNumber = Joi.string().min(1);
-        schema.gender = Joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE);
-        schema.nationId = Joi.custom(Helper.isNumber, 'custom validation')
-          // .valid(...nations);
-        schema.birthday = Joi.date();
-        schema.country = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.firstName = this._joi.string().min(1);
+        schema.lastName = this._joi.string().min(1);
+        schema.passportNumber = this._joi.string().min(1);
+        schema.gender = this._joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE);
+        schema.nationId = this._joi.custom(Helper.isNumber, 'custom validation')
+        // .valid(...nations);
+        schema.birthday = this._joi.date();
+        schema.country = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...countries)
           ;
-        schema.city = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.city = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...cities)
           ;
-        schema.district = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.district = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...districts)
           ;
-        schema.subDistrict = Joi.string();
-        schema.address = Joi.string();
-        schema.position = Joi.string();
-        schema.profession = Joi.string();
-        schema.workphone = Joi.string();
+        schema.subDistrict = this._joi.string();
+        schema.address = this._joi.string();
+        schema.position = this._joi.string();
+        schema.profession = this._joi.string();
+        schema.workPhone = this._joi.string();
         break;
       case UserConst.TYPE_ORGINIZATION_CUSTOMER:
-        schema.companyName = Joi.string().min(1).required();
-        schema.companyRegisterNumber = Joi.string().min(1).required();
+        schema.companyName = this._joi.string().min(1).required();
+        schema.companyRegisterNumber = this._joi.string().min(1).required();
         break;
       case UserConst.TYPE_CHILD_CUSTOMER:
-        schema.familyName = Joi.string().min(1);
-        schema.firstName = Joi.string().min(1);
-        schema.lastName = Joi.string().min(1);
-        schema.registerNumber = Joi.string().min(1);
-        schema.gender = Joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE);
-        schema.nationId = Joi.custom(Helper.isNumber, 'custom validation')
-          // .valid(...nations);
-        schema.birthday = Joi.date();
-        schema.country = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.familyName = this._joi.string().min(1);
+        schema.firstName = this._joi.string().min(1);
+        schema.lastName = this._joi.string().min(1);
+        schema.registerNumber = this._joi.string().min(1);
+        schema.gender = this._joi.string().valid(UserConst.GENDER_MALE, UserConst.GENDER_FEMALE);
+        schema.nationId = this._joi.custom(Helper.isNumber, 'custom validation')
+        // .valid(...nations);
+        schema.birthday = this._joi.date();
+        schema.country = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...countries)
           ;
-        schema.city = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.city = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...cities)
           ;
-        schema.district = Joi.custom(Helper.isNumber, 'custom validation')
+        schema.district = this._joi.custom(Helper.isNumber, 'custom validation')
           // .valid(...districts)
           ;
-        schema.subDistrict = Joi.string();
-        schema.address = Joi.string();
-        schema.position = Joi.string();
-        schema.profession = Joi.string();
-        schema.workphone = Joi.string();
+        schema.subDistrict = this._joi.string();
+        schema.address = this._joi.string();
+        schema.position = this._joi.string();
+        schema.profession = this._joi.string();
+        schema.workPhone = this._joi.string();
         break;
       default:
-        throw new InvalidParamException();
+        throw new Error('Invalid param exception');
     }
 
     const { data } = this.validate(schema, params);
@@ -382,34 +416,34 @@ export default class UserValidator extends BaseValidator {
   validateAdditionalInfo = async (params) => {
     const { data } = this.validate(
       {
-        userId: Joi.custom(Helper.isNumber, 'custom validation').required(),
-        monthlyIncome: Joi.string().allow(''),
-        employ: Joi.string().allow(''),
-        hasBusiness: Joi.boolean(),
-        companyName: Joi.string().allow(''),
-        companyType: Joi.string().allow(''),
-        yearlySales: Joi.string().allow(''),
-        politician: Joi.boolean().allow(''),
-        relation: Joi.string().allow(''),
-        relationName: Joi.string().allow(''),
-        salesAndBusinessIncome: Joi.string().allow(''),
-        contractIncome: Joi.string().allow(''),
-        investmentIncome: Joi.string().allow(''),
-        assetSoldIncome: Joi.string().allow(''),
-        salaryIncome: Joi.string().allow(''),
-        familyIncome: Joi.string().allow(''),
-        familyCharityIncome: Joi.string().allow(''),
-        otherIncome: Joi.string().allow(''),
-        anket: Joi.array().items(
-          Joi.object({
-            lastName: Joi.string(),
-            firstName: Joi.string(),
-            registerNumber: Joi.string(),
-            relation: Joi.string(),
-            employ: Joi.string(),
-            position: Joi.string(),
-            businessType: Joi.string(),
-            country: Joi.string()
+        userId: this._joi.custom(Helper.isNumber, 'custom validation').required(),
+        monthlyIncome: this._joi.string().allow(''),
+        employ: this._joi.string().allow(''),
+        hasBusiness: this._joi.boolean(),
+        companyName: this._joi.string().allow(''),
+        companyType: this._joi.string().allow(''),
+        yearlySales: this._joi.string().allow(''),
+        politician: this._joi.boolean().allow(''),
+        relation: this._joi.string().allow(''),
+        relationName: this._joi.string().allow(''),
+        salesAndBusinessIncome: this._joi.string().allow(''),
+        contractIncome: this._joi.string().allow(''),
+        investmentIncome: this._joi.string().allow(''),
+        assetSoldIncome: this._joi.string().allow(''),
+        salaryIncome: this._joi.string().allow(''),
+        familyIncome: this._joi.string().allow(''),
+        familyCharityIncome: this._joi.string().allow(''),
+        otherIncome: this._joi.string().allow(''),
+        anket: this._joi.array().items(
+          this._joi.object({
+            lastName: this._joi.string(),
+            firstName: this._joi.string(),
+            registerNumber: this._joi.string(),
+            relation: this._joi.string(),
+            employ: this._joi.string(),
+            position: this._joi.string(),
+            businessType: this._joi.string(),
+            country: this._joi.string()
           })
         )
       },
@@ -428,17 +462,17 @@ export default class UserValidator extends BaseValidator {
   validateUserRelation = async (params) => {
     const { data } = this.validate(
       {
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
-        ankets: Joi.array().items(
-          Joi.object({
-            firstName: Joi.string(),
-            lastName: Joi.string(),
-            registerNumber: Joi.string(),
-            relation: Joi.string(),
-            employ: Joi.string(),
-            position: Joi.string(),
-            businessType: Joi.string(),
-            country: Joi.string(),
+        userId: this._joi.custom(Helper.isNumber, 'custom validation'),
+        ankets: this._joi.array().items(
+          this._joi.object({
+            firstName: this._joi.string(),
+            lastName: this._joi.string(),
+            registerNumber: this._joi.string(),
+            relation: this._joi.string(),
+            employ: this._joi.string(),
+            position: this._joi.string(),
+            businessType: this._joi.string(),
+            country: this._joi.string(),
           })
         ),
       },
@@ -457,8 +491,8 @@ export default class UserValidator extends BaseValidator {
   validateActivateUser = async (params) => {
     const { data } = this.validate(
       {
-        identity: Joi.string().email().required(),
-        code: Joi.string().required(),
+        identity: this._joi.string().email().required(),
+        code: this._joi.string().required(),
       },
       params
     );
@@ -466,11 +500,11 @@ export default class UserValidator extends BaseValidator {
     const user = await this.#checkUserByEmail({ email: params.identity });
 
     if (!user) {
-      throw new UserNotFoundException();
+      throw new Error('User not found');
     }
 
     if (UserConst.STATUS_PENDING !== user.status) {
-      throw new UserActivatedException();
+      throw new Error('User activated');
     }
 
     return { user, data };
@@ -478,16 +512,16 @@ export default class UserValidator extends BaseValidator {
   validateUpdateBankAccount = async (params) => {
     const { data } = this.validate(
       {
-        id: Joi.custom(Helper.isNumber, 'custom validation').required(),
-        bankCode: Joi.string().required(),
-        accountNo: Joi.string().required(),
-        accountName: Joi.string().required(),
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
+        id: this._joi.custom(Helper.isNumber, 'custom validation').required(),
+        bankCode: this._joi.string().required(),
+        accountNo: this._joi.string().required(),
+        accountName: this._joi.string().required(),
+        userId: this._joi.custom(Helper.isNumber, 'custom validation'),
       },
       params
     );
     if (McsdConst.bankGWGetTypes(data.bankCode) == undefined) {
-      throw new BankNotFoundException();
+      throw new Error('Bank not found');
     }
     if (data.userId) {
       const user = await this.#checkSecondUser({ userId: data.userId });
@@ -500,15 +534,15 @@ export default class UserValidator extends BaseValidator {
   validateUserBankAccount = async (params) => {
     const { data } = this.validate(
       {
-        bankCode: Joi.string().required(),
-        accountNo: Joi.string().required(),
-        accountName: Joi.string().required(),
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
+        bankCode: this._joi.string().required(),
+        accountNo: this._joi.string().required(),
+        accountName: this._joi.string().required(),
+        userId: this._joi.string().required(),
       },
       params
     );
     if (McsdConst.bankGWGetTypes(data.bankCode) == undefined) {
-      throw new BankNotFoundException();
+      throw new Error('Bank not found');
     }
     if (data.userId) {
       const user = await this.#checkSecondUser({ userId: data.userId });
@@ -522,9 +556,9 @@ export default class UserValidator extends BaseValidator {
   validateMCSDTransactions = async (params) => {
     const { data } = this.validate(
       {
-        BeginDate: Joi.date().required(),
-        EndDate: Joi.date().required(),
-        userId: Joi.custom(Helper.isNumber, 'custom validation').required(),
+        BeginDate: this._joi.date().required(),
+        EndDate: this._joi.date().required(),
+        userId: this._joi.custom(Helper.isNumber, 'custom validation').required(),
       },
       params
     );
@@ -542,8 +576,8 @@ export default class UserValidator extends BaseValidator {
     let tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
     tomorrow.setUTCHours(0, 0, 0, 0);
     var { error, data } = this.validate({
-      BeginDate: Joi.date().default(today),
-      EndDate: Joi.date().default(tomorrow)
+      BeginDate: this._joi.date().default(today),
+      EndDate: this._joi.date().default(tomorrow)
     }, params);
 
     return data;
@@ -552,15 +586,15 @@ export default class UserValidator extends BaseValidator {
   validateRemoveBankAccount = async (user, params) => {
     const { data } = this.validate(
       {
-        id: Joi.custom(Helper.isNumber, 'custom validation').required(),
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
+        id: this._joi.custom(Helper.isNumber, 'custom validation').required(),
+        userId: this._joi.custom(Helper.isNumber, 'custom validation'),
       },
       params
     );
 
     const account = await this.#userBankAccountRepository.findById(data.id);
     if (!account) {
-      throw new InvalidParamException();
+      throw new Error('Invalid param exception');
     }
 
     let sUser = user;
@@ -569,7 +603,7 @@ export default class UserValidator extends BaseValidator {
     }
 
     if (sUser.id !== account.userId) {
-      throw new InvalidParamException();
+      throw new Error('Invalid param exception');
     }
 
     return { data, account, sUser: sUser || user };
@@ -578,11 +612,11 @@ export default class UserValidator extends BaseValidator {
   validateEditNationalCard = async (user, params) => {
     const { data } = this.validate(
       {
-        registerNumber: Joi.string().regex(UserConst.REGISTER_NUMBER_PATTERN).required(),
-        lastName: Joi.string().required(),
-        firstName: Joi.string().required(),
-        familyName: Joi.string().required(),
-        birthday: Joi.date().required(),
+        registerNumber: this._joi.string().regex(UserConst.REGISTER_NUMBER_PATTERN).required(),
+        lastName: this._joi.string().required(),
+        firstName: this._joi.string().required(),
+        familyName: this._joi.string().required(),
+        birthday: this._joi.date().required(),
       },
       params
     );
@@ -599,11 +633,11 @@ export default class UserValidator extends BaseValidator {
   validateStoreFile = async (params) => {
     const { data } = this.validate(
       {
-        type: Joi.custom(Helper.isNumber, 'custom validation')
-          .valid(...UserFilesConst.getTypes())
+        type: this._joi.custom(Helper.isNumber, 'custom validation')
+          // .valid(...UserFilesConst.getTypes())
           .required(),
-        imageBase64: Joi.string().required(),
-        userId: Joi.custom(Helper.isNumber, 'custom validation'),
+        imageBase64: this._joi.string().required(),
+        userId: this._joi.custom(Helper.isNumber, 'custom validation'),
       },
       params
     );
@@ -620,17 +654,24 @@ export default class UserValidator extends BaseValidator {
   validateMCSDAccount = async (params) => {
     const { data } = this.validate(
       {
-        registerNumber: Joi.string().required(),
+        registerNumber: this._joi.string(),
+        userId: this._joi.string()
       },
       params
     );
-
-    const user = await this.#checkUserByRegisterNumber({ registerNumber: data.registerNumber });
-    if (user.status == UserConst.STATUS_ACTIVE || user.status == UserConst.STATUS_MCSD_PENDING) {
-      throw new UserCreatedException();
-    }
+    let user;
+    if (data.registerNumber)
+      user = await this.#checkUserByRegisterNumber({ registerNumber: data.registerNumber });
+    if (data.userId)
+      user = await getUser({
+        _id: data.userId
+      })
+      console.log('user',user)
+      if (user.status == UserConst.STATUS_ACTIVE || user.status == UserConst.STATUS_MCSD_PENDING) {
+        throw new Error('User created');
+      }
     return { data, user };
   };
 }
 
-module.exports = UserValidator;
+export default UserValidator;

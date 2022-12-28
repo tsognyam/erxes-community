@@ -9,7 +9,7 @@ let walletService = new WalletService();
 const WalletMutations = {
   tradingWalletAdd: async (
     _root: any,
-    params: Prisma.WalletCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
     if (params.userId == null || params.userId == undefined)

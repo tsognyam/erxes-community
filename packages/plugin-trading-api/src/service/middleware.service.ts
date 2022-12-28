@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const UserRepository = require('../repository/user/user.repository');
 const ActivityLogRepository = require('../repository/activityLog.repository');
-const { NotVerifyTokenException, UserNotFoundException, NotFoundJWTPathException } = require('../exception/error');
+const {
+  NotVerifyTokenException,
+  UserNotFoundException,
+  NotFoundJWTPathException
+} = require('../exception/error');
 const dotenv = require('dotenv');
 const { loggerAccess } = require('../middleware/logger');
 const { createPublicKey } = require('crypto');
@@ -29,16 +33,16 @@ const getPublicKey = () => {
   return fs.readFileSync(PUBLIC_KEY_PATH);
 };
 
-exports.verifyToken = (token) => {
+exports.verifyToken = token => {
   // const publicKey = getPublicKey();
-  
+
   const publicKey = Buffer.from(PUBLIC_KEY, 'base64');
   let key = publicKey.toString('ascii');
-  
+
   let verify = {};
   try {
     verify = jwt.verify(token, key, {
-      algorithms: ALLOWED_ALGORITHM,
+      algorithms: ALLOWED_ALGORITHM
     });
   } catch (error) {
     throw new NotVerifyTokenException();
@@ -63,7 +67,7 @@ exports.authenticateToken = async (req, res, next) => {
   }
 };
 
-exports.extractTokenWS = async (token) => {
+exports.extractTokenWS = async token => {
   if (!token) {
     return undefined;
   }
@@ -82,7 +86,7 @@ exports.extractTokenWS = async (token) => {
   }
   return user;
 };
-exports.extractToken = async (token) => {
+exports.extractToken = async token => {
   if (!token) {
     throw new NotVerifyTokenException();
   }
@@ -103,12 +107,17 @@ exports.extractToken = async (token) => {
 };
 
 exports.activityLog = async (req, res, next) => {
-  this.saveLog(req,"");
+  this.saveLog(req, '');
   next();
-}
-exports.saveLog = async (req,res) => {
-  loggerAccess.info(req)
-  loggerAccess.info({ rawHeaders: req.rawHeaders, path: req.method + " method path:" + req.originalUrl, body: req.body, resBody: (JSON.stringify(res)).substring(0, 1000) })
+};
+exports.saveLog = async (req, res) => {
+  loggerAccess.info(req);
+  loggerAccess.info({
+    rawHeaders: req.rawHeaders,
+    path: req.method + ' method path:' + req.originalUrl,
+    body: req.body,
+    resBody: JSON.stringify(res).substring(0, 1000)
+  });
 
   let data = {
     userId: req.user.id,
@@ -116,17 +125,23 @@ exports.saveLog = async (req,res) => {
     requestUrl: req.originalUrl,
     requestType: req.method,
     requestHeader: req.rawHeaders.toString(),
-    requestBody: (JSON.stringify(req.body)).substring(0, 1000),
-    responseBody: (JSON.stringify(res)).substring(0, 1000)
-  }
+    requestBody: JSON.stringify(req.body).substring(0, 1000),
+    responseBody: JSON.stringify(res).substring(0, 1000)
+  };
   await activityLogRepo.create(data);
-}
+};
 const getMethodChecker = (req, group) => {
-  if (!Object.prototype.hasOwnProperty.call(req.params, 'userId') || undefined === req.params.userId) {
+  if (
+    !Object.prototype.hasOwnProperty.call(req.params, 'userId') ||
+    undefined === req.params.userId
+  ) {
     return true;
   }
 
-  if (Object.prototype.hasOwnProperty.call(req.params, 'userId') && undefined !== group) {
+  if (
+    Object.prototype.hasOwnProperty.call(req.params, 'userId') &&
+    undefined !== group
+  ) {
     return true;
   }
 };
@@ -136,13 +151,18 @@ const postMethodChecker = (req, group) => {
     return true;
   }
 
-  if (Object.prototype.hasOwnProperty.call(req.body, 'userId') && undefined !== group) {
+  if (
+    Object.prototype.hasOwnProperty.call(req.body, 'userId') &&
+    undefined !== group
+  ) {
     return true;
   }
 };
 
 exports.checkIsAdmin = async (req, res, next) => {
-  const group = req.user.UserGroup.find((group) => 'GROUP_ADMIN' === group.Group.group);
+  const group = req.user.UserGroup.find(
+    group => 'GROUP_ADMIN' === group.Group.group
+  );
 
   let result;
   switch (req.method) {
@@ -164,7 +184,7 @@ exports.checkIsAdmin = async (req, res, next) => {
 
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -175,7 +195,7 @@ exports.checkRole = async (req, res, next) => {
 
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -184,10 +204,9 @@ exports.checkFeeRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -196,10 +215,9 @@ exports.checkCustRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -208,10 +226,9 @@ exports.checkSecuritiesRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -220,10 +237,9 @@ exports.checkTradeRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -232,10 +248,9 @@ exports.checkWalletRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
@@ -244,15 +259,13 @@ exports.checkSystemRole = async (req, res, next) => {
     return next();
   }
 
-
   return res.status(401).send({
     status: 1,
-    message: 'Access denied',
+    message: 'Access denied'
   });
 };
 
 exports.checkUser = async (req, res, next) => {
-
   if (!req.user.roles.includes('ROLE_ADMIN_VIEW')) {
     req.body.userId = req.user.id;
   }
@@ -260,7 +273,6 @@ exports.checkUser = async (req, res, next) => {
 };
 
 exports.checkParam = async (req, res, next) => {
-
   if (!req.user.roles.includes('ROLE_ADMIN_VIEW')) {
     req.params.userId = req.user.id;
   }
@@ -269,15 +281,13 @@ exports.checkParam = async (req, res, next) => {
 
 exports.checkOrderRole = async (req, res, next) => {
   if (req.user.roles.includes('ROLE_ADMIN_VIEW')) {
-    
     if (!req.user.roles.includes('ROLE_ADMIN_TRADE')) {
       return res.status(401).send({
         status: 1,
-        message: 'Access denied',
+        message: 'Access denied'
       });
     }
   }
-
 
   return next();
 };

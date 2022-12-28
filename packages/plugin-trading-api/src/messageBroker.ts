@@ -14,6 +14,38 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     ...args
   });
 };
+
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
+export const sendNotificationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'notifications',
+    ...args
+  });
+};
+
+export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'logs',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

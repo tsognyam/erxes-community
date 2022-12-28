@@ -100,7 +100,7 @@ class StockService {
 
   createStock = async (subdomain: string, params) => {
     var stock = await this.stockValidator.validateCreate(subdomain, params);
-
+    console.log('stock', stock);
     stock.startdate = new Date(stock.startdate);
     stock.enddate = new Date(stock.enddate);
     if (
@@ -111,7 +111,7 @@ class StockService {
       stock.order_enddate = new Date(stock.order_enddate);
     }
 
-    return this.stockRepository.create(stock);
+    return await this.stockRepository.create(stock);
   };
 
   getPosition = async (subdomain: string, params) => {

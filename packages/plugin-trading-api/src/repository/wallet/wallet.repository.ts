@@ -2,7 +2,7 @@ import BaseRepository from '../base.repository';
 import { WalletConst } from '../../constants/wallet';
 import { getUser } from '../../models/utils';
 export default class WalletRepository extends BaseRepository {
-  static instance:WalletRepository;
+  static instance: WalletRepository;
 
   static get() {
     if (this.instance == null) {
@@ -118,7 +118,7 @@ export default class WalletRepository extends BaseRepository {
       }
     });
     if (wallet) {
-      let user = await getUser(subdomain, { _id: wallet.userId });
+      let user = await getUser({ _id: wallet.userId });
       wallet.user = user;
     }
     return wallet;
@@ -132,7 +132,7 @@ export default class WalletRepository extends BaseRepository {
       }
     });
     if (wallet) {
-      let user = await getUser(subdomain, { _id: wallet.userId });
+      let user = await getUser({ _id: wallet.userId });
       wallet.user = user;
     }
     return wallet;

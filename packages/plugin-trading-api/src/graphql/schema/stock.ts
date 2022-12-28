@@ -1,8 +1,11 @@
 export const types = `
+"This Stock type has securities, bond, any stock."
 type TradingStock @key(fields:"id") {
     id: Int!
-    stockcode:Int!
+    "it's code of stock listed in mse"
+    stockcode:Int! # it's code of stock listed in mse
     symbol:String!
+    "stocktypeId:securities=1,companyBond=2,govBond=3"
     stocktypeId:Int!
     stockname:String
     stockprice:Float
@@ -20,6 +23,7 @@ type TradingStock @key(fields:"id") {
     boardname:String
     inducode:String
     lsttxndate:Date
+    "ipo:inital=0,public=1"
     ipo:Int
     intrate2:Float
     externalid:String
@@ -35,6 +39,7 @@ type TradingStock @key(fields:"id") {
     ipoexecution:Float
     url:String
     image:String
+    "currencyCode:MNT,USD,...etc"
     currencyCode:String!
 }
 type TradingStockList {
@@ -54,6 +59,7 @@ tradingStocks(
 const createParams = `
 stockcode:Int!,
 symbol:String!,
+currencyCode:String,
 stocktypeId:Int!,
 stockname:String!,
 stockprice:Float!,
@@ -66,14 +72,63 @@ enddate:Date!,
 intrate:Int,
 userId:String,
 brchno:String
+no:String
+cnt:Int
+boardname:String
+inducode:String
+ipo:Int
+externalid:String
+paytype:String
+multiplier:Int
+order_begindate:Date
+order_enddate:Date
+notiftype:Int
+stockfee:Float
+exchangeid:Int
+ipotype:Int
+ipoexecution:Float
+url:String
+image:String
 `;
 const editParams = `
-id:Int,
+id:Int!,
 stockcode:Int,
-symbol
+symbol:String,
+currencyCode:String,
+stocktypeId:Int,
+stockname:String,
+stockprice:Float,
+minprice:Float,
+maxprice:Float,
+openprice:Float,
+closeprice:Float,
+startdate:Date,
+enddate:Date,
+intrate:Int,
+userId:String,
+brchno:String
+no:String
+cnt:Int
+boardname:String
+inducode:String
+ipo:Int
+externalid:String
+paytype:String
+multiplier:Int
+order_begindate:Date
+order_enddate:Date
+notiftype:Int
+stockfee:Float
+exchangeid:Int
+ipotype:Int
+ipoexecution:Float
+url:String
+image:String,
+status:Int,
+currencyCode:String
 `;
 export const mutations = `
 tradingStockAdd(${createParams}):TradingStock
 tradingStockEdit(${editParams}):TradingStock
-tradingStockRemove():[]
+tradingStockRemove(id:Int):JSON
 `;

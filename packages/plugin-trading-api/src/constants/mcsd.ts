@@ -27,7 +27,8 @@ export class McsdConst {
   static BANK_NAME_CREDIT = 'Кредит банк';
   static BANK_NAME_ZOOS = 'Зоос банк';
   static BANK_NAME_ULAANBAATAR_KHOT = 'Улаанбаатар хотын банк';
-  static BANK_NAME_UNDESNII_KHORONGO_ORUULALT = 'Үндэсний хөрөнгө оруулалтын банк';
+  static BANK_NAME_UNDESNII_KHORONGO_ORUULALT =
+    'Үндэсний хөрөнгө оруулалтын банк';
   static BANK_NAME_CAPITRON = 'Капитрон банк';
   static BANK_NAME_KHAS = 'Хас банк';
   static BANK_NAME_CHINGIS_KHAN = 'Чингис хаан банк';
@@ -43,7 +44,7 @@ export class McsdConst {
   static RESPONSE_CODE_SUCCESS = '1';
   static RESPONSE_CODE_FAILED = '0';
 
-  static getTypes = (code) => {
+  static getTypes = code => {
     let dict = {};
     dict[this.BANK_CODE_MONGOLBANK] = McsdConst.BANK_NAME_MONGOLBANK;
     dict[this.BANK_CODE_TDB] = McsdConst.BANK_NAME_TDB;
@@ -53,8 +54,10 @@ export class McsdConst {
     dict[this.BANK_CODE_ARIG] = McsdConst.BANK_NAME_ARIG;
     dict[this.BANK_CODE_CREDIT] = McsdConst.BANK_NAME_CREDIT;
     dict[this.BANK_CODE_ZOOS] = McsdConst.BANK_NAME_ZOOS;
-    dict[this.BANK_CODE_ULAANBAATAR_KHOT] = McsdConst.BANK_NAME_ULAANBAATAR_KHOT;
-    dict[this.BANK_CODE_UNDESNII_KHORONGO_ORUULALT] = McsdConst.BANK_NAME_UNDESNII_KHORONGO_ORUULALT;
+    dict[this.BANK_CODE_ULAANBAATAR_KHOT] =
+      McsdConst.BANK_NAME_ULAANBAATAR_KHOT;
+    dict[this.BANK_CODE_UNDESNII_KHORONGO_ORUULALT] =
+      McsdConst.BANK_NAME_UNDESNII_KHORONGO_ORUULALT;
     dict[this.BANK_CODE_CAPITRON] = McsdConst.BANK_NAME_CAPITRON;
     dict[this.BANK_CODE_KHAS] = McsdConst.BANK_NAME_KHAS;
     dict[this.BANK_CODE_CHINGIS_KHAN] = McsdConst.BANK_NAME_CHINGIS_KHAN;
@@ -67,7 +70,7 @@ export class McsdConst {
     return dict[code];
   };
 
-  static bankGWGetTypes = (code) => {
+  static bankGWGetTypes = code => {
     let dict = {};
     dict[this.BANK_CODE_TDB] = BankGWConst.TDBM;
     dict[this.BANK_CODE_KHAN] = BankGWConst.KH;
@@ -90,25 +93,25 @@ export class McsdConst {
 }
 
 class BankGWConst {
-  static TDBM = "TDBM";
-  static CAPL = "CAPL";
-  static KH = "KH";
-  static GMT = "GMT";
-  static ARB = "ARB";
-  static UB = "UB";
-  static NI = "NI";
-  static CAPR = "CAPR";
-  static KHS = "KHS";
-  static TUR = "TUR";
-  static NDB = "NDB";
-  static BGDB = "BGDB";
-  static STF = "STF";
-  static TRB = "TRB";
-  static CRB = "CRB";
-  static BGD = "BGD";
-  static MOBIF = "MOBIF";
-  static HiPAY = "HiPAY";
-  static ARDF = "ARDF";
+  static TDBM = 'TDBM';
+  static CAPL = 'CAPL';
+  static KH = 'KH';
+  static GMT = 'GMT';
+  static ARB = 'ARB';
+  static UB = 'UB';
+  static NI = 'NI';
+  static CAPR = 'CAPR';
+  static KHS = 'KHS';
+  static TUR = 'TUR';
+  static NDB = 'NDB';
+  static BGDB = 'BGDB';
+  static STF = 'STF';
+  static TRB = 'TRB';
+  static CRB = 'CRB';
+  static BGD = 'BGD';
+  static MOBIF = 'MOBIF';
+  static HiPAY = 'HiPAY';
+  static ARDF = 'ARDF';
 }
 export class McsdAccountConst {
   static STATUS_PENDING = 0;

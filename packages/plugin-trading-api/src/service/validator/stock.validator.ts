@@ -78,7 +78,8 @@ class StockValidator extends BaseValidator {
     let currencies = await defaultCurrencies(subdomain);
     var { error, data } = this.validate(
       {
-        stockcode: this._joi.number().required(),
+        id: this._joi.number().required(),
+        stockcode: this._joi.number(),
         symbol: this._joi
           .string()
           .min(3)
@@ -129,7 +130,7 @@ class StockValidator extends BaseValidator {
       params
     );
 
-    let stock = await this.checkStock(data.stockcode);
+    let stock = await this.stockRepository.findById(data.id);
     if (!stock) {
       CustomException(ErrorCode.StockNotFoundException);
     }
@@ -165,12 +166,11 @@ class StockValidator extends BaseValidator {
         intrate: this._joi
           .number()
           .min(0)
-          .max(100)
-          .required(),
+          .max(100),
         userId: this._joi.string(),
         brchno: this._joi.string().allow(''),
         no: this._joi.string(),
-        cnt: this._joi.number().required(),
+        cnt: this._joi.number(),
         boardname: this._joi.string(),
         inducode: this._joi.string().allow(''),
         lsttxndate: this._joi.date(),
@@ -186,7 +186,7 @@ class StockValidator extends BaseValidator {
         order_begindate: this._joi.date(),
         order_enddate: this._joi.date(),
         notiftype: this._joi.number().allow(''),
-        stockfee: this._joi.number().required(),
+        stockfee: this._joi.number(),
         exchangeid: this._joi
           .number()
           .allow(

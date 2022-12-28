@@ -1,8 +1,9 @@
 const Joi = require('joi');
-const cityRepo = require('../repository/user/city.repository');
-const districtRepo = require('../repository/user/district.repository');
-const ErrorCode = require('../exception/error-code');
-const Helper = require('../middleware/helper.middleware');
+// const cityRepo = require('../repository/user/city.repository');
+// const districtRepo = require('../repository/user/district.repository');
+// const ErrorCode = require('../exception/error-code');
+// const Helper = require('../middleware/helper.middleware');
+import Helper from '../middleware/helper.service'
 
 const checkParams = (data) => {
     const { error } = Joi.object({

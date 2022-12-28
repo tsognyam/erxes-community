@@ -9,17 +9,20 @@ let userService = new UserService();
 const UserMutations = {
   tradingUserCreateAccount: async (
     _root: any,
-    params: Prisma.WalletCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
     if (params.userId == null || params.userId == undefined)
-      params.userId = user._id;
+      // params.userId = user._id;
+
+      console.log('params', params);
+    console.log('useR', user);
     return await userService.createAccount(params);
   },
 
   tradingUserAdditionalInfo: async (
     _root: any,
-    params: Prisma.WalletCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
     if (params.userId == null || params.userId == undefined)
@@ -27,6 +30,6 @@ const UserMutations = {
     return await userService.additionalInfo(params);
   }
 };
-requireLogin(UserMutations, 'tradingUserCreateAccount');
-requireLogin(UserMutations, 'tradingUserAdditionalInfo');
+// requireLogin(UserMutations, 'tradingUserCreateAccount');
+// requireLogin(UserMutations, 'tradingUserAdditionalInfo');
 export default UserMutations;

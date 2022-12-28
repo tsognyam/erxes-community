@@ -7,8 +7,8 @@ import {
 import StockService from '../../../service/stock.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
 let stockService = new StockService();
-const StockMutations = {
-  tradingStockAdd: async (
+const userMcsdMutations = {
+  tradingUserMcsdCreate: async (
     _root: any,
     params: any,
     { user, models, subdomain }: IContext
@@ -18,23 +18,9 @@ const StockMutations = {
       // else CustomException(ErrorCode.UserNotFoundException);
     }
     return await stockService.createStock(subdomain, params);
-  },
-  tradingStockEdit: async (
-    _root: any,
-    params: any,
-    { user, models, subdomain }: IContext
-  ) => {
-    return await stockService.updateStock(subdomain, params);
-  },
-  tradingStockRemove: async (
-    _root: any,
-    params: any,
-    { user, models, subdomain }: IContext
-  ) => {
-    return await stockService.deleteStock(params);
   }
 };
 // requireLogin(StockMutations, 'tradingWalletAdd');
 // requireLogin(StockMutations, 'tradingStockEdit');
 // requireLogin(StockMutations, 'tradingStockRemove');
-export default StockMutations;
+export default userMcsdMutations;

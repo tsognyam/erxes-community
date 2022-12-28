@@ -8,16 +8,16 @@ export default class FileService {
   constructor() {
     // this._s3 = new S3Service();
   }
-  getOne = async (params) => {
-
+  getOne = async params => {
     let res = await this._s3.getObject(params.path);
     return res;
-  }
+  };
   saveFile = async ({ user, image, type }) => {
     const basePath = process.env.IMAGE_PATH;
 
     if (!basePath) {
-      throw new ImagePathNotFoundException();
+      // throw new ImagePathNotFoundException();
+      throw new Error('Image path not found');
     }
 
     if (!fs.existsSync(basePath)) {
@@ -46,7 +46,9 @@ export default class FileService {
         break;
     }
 
-    let imagePath = basePath.endsWith('/') ? `${basePath}${folder}` : `${basePath}/${folder}`;
+    let imagePath = basePath.endsWith('/')
+      ? `${basePath}${folder}`
+      : `${basePath}/${folder}`;
     if (!fs.existsSync(imagePath)) {
       fs.mkdirSync(imagePath);
     }
@@ -59,8 +61,8 @@ export default class FileService {
     image = image.replace(/^data:image\/jpeg;base64,/, '');
     const path = `${imagePath}/${user.uuid}.jpeg`;
 
-    fs.writeFile(path, image, 'base64', (err) => {
-      if (err) throw new Error(err);
+    fs.writeFile(path, image, 'base64', err => {
+      if (err) throw new Error('Cannot write file');
     });
     let fullPath = process.env.APP_URL + path;
     let s3Path = await this._s3.s3UploadPath(path, folder);
