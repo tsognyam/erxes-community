@@ -11,15 +11,30 @@ let orderService = new OrderService();
 const OrderQueries = {
   tradingOrders: async (
     _root: any,
-    { page, perPage, status, stockcode, txntype },
+    { page, perPage, status, stockcode, txntype, sortDirection, sortField },
     { models, subdomain, user }: IContext
   ) => {
+    let orderBy: any = undefined;
+    if (sortField != undefined) {
+      if (sortField == 'stockcode')
+        orderBy = {
+          stock: {
+            symbol: sortDirection == '-1' ? 'desc' : 'asc'
+          }
+        };
+      else
+        orderBy = {
+          [sortField]: sortDirection == '-1' ? 'desc' : 'asc'
+        };
+    }
+    console.log('orderBy=', orderBy);
     let params = {
-      skip: page,
+      skip: (page - 1) * perPage,
       take: perPage,
       status,
       stockcode,
-      txntype
+      txntype,
+      orderBy
     };
     let orderList = await orderService.get(params);
     let userIds = orderList.values?.map(function(obj: any) {

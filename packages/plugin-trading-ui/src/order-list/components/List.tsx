@@ -77,50 +77,49 @@ class List extends React.Component<IProps> {
             <th>Регистр</th>
             <th>Нэр</th>
             <th>
-              <SortHandler
-                sortField={'order.stock.symbol'}
-                label={__('Хувьцаа')}
-              />
+              <SortHandler sortField={'stockcode'} label={__('Хувьцаа')} />
             </th>
             <th>
               <SortHandler sortField={'order.txntype'} label={__('Төрөл')} />
             </th>
             <th>
               <SortHandler
-                sortField={'order.ordertype'}
+                sortField={'ordertype'}
                 label={__('Захиалгын төрөл')}
               />
             </th>
             <th>
-              <SortHandler sortField={'order.price'} label={__('Үнэ')} />
+              <SortHandler sortField={'price'} label={__('Үнэ')} />
             </th>
             <th>
-              <SortHandler sortField={'order.cnt'} label={__('Тоо ширхэг')} />
+              <SortHandler sortField={'cnt'} label={__('Тоо ширхэг')} />
             </th>
             <th>
-              <SortHandler sortField={'order.donecnt'} label={__('Биелсэн')} />
+              <SortHandler sortField={'donecnt'} label={__('Биелсэн')} />
             </th>
             <th>
-              <SortHandler sortField={'order.donecnt'} label={__('Үлдсэн')} />
+              {/* <SortHandler sortField={'donecnt'} label={__('Үлдсэн')} /> */}
+              {__('Үлдсэн')}
             </th>
             <th>
-              <SortHandler sortField={'order.status'} label={__('Төлөв')} />
+              <SortHandler sortField={'status'} label={__('Төлөв')} />
             </th>
             <th>
-              <SortHandler sortField={'order.regdate'} label={__('Огноо')} />
+              <SortHandler sortField={'regdate'} label={__('Огноо')} />
             </th>
             <th>
-              <SortHandler sortField={'order.successful'} label={__('Нийт')} />
+              {/* <SortHandler sortField={''} label={__('Нийт')} /> */}
+              {__('Нийт')}
             </th>
             <th>
-              <SortHandler sortField={'order.left'} label={__('Шимтгэл')} />
+              <SortHandler sortField={'fee'} label={__('Шимтгэл')} />
             </th>
             <th>
-              <SortHandler sortField={'order.condid'} label={__('Хугацаа')} />
+              <SortHandler sortField={'condid'} label={__('Хугацаа')} />
             </th>
             <th>
               <SortHandler
-                sortField={'order.userId'}
+                sortField={'userId'}
                 label={__('Оруулсан хэрэглэгч')}
               />
             </th>
@@ -132,6 +131,7 @@ class List extends React.Component<IProps> {
             <Row
               index={index}
               order={order}
+              totalCount={total}
               isChecked={bulk.includes(order)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
@@ -209,7 +209,7 @@ class List extends React.Component<IProps> {
             left={actionBarLeft}
             right={
               <Flex>
-                {/* <ModalTrigger
+                <ModalTrigger
                   title="Place an order"
                   size={'lg'}
                   trigger={
@@ -223,15 +223,7 @@ class List extends React.Component<IProps> {
                     </Button>
                   }
                   content={this.renderForm}
-                /> */}
-                <Button
-                  id={'NewOrderButton'}
-                  btnStyle="success"
-                  block={true}
-                  icon="plus-circle"
-                >
-                  Add Order
-                </Button>
+                />
                 {this.renderFilter()}
               </Flex>
             }

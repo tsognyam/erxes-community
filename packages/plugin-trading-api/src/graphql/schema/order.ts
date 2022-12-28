@@ -71,6 +71,8 @@ tradingOrders(
     stockcode:Int,
     status:Int,
     txntype:Int,
+    sortField:String,
+    sortDirection:String
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 tradingOrderTypes:[TradingOrderTypes]

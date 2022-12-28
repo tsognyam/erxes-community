@@ -12,7 +12,9 @@ query tradingOrders(
   $perPage: Int!, 
   $status: Int, 
   $stockcode: Int, 
-  $txntype: Int
+  $txntype: Int,
+  $sortField:String,
+  $sortDirection:String
   ) 
 {
   tradingOrders(
@@ -20,7 +22,10 @@ query tradingOrders(
     perPage: $perPage, 
     status: $status, 
     stockcode: $stockcode, 
-    txntype: $txntype) {
+    txntype: $txntype,
+    sortField:$sortField,
+    sortDirection:$sortDirection
+    ) {
     total,
     count,
     values {

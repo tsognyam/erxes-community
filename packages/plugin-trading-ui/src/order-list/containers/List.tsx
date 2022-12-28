@@ -77,7 +77,6 @@ class ListContainer extends React.Component<FinalProps> {
 
   clearFilter = () => {
     const params = generateQueryParams(this.props.history);
-
     const remainedParams = Object.keys(params).filter(
       key => !defaultParams.includes(key)
     );
@@ -87,6 +86,9 @@ class ListContainer extends React.Component<FinalProps> {
 
   render() {
     const { tradingOrdersQuery } = this.props;
+    const { queryParams } = this.props;
+    console.log(queryParams);
+
     const orders = tradingOrdersQuery?.tradingOrders?.values || [];
     const total = tradingOrdersQuery?.tradingOrders?.total || 0;
     const count = tradingOrdersQuery?.tradingOrders?.count || 0;
@@ -122,6 +124,11 @@ export default withProps<Props>(
       name: 'tradingOrdersQuery',
       options: ({ queryParams }) => ({
         variables: {
+          stockcode: queryParams.stockcode,
+          txntype: queryParams.txntype,
+          status: queryParams.status,
+          sortField: queryParams.sortField,
+          sortDirection: queryParams.sortDirection,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'
