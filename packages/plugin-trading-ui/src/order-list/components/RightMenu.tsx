@@ -45,6 +45,7 @@ export default class RightMenu extends React.Component<Props, State> {
   setWrapperRef(node) {
     this.wrapperRef = node;
   }
+  DateControl;
 
   componentDidMount() {
     document.addEventListener('click', this.handleClickOutside, true);

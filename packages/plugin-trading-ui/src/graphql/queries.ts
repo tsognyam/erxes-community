@@ -54,6 +54,13 @@ query tradingOrders(
   }
 }
 `;
+const prefixList = `
+query TradingUserByPrefix {
+  tradingUserByPrefix {
+    prefix
+  }
+}
+`;
 const totalCount = `
   query tradingsTotalCountQuery {
     tradingsTotalCount
@@ -110,5 +117,6 @@ export default {
   list,
   totalCount,
   orderList,
-  TradingStocks
+  TradingStocks,
+  prefixList
 };
