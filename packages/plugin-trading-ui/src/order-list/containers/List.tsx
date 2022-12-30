@@ -43,7 +43,7 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object}
+        mutation={object ? mutations.orderEdit : mutations.orderAdd}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -130,6 +130,15 @@ export default withProps<Props>(
           sortField: queryParams.sortField,
           sortDirection: queryParams.sortDirection,
           ...generatePaginationParams(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(mutations.orderAdd), {
+      name: 'tradingOrderAddMutation',
+      options: ({ queryParams }) => ({
+        variables: {
+          enddate: '2022-12-30'
         },
         fetchPolicy: 'network-only'
       })

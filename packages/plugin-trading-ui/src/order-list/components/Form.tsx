@@ -8,24 +8,23 @@ import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { PREFIX, STOCK, TYPE, ORDER_TYPE } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-
+import dayjs from 'dayjs';
 type Props = {
   object?;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
 
 class Forms extends React.Component<Props & ICommonFormProps> {
-  generateDoc = (values: { _id?: string; name: string; content: string }) => {
+  generateDoc = (values: { id?: string; enddate: Date }) => {
     const { object } = this.props;
     const finalValues = values;
 
     if (object) {
-      finalValues._id = object._id;
+      finalValues.id = object.id;
     }
-
     return {
-      _id: finalValues._id,
-      name: finalValues.name
+      id: finalValues.id,
+      enddate: finalValues.enddate
     };
   };
 
@@ -41,24 +40,6 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             defaultValue={object.prefix}
             type="number"
             options={PREFIX}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Регистр')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.registry}
-            type="text"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Овог нэр')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.firstname}
-            type="text"
           />
         </FormGroup>
         <FormGroup>
@@ -78,7 +59,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Order Type')}</ControlLabel>
+          <ControlLabel>{__('Хувьцааны төрөл')}</ControlLabel>
           <FormControl
             componentClass="select"
             options={ORDER_TYPE}
@@ -86,7 +67,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Price')}</ControlLabel>
+          <ControlLabel>{__('Үнэ')}</ControlLabel>
           <FormControl
             {...formProps}
             name="name"
@@ -110,6 +91,19 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             name="name"
             defaultValue={object.successful}
             type="number"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Дуусах өдөр')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            type="date"
+            defaultValue={dayjs(object.endDate || new Date()).format(
+              'YYYY-MM-DD'
+            )}
+            required={true}
+            name="enddate"
+            placeholder={'Дуусах өдөр'}
           />
         </FormGroup>
       </>

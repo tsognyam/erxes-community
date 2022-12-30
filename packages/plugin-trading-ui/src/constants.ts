@@ -1,9 +1,6 @@
 export const PREFIX = [
-  { value: '676767', label: '676767' },
-  { value: '453423', label: '453423' },
-  { value: '786543', label: '786543' },
-  { value: '790865', label: '790865' },
-  { value: '342112', label: '342112' }
+  { value: '676767', label: 'TEST1' },
+  { value: '453423', label: 'TEST' }
 ];
 
 export const LIST = [
@@ -159,27 +156,19 @@ export const SECONDARY_DATA = [
 ];
 
 export const STOCK = [
-  { label: 'CU', value: 'CU' },
-  { label: 'APU', value: 'APU' },
-  { label: 'LEND', value: 'LEND' },
-  { label: 'GOBI', value: 'GOBI' },
-  { label: 'GOLOMT', value: 'GOLOMT' },
-  { label: 'TDB', value: 'TDB' },
-  { label: 'KHAN', value: 'KHAN' },
-  { label: 'ADX', value: 'ADX' },
-  { label: 'AAA', value: 'AAA' }
+  { label: 'APU', value: '90' },
+  { label: 'LEND', value: '545' },
+  { label: 'TUM', value: '549' }
 ];
 
 export const TYPE = [
-  { label: 'Buy', value: 'buy' },
-  { label: 'Sell', value: 'sell' }
+  { label: 'Buy', value: 1 },
+  { label: 'Sell', value: 2 }
 ];
 
 export const ORDER_TYPE = [
-  { label: 'Conditional', value: 'conditional' },
-  { label: 'Market Price', value: 'marketPrice' },
-  { label: 'Stop Limit', value: 'stopLimit' },
-  { label: 'Stop Loss', value: 'stopLoss' }
+  { label: 'Зах зээл', value: 1 },
+  { label: 'Маркет', value: 2 }
 ];
 export const TYPE_ARRAY = ['Buy', 'Sell'];
 
