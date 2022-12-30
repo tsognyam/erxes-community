@@ -4,9 +4,9 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import StockService from '../../../service/stock.service';
+import UserService from '../../../service/user/user.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
-let stockService = new StockService();
+let userService = new UserService();
 const userMcsdMutations = {
   tradingUserMcsdCreate: async (
     _root: any,
@@ -17,8 +17,9 @@ const userMcsdMutations = {
       // if (user != null) params.userId = user._id;
       // else CustomException(ErrorCode.UserNotFoundException);
     }
-    return await stockService.createStock(subdomain, params);
+    return await userService.cooperateGW(params);
   }
+  
 };
 // requireLogin(StockMutations, 'tradingWalletAdd');
 // requireLogin(StockMutations, 'tradingStockEdit');

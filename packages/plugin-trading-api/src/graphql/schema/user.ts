@@ -103,26 +103,11 @@ handPhone:String
 custType:Int
 `;
 const inputParams = `
-userId:Int,
-uuid:String!
-registerNumber:String
-passportNumber:String
-educationId:Int
-gender:String
-nationId:Int
-profession:String
-position:String
-companyName:String
-email:String
-phone:String
-workPhone:String
-handPhone:String
-custType:Int
+prefix:String
 `;
 export const queries = `
 tradingUser(${inputParams}):[TradingUser]
 `;
 export const mutations = `
-tradingUserCreateAccount(${createParams}):TradingUser
-tradingUserAdditionalInfo(${createAdditional}):TradingUser
+
 `;

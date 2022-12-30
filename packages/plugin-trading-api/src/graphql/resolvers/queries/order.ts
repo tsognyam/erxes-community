@@ -46,7 +46,7 @@ const OrderQueries = {
         _id: { $in: uniqUserIds }
       }
     };
-    let users = await getUsers(subdomain, query);
+    let users = await getUsers(query,subdomain);
     let orderUser: any;
     orderList.values?.forEach((el: any) => {
       orderUser = users.find((x: any) => x._id == el.userId);

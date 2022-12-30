@@ -35,20 +35,12 @@ import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repositor
 export default class UserService {
   #validator: UserValidator;
   #mcsdService: MCSDService;
-  // #fileService = new FileService();
   #walletService: WalletService;
   #custFeeService: CustFeeService;
   #userRepository: UserRepository;
   #userMcsdRepository: UserMCSDAccountRepository;
-  // #userFilesRepository = new UserFilesRepository();
   #userBankAccountRepository: UserBankAccountRepository;
-  // #nationalCardRepository = NationalCardRepository.get();
-  #walletRepository: WalletRepository;
-  #userRelationRepository = UserRelationRepository.get();
-  #userAdditionalInfoRepository = UserAdditionalInfoRepository.get();
-  // #userAddressRepository = UserAddressRepository.get();
   _notificationService = new NotificationService();
-  #msccService: MSCCService;
   constructor() {
     this.#validator = new UserValidator();
     this.#mcsdService = new MCSDService();
@@ -58,16 +50,18 @@ export default class UserService {
     this.#userRepository = new UserRepository();
     // #userFilesRepository = new UserFilesRepository();
     this.#userBankAccountRepository = UserBankAccountRepository.get();
-    // #nationalCardRepository = NationalCardRepository.get();
-    this.#walletRepository = WalletRepository.get();
-    this.#userRelationRepository = UserRelationRepository.get();
-    this.#userAdditionalInfoRepository = UserAdditionalInfoRepository.get();
-    // #userAddressRepository = UserAddressRepository.get();
     this._notificationService = new NotificationService();
-    this.#msccService = new MSCCService();
     this.#userMcsdRepository = new UserMCSDAccountRepository();
   }
-  getFullInfo = (user) => this.#userRepository.findById(+user.id, true);
+  // getFullInfo = (user) => this.#userRepository.findById(+user.id, true);
+  getFullInfo = async(params) => {
+      let user = await this.#userMcsdRepository.findMany({
+        prefix: {
+          startsWith: params.prefix
+        }
+      })
+      return user;
+  }
 
   changeStep = async (user, step = UserStepConst.STEP_1) =>
     // await this.#userRepository.update({ id: +user.id }, { externalId: step });
@@ -95,219 +89,7 @@ export default class UserService {
     })
     return user;
   };
-  registerUserPut = async (params) => {
-
-    loggerID.info(params);
-    const { data } = await this.#validator.validateRegisterPut(params);
-
-    const { uuid, identityType, identity, additional } = data;
-
-    if (identityType == 'email') {
-
-
-      await this.#userRepository.update(
-        { uuid: uuid },
-        {
-          identityType: identityType,
-          email: identity
-        }
-      );
-    } else {
-      await this.#userRepository.update(
-        { uuid: uuid },
-        {
-          identityType: identityType,
-          handPhone: identity
-        }
-      );
-
-    }
-
-
-    return BaseConst.MSG_SUCCESS;
-  };
-  registerUser = async (params) => {
-
-    loggerID.info(params);
-    const { data } = await this.#validator.validateRegister(params);
-
-    const { uuid, identityType, identity, additional } = data;
-    // let groupId = UserGroupConst.GROUP_USER;
-    if (additional.type == UserConst.TYPE_ADMIN) {
-      // groupId = UserGroupConst.GROUP_ADMIN;
-    }
-    if (identityType == 'email') {
-
-
-      await this.#userRepository.create({
-        uuid,
-        identityType,
-        email: identity,
-        handPhone: additional.extra_identity,
-        registerNumber: additional.regNumber,
-        passportNumber: additional.passportNumber,
-        status: UserConst.STATUS_CONFIRMED,
-
-        UserGroup: {
-          create: [
-            {
-              // groupId: groupId,
-            },
-          ],
-        },
-
-      });
-    } else {
-
-      await this.#userRepository.create({
-        uuid,
-        identityType,
-        email: additional.extra_identity,
-        handPhone: identity,
-        registerNumber: additional.regNumber,
-        passportNumber: additional.passportNumber,
-        status: UserConst.STATUS_CONFIRMED,
-
-        UserGroup: {
-          create: [
-            {
-              // groupId: groupId,
-            },
-          ],
-        },
-
-
-      });
-    }
-
-
-    return BaseConst.MSG_SUCCESS;
-  };
-
-  createAccount = async (params) => {
-
-    let user = await this.#userRepository.findByUuid(params.uuid);
-    if(user){
-      throw new Error("User already created");
-    }
-
-    
-    const { data } = await this.#validator.validateUserInfo(params);
-
-    data.custType = data.type;
-    // data.custType = McsdConst.CUSTOMER_TYPE_CITIZEN;
-    // if (UserConst.TYPE_ORGINIZATION_CUSTOMER === data.type) {
-    //   data.custType = McsdConst.CUSTOMER_TYPE_AAN;
-    // }
-    delete data.userId;
-    delete data.type;
-    let updatedUser;
-
-    const { country, city, district, subDistrict, address, ...userData } = data;
-    if (data.custType == UserConst.TYPE_FOREIGN_CUSTOMER) {
-      userData.registerNumber = userData.passportNumber;
-    }
-    if (country && city && district && subDistrict && address) {
-      // const userAddress = await this.#userAddressRepository.updateMany(
-
-      //   {
-      //     userId: user.id,
-      //     status: BaseConst.STATUS_ACTIVE
-      //   },
-      //   {
-      //     status: BaseConst.STATUS_INACTIVE
-      //   },
-
-      // )
-      updatedUser = await this.#userRepository.create(
-        {
-          ...userData,
-          status: UserConst.STATUS_PENDING_PAYMENT,
-          UserAddress: {
-            create: [
-              {
-                countryId: country,
-                cityId: city,
-                districtId: district,
-                address,
-                subDistrict,
-                status: BaseConst.STATUS_ACTIVE,
-              },
-            ],
-          },
-        }
-      );
-    } else {
-      updatedUser = await this.#userRepository.create(
-        {
-          ...userData,
-          status: UserConst.STATUS_PENDING_PAYMENT
-        }
-      );
-    }
-
-    await this.changeStep(updatedUser, UserStepConst.STEP_3);
-
-    return updatedUser;
-  };
-
-  additionalInfo = async (params) => {
-
-    const { data } = await this.#validator.validateAdditionalInfo(params);
-
-    const { anket, ...additionalInfo } = data;
-
-    // await this.#userAdditionalInfoRepository.participateTransaction(
-    //   {
-    //     where: {
-    //       userId: data.userId,
-    //       status: BaseConst.STATUS_ACTIVE,
-    //     },
-    //     data: {
-    //       status: BaseConst.STATUS_INACTIVE,
-    //       updatedUserId: user.id,
-    //       updatedAt: new Date(),
-    //     },
-    //   },
-    //   {
-    //     data: {
-    //       ...additionalInfo, createdUserId: +user.id, updatedUserId: +user.id,
-    //       updatedAt: new Date(),
-    //     }
-    //   }
-    // );
-
-    let ankets: any = [];
-    if (anket != undefined) {
-      anket.forEach((el) => {
-        el.userId = +data.userId;
-        el.createdUserId = +data.userId;
-        ankets.push(el);
-      });
-
-      // await this.#userRelationRepository.participateTransaction(
-      //   {
-      //     where: {
-      //       userId: +data.userId,
-      //       status: +BaseConst.STATUS_ACTIVE,
-      //     },
-      //     data: {
-      //       status: +BaseConst.STATUS_ACTIVE,
-      //       updatedUserId: +user.id,
-      //       updatedAt: new Date(),
-      //     },
-      //   },
-      //   { data: ankets }
-      // );
-    }
-    await this.#userRepository.update(
-      { id: +data.userId },
-      {
-        isAdditional: true
-      })
-
-    return BaseConst.MSG_SUCCESS;
-  };
+  
 
   cooperateGW = async (params) => {
     const { data, user } = await this.#validator.validateMCSDAccount(params);
@@ -851,57 +633,6 @@ export default class UserService {
     return BaseConst.MSG_SUCCESS;
   };
 
-  editUser = async (params) => {
-    const { data } = await this.#validator.validateEditUser(params);
-    let user = await this.#userRepository.findById(data.userId);
-
-    user = { ...data };
-    if (data.custType == UserConst.TYPE_FOREIGN_CUSTOMER) {
-      user.registerNumber = user.passportNumber;
-    }
-    if (data.country != undefined && data.city != undefined && data.district != undefined && data.subDistrict != undefined) {
-      user.UserAddress = {
-
-        updateMany: [{
-          where: {
-            userId: data.userId,
-            status: BaseConst.STATUS_ACTIVE
-          },
-          data: {
-            status: BaseConst.STATUS_INACTIVE
-          }
-        }],
-        create: [
-          {
-            countryId: data.country,
-            cityId: data.city,
-            districtId: data.district,
-            subDistrict: data.subDistrict,
-            address: data.address,
-            status: BaseConst.STATUS_ACTIVE,
-          },
-        ],
-
-      }
-    }
-
-    user.country = undefined;
-    user.city = undefined;
-    user.district = undefined;
-    user.subDistrict = undefined;
-    user.address = undefined;
-    user.userId = undefined;
-    const updatedUser = await this.#userRepository.update({
-      id: data.userId
-    },
-      {
-        ...user,
-
-      });
-
-    return updatedUser;
-  };
-
   addBankAccount = async (user, params) => {
     const { data, sUser } = await this.#validator.validateUserBankAccount(params);
 
@@ -925,24 +656,6 @@ export default class UserService {
     return userBankAccount.values;
   };
 
-  getAdditionalInfo = async (userId) => {
-    const userInfo = await this.#userAdditionalInfoRepository.findAll({
-      userId: parseInt(userId),
-      status: BaseConst.STATUS_ACTIVE
-    });
-
-    return userInfo;
-  };
-
-  getRelation = async (userId) => {
-    const res = await this.#userRelationRepository.findAll({
-      userId: parseInt(userId),
-      status: BaseConst.STATUS_ACTIVE
-    });
-
-    return res;
-  };
-
   removeBankAccount = async (user, params) => {
     const { data } = await this.#validator.validateRemoveBankAccount(user, params);
 
@@ -955,77 +668,6 @@ export default class UserService {
     return userBankAccount;
   };
 
-  // editNationalCard = async (user, params) => {
-  //   let { data, nationalCard } = await this.#validator.validateEditNationalCard(user, params);
-
-  //   if (nationalCard != undefined && data.registerNumber && data.lastName && data.firstName && data.birthday && data.familyName) {
-  //     nationalCard = await this.#nationalCardRepository.update(nationalCard.id, {
-  //       registerNumber: data.registerNumber,
-  //       lastName: data.lastName,
-  //       firstName: data.firstName,
-  //       familyName: data.familyName,
-  //       birthday: data.birthday,
-  //       status: UserConst.STATUS_ACTIVE,
-  //       updatedUserId: user.id,
-  //       updatedAt: new Date(),
-  //     });
-  //   }
-
-  //   await this.#userRepository.update(
-  //     { id: user.id },
-  //     {
-  //       familyName: nationalCard != undefined ? nationalCard.familyName : data.familyName,
-  //       lastName: nationalCard != undefined ? nationalCard.lastName : data.lastName,
-  //       firstName: nationalCard != undefined ? nationalCard.firstName : data.firstName,
-  //       registerNumber: nationalCard != undefined ? nationalCard.registerNumber : data.registerNumber,
-  //       birthday: nationalCard != undefined ? nationalCard.birthday : data.birthday,
-  //       updatedAt: new Date(),
-  //       updatedUserId: user.id,
-  //     }
-  //   );
-
-  //   return BaseConst.MSG_SUCCESS;
-  // };
-
-  // storeUserFile = async (user, params) => {
-  //   const { data, sUser } = await this.#validator.validateStoreFile(params);
-
-  //   const { type, imageBase64 } = data;
-
-  //   const { path, fullPath } = await this.#fileService.saveFile({
-  //     user: sUser || user,
-  //     image: imageBase64,
-  //     type: type,
-  //   });
-
-  //   await this.#userFilesRepository.update(
-  //     {
-  //       userId: sUser ? sUser.id : user.id,
-  //       type: type,
-  //       status: UserFilesConst.STATUS_ACTIVE,
-  //     },
-  //     {
-  //       status: UserFilesConst.STATUS_INACTIVE,
-  //       updatedAt: new Date(),
-  //       updatedUserId: user.id,
-  //     }
-  //   );
-
-  //   const sign = await this.#userFilesRepository.create({
-  //     userId: sUser ? sUser.id : user.id,
-  //     imagePath: path,
-  //     imageFullPath: fullPath,
-  //     type: type,
-  //     status: UserFilesConst.STATUS_ACTIVE,
-  //     createUserId: user.id,
-  //   });
-
-  //   if (sign) {
-  //     return BaseConst.MSG_SUCCESS;
-  //   }
-
-  //   return 'Failed';
-  // };
 
   MCSDTransactions = async (params) => {
     let { user, data } = await this.#validator.validateMCSDTransactions(params);

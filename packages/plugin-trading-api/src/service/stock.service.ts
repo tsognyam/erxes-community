@@ -44,8 +44,8 @@ class StockService {
     data.favourite = undefined;
     let detail = data.detail;
     data.detail = undefined;
-
     let stock = await this.stockRepository.findAll(data, select, options);
+    console.log('stock',stock)
     if (!stock) {
       CustomException(ErrorCode.StockNotFoundException);
     }

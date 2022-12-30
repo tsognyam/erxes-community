@@ -6,6 +6,7 @@ import BankQueries from './bank';
 import UserBankQueries from './userBank';
 import UserQueries from './user';
 import StockQueries from './stock';
+import UserMcsdQueries from './user.mcsd';
 export {
   WalletQueries,
   SystemQueries,
@@ -14,5 +15,6 @@ export {
   BankQueries,
   UserBankQueries,
   UserQueries,
-  StockQueries
+  StockQueries,
+  UserMcsdQueries
 };

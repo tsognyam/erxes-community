@@ -6,13 +6,13 @@ import { IContext } from '../../../connectionResolver';
 import UserService from '../../../service/user/user.service';
 let userService = new UserService();
 const UserQueries = {
-  tradingUser: async (
+  tradingUserByPrefix123: async (
     _root: any,
     params,
     { models, subdomain, user }: IContext
   ) => {
-    return await userService.getBank(params);
+    return await userService.getFullInfo(params);
   }
 };
-requireLogin(UserQueries, 'tradingUser');
+requireLogin(UserQueries, 'tradingUserByPrefix123');
 export default UserQueries;

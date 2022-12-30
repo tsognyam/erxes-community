@@ -43,8 +43,15 @@ type TradingStock @key(fields:"id") {
     currencyCode:String!
 }
 type TradingStockList {
-    stocks:[TradingStock]
-    totalCount:Int
+    values:[TradingStock]
+    total:Int
+    count:Int
+}
+
+type filterType {
+    startsWith: String
+    contains: String
+    endsWith: String
 }
 `;
 export const queries = `
@@ -52,8 +59,8 @@ tradingStocks(
     skip:Int,
     take:Int,
     stockcode:Int,
-    stockname:String,
-    symbol:String
+    stockname:JSON,
+    symbol:JSON
 ):TradingStockList
 `;
 const createParams = `

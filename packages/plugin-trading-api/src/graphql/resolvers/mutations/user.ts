@@ -7,28 +7,17 @@ import {
 } from '@erxes/api-utils/src/permissions';
 let userService = new UserService();
 const UserMutations = {
-  tradingUserCreateAccount: async (
-    _root: any,
-    params: any,
-    { user, models, subdomain }: IContext
-  ) => {
-    if (params.userId == null || params.userId == undefined)
-      // params.userId = user._id;
+  // tradingUserByPrefix: async (
+  //   _root: any,
+  //   params: any,
+  //   { user, models, subdomain }: IContext
+  // ) => {
+  //   if (params.userId == null || params.userId == undefined)
+  //     // params.userId = user._id;
 
-      console.log('params', params);
-    console.log('useR', user);
-    return await userService.createAccount(params);
-  },
+  //   return await userService.getFullInfo(params);
+  // },
 
-  tradingUserAdditionalInfo: async (
-    _root: any,
-    params: any,
-    { user, models, subdomain }: IContext
-  ) => {
-    if (params.userId == null || params.userId == undefined)
-      params.userId = user._id;
-    return await userService.additionalInfo(params);
-  }
 };
 // requireLogin(UserMutations, 'tradingUserCreateAccount');
 // requireLogin(UserMutations, 'tradingUserAdditionalInfo');

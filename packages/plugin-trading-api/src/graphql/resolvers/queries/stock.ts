@@ -10,14 +10,15 @@ let stockService = new StockService();
 const StockQueries = {
   tradingStocks: async (
     _root: any,
-    { params }: { params: any },
+    params,
     { models, subdomain, user }: IContext
   ) => {
+    console.log('params',params)
     return await stockService.getStock(params);
   },
   tradingStockList: async (
     _root: any,
-    { params }: { params: any },
+    params,
     { models, subdomain, user }: IContext
   ) => {
     console.log(params);
