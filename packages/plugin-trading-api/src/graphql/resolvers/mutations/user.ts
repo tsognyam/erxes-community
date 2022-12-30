@@ -14,10 +14,8 @@ const UserMutations = {
   // ) => {
   //   if (params.userId == null || params.userId == undefined)
   //     // params.userId = user._id;
-
   //   return await userService.getFullInfo(params);
   // },
-
 };
 // requireLogin(UserMutations, 'tradingUserCreateAccount');
 // requireLogin(UserMutations, 'tradingUserAdditionalInfo');

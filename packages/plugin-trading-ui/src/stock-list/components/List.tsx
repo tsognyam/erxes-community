@@ -10,28 +10,30 @@ import Row from './Row';
 type Props = {
   queryParams: any;
   history: any;
+  tradingStocks: any[];
 };
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
+    const { tradingStocks } = this.props;
     return (
       <Table>
         <thead>
           <tr>
             <th>{__('Symbol')}</th>
-            <th>{__('Yesterdays Last Price')}</th>
-            <th>{__('Starting Price')}</th>
-            <th>{__('Peak')}</th>
-            <th>{__('Bottom')}</th>
-            <th>{__('Change')}</th>
-            <th>{__('Change')}</th>
-            <th>{__('Quantity')}</th>
-            <th>{__('Bullish')}</th>
-            <th>{__('Bearish')}</th>
+            <th>{__('Stock code')}</th>
+            <th>{__('Stock name')}</th>
+            <th>{__('Inital')}</th>
+            <th>{__('Stock type')}</th>
+            <th>{__('Currency')}</th>
+            <th>{__('Regdate')}</th>
+            <th>{__('Exchange')}</th>
+            <th>{__('Open price')}</th>
+            <th>{__('Close price')}</th>
           </tr>
         </thead>
         <tbody id="orders">
-          {(STOCK_LIST || []).map((stock, index) => (
+          {(tradingStocks || []).map((stock, index) => (
             <Row index={index} stock={stock} />
           ))}
         </tbody>
