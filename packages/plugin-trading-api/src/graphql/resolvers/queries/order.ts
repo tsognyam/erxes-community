@@ -19,15 +19,17 @@ const OrderQueries = {
       if (sortField == 'stockcode')
         orderBy = {
           stock: {
-            symbol: sortDirection == '-1' ? 'desc' : 'asc'
+            symbol: sortDirection == '-1' ? 'asc' : 'desc'
           }
         };
       else
         orderBy = {
-          [sortField]: sortDirection == '-1' ? 'desc' : 'asc'
+          [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
         };
-    }
-    console.log('orderBy=', orderBy);
+    } else
+      orderBy = {
+        regdate: 'desc'
+      };
     let params = {
       skip: (page - 1) * perPage,
       take: perPage,
@@ -46,7 +48,7 @@ const OrderQueries = {
         _id: { $in: uniqUserIds }
       }
     };
-    let users = await getUsers(query,subdomain);
+    let users = await getUsers(query, subdomain);
     let orderUser: any;
     orderList.values?.forEach((el: any) => {
       orderUser = users.find((x: any) => x._id == el.userId);
