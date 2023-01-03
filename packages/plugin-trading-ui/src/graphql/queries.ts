@@ -61,6 +61,17 @@ query TradingUserByPrefix {
   }
 }
 `;
+const stockList = `
+query TradingStocks {
+  tradingStocks {
+    values {
+      stockcode,
+      stockname,
+      symbol
+    }
+  }
+}
+`;
 const totalCount = `
   query tradingsTotalCountQuery {
     tradingsTotalCount
@@ -71,5 +82,6 @@ export default {
   list,
   totalCount,
   orderList,
-  prefixList
+  prefixList,
+  stockList
 };
