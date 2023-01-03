@@ -14,7 +14,7 @@ const domestic = ({ history, location }) => {
 };
 
 const routes = () => {
-  return <Route path="/domestic/order-list" component={domestic} />;
+  return <Route path="/trading/order-list" component={domestic} />;
 };
 
 export default routes;

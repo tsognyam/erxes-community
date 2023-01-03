@@ -238,14 +238,15 @@ class Sidebar extends React.Component<FinalProps> {
   }
 
   render() {
-    return (
-      <Wrapper.Sidebar noMargin={true} hasBorder={true}>
-        {this.renderStockFilter()}
-        {this.renderStatusFilter()}
-        {this.renderTypeFilter()}
-        {this.renderOrderTypeFilter()}
-      </Wrapper.Sidebar>
-    );
+    return '';
+    // return (
+    //   // <Wrapper.Sidebar noMargin={true} hasBorder={true}>
+    //   //   {/* {this.renderStockFilter()}
+    //   //   {this.renderStatusFilter()}
+    //   //   {this.renderTypeFilter()}
+    //   //   {this.renderOrderTypeFilter()} */}
+    //   // </Wrapper.Sidebar>
+    // );
   }
 }
 

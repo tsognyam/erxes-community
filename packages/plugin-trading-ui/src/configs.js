@@ -12,31 +12,31 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Domestic trading',
-      url: '/domestic/order-list',
+      text: 'Trading',
+      url: '/trading/order-list',
       icon: 'icon-laptop',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
     },
     {
       text: 'Stock List',
-      to: '/domestic/stock-list',
-      image: '/images/icons/erxes-29.png',
+      to: '/trading/stock-list',
       location: 'settings',
       scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
     },
     {
       text: 'Stock Order',
-      to: '/domestic/stock-order',
-      image: '/images/icons/erxes-29.png',
+      to: '/trading/stock-order',
       location: 'settings',
       scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
     },
     {
       text: 'Order List',
-      to: '/domestic/order-list',
-      image: '/images/icons/erxes-29.png',
+      to: '/trading/order-list',
       location: 'settings',
       scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
     },
   ]
 };
