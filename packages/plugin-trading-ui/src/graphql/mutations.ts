@@ -15,7 +15,8 @@ mutation tradingOrderAdd(
   $ordertype: Int!, 
   $price: Float, 
   $stockcode: Int!, 
-  $txntype: Int!
+  $txntype: Int!,
+  $userId:String
   ) {
   tradingOrderAdd(
     cnt: $cnt, 
@@ -25,7 +26,8 @@ mutation tradingOrderAdd(
     stockcode: $stockcode, 
     txnsource: 2,
     condid:1, 
-    txntype: $txntype
+    txntype: $txntype,
+    userId:$userId
   )  
   {
     cnt,
