@@ -8,10 +8,14 @@ import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { PREFIX, STOCK, TYPE, ORDER_TYPE } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Select from 'react-select-plus';
 import dayjs from 'dayjs';
+import _ from 'lodash';
 type Props = {
   object?;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  prefix: any[];
+  stocks: any[];
 } & ICommonFormProps;
 
 class Forms extends React.Component<Props & ICommonFormProps> {
@@ -27,27 +31,39 @@ class Forms extends React.Component<Props & ICommonFormProps> {
       enddate: finalValues.enddate
     };
   };
-
+  prefixChange = val => {};
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as any);
-
+    const prefixList = this.props.prefix.map(x => {
+      return {
+        value: x.prefix,
+        label: x.prefix
+      };
+    });
+    const stockList = this.props.stocks.map(x => {
+      return {
+        value: x.stockcode,
+        label: x.symbol + ') ' + x.stockname
+      };
+    });
     return (
       <>
         <FormGroup>
           <ControlLabel>{__('Prefix')}</ControlLabel>
-          <FormControl
-            componentClass="select"
+          <Select
+            placeholder={__('Prefix')}
             defaultValue={object.prefix}
-            type="number"
-            options={PREFIX}
+            options={_.sortBy(prefixList, ['label'])}
+            onChange={this.prefixChange}
+            //value={object.prefix}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Хувьцаа')}</ControlLabel>
-          <FormControl
-            componentClass="select"
-            options={STOCK}
-            defaultValue={object.stock}
+          <Select
+            placeholder={__('Хувьцаагаа сонгоно уу')}
+            options={_.sortBy(stockList, ['label'])}
+            value={object.stockcode}
           />
         </FormGroup>
         <FormGroup>

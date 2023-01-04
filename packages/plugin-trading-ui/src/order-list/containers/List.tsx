@@ -24,6 +24,8 @@ type Props = {
 
 type FinalProps = {
   tradingOrdersQuery: any;
+  tradingUserByPrefixQuery: any;
+  tradingStockListQuery: any;
 } & Props &
   IRouterProps;
 
@@ -85,16 +87,22 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { tradingOrdersQuery } = this.props;
-    const { queryParams } = this.props;
-    console.log(queryParams);
-
+    const {
+      tradingOrdersQuery,
+      tradingUserByPrefixQuery,
+      queryParams,
+      tradingStockListQuery
+    } = this.props;
     const orders = tradingOrdersQuery?.tradingOrders?.values || [];
     const total = tradingOrdersQuery?.tradingOrders?.total || 0;
     const count = tradingOrdersQuery?.tradingOrders?.count || 0;
+    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix || [];
+    const stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const extendedProps = {
       ...this.props,
       orders,
+      prefix,
+      stocks,
       loading: tradingOrdersQuery.loading,
       total,
       count,
@@ -131,6 +139,18 @@ export default withProps<Props>(
           sortDirection: queryParams.sortDirection,
           ...generatePaginationParams(queryParams)
         },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.prefixList), {
+      name: 'tradingUserByPrefixQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.stockList), {
+      name: 'tradingStockListQuery',
+      options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
       })
     }),

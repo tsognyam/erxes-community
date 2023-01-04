@@ -24,6 +24,8 @@ interface IProps extends IRouterProps {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
   orders: IOrder[]; //buh order
+  prefix: any[];
+  stocks: any[];
   total: number;
   count: number;
   isAllSelected: boolean;
@@ -38,7 +40,14 @@ interface IProps extends IRouterProps {
 
 class List extends React.Component<IProps> {
   renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
+    return (
+      <Form
+        {...props}
+        renderButton={this.props.renderButton}
+        prefix={this.props.prefix}
+        stocks={this.props.stocks}
+      />
+    );
   };
 
   // remove = (order) => {
