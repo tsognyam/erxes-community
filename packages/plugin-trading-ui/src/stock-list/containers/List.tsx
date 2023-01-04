@@ -18,7 +18,6 @@ type Props = {
 type FinalProps = {} & Props & IRouterProps;
 
 class ListContainer extends React.Component<FinalProps> {
-  
   renderButton = ({
     passedName,
     values,
@@ -34,14 +33,14 @@ class ListContainer extends React.Component<FinalProps> {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${object ? 'updated' : 'added'
-          } a ${passedName}`}
+        successMessage={`You successfully ${
+          object ? 'updated' : 'added'
+        } a ${passedName}`}
       />
     );
   };
 
   render() {
-    
     const { history, queryParams, tradingStocksQuery } = this.props;
     const total = tradingStocksQuery?.tradingStocks?.total || 0;
     const count = tradingStocksQuery?.tradingStocks?.count || 0;
@@ -76,7 +75,7 @@ class ListContainer extends React.Component<FinalProps> {
     return (
       <Bulk
         content={content}
-      // refetch={this.props.List.refetch}
+        // refetch={this.props.List.refetch}
       />
     );
   }
@@ -97,7 +96,7 @@ export default withProps<Props>(
       options: props => ({
         variables: {
           ...props
-        },
+        }
       })
     })
   )(ListContainer)

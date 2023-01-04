@@ -6,7 +6,15 @@ import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { PREFIX, STOCK, TYPE, ORDER_TYPE, STOCKTYPE, EXCHANGE, IPO } from '../../constants';
+import {
+  PREFIX,
+  STOCK,
+  TYPE,
+  ORDER_TYPE,
+  STOCKTYPE,
+  EXCHANGE,
+  IPO
+} from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import _ from 'lodash';
@@ -16,7 +24,19 @@ type Props = {
 } & ICommonFormProps;
 
 class Forms extends React.Component<Props & ICommonFormProps> {
-  generateDoc = (values: { id?: string; exchangeid: string; symbol: string; stockname: string; stocktypeId: string; stockcode: string; stockprice: string; cnt: string; ipo: string; startdate: Date; enddate: Date }) => {
+  generateDoc = (values: {
+    id?: string;
+    exchangeid: string;
+    symbol: string;
+    stockname: string;
+    stocktypeId: string;
+    stockcode: string;
+    stockprice: string;
+    cnt: string;
+    ipo: string;
+    startdate: Date;
+    enddate: Date;
+  }) => {
     const { object } = this.props;
     const finalValues = values;
 
@@ -37,7 +57,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
       enddate: finalValues.enddate
     };
   };
-  prefixChange = val => { };
+  prefixChange = val => {};
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as any);
     // const prefixList = this.props.prefix.map(x => {
@@ -59,7 +79,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <ControlLabel>{__('Exchange')}</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass='select'
+            componentClass="select"
             name="exchangeid"
             placeholder={__('Хөрөнгийн бирж')}
             options={EXCHANGE}
@@ -93,7 +113,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <ControlLabel>{__('Stock type')}</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass='select'
+            componentClass="select"
             name="stocktypeId"
             placeholder={__('Үнэт цаасны төрөл')}
             options={STOCKTYPE}
@@ -133,9 +153,11 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <ControlLabel>{__('IPO')}</ControlLabel>
           <FormControl
             {...formProps}
-            componentClass='select'
+            componentClass="select"
             name="ipo"
-            placeholder={__('Монголын хөрөнгийн бирж дээр IPO хийж байгаа эсэх')}
+            placeholder={__(
+              'Монголын хөрөнгийн бирж дээр IPO хийж байгаа эсэх'
+            )}
             options={IPO}
             // onChange={this.prefixChange}
             value={object.ipo}

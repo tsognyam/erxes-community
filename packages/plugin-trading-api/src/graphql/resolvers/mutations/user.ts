@@ -13,9 +13,9 @@ const UserMutations = {
     { user, models, subdomain }: IContext
   ) => {
     // if (params.userId == null || params.userId == undefined)
-      // params.userId = user._id;
+    // params.userId = user._id;
     return await userService.cooperateGW(params);
-  },
+  }
 };
 // requireLogin(UserMutations, 'tradingUserCreateAccount');
 // requireLogin(UserMutations, 'tradingUserAdditionalInfo');

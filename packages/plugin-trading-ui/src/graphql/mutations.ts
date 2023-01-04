@@ -86,7 +86,7 @@ mutation TradingStockAdd($enddate: Date!, $startdate: Date!, $stockcode: Int!, $
     userId
   }
 }
-`
+`;
 export default {
   add,
   orderAdd,

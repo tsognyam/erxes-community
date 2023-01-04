@@ -12,7 +12,7 @@ const UserMcsdQueries = {
     { models, subdomain, user }: IContext
   ) => {
     // return await userService.getFullInfo(params);
-    return await userService.getUser(subdomain, params.prefix)
+    return await userService.getUser(subdomain, params.prefix);
   }
 };
 // requireLogin(UserMcsdQueries, 'tradingUserByPrefix');

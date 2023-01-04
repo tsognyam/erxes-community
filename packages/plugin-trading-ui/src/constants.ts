@@ -179,29 +179,38 @@ export const ORDER_TYPE_ARRAY = [
   'Stop Loss'
 ];
 
-export const STOCKTYPE = [{
-  value: 1,
-  label: 'Хувьцаа'
-}, {
-  value: 2,
-  label: 'Компанийн бонд'
-}, {
-  value: 3,
-  label: 'Засгийн газрын бонд'
-}];
+export const STOCKTYPE = [
+  {
+    value: 1,
+    label: 'Хувьцаа'
+  },
+  {
+    value: 2,
+    label: 'Компанийн бонд'
+  },
+  {
+    value: 3,
+    label: 'Засгийн газрын бонд'
+  }
+];
 
-export const EXCHANGE = [{
-  value: 1,
-  label: 'MSE - Монголын хөрөнгийн бирж'
-}]
+export const EXCHANGE = [
+  {
+    value: 1,
+    label: 'MSE - Монголын хөрөнгийн бирж'
+  }
+];
 
-export const IPO = [{
-  value: 0,
-  label: "Тийм"
-},{
-  value: 1,
-  label: "Үгүй"
-}]
+export const IPO = [
+  {
+    value: 0,
+    label: 'Тийм'
+  },
+  {
+    value: 1,
+    label: 'Үгүй'
+  }
+];
 
 export const STOCK_ARRAY = [
   'CU',

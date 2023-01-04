@@ -47,7 +47,7 @@ class ListComp extends React.Component<Props> {
       </Table>
     );
   };
-  renderActionBar(){
+  renderActionBar() {
     // const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
     // console.log("fefefefefe", this.CountDownTimer(1,35,6))
     const actionBarRight = (
@@ -65,9 +65,7 @@ class ListComp extends React.Component<Props> {
       </>
     );
 
-    return (
-      <Wrapper.ActionBar right={actionBarRight} wideSpacing />
-    );
+    return <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
   }
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
