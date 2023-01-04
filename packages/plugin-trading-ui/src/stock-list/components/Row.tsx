@@ -11,11 +11,20 @@ type Props = {
 class Row extends React.Component<Props> {
   render() {
     const { index, stock } = this.props;
-    console.log('stock.change', stock.change);
+    // console.log('stock.change', stock.change);
     return (
       <StyledTr key={index}>
         <td>{stock.symbol}</td>
-        <td>
+        <td>{stock.stockcode}</td>
+        <td>{stock.stockname}</td>
+        <td>{stock.ipo == 1 ? 'Анхдагч' : 'Хоёрдогч'}</td>
+        <td>{stock.stocktypeId == 1 ? 'Хувьцаа' : 'Бонд'}</td>
+        <td>{stock.currencyCode}</td>
+        <td>{stock.regdate}</td>
+        <td>{stock.exchangeid == 1 ? 'MSE' : 'Бусад'}</td>
+        <td>{stock.openprice}</td>
+        <td>{stock.closeprice}</td>
+        {/* <td>
           {stock.yesterdaysLastPrice.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
@@ -60,7 +69,7 @@ class Row extends React.Component<Props> {
           {stock.bearish.toLocaleString(undefined, {
             maximumFractionDigits: 2
           })}
-        </td>
+        </td> */}
       </StyledTr>
     );
   }

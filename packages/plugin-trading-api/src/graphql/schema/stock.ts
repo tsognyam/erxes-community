@@ -83,7 +83,7 @@ no:String
 cnt:Int
 boardname:String
 inducode:String
-ipo:Int
+ipo:Int!
 externalid:String
 paytype:String
 multiplier:Int
@@ -91,7 +91,7 @@ order_begindate:Date
 order_enddate:Date
 notiftype:Int
 stockfee:Float
-exchangeid:Int
+exchangeid:Int!
 ipotype:Int
 ipoexecution:Float
 url:String

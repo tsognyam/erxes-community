@@ -29,7 +29,7 @@ import BaseConst from '../../constants/base';
 import * as moment from 'moment';
 import { CustomException, ErrorCode } from '../../exception/error-code';
 import ErrorException from '../../exception/error-exception';
-import { sendContactsMessage, sendCoreMessage, sendLogsMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage, sendCPMessage, sendLogsMessage } from '../../messageBroker';
 import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repository';
 
 export default class UserService {
@@ -79,6 +79,17 @@ export default class UserService {
 
   getUser = async (subdomain,userUuid) => {
     // let user = this.#userRepository.findByUuid(userUuid);
+    console.log('userUuid',userUuid)
+    let cpUser = await sendCPMessage({
+      subdomain,
+      action: 'clientPortals.findOne',
+      data: {
+        _id: userUuid
+      },
+      isRPC: true
+    })
+    console.log('cpUser',cpUser)
+    
     let user = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -87,15 +98,24 @@ export default class UserService {
       },
       isRPC: true
     })
+    // console.log('user',user)
     return user;
   };
   
 
   cooperateGW = async (params) => {
     const { data, user } = await this.#validator.validateMCSDAccount(params);
-    if (user.status == UserConst.STATUS_MCSD_ERROR) {
-      return await this.updateMCSDAccount({ userId: user.id });
-    }
+    
+
+    let userMcsdAccount = await this.#userMcsdRepository.findUnique({
+      userId: user._id
+    })
+    console.log('userMcsdAccount',userMcsdAccount)
+    
+    // if (userMcsdAccount.status == UserConst.STATUS_ACTIVE || userMcsdAccount.status == UserConst.STATUS_MCSD_PENDING) {
+    //   throw new Error('User created');
+    // }
+    
     //Компанийн бондын шимтгэл
     const feeCorpDebt = await Helper.getValue('FeeCorpDebt');
     //ЗГ бондын шимтгэл
@@ -103,8 +123,8 @@ export default class UserService {
     //Хувьцааны шимтгэл
     const feeEquity = await Helper.getValue('FeeEquity');
 
-
-    if (user.status == UserConst.STATUS_PENDING_PAYMENT) {
+    console.log('feeCorpDebt',feeCorpDebt)
+    if (!userMcsdAccount) {
       try {
         //change status on customer erxes
         await this.#userMcsdRepository.create(
@@ -116,21 +136,21 @@ export default class UserService {
         await this.#custFeeService.create({
           name: "Хувьцааны шимтгэл",
           name2: "Securities fee",
-          userId: user.id,
+          userId: user._id,
           stocktypeId: StockTypeConst.SEC,
           value: parseFloat(feeEquity)
         });
         await this.#custFeeService.create({
           name: "Компанийн бондын шимтгэл",
           name2: "Company bond fee",
-          userId: user.id,
+          userId: user._id,
           stocktypeId: StockTypeConst.COMPANY_BOND,
           value: parseFloat(feeCorpDebt)
         });
         await this.#custFeeService.create({
           name: "ЗГ-ын бондын шимтгэл",
           name2: "Government bond fee",
-          userId: user.id,
+          userId: user._id,
           stocktypeId: StockTypeConst.GOV_BOND,
           value: parseFloat(feeDebt)
         });
@@ -141,7 +161,7 @@ export default class UserService {
 
       await this.#walletService.createWallet({
         name: user.firstName,
-        userId: user.id,
+        userId: user._id,
         type: WalletConst.TYPE_USER,
         status: WalletConst.STATUS_ACTIVE,
         currencyCode: 'MNT'
@@ -154,36 +174,43 @@ export default class UserService {
       // }, 'USD');
 
       await this.changeStep(user, UserStepConst.STEP_5);
+    }else{
+      if (userMcsdAccount.status == UserConst.STATUS_MCSD_ERROR) {
+        return await this.updateMCSDAccount({ userId: data.userId });
+      }
     }
 
 
 
 
 
-    await this.mcsdAccountOne({ userId: user.id });
+    await this.mcsdAccountOne({ userId: data.userId });
     return BaseConst.MSG_SUCCESS;
   };
 
   mcsdAccountOne = async (params) => {
     let userId = params.userId;
-    const rawUsers = await this.#userRepository.findAll(
-      {
-        id: userId,
-        status: UserConst.STATUS_PAID
-      },
-      {
-        UserBankAccounts: true,
-        UserMCSDAccount: true,
-        UserAddress: {
-          select: { district: true, country: true, city: true, address: true, subDistrict: true, status: true },
-        },
-      }
-    );
-    let user = rawUsers.values[0];
+    // const rawUsers = await this.#userRepository.findAll(
+    //   {
+    //     id: userId,
+    //     status: UserConst.STATUS_PAID
+    //   },
+    //   {
+    //     UserBankAccounts: true,
+    //     UserMCSDAccount: true,
+    //     UserAddress: {
+    //       select: { district: true, country: true, city: true, address: true, subDistrict: true, status: true },
+    //     },
+    //   }
+    // );
+    // let user = rawUsers.values[0];
+    let user = await this.getUser('localhost',userId)
     if (user == undefined) {
       throw new Error('User not found');
     }
-
+    let userMcsdAccount = await this.#userMcsdRepository.findUnique({
+      userId: user._id
+    })
     const feeCorpDebt = await Helper.getValue('FeeCorpDebt');
     //ЗГ бондын шимтгэл
     const feeDebt = await Helper.getValue('FeeDebt');
@@ -196,36 +223,64 @@ export default class UserService {
     // const wallet = user.wallets.find(
     //   (wallet) => CurrencyConst.DEFAULT === wallet.currencyCode && BaseConst.STATUS_ACTIVE === wallet.status
     // );
-    const bankAccount = user.UserBankAccounts.find((account) => BaseConst.STATUS_ACTIVE === account.status);
-    if (bankAccount == undefined) {
-      CustomException(ErrorCode.UserBankNotFoundException);
+    // const bankAccount = user.UserBankAccounts.find((account) => BaseConst.STATUS_ACTIVE === account.status);
+    // if (bankAccount == undefined) {
+    //   CustomException(ErrorCode.UserBankNotFoundException);
+    // }
+    if(user.customFieldsDataByFieldCode.userBank == undefined || user.customFieldsDataByFieldCode.userBankAccountNo == undefined){
+      CustomException(ErrorCode.UserBankNotFoundException)
+    }
+    let bankAccount = {
+      bank: user.customFieldsDataByFieldCode.userBank.value,
+      accountNo: user.customFieldsDataByFieldCode.userBankAccountNo.value
     }
     // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
-    const birthdate = moment(new Date(user.birthday), 'YYYY-MM-DD').format().slice(0, 10);
-    const address = user.UserAddress.find((address) => BaseConst.STATUS_ACTIVE === address.status);
+    const birthdate = moment(new Date(user.birthDate), 'YYYY-MM-DD').format().slice(0, 10);
+    if(user.customFieldsDataByFieldCode.address == undefined){
+      CustomException(ErrorCode.CityNotFoundException)
+    }
+    let address = user.customFieldsDataByFieldCode.address.value
+    if(user.customFieldsDataByFieldCode.registerNumber == undefined){
+      CustomException(ErrorCode.RegisterNumberMismatchException)
+    }
+    let registerNumber = user.customFieldsDataByFieldCode.registerNumber.value;
+    if(user.customFieldsDataByFieldCode.profession == undefined){
+      CustomException(ErrorCode.UserInfoProNotFoundException)
+    }
+    let profession = user.customFieldsDataByFieldCode.profession.value;
+    if(user.primaryPhone == null){
+      CustomException(ErrorCode.UserInfoPhoneNotFoundException)
+    }
+    let phone = user.primaryPhone;
+
+    if(user.sex == null){
+      CustomException(ErrorCode.UserInfoGenderNotFoundException)
+    }
+    let sex = user.sex;
+    // const address = user.UserAddress.find((address) => BaseConst.STATUS_ACTIVE === address.status);
     // * BDCAccountNumber: 8 тэмдэгтээс бага эсвэл тэнцүү байх ёстой!
     let MCSDaccount = {
       // BDCAccountId: wallet.walletNumberId.toString(),
       // BDCAccountNumber: wallet.walletNumberId.toString(),
-      BDCAccountId: user.UserMCSDAccount[0].id.toString(),
-      BDCAccountNumber: user.UserMCSDAccount[0].id.toString(),
+      BDCAccountId: userMcsdAccount.id.toString(),
+      BDCAccountNumber: userMcsdAccount.id.toString(),
       BankAccountNumber: bankAccount.accountNo.toString(),
-      BankCode: bankAccount.bankCode,
-      BankName: McsdConst.getTypes(bankAccount.bankCode),
+      BankCode: McsdConst.getTypesByName(bankAccount.bank),
+      BankName: bankAccount.bank,
       BirthDate: birthdate,
-      Country: address.country.code,
+      Country: '976',//?
       CustomerType: user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
       FeeCorpDebt: feeCorpDebt,
       FeeDebt: feeDebt,
       FeeEquity: feeEquity,
       FirstName: user.firstName,
-      Gender: user.gender,
-      HomeAddress: `${address.address}, ${address.subDistrict}, ${address.district.name2} district, ${address.city.name2}, ${address.country.name2}`,
-      HomePhone: user.handPhone,
+      Gender: user.sex,//?
+      HomeAddress: address,
+      HomePhone: phone,
       LastName: user.lastName,
-      MobilePhone: user.handPhone,
-      Occupation: user.profession,
-      RegistryNumber: user.registerNumber,
+      MobilePhone: phone,
+      Occupation: profession,
+      RegistryNumber: registerNumber,
     }
     loggerMCSD.info('info', MCSDaccount)
     accounts.push(MCSDaccount);
@@ -244,8 +299,8 @@ export default class UserService {
       !Object.prototype.hasOwnProperty.call(res.SetAccountsResult, 'ResponseCode') ||
       McsdConst.RESPONSE_CODE_SUCCESS !== res.SetAccountsResult.ResponseCode
     ) {
-      await this.#userRepository.update(
-        { id: +user.id },
+      await this.#userMcsdRepository.update(
+        userMcsdAccount.id,
         {
           description: res.SetAccountsResult.ResponseMessage,
         }
@@ -256,8 +311,8 @@ export default class UserService {
       });
 
     }
-    await this.#userRepository.update(
-      { id: +user.id },
+    await this.#userMcsdRepository.update(
+      userMcsdAccount.id,
       {
         status: UserConst.STATUS_MCSD_PENDING,
         description: "ҮЦТХТ данс нээх хүсэлт илгээгдсэн"

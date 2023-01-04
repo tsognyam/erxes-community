@@ -15,6 +15,15 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendCPMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

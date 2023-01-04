@@ -18,29 +18,45 @@ type TradingWithdraw @key(fields:"id") {
 }`;
 
 const createParams = `
-userId:String!,
-bankCode:String!,
-accountNo:String!,
-accountName:String!
+walletId:Int!,
+amount:Float!,
+status:Int!,
+type:Int!
+feeAmount:Float
+bankTransactionId:Int
+description:String
+dater:Date
+createdAt:Date
+createdUserId:Int
+updatedAt:Date
+updatedUserId:Int
+userBankAccountId:Int
 `;
 const updateParams = `
-userId:String!,
-bankCode:String!,
-accountNo:String!,
-accountName:String!
+walletId:Int!,
+amount:Float!,
+status:Int!,
+type:Int!
+feeAmount:Float
+bankTransactionId:Int
+description:String
+dater:Date
+createdAt:Date
+createdUserId:Int
+updatedAt:Date
+updatedUserId:Int
+userBankAccountId:Int
 `;
 const inputParams = `
-userId:String,
-bankCode:String,
-accountNo:String,
-accountName:String,
+walletId:Int,
+type:Int,
 status:Int
 `;
 export const queries = `
-tradingUserBanks(${inputParams}):[TradingUserBank]
+tradingWithdrawGet(${inputParams}):[tradingWithdraw]
 `;
 export const mutations = `
-tradingUserBankAdd(${createParams}):TradingUserBank
-tradingUserBankEdit(id:Int!,${updateParams}):TradingUserBank
-tradingUserBankRemove(id:Int!):JSON
+tradingWithdrawCreate(${createParams}):tradingWithdraw
+tradingWithdrawUpdate(id:Int!,${updateParams}):tradingWithdraw
+tradingWithdrawCancel(id:Int!):JSON
 `;

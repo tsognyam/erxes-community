@@ -79,10 +79,57 @@ const totalCount = `
   }
 `;
 
+const TradingStocks = `
+query TradingStocks($skip: Int, $symbol: JSON, $take: Int) {
+  tradingStocks(skip: $skip, symbol: $symbol, take: $take) {
+    count
+    total
+    values {
+      boardname
+      brchno
+      closeprice
+      cnt
+      currencyCode
+      exchangeid
+      externalid
+      externalid2
+      id
+      image
+      inducode
+      intrate2
+      ipo
+      ipoexecution
+      ipotype
+      lsttxndate
+      maxprice
+      minprice
+      multiplier
+      no
+      notiftype
+      openprice
+      order_begindate
+      order_enddate
+      paytype
+      regdate
+      startdate
+      status
+      stockcode
+      stockfee
+      stockname
+      stockprice
+      stocktypeId
+      symbol
+      url
+      userId
+    }
+  }
+}
+`;
 export default {
   list,
   totalCount,
   orderList,
-  prefixList,
-  stockList
+  stockList,
+  TradingStocks,
+  prefixList
 };

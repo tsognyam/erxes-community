@@ -349,6 +349,18 @@ class ErrorCode {
     status: 1408,
     message: 'Not found User MCSD Account'
   };
+  static UserInfoGenderNotFoundException = {
+    status: 1409,
+    message: 'Not found user gender'
+  };
+  static UserInfoPhoneNotFoundException = {
+    status: 1410,
+    message: 'Not found user phone'
+  };
+  static UserInfoProNotFoundException = {
+    status: 1411,
+    message: 'Not found user profession'
+  };
   static getExceptionList = () => {
     return Object.keys(ErrorCode).filter(
       value => value.substring(value.length - 9) == 'Exception'

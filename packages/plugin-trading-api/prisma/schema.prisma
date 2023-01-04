@@ -111,6 +111,7 @@ model Order {
   settlementMSCC   SettlementMSCC?   @relation(fields: [settlementMSCCId], references: [id])
   transactionOrder TransactionOrder? @relation(fields: [tranOrderId], references: [id])
   stockOrder       StockOrder?       @relation(fields: [stockOrderId], references: [id])
+  user             UserMCSDAccount?  @relation(fields: [userId], references: [userId])
 }
 
 model Stocktype {
@@ -123,15 +124,16 @@ model Stocktype {
 }
 
 model Custfee {
-  id          Int      @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   userId      String
+  user        UserMCSDAccount? @relation(fields: [userId], references: [userId])
   stocktypeId Int
   name        String?
   name2       String?
   descr       String?
-  value       Decimal  @db.Decimal(30, 4)
+  value       Decimal          @db.Decimal(30, 4)
   sidetype    Int?
-  updateddate DateTime @default(now())
+  updateddate DateTime         @default(now())
   updatedby   Int?
   status      Int
 
@@ -197,6 +199,7 @@ model Wallet {
   id                   Int                @id @default(autoincrement())
   currencyCode         String             @db.VarChar(6)
   userId               String?
+  user                 UserMCSDAccount?   @relation(fields: [userId], references: [userId])
   status               Int
   name                 String             @db.VarChar(30)
   type                 Int
@@ -317,6 +320,7 @@ model Withdraw {
   UserBankAccount   UserBankAccount? @relation(fields: [userBankAccountId], references: [id])
   userBankAccountId Int?
   userId            String?
+  user              UserMCSDAccount? @relation(fields: [userId], references: [userId])
 }
 
 model Transaction {
@@ -378,38 +382,39 @@ model Settlement {
 }
 
 model SettlementMSCC {
-  id                Int       @id @default(autoincrement())
+  id                Int              @id @default(autoincrement())
   userId            String
+  user              UserMCSDAccount? @relation(fields: [userId], references: [userId])
   tradeDate         DateTime
   settlementDate    DateTime
-  cmId              String    @db.VarChar(100)
-  participantId     String    @db.VarChar(10)
-  participantType   String    @db.VarChar(10)
-  clientPrefix      String    @db.VarChar(150)
-  clientSuffix      String    @db.VarChar(10)
+  cmId              String           @db.VarChar(100)
+  participantId     String           @db.VarChar(10)
+  participantType   String           @db.VarChar(10)
+  clientPrefix      String           @db.VarChar(150)
+  clientSuffix      String           @db.VarChar(10)
   custodianID       String?
-  securityMCategory String?   @db.VarChar(10)
-  securityCategory  String?   @db.VarChar(10)
-  issuerCode        String?   @db.VarChar(10)
-  debtType          String?   @db.VarChar(10)
-  securityDesc      String?   @db.VarChar(100)
-  mainType          String?   @db.VarChar(10)
-  subType           String?   @db.VarChar(10)
+  securityMCategory String?          @db.VarChar(10)
+  securityCategory  String?          @db.VarChar(10)
+  issuerCode        String?          @db.VarChar(10)
+  debtType          String?          @db.VarChar(10)
+  securityDesc      String?          @db.VarChar(100)
+  mainType          String?          @db.VarChar(10)
+  subType           String?          @db.VarChar(10)
   buyQuantity       Int
-  buyObligation     Decimal   @db.Decimal(30, 4)
+  buyObligation     Decimal          @db.Decimal(30, 4)
   sellQuantity      Int
-  sellObligation    Decimal   @db.Decimal(30, 4)
+  sellObligation    Decimal          @db.Decimal(30, 4)
   quantity          Int
-  obligation        Decimal   @db.Decimal(30, 4)
-  minMargin         Decimal   @db.Decimal(30, 4)
-  mseFee            Decimal   @db.Decimal(30, 4)
-  msccFee           Decimal   @db.Decimal(30, 4)
-  frcFee            Decimal   @db.Decimal(30, 4)
+  obligation        Decimal          @db.Decimal(30, 4)
+  minMargin         Decimal          @db.Decimal(30, 4)
+  mseFee            Decimal          @db.Decimal(30, 4)
+  msccFee           Decimal          @db.Decimal(30, 4)
+  frcFee            Decimal          @db.Decimal(30, 4)
   currency          String?
   status            Int
-  statusDescription String?   @db.VarChar(500)
+  statusDescription String?          @db.VarChar(500)
   executedDate      DateTime?
-  createdAt         DateTime  @default(now())
+  createdAt         DateTime         @default(now())
   createUserId      String?
   orders            Order[]
 }
@@ -436,21 +441,28 @@ model TransactionMCSD {
 }
 
 model UserMCSDAccount {
-  id            Int       @id @default(autoincrement())
-  userId        String    @unique
-  prefix        String?   @unique(map: "prefix")
-  clientSuffix  String?
-  fullPrefix    String?
-  bdcAccountId  String?
-  createdAt     DateTime  @default(now())
-  createdUserId String?
-  updatedAt     DateTime?
-  updatedUserId String?
+  id             Int              @id @default(autoincrement())
+  userId         String           @unique
+  prefix         String?          @unique(map: "prefix")
+  clientSuffix   String?
+  fullPrefix     String?
+  bdcAccountId   String?
+  status         Int              @default(0)
+  description    String?          @db.VarChar(400)
+  createdAt      DateTime         @default(now())
+  createdUserId  String?
+  updatedAt      DateTime?
+  updatedUserId  String?
+  Order          Order[]
+  Custfee        Custfee[]
+  Wallet         Wallet[]
+  Withdraw       Withdraw[]
+  SettlementMSCC SettlementMSCC[]
 }
 
 model UserBankAccount {
   id            Int        @id @default(autoincrement())
-  userId        String
+  userId        String     @unique
   bankCode      String
   bank          Bank       @relation(fields: [bankCode], references: [code])
   accountNo     String     @db.VarChar(36)

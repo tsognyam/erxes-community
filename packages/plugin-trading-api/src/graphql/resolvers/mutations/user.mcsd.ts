@@ -19,7 +19,6 @@ const userMcsdMutations = {
     }
     return await userService.cooperateGW(params);
   }
-  
 };
 // requireLogin(StockMutations, 'tradingWalletAdd');
 // requireLogin(StockMutations, 'tradingStockEdit');

@@ -47,7 +47,7 @@ import {
 
 import {
   types as UserMcsdTypes,
-  queries as UserMcsdQueries,
+  queries as UserMcsdQueries
   // mutations as StockMutations
 } from './schema/user.mcsd';
 

@@ -30,6 +30,8 @@ import BaseConst from '../../../constants/base';
 // const { McsdConst } = require('../../../typing/mcsd.const');
 import { McsdConst } from '../../../constants/mcsd';
 import { getUser } from '../../../models/utils';
+import ErrorException from '../../../exception/error-exception';
+import { CustomException, ErrorCode } from '../../../exception/error-code';
 // const ErrorException = require('../../../exception/error-exception');
 
 class UserValidator extends BaseValidator {
@@ -667,9 +669,7 @@ class UserValidator extends BaseValidator {
         _id: data.userId
       })
       console.log('user',user)
-      if (user.status == UserConst.STATUS_ACTIVE || user.status == UserConst.STATUS_MCSD_PENDING) {
-        throw new Error('User created');
-      }
+     
     return { data, user };
   };
 }
