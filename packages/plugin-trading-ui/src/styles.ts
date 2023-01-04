@@ -42,11 +42,16 @@ export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
     cursor: pointer;
   }
 `;
-
+export const FormBox = styled.div`
+  background: #fff;
+  border: 1px solid #eee;
+  padding: ${dimensions.unitSpacing}px;
+  display: flex;
+  width: 30%;
+`;
 export const FilterBox = styled.div`
   overflow: auto;
   height: 100%;
-
   .Select {
     margin-bottom: 15px;
   }
@@ -150,7 +155,7 @@ export const ListContainer = styled.div`
 `;
 
 export const List = styled.table`
-  width: 33%;
+  width: 23%;
   margin-right: 10px;
   background: #fff;
   border: 1px solid #eee;
@@ -264,4 +269,10 @@ export const ChartTable = styled.div`
   height: 90%;
   width: 100%;
   display: block;
+`;
+export const FinanceAmount = styled.div`
+  float: right;
+`;
+export const FormWidth = styled.div`
+  width: 100%;
 `;

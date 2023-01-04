@@ -65,7 +65,9 @@ class ListContainer extends React.Component<FinalProps> {
 
     routerUtils.setParams(this.props.history, search);
   };
-
+  onCancelOrder = txnid => {
+    const {} = this.props;
+  };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
 

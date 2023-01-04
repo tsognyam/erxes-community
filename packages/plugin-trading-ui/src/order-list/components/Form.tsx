@@ -3,40 +3,95 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { __ } from 'coreui/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { PREFIX, STOCK, TYPE, ORDER_TYPE } from '../../constants';
+import { TYPE, ORDER_TYPE } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { FormWidth } from '../../styles';
 type Props = {
-  object?;
+  order: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   prefix: any[];
   stocks: any[];
-} & ICommonFormProps;
-
-class Forms extends React.Component<Props & ICommonFormProps> {
-  generateDoc = (values: { id?: string; enddate: Date }) => {
-    const { object } = this.props;
+};
+type State = {
+  userId: string;
+  stockcode: string;
+  isPrice: boolean;
+  orderType: number;
+  price: string;
+  txntype: number;
+};
+class Forms extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+    const { order } = this.props;
+    this.state = {
+      userId: order?.userId,
+      stockcode: order?.stockcode,
+      orderType: order?.orderType || 1,
+      isPrice: order?.orderType == 2 ? false : true,
+      price: order?.price,
+      txntype: order?.txntype || 1
+    };
+  }
+  generateDoc = (values: {
+    txnid?: number;
+    txntype: number;
+    ordertype: number;
+    stockcode: number;
+    price: number;
+    cnt: number;
+    enddate: Date;
+    userId: string;
+  }) => {
+    const { order } = this.props;
     const finalValues = values;
 
-    if (object) {
-      finalValues.id = object.id;
+    if (order) {
+      finalValues.txnid = order.txnid;
     }
     return {
-      id: finalValues.id,
-      enddate: finalValues.enddate
+      txnid: finalValues.txnid,
+      enddate: new Date(finalValues.enddate),
+      price: this.state.orderType == 1 ? undefined : Number(finalValues.price),
+      cnt: Number(finalValues.cnt),
+      txntype: Number(this.state.txntype),
+      ordertype: Number(this.state.orderType),
+      stockcode: Number(this.state.stockcode),
+      userId: this.state.userId
     };
   };
-  prefixChange = val => {};
+  prefixChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value;
+    this.setState({ userId: value });
+  };
+  stockChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value.toString();
+    this.setState({ stockcode: value });
+  };
+
+  orderTypeChange = e => {
+    const value = e.target.value;
+    this.setState({ orderType: Number(value) });
+
+    if (value == 1) {
+      this.setState({ price: '0.00' });
+      this.setState({ isPrice: true });
+    } else this.setState({ isPrice: false });
+  };
+  txntypeChange = e => {
+    const value = e.target.value;
+    this.setState({ txntype: value });
+  };
   renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as any);
+    const order = this.props.order || ({} as any);
     const prefixList = this.props.prefix.map(x => {
       return {
-        value: x.prefix,
+        value: x.userId,
         label: x.prefix
       };
     });
@@ -52,10 +107,10 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <ControlLabel>{__('Prefix')}</ControlLabel>
           <Select
             placeholder={__('Prefix')}
-            defaultValue={object.prefix}
+            value={this.state.userId}
             options={_.sortBy(prefixList, ['label'])}
             onChange={this.prefixChange}
-            //value={object.prefix}
+            required={true}
           />
         </FormGroup>
         <FormGroup>
@@ -63,50 +118,50 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <Select
             placeholder={__('Хувьцаагаа сонгоно уу')}
             options={_.sortBy(stockList, ['label'])}
-            value={object.stockcode}
+            value={this.state.stockcode}
+            onChange={this.stockChange}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Авах/Зарах')}</ControlLabel>
           <FormControl
+            name="txntype"
             componentClass="select"
             options={TYPE}
-            defaultValue={object.type}
+            defaultValue={order.txntype}
+            value={this.state.txntype}
+            onChange={this.txntypeChange}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Хувьцааны төрөл')}</ControlLabel>
+          <ControlLabel>{__('Захиалгын төрөл')}</ControlLabel>
           <FormControl
+            name="ordertype"
             componentClass="select"
             options={ORDER_TYPE}
-            defaultValue={object.orderType}
+            defaultValue={order.orderType}
+            onChange={this.orderTypeChange}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Үнэ')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
-            defaultValue={object.price}
-            type="number"
+            name="price"
+            defaultValue={order?.price || 0}
+            disabled={this.state.isPrice}
+            value={this.state.price}
+            min={0}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Quantity')}</ControlLabel>
+          <ControlLabel>{__('Тоо ширхэг')}</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
-            defaultValue={object.quantity}
+            name="cnt"
+            defaultValue={order?.cnt || 1}
             type="number"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Successful')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.successful}
-            type="number"
+            min={1}
           />
         </FormGroup>
         <FormGroup>
@@ -114,7 +169,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             {...formProps}
             type="date"
-            defaultValue={dayjs(object.endDate || new Date()).format(
+            defaultValue={dayjs(order.endDate || new Date()).format(
               'YYYY-MM-DD'
             )}
             required={true}
@@ -134,7 +189,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         renderButton={this.props.renderButton}
-        object={this.props.object}
+        object={this.props.order}
       />
     );
   }

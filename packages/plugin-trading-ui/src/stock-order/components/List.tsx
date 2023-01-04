@@ -1,10 +1,20 @@
 import React from 'react';
-import { ListContainer, List } from '../../styles';
+import { ListContainer, List, FormBox } from '../../styles';
 import { ORDER_BUY_SELL } from '../../constants';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
-
-class ListComp extends React.Component {
+import Form from '../../order-list/components/Form';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+type Props = {
+  object?;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonFormProps;
+class ListComp extends React.Component<Props & ICommonFormProps> {
+  constructor(props) {
+    super(props);
+  }
   render() {
     const createdDate = dayjs(new Date()).format('lll');
 
@@ -93,6 +103,14 @@ class ListComp extends React.Component {
             ))}
           </tbody>
         </List>
+        <FormBox>
+          <Form
+            {...this.props}
+            renderButton={this.props.renderButton}
+            prefix={[]}
+            stocks={[]}
+          />
+        </FormBox>
       </ListContainer>
     );
   }

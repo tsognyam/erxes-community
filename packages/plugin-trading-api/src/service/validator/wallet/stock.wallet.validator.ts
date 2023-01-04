@@ -89,11 +89,7 @@ export default class StockWalletValidator extends BaseValidator {
       WalletConst.STATUS_ACTIVE,
       data.stockCode,
       {
-        wallet: {
-          include: {
-            currency: true
-          }
-        }
+        wallet: true
       }
     );
     if (data.stockCode != undefined) {

@@ -57,6 +57,7 @@ query tradingOrders(
 const prefixList = `
 query TradingUserByPrefix {
   tradingUserByPrefix {
+    userId,
     prefix
   }
 }

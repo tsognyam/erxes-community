@@ -20,9 +20,7 @@ const StockQueries = {
     _root: any,
     params,
     { models, subdomain, user }: IContext
-  ) => {
-    console.log(params);
-  },
+  ) => {},
   tradingStockDetail: async (
     _root: any,
     { id },

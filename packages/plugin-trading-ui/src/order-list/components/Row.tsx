@@ -8,24 +8,47 @@ import Button from '@erxes/ui/src/components/Button';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Form from './Form';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ModalTrigger, confirm } from '@erxes/ui/src';
 import { __ } from '@erxes/ui/src/utils';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
-
+import _ from 'lodash';
+import { FinanceAmount } from '../../styles';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   order: any;
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  onCancelOrder: (txnid: number) => void;
 } & ICommonListProps;
 
 class Row extends React.Component<Props> {
+  displayValue(order, name, defaultValue = 0) {
+    let value = 0;
+    if (name == 'total' || name == 'fee') value = defaultValue;
+    else value = _.get(order, name);
+    return (
+      <FinanceAmount>
+        {(value || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}
+      </FinanceAmount>
+    );
+  }
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
+  cancelOrder = e => {
+    const { order, onCancelOrder } = this.props;
+    e.stopPropagation();
+    const message = 'Are you sure?';
 
+    confirm(message).then(() => {
+      onCancelOrder(order.txnid);
+    });
+  };
   renderEditAction = object => {
     const { save } = this.props;
 
@@ -52,17 +75,18 @@ class Row extends React.Component<Props> {
   };
 
   renderActions = object => {
-    if (object.status === 'Successful' || object.status === 'Canceled') {
+    if (object.status !== 1 && object.status !== 2) {
       return null;
     }
 
     return (
       <ActionButtons>
         {this.renderEditAction(object)}
-        <Tip text={__('Delete')} placement="bottom">
+        <Tip text={__('Цуцлах')} placement="bottom">
           <Button
+            size="small"
             btnStyle="link"
-            // onClick={() => this.remove(object)}
+            onClick={this.cancelOrder}
             icon="cancel-1"
           />
         </Tip>
@@ -105,7 +129,7 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{index + 1}</td>
+        <td>{order.txnid}</td>
         <td></td>
         <td></td>
         <td></td>
@@ -122,12 +146,7 @@ class Row extends React.Component<Props> {
             ? 'Нөхцөлт'
             : ''}
         </td>
-        <td>
-          {order.price.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })}
-        </td>
+        <td>{this.displayValue(order, 'price')}</td>
         <td>{order.cnt}</td>
         <td>{order.donecnt === null ? 0 : order.donecnt}</td>
         <td>{left}</td>
@@ -139,18 +158,8 @@ class Row extends React.Component<Props> {
           </Label>
         </td>
         <td>{dayjs(order.regdate).format('YYYY-MM-DD HH:mm:ss')}</td>
-        <td>
-          {total.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })}
-        </td>
-        <td>
-          {fee.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })}
-        </td>
+        <td>{this.displayValue(order, 'total', total)}</td>
+        <td>{this.displayValue(order, 'fee', fee)}</td>
         <td>
           {order.condid == 0
             ? 'Day'

@@ -93,7 +93,6 @@ class OrderService {
     if (!userMCSD) {
       CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
-
     if (dataValid.txntype == OrderTxnType.Buy) {
       let camount = dataValid.price * dataValid.cnt;
       let feeamount = camount * (dataValid.fee / 100);
@@ -117,6 +116,7 @@ class OrderService {
 
       dataValid.stockOrderId = transaction.id;
     }
+
     dataValid.originalCnt = dataValid.cnt;
     dataValid.descr = 'Шинэ';
     dataValid.descr2 = 'New';

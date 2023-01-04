@@ -64,13 +64,6 @@ const OrderQueries = {
     { models, subdomain, user }: IContext
   ) => {
     return await orderRepository.findOne(id);
-  },
-  tradingOrderTypes: async (
-    _root: any,
-    {},
-    { models, subdomain, user }: IContext
-  ) => {
-    return await orderRepository.getOrderTypeList();
   }
 };
 requireLogin(OrderQueries, 'tradingOrders');

@@ -92,10 +92,10 @@ model Order {
   regdate          DateTime          @default(now())
   status           Int
   updatedate       DateTime?
-  updateUserId     Int?
+  updateUserId     String?
   ostatus          Int               @default(1)
   oupdatedate      DateTime?
-  oupdateUserId    Int?
+  oupdateUserId    String?
   tradecode        String?
   yield            Int?
   msgid            Int?
@@ -469,9 +469,9 @@ model UserBankAccount {
   accountName   String     @db.VarChar(100)
   status        Int        @default(1)
   createdAt     DateTime   @default(now())
-  createdUserId Int?
+  createdUserId String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
   withdraws     Withdraw[]
 
   @@index([accountNo], map: "accout_no_ix")

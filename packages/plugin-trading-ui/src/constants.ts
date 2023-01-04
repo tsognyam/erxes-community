@@ -15,160 +15,19 @@ export const LIST = [
 ];
 
 export const STATUS_COUNTS = { success: '1', sent: '1', cancel: '1' };
-
-export const SECONDARY_DATA = [
-  {
-    _id: '1',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Saruul',
-    lastname: 'HOHO',
-    stock: 'LEND',
-    type: 'Buy',
-    orderType: 'Conditional',
-    price: 60,
-    quantity: 500,
-    successful: 0,
-    status: 'Successful',
-    timeFrame: 'GTC',
-    createdUser: 'Chantsal',
-    commission: 300
-  },
-  {
-    _id: '2',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Tugs',
-    lastname: 'HOHO',
-    stock: 'LEND',
-    type: 'Sell',
-    orderType: 'Market Price',
-    price: 50,
-    quantity: 200,
-    successful: 0,
-    status: 'Pending',
-    timeFrame: 'GTC',
-    createdUser: 'Tugs',
-    commission: 1000
-  },
-  {
-    _id: '3',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Bold',
-    lastname: 'HOHO',
-    stock: 'LEND',
-    type: 'Buy',
-    orderType: 'Stop Limit',
-    price: 202,
-    quantity: 100,
-    successful: 50,
-    status: 'Successful',
-    timeFrame: 'GTC',
-    commission: 202,
-    createdUser: 'Bat'
-  },
-  {
-    _id: '4',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Anu',
-    lastname: 'HOHO',
-    stock: 'LEND',
-    type: 'Sell',
-    orderType: 'Stop Loss',
-    price: 200,
-    quantity: 100,
-    successful: 100,
-    status: 'Successful',
-    timeFrame: 'GTC',
-    commission: 200,
-    createdUser: 'Chantsal'
-  },
-  {
-    _id: '5',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Zaya',
-    lastname: 'HOHO',
-    stock: 'CU',
-    type: 'Buy',
-    orderType: 'Conditional',
-    price: 39,
-    quantity: 40,
-    successful: 20,
-    status: 'Successful',
-    timeFrame: 'GTC',
-    commission: 15.6,
-    createdUser: 'Chantsal'
-  },
-  {
-    _id: '6',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Bat',
-    lastname: 'HOHO',
-    stock: 'CU',
-    type: 'Sell',
-    orderType: 'Stop Loss',
-    price: 40,
-    quantity: 500,
-    successful: 300,
-    status: 'New',
-    timeFrame: 'GTC',
-    commission: 2000,
-    createdUser: 'Chantsal'
-  },
-  {
-    _id: '7',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Tuuguu',
-    lastname: 'HOHO',
-    stock: 'CU',
-    type: 'Buy',
-    orderType: 'Conditional',
-    price: 42,
-    quantity: 40,
-    successful: 150,
-    status: 'Canceled',
-    timeFrame: 'GTC',
-    commission: 16.8,
-    createdUser: 'Chantsal'
-  },
-  {
-    _id: '8',
-    prefix: '909090',
-    registry: 'aa12121212',
-    firstname: 'Tuvshuu',
-    lastname: 'HOHO',
-    stock: 'CU',
-    type: 'Sell',
-    orderType: 'Conditional',
-    price: 44,
-    quantity: 500,
-    successful: 165,
-    status: 'Pending',
-    timeFrame: 'GTC',
-    commission: 220,
-    createdUser: 'Chantsal'
-  }
-];
-
 export const STOCK = [
   { label: 'APU', value: '90' },
   { label: 'LEND', value: '545' },
   { label: 'TUM', value: '549' }
 ];
-
 export const TYPE = [
-  { label: 'Buy', value: 1 },
-  { label: 'Sell', value: 2 }
+  { label: 'Авах', value: 1 },
+  { label: 'Зарах', value: 2 }
 ];
 
 export const ORDER_TYPE = [
   { label: 'Зах зээл', value: 1 },
-  { label: 'Маркет', value: 2 }
+  { label: 'Нөхцөлт', value: 2 }
 ];
 export const TYPE_ARRAY = ['Buy', 'Sell'];
 

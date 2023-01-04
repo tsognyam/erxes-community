@@ -50,14 +50,6 @@ type TradingOrder @key(fields:"txnid") {
     user:JSON
     userMCSDAccount:JSON
 }
-type TradingOrderTypes @key(fields:"id") {
-    id:Int
-    name:String
-    name2:String
-    listorder:Int
-    activeTime:String!
-    status:Int
-}
 type TradingOrderList {
     total:Int,
     count:Int,
@@ -75,14 +67,13 @@ tradingOrders(
     sortDirection:String
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
-tradingOrderTypes:[TradingOrderTypes]
 `;
 const params = `
 ordertype:Int!,
 txntype:Int!,
 stockcode:Int!,
 cnt:Int!,
-price:Float!,
+price:Float,
 enddate:Date!,
 condid:Int!,
 txnsource:Int!,
@@ -91,7 +82,7 @@ userId:String
 const cancelParams = `
 stockcode:Int!,
 txnid:Int!,
-userId:Int
+userId:String
 `;
 export const mutations = `
 tradingOrderAdd(${params}):TradingOrder,
