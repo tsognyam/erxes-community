@@ -11,7 +11,6 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Sidebar from '../containers/Sidebar';
 import RightMenu from '../components/RightMenu';
 import { Flex } from '@erxes/ui/src/styles/main';
-import { SECONDARY_DATA } from '../../constants';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IOrder, IOrderList } from '../../types/orderTypes';
@@ -36,6 +35,7 @@ interface IProps extends IRouterProps {
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
+  onCancelOrder: () => void;
 }
 
 class List extends React.Component<IProps> {

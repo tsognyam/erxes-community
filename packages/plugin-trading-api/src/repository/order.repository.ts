@@ -19,27 +19,9 @@ export default class OrderRepository extends BaseRepository {
       include: select
     });
   };
-  getOrderCondition = (id: number) => {
-    return this._prisma.ordercondition.findUnique({
-      where: {
-        id: id
-      }
-    });
-  };
-  getOrderType = (id: number) => {
-    return this._prisma.ordertype.findUnique({
-      where: {
-        id: id
-      }
-    });
-  };
-  getOrderTypeList = () => {
-    return this._prisma.ordertype.findMany();
-  };
   getbyExecuted = (where: any) => {
     return this._prisma.order.findMany(where);
   };
-
   getOrderListBySettlement = (
     userId: string,
     tradeDate: Date,

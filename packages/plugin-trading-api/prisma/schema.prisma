@@ -87,15 +87,15 @@ model Order {
   descr2           String?
   txnsource        Int?
   condid           Int?
-  userId           Int
+  userId           String
   brchno           String?
   regdate          DateTime          @default(now())
   status           Int
   updatedate       DateTime?
-  updateUserId     Int?
+  updateUserId     String?
   ostatus          Int               @default(1)
   oupdatedate      DateTime?
-  oupdateUserId    Int?
+  oupdateUserId    String?
   tradecode        String?
   yield            Int?
   msgid            Int?
@@ -159,13 +159,13 @@ model Stock {
   closeprice        Decimal?           @default(0) @db.Decimal(30, 4)
   startdate         DateTime           @default(now())
   enddate           DateTime           @default(now())
-  intrate           Decimal?            @default(0) @db.Decimal(30, 4)
+  intrate           Decimal?           @default(0) @db.Decimal(30, 4)
   userId            String?
   brchno            String?
   regdate           DateTime           @default(now())
   status            String             @default("1")
   no                String? // Монголын хөрөнгийн биржийн үнэт цаасны гэрээний дугаар MN00
-  cnt               Decimal?            @db.Decimal(30, 0)
+  cnt               Decimal?           @db.Decimal(30, 0)
   boardname         String? // Монголын хөрөнгийн биржийн самбарын дугаар
   inducode          String?
   lsttxndate        DateTime?          @default(now())
@@ -178,7 +178,7 @@ model Stock {
   order_begindate   DateTime?
   order_enddate     DateTime?
   notiftype         Int? // Бонд хүү төлөгдөх давтамж; 1 - Сар 2 - Улирал 3 - Жил 4 - Дуусах хугацаанд
-  stockfee          Decimal?            @db.Decimal(30, 4) @default(0)
+  stockfee          Decimal?           @default(0) @db.Decimal(30, 4)
   exchangeid        Int // Хөрөнгийн биржийн дугаар
   ipotype           Int?
   ipoexecution      Decimal?           @default(0) @db.Decimal(30, 4)
@@ -437,7 +437,7 @@ model TransactionMCSD {
 
 model UserMCSDAccount {
   id            Int       @id @default(autoincrement())
-  userId        String  @unique
+  userId        String    @unique
   prefix        String?   @unique(map: "prefix")
   clientSuffix  String?
   fullPrefix    String?
@@ -450,16 +450,16 @@ model UserMCSDAccount {
 
 model UserBankAccount {
   id            Int        @id @default(autoincrement())
-  userId        String @unique
+  userId        String
   bankCode      String
   bank          Bank       @relation(fields: [bankCode], references: [code])
   accountNo     String     @db.VarChar(36)
   accountName   String     @db.VarChar(100)
   status        Int        @default(1)
   createdAt     DateTime   @default(now())
-  createdUserId Int?
+  createdUserId String?
   updatedAt     DateTime?
-  updatedUserId Int?
+  updatedUserId String?
   withdraws     Withdraw[]
 
   @@index([accountNo], map: "accout_no_ix")

@@ -108,22 +108,10 @@ class BoardComp extends React.Component<Props, State> {
             <b>{__('Close Price')}:</b> 200
           </ControlLabel>
           <ControlLabel>
-            <b>{__('Close Date')}:</b> 2022-02-21
+            <b>{__('Close Date')}:</b> 2023-03-01
           </ControlLabel>
         </Filter>
-        <List />
-        <SearchBar>
-          <FlexRow>
-            <SearchIcon>
-              <Icon icon="search" />
-            </SearchIcon>
-            <SearchInput
-              placeholder={__('Type to search for an results') + '...'}
-              type="text"
-              onKeyPress={e => this.onSearch(e)}
-            />
-          </FlexRow>
-        </SearchBar>
+        <List {...this.props} renderButton={this.props.renderButton} />
         <Table>
           <thead>
             <tr>
@@ -151,7 +139,6 @@ class BoardComp extends React.Component<Props, State> {
           </tbody>
         </Table>
         <Pagination count={90} />
-        <Chart />
       </>
     );
   };

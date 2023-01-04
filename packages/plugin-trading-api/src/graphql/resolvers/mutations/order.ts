@@ -13,7 +13,6 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
-    console.log('params.userId=', user._id);
     if (params.userId == null || params.userId == undefined) {
       if (user != null) params.userId = user._id;
       else CustomException(ErrorCode.UserNotFoundException);

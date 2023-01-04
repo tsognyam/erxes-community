@@ -191,7 +191,10 @@ class OrderValidator extends BaseValidator {
   };
   validateCreateSO = async params => {
     let schema: any = {
-      ordertype: this._joi.number().required(),
+      ordertype: this._joi
+        .number()
+        .required()
+        .valid(OrderTxnType.Buy, OrderTxnType.Sell),
       txntype: this._joi.number().required(),
       walletId: this._joi.number().required(),
       orderno: this._joi.string(),
@@ -216,7 +219,6 @@ class OrderValidator extends BaseValidator {
         .number()
         .required()
         .valid(TxnSourceConst.Self, TxnSourceConst.Broker),
-
       userId: this._joi.string().required(),
       brchno: this._joi.string(),
       updatedate: this._joi.date(),
@@ -268,9 +270,6 @@ class OrderValidator extends BaseValidator {
       let calcPrice = 1000;
       data.price = calcPrice;
     }
-
-    let ordertype = await this.checkOrderType(data.ordertype);
-
     return data;
   };
 
@@ -324,7 +323,7 @@ class OrderValidator extends BaseValidator {
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
     if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
-    await this.checkUser(data.userId);
+    //await this.checkUser(data.userId);
     return data;
   };
   validateCancelIPO = async params => {
@@ -355,7 +354,7 @@ class OrderValidator extends BaseValidator {
     let user = await getUser('', userId);
 
     if (!user) {
-      CustomException(ErrorCode.OrderNotFoundException);
+      CustomException(ErrorCode.UserNotFoundException);
     }
 
     return user;
@@ -369,14 +368,13 @@ class OrderValidator extends BaseValidator {
 
     return order;
   };
-  checkOrderType = async id => {
-    let stocktype = await this.orderRepository.getOrderType(id);
+  // checkOrderType = async id => {
+  //   let stocktype = await this.orderRepository.getOrderType(id);
+  //   if (!stocktype) {
+  //     CustomException(ErrorCode.OrderTypeNotFoundException);
+  //   }
 
-    if (!stocktype) {
-      CustomException(ErrorCode.OrderTypeNotFoundException);
-    }
-
-    return stocktype;
-  };
+  //   return stocktype;
+  // };
 }
 export default OrderValidator;
