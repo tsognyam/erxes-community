@@ -128,6 +128,7 @@ export default {
   list,
   totalCount,
   orderList,
+  stockList,
   TradingStocks,
   prefixList
 };

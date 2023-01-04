@@ -17,5 +17,5 @@ const WalletMutations = {
     return await walletService.createWallet(params, subdomain);
   }
 };
-requireLogin(WalletMutations, 'tradingWalletAdd');
+// requireLogin(WalletMutations, 'tradingWalletAdd');
 export default WalletMutations;

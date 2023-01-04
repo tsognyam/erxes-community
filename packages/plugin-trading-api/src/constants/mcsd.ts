@@ -70,6 +70,32 @@ export class McsdConst {
     return dict[code];
   };
 
+  static getTypesByName = code => {
+    let dict = {};
+    dict[McsdConst.BANK_NAME_MONGOLBANK] = this.BANK_CODE_MONGOLBANK;
+    dict[McsdConst.BANK_NAME_TDB] = this.BANK_CODE_TDB;
+    dict[McsdConst.BANK_NAME_KHAN] = this.BANK_CODE_KHAN;
+    dict[McsdConst.BANK_NAME_GOLOMT] = this.BANK_CODE_GOLOMT;
+    dict[McsdConst.BANK_NAME_TEEVER] = this.BANK_CODE_TEEVER;
+    dict[McsdConst.BANK_NAME_ARIG] = this.BANK_CODE_ARIG;
+    dict[McsdConst.BANK_NAME_CREDIT] = this.BANK_CODE_CREDIT;
+    dict[McsdConst.BANK_NAME_ZOOS] = this.BANK_CODE_ZOOS;
+    dict[McsdConst.BANK_NAME_ULAANBAATAR_KHOT] =
+    this.BANK_CODE_ULAANBAATAR_KHOT;
+    dict[McsdConst.BANK_NAME_UNDESNII_KHORONGO_ORUULALT] =
+      this.BANK_CODE_UNDESNII_KHORONGO_ORUULALT;
+    dict[McsdConst.BANK_NAME_CAPITRON] = this.BANK_CODE_CAPITRON;
+    dict[McsdConst.BANK_NAME_KHAS] = this.BANK_CODE_KHAS;
+    dict[McsdConst.BANK_NAME_CHINGIS_KHAN] = this.BANK_CODE_CHINGIS_KHAN;
+    dict[McsdConst.BANK_NAME_TORIIN] = this.BANK_CODE_TORIIN;
+    dict[McsdConst.BANK_NAME_KHOGJILIIN] = this.BANK_CODE_KHOGJILIIN;
+    dict[McsdConst.BANK_NAME_BOGD] = this.BANK_CODE_BOGD;
+    dict[McsdConst.BANK_NAME_MOBI_FINANCE] = this.BANK_CODE_MOBI_FINANCE;
+    dict[McsdConst.BANK_NAME_ARD_CREDIT] = this.BANK_CODE_ARD_CREDIT;
+
+    return dict[code];
+  };
+
   static bankGWGetTypes = code => {
     let dict = {};
     dict[this.BANK_CODE_TDB] = BankGWConst.TDBM;

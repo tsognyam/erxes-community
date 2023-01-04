@@ -93,9 +93,8 @@ export default class CustfeeValidator extends BaseValidator {
         name2: this._joi.string().required(),
         stocktypeId: this._joi
           .number()
-          .allow(...StockTypeConst.getTypes())
           .required(),
-        userId: this._joi.number().required(),
+        userId: this._joi.string().required(),
         // sidetype: this._joi.number().allow(0,1),
         value: this._joi.number().required()
       },

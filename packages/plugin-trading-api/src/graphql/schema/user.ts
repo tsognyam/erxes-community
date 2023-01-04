@@ -105,9 +105,13 @@ custType:Int
 const inputParams = `
 prefix:String
 `;
+const inputMutationParams = `
+userId:String
+bdcAccountId:String
+`;
 export const queries = `
 tradingUser(${inputParams}):[TradingUser]
 `;
 export const mutations = `
-
+tradingUserCooperate(${inputMutationParams}):JSON
 `;
