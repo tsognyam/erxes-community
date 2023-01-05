@@ -1,8 +1,8 @@
 export const types = `
 type TradingUserMcsd @key(fields:"id") {
     id:Int!
-    userId:String!
-    prefix:String!
+    userId:String
+    prefix:String
     clientPrefix: String
     fullPrefix:String
     bdcAccountId:String

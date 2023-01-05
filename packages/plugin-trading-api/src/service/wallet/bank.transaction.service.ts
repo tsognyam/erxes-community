@@ -250,8 +250,8 @@ class BankTransactionService {
     let include: Prisma.BankTransactionInclude = {
       order: true,
       withdraw: true,
-      wallet: true,
-      bank: true
+      wallet: true
+      // bank: true
     };
     let wallets = await this.bankTransactionRepository.findMany(where, include);
     return wallets;

@@ -60,23 +60,24 @@ class WalletService {
       walletNumberModel: true,
       walletBalance: true,
       stockBalances: true,
-      stockTransactions: true
+      stockTransactions: true,
+      user: true
     };
     let wallets = await this.walletRepository.findMany(where, include);
     let userIds = wallets.map(function(obj: any) {
       return obj.userId;
     });
     let query = {
-      query: {
-        _id: { $in: userIds }
-      }
+      _id: { $in: userIds }
     };
     let users = await getUsers(query);
     let user: any;
-    wallets.forEach((el: any) => {
+    wallets.forEach((el: any, index) => {
       user = users.find((x: any) => x._id == el.userId);
-      if (user != undefined && user.details != undefined) {
-        el.user = user.details;
+      if (user != undefined) {
+        wallets[index].firstName = user.firstName;
+        wallets[index].lastName = user.lastName;
+        console.log('wallets[index]', wallets[index]);
       }
     });
     return wallets;

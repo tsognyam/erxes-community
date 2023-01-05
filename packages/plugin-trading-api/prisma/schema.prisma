@@ -13,7 +13,6 @@ model Bank {
   name            String            @db.VarChar(400)
   englishName     String            @db.VarChar(400)
   gatewayCode     String            @unique @db.VarChar(400)
-  BankTransaction BankTransaction[]
   UserBankAccount UserBankAccount[]
 }
 
@@ -30,8 +29,7 @@ model BankTransaction {
   description    String            @db.VarChar(400)
   oldDescription String?           @db.VarChar(400)
   dater          DateTime          @db.Date
-  bankCode       String            @db.VarChar(50)
-  bank           Bank              @relation(fields: [bankCode], references: [code])
+  bankCode       String?            @db.VarChar(50)
   recAccountNo   String            @default("") @db.VarChar(36)
   contAccountNo  String            @default("") @db.VarChar(36)
   accountNo      String            @db.VarChar(36)

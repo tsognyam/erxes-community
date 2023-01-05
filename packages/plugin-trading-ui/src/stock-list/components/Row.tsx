@@ -14,10 +14,11 @@ class Row extends React.Component<Props> {
     // console.log('stock.change', stock.change);
     return (
       <StyledTr key={index}>
+        <td>{index + 1}</td>
         <td>{stock.symbol}</td>
         <td>{stock.stockcode}</td>
         <td>{stock.stockname}</td>
-        <td>{stock.ipo == 1 ? 'Анхдагч' : 'Хоёрдогч'}</td>
+        <td>{stock.ipo == 1 ? 'Хоёрдогч' : 'Анхдагч'}</td>
         <td>{stock.stocktypeId == 1 ? 'Хувьцаа' : 'Бонд'}</td>
         <td>{stock.currencyCode}</td>
         <td>{stock.regdate}</td>

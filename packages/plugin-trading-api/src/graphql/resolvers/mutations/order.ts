@@ -13,10 +13,11 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
-    if (params.userId == null || params.userId == undefined) {
-      if (user != null) params.userId = user._id;
-      else CustomException(ErrorCode.UserNotFoundException);
-    }
+    // if (params.userId == null || params.userId == undefined) {
+    //   if (user != null) params.userId = user._id;
+    //   else CustomException(ErrorCode.UserNotFoundException);
+    // }
+    console.log(params);
     return await orderService.create(params);
   },
   tradingOrderEdit: async (

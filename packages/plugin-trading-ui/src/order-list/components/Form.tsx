@@ -98,7 +98,7 @@ class Forms extends React.Component<Props, State> {
     const stockList = this.props.stocks.map(x => {
       return {
         value: x.stockcode,
-        label: x.symbol + ') ' + x.stockname
+        label: x.symbol + ' - ' + x.stockname
       };
     });
     return (

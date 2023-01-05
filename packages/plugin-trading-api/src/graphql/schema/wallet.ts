@@ -3,6 +3,9 @@ export const types = `
     id: Int! 
     currencyCode:String 
     userId:String
+    name:String
+    firstName:String
+    lastName:String
     status:Int
     createdAt:Date
     createUserId:String

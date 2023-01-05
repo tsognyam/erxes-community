@@ -125,11 +125,35 @@ query TradingStocks($skip: Int, $symbol: JSON, $take: Int) {
   }
 }
 `;
+const tradingWallets = `
+query TradingWallets($status: Int, $type: Int, $walletIds: [Int]) {
+  tradingWallets(status: $status, type: $type, walletIds: $walletIds) {
+    createUserId
+    createdAt
+    currencyCode
+    name
+    firstName
+    lastName
+    id
+    status
+    stockBalances
+    updatedAt
+    updatedUserId
+    user
+    userId
+    walletBalance
+    walletNumber
+    walletNumberId
+    walletNumberModel
+  }
+}
+`;
 export default {
   list,
   totalCount,
   orderList,
   stockList,
   TradingStocks,
-  prefixList
+  prefixList,
+  tradingWallets
 };

@@ -38,5 +38,12 @@ module.exports = {
       scope: 'trading',
       image: '/images/icons/erxes-18.svg',
     },
+    {
+      text: 'Wallet List',
+      to: '/trading/wallet-list',
+      location: 'settings',
+      scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
+    },
   ]
 };

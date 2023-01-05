@@ -56,8 +56,8 @@ class OrderService {
 
     data.ipo = stockdata.ipo;
     data.status = OrderStatus.STATUS_NEW;
-    data.fee = 0.1;
-    // data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
+    // data.fee = 0.1;
+    data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
     console.log('fee=', data.fee);
     // data.txndate = new Date();
 

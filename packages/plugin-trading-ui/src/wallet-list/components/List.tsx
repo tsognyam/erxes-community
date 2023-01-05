@@ -14,7 +14,7 @@ import Form from './Form';
 type Props = {
   queryParams: any;
   history: any;
-  tradingStocks: any[];
+  tradingWallets: any[];
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -22,27 +22,28 @@ type Props = {
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingStocks } = this.props;
+    const { tradingWallets } = this.props;
     return (
       <Table>
         <thead>
           <tr>
             <th>{__('Index')}</th>
-            <th>{__('Symbol')}</th>
-            <th>{__('Stock code')}</th>
-            <th>{__('Stock name')}</th>
-            <th>{__('Inital')}</th>
-            <th>{__('Stock type')}</th>
+            <th>{__('Prefix')}</th>
+            <th>{__('Bdc Account')}</th>
+            <th>{__('Lastname')}</th>
+            <th>{__('Firstname')}</th>
             <th>{__('Currency')}</th>
-            <th>{__('Regdate')}</th>
-            <th>{__('Exchange')}</th>
-            <th>{__('Open price')}</th>
-            <th>{__('Close price')}</th>
+            <th>{__('Balance')}</th>
+            <th>{__('Hold balance')}</th>
+            <th>{__('Trade Balance')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Updated At')}</th>
           </tr>
         </thead>
         <tbody id="orders">
-          {(tradingStocks || []).map((stock, index) => (
-            <Row index={index} stock={stock} />
+          {(tradingWallets || []).map((wallet, index) => (
+            <Row index={index} wallet={wallet} />
           ))}
         </tbody>
       </Table>
@@ -74,7 +75,7 @@ class ListComp extends React.Component<Props> {
   render() {
     const { queryParams, total, count } = this.props;
     const breadcrumb = [
-      { title: __('Stock List'), link: '/tradings/stock-list' }
+      { title: __('Wallet List'), link: '/tradings/stock-list' }
     ];
 
     return (
@@ -95,7 +96,7 @@ class ListComp extends React.Component<Props> {
             emptyImage="/images/actions/20.svg"
           />
         }
-        actionBar={this.renderActionBar()}
+        // actionBar={this.renderActionBar()}
         footer={<Pagination count={total} />}
         hasBorder
       />

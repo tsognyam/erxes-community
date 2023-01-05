@@ -110,7 +110,6 @@ export default class UserService {
     let userMcsdAccount = await this.#userMcsdRepository.findUnique({
       userId: user._id
     })
-    console.log('userMcsdAccount',userMcsdAccount)
     
     // if (userMcsdAccount.status == UserConst.STATUS_ACTIVE || userMcsdAccount.status == UserConst.STATUS_MCSD_PENDING) {
     //   throw new Error('User created');
@@ -228,6 +227,12 @@ export default class UserService {
     //   CustomException(ErrorCode.UserBankNotFoundException);
     // }
     if(user.customFieldsDataByFieldCode.userBank == undefined || user.customFieldsDataByFieldCode.userBankAccountNo == undefined){
+      await this.#userMcsdRepository.update(
+        userMcsdAccount.id,
+        {
+          description: ErrorCode.UserBankNotFoundException.message,
+        }
+      );
       CustomException(ErrorCode.UserBankNotFoundException)
     }
     let bankAccount = {
@@ -237,14 +242,32 @@ export default class UserService {
     // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
     const birthdate = moment(new Date(user.birthDate), 'YYYY-MM-DD').format().slice(0, 10);
     if(user.customFieldsDataByFieldCode.address == undefined){
+      await this.#userMcsdRepository.update(
+        userMcsdAccount.id,
+        {
+          description: ErrorCode.CityNotFoundException.message,
+        }
+      );
       CustomException(ErrorCode.CityNotFoundException)
     }
     let address = user.customFieldsDataByFieldCode.address.value
     if(user.customFieldsDataByFieldCode.registerNumber == undefined){
+      await this.#userMcsdRepository.update(
+        userMcsdAccount.id,
+        {
+          description: ErrorCode.RegisterNumberMismatchException.message,
+        }
+      );
       CustomException(ErrorCode.RegisterNumberMismatchException)
     }
     let registerNumber = user.customFieldsDataByFieldCode.registerNumber.value;
     if(user.customFieldsDataByFieldCode.profession == undefined){
+      await this.#userMcsdRepository.update(
+        userMcsdAccount.id,
+        {
+          description: ErrorCode.UserInfoProNotFoundException.message,
+        }
+      );
       CustomException(ErrorCode.UserInfoProNotFoundException)
     }
     let profession = user.customFieldsDataByFieldCode.profession.value;
