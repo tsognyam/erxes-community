@@ -36,7 +36,6 @@ type TradingUser @key(fields:"id") {
     createdUserId: Int
     updatedAt: Date
     updatedUserId: Int
-    
 }`;
 
 const createParams = `

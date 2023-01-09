@@ -21,6 +21,7 @@ export const types = `
 `;
 export const queries = `
 tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
+tradingUserWallets(userId:String!):TradingWallet
 `;
 const params = `
 currencyCode:String,
