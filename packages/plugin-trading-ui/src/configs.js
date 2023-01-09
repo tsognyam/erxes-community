@@ -45,5 +45,12 @@ module.exports = {
       scope: 'trading',
       image: '/images/icons/erxes-18.svg',
     },
+    {
+      text: 'Statement List',
+      to: '/trading/statement-list',
+      location: 'settings',
+      scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
+    },
   ]
 };

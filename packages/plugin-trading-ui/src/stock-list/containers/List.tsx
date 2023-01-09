@@ -46,7 +46,7 @@ class ListContainer extends React.Component<FinalProps> {
     const count = tradingStocksQuery?.tradingStocks?.count || 0;
     // let tradingStocks = tradingStocksQuery.tradingStocks || {};
     let tradingStocks = tradingStocksQuery?.tradingStocks?.values || [];
-
+    console.log('tradingStocks', tradingStocks);
     // if ('values' in tradingStocks) {
     //   tradingStocks = tradingStocks.values;
     // } else {
