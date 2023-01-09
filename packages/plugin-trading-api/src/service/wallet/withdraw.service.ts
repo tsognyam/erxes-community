@@ -157,6 +157,7 @@ export default class WithdrawService {
       type: TransactionConst.TYPE_WITHDRAW,
       description: data.description
     });
+
     let withdraw: any = {
       walletId: wallet.id,
       userBankAccountId: userBankAccount.id,
@@ -180,7 +181,6 @@ export default class WithdrawService {
       orderId: order.id,
       accountNo: userBankAccount.accountNo,
       accountName: userBankAccount.accountName,
-      bank: bankName != undefined ? bankName : '',
       withdraw: {
         connect: { id: withdraw.id }
       }
@@ -204,18 +204,17 @@ export default class WithdrawService {
           },
           {
             wallet: true,
-            userBankAccount: true,
+            // userBankAccount: true,
             bankTransaction: true
           }
         );
         tran = await this.doTransactionWithdraw(withdraw);
       } else {
-        params.userId = withdraw.wallet.user.id;
+        params.userId = withdraw.wallet.user.userId;
         delete params.confirm;
         tran = await this.cancelWithdraw(params);
       }
-    }
-    if (withdraw.type == WithdrawConst.TYPE_MCSD_ACCOUNT) {
+    } else if (withdraw.type == WithdrawConst.TYPE_MCSD_ACCOUNT) {
       if (data.confirm == 1) {
         await this.withdrawRepository.update(withdraw.id, {
           status: WithdrawConst.STATUS_SUCCESS
@@ -225,7 +224,27 @@ export default class WithdrawService {
     }
     return tran;
   };
-  doTransactionWithdraw = async withdraw => {
-    return true;
+  doTransactionWithdraw = async params => {
+    //required to doing transaction on bank
+    let isTransaction = true;
+    if (isTransaction) {
+      let withdraw = await this.withdrawRepository.findById(params.id, {
+        bankTransaction: true
+      });
+      let paramTransaction = {
+        orderId: withdraw.bankTransaction.orderId,
+        confirm: 1
+      };
+      let transaction = await this.transactionService.confirmTransaction(
+        paramTransaction
+      );
+      await this.bankTransactionRepository.update(withdraw.bankTransaction.id, {
+        status: TransactionConst.STATUS_SUCCESS
+      });
+      return await this.withdrawRepository.update(withdraw.id, {
+        status: WithdrawConst.STATUS_SUCCESS
+      });
+    }
+    return isTransaction;
   };
 }

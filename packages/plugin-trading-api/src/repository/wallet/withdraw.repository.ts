@@ -25,51 +25,10 @@ export default class WithdrawRepository extends BaseRepository {
     let select = {
       wallet: {
         select: {
-          walletNumber: true,
-          user: {
-            select: {
-              familyName: true,
-              firstName: true,
-              lastName: true,
-              registerNumber: true,
-              passportNumber: true,
-              UserGroup: {
-                select: {
-                  id: true,
-                  groupId: true,
-                  startDate: true,
-                  endDate: true,
-                  status: true,
-                  Group: {
-                    select: {
-                      id: true,
-                      name: true,
-                      name2: true,
-                      group: true,
-                      status: true,
-                      roles: {
-                        select: {
-                          status: true,
-                          Role: {
-                            select: {
-                              role: true,
-                              status: true
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                where: {
-                  status: BaseConst.STATUS_ACTIVE
-                }
-              },
-              UserMCSDAccount: true
-            }
-          }
+          walletNumber: true
         }
       }
+      // user: true
     };
     let data = await this._prisma[this._model].findMany({
       skip: options != undefined ? options.skip : undefined,

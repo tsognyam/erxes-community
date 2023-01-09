@@ -6,7 +6,7 @@ import { IContext } from '../../../connectionResolver';
 import UserService from '../../../service/user/user.service';
 import WithdrawService from '../../../service/wallet/withdraw.service';
 let withdrawService = new WithdrawService();
-const tradingWithdrawQueries = {
+const WithdrawQueries = {
   tradingWithdrawGet: async (
     _root: any,
     params,
@@ -15,5 +15,5 @@ const tradingWithdrawQueries = {
     return await withdrawService.getWithdrawList(params);
   }
 };
-requireLogin(tradingWithdrawQueries, 'tradingWithdrawGet');
-export default tradingWithdrawQueries;
+requireLogin(WithdrawQueries, 'tradingWithdrawGet');
+export default WithdrawQueries;

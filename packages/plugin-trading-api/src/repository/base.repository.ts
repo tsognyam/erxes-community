@@ -30,7 +30,7 @@ export default class BaseRepository {
       where,
       include: select
     });
-  findById = async (id: number, select = undefined) =>
+  findById = async (id: number, select: any = undefined) =>
     await this._prisma[this._model].findUnique({
       where: { id: +id },
       include: select

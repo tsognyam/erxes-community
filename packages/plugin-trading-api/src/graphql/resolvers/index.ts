@@ -8,7 +8,8 @@ import {
   BankMutations,
   UserBankMutations,
   UserMutations,
-  StockMutations
+  StockMutations,
+  WithdrawMutations
 } from './mutations';
 import {
   WalletQueries,
@@ -19,7 +20,8 @@ import {
   UserBankQueries,
   UserQueries,
   StockQueries,
-  UserMcsdQueries
+  UserMcsdQueries,
+  WithdrawQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -32,7 +34,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...BankMutations,
     ...UserBankMutations,
     ...UserMutations,
-    ...StockMutations
+    ...StockMutations,
+    ...WithdrawMutations
   },
   Query: {
     ...WalletQueries,
@@ -43,7 +46,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...UserBankQueries,
     ...UserQueries,
     ...StockQueries,
-    ...UserMcsdQueries
+    ...UserMcsdQueries,
+    ...WithdrawQueries
   }
 });
 

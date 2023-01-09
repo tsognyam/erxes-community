@@ -51,6 +51,12 @@ import {
   // mutations as StockMutations
 } from './schema/user.mcsd';
 
+import {
+  types as WithdrawTypes,
+  queries as WithdrawQueries,
+  mutations as WithdrawMutations
+} from './schema/withdraw';
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -65,6 +71,7 @@ const typeDefs = async _serviceDiscovery => {
     ${UserTypes}
     ${StockTypes}
     ${UserMcsdTypes}
+    ${WithdrawTypes}
     
     extend type Query {
       ${WalletQueries}
@@ -76,6 +83,7 @@ const typeDefs = async _serviceDiscovery => {
       ${UserQueries}
       ${StockQueries}
       ${UserMcsdQueries}
+      ${WithdrawQueries}
     }
     
     extend type Mutation {
@@ -87,6 +95,7 @@ const typeDefs = async _serviceDiscovery => {
       ${UserBankMutations}
       ${UserMutations}
       ${StockMutations}
+      ${WithdrawMutations}
     }
   `;
 };

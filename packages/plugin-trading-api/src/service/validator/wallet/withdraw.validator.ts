@@ -6,6 +6,7 @@ import WithdrawRepository from '../../../repository/wallet/withdraw.repository';
 import BaseValidator from '../base.validator';
 import WalletValidator from './wallet.validator';
 import { ErrorCode, CustomException } from '../../../exception/error-code';
+import { getUser } from '../../../models/utils';
 export default class WithdrawValidator extends BaseValidator {
   private walletRepository: WalletRepository;
   private withdrawRepository: WithdrawRepository;
@@ -42,7 +43,7 @@ export default class WithdrawValidator extends BaseValidator {
           .number()
           .required()
           .valid(WithdrawConst.TYPE_WALLET, WithdrawConst.TYPE_MCSD_ACCOUNT),
-        bankAccountId: this._joi.number().required(),
+        userBankAccountId: this._joi.number(),
         amount: this._joi
           .number()
           .positive()
@@ -52,18 +53,40 @@ export default class WithdrawValidator extends BaseValidator {
       params
     );
 
-    var wallet = await this.walletValidator.checkWallet({
-      id: data.walletId
-    });
-    var userBankAccount = await this.userBankAccountRepository.findUnique({
-      id: data.bankAccountId
+    var wallet = await this.walletValidator.checkWallet(
+      {
+        id: data.walletId
+      },
+      {
+        walletBalance: true
+      }
+    );
+    // var userBankAccount = await this.userBankAccountRepository.findUnique({
+    //   id: data.userBankAccountId
+    // });
+    let user = await getUser({
+      _id: wallet.userId
     });
     if (
-      userBankAccount == undefined ||
-      wallet.userId !== userBankAccount.userId
+      user.customFieldsDataByFieldCode.userBank == undefined ||
+      user.customFieldsDataByFieldCode.userBankAccountNo == undefined
     ) {
-      CustomException(ErrorCode.InvalidUserAccountException);
+      CustomException(ErrorCode.UserBankNotFoundException);
     }
+    let bankAccount = {
+      bank: user.customFieldsDataByFieldCode.userBank.value,
+      accountNo: user.customFieldsDataByFieldCode.userBankAccountNo.value
+    };
+    let userBankAccount = {
+      id: undefined,
+      accountNo: user.customFieldsDataByFieldCode.userBankAccountNo.value,
+      accountName: user.firstName
+    };
+    // if (
+    //   data.userBankAccountId !== userBankAccount.userId
+    // ) {
+    //   CustomException(ErrorCode.InvalidUserAccountException);
+    // }
 
     return { wallet, userBankAccount, data };
   };
@@ -105,7 +128,7 @@ export default class WithdrawValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         requestId: this._joi.number().required(),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required()
       },
       params
     );
