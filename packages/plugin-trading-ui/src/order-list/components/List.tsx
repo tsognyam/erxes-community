@@ -83,8 +83,8 @@ class List extends React.Component<IProps> {
             </th>
             <th>№</th>
             <th>Prefix</th>
-            <th>Регистр</th>
-            <th>Нэр</th>
+            <th>Register</th>
+            <th>Username</th>
             <th>
               <SortHandler sortField={'stockcode'} label={__('Хувьцаа')} />
             </th>

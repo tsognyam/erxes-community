@@ -10,12 +10,12 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import { FormWidth } from '../../styles';
 type Props = {
   order: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   prefix: any[];
   stocks: any[];
+  closeModal: () => void;
 };
 type State = {
   userId: string;
@@ -24,6 +24,7 @@ type State = {
   orderType: number;
   price: string;
   txntype: number;
+  tradeBalance: number;
 };
 class Forms extends React.Component<Props, State> {
   constructor(props) {
@@ -35,7 +36,8 @@ class Forms extends React.Component<Props, State> {
       orderType: order?.orderType || 1,
       isPrice: order?.orderType == 2 ? false : true,
       price: order?.price,
-      txntype: order?.txntype || 1
+      txntype: order?.txntype || 1,
+      tradeBalance: 0
     };
   }
   generateDoc = (values: {
@@ -111,6 +113,14 @@ class Forms extends React.Component<Props, State> {
             options={_.sortBy(prefixList, ['label'])}
             onChange={this.prefixChange}
             required={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Дансны үлдэгдэл')}</ControlLabel>
+          <FormControl
+            name="tradeBalance"
+            disabled={true}
+            value={this.state.tradeBalance}
           />
         </FormGroup>
         <FormGroup>

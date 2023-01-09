@@ -20,7 +20,7 @@ const WalletQueries = {
   },
   tradingUserWallets: async (
     _root: any,
-    { userId, currencyCode },
+    { userId },
     { models, subdomain, user }: IContext
   ) => {
     return await walletService.getWalletWithUser(userId);

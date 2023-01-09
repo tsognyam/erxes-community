@@ -48,6 +48,9 @@ export const FormBox = styled.div`
   padding: ${dimensions.unitSpacing}px;
   display: flex;
   width: 30%;
+  form {
+    width: 100%;
+  }
 `;
 export const FilterBox = styled.div`
   overflow: auto;
@@ -272,7 +275,4 @@ export const ChartTable = styled.div`
 `;
 export const FinanceAmount = styled.div`
   float: right;
-`;
-export const FormWidth = styled.div`
-  width: 100%;
 `;
