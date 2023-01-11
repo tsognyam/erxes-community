@@ -10,6 +10,7 @@ class WalletValidator extends BaseValidator {
     include: Prisma.WalletInclude | undefined = undefined
   ) => {
     let wallet = await this.walletRepository.findFirst(where, include);
+    console.log('wallet', wallet);
     if (!wallet) throw new Error('Wallet not found');
     wallet.walletBalance.availableBalance =
       wallet.walletBalance.balance - wallet.walletBalance.holdBalance;

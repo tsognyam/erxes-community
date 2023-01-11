@@ -8,6 +8,8 @@ import UserQueries from './user';
 import StockQueries from './stock';
 import UserMcsdQueries from './user.mcsd';
 import WithdrawQueries from './withdraw';
+import TransactionQueries from './transaction';
+import StockTransactionQueries from './stock.transaction';
 export {
   WalletQueries,
   SystemQueries,
@@ -18,5 +20,7 @@ export {
   UserQueries,
   StockQueries,
   UserMcsdQueries,
-  WithdrawQueries
+  WithdrawQueries,
+  TransactionQueries,
+  StockTransactionQueries
 };

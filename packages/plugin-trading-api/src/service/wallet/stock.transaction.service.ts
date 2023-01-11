@@ -20,7 +20,7 @@ export default class StockTransactionService {
   }
   statement = async params => {
     var data = await this.stockTransactionValidator.validateStatement(params);
-    let options: any = [];
+    let options: any = {};
     options.take = data.take;
     options.skip = data.skip;
     options.orderBy = data.orderBy;
@@ -69,6 +69,7 @@ export default class StockTransactionService {
       .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} AND tr.status=1 Group BY tr.walletId, tr.stockCode UNION all SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId, tr.stockCode ) ss group by ss.walletId, ss.stockCode;`;
     res.beginBalance = beginBalance;
     res.endBalance = endBalance;
+
     return res;
   };
   w2w = async params => {
@@ -96,6 +97,7 @@ export default class StockTransactionService {
   };
   confirmTransactionOrder = async (order, status) => {
     var transactions: any = [];
+
     for (const transaction of order.stockTransactions) {
       var stockBalance = await this.stockWalletValidator.validateBalance({
         walletId: transaction.walletId,

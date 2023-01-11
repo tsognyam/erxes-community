@@ -39,7 +39,7 @@ export default class StockWalletValidator extends BaseValidator {
 
     // var stockBalances = await this.#stockBalanceRepository.findByWalletId(data.walletId, WalletConst.STATUS_ACTIVE, data.stockCode, { stock: true });
     if (data.stockCode != undefined) {
-      stockBalances = await this.stockBalanceRepository.findMany(
+      stockBalances = await this.stockBalanceRepository.findAll(
         {
           walletId: data.walletId,
           wallet: { status: WalletConst.STATUS_ACTIVE },
@@ -48,7 +48,7 @@ export default class StockWalletValidator extends BaseValidator {
         { stock: true, wallet: true },
         options
       );
-      if (stockBalances.length > 0) {
+      if (stockBalances.total > 0) {
         return stockBalances.values[0];
       } else {
         return {
@@ -104,7 +104,7 @@ export default class StockWalletValidator extends BaseValidator {
           stockCode: data.stockCode,
           wallet: await this.walletValidator.checkWallet(
             { id: data.walletId },
-            undefined
+            { walletBalance: true }
           )
         };
       }

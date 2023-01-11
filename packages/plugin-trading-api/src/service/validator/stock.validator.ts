@@ -217,7 +217,42 @@ class StockValidator extends BaseValidator {
 
     return data;
   };
+  validateBond = async params => {
+    var { error, data } = this.validate(
+      {
+        stockcode: this._joi
+          .custom(this.isNumber, 'custom validation')
+          .required(),
+        price: this._joi.custom(this.isNumber, 'custom validation').required(),
+        cnt: this._joi.custom(this.isNumber, 'custom validation').required(),
+        orderEndDate: this._joi.date().required(),
+        userId: this._joi.custom(this.isNumber, 'custom validation')
+      },
+      params
+    );
 
+    let stock = await this.checkStock(data.stockcode);
+    if (!stock) {
+      CustomException(ErrorCode.NotBondException);
+    }
+    if (
+      stock.stocktypeId != StockTypeConst.COMPANY_BOND &&
+      stock.stocktypeId != StockTypeConst.GOV_BOND
+    ) {
+      CustomException(ErrorCode.NotBondException);
+    }
+    if (
+      stock.notiftype == null ||
+      stock.startdate > stock.enddate ||
+      stock.intrate == null ||
+      stock.enddate < new Date() ||
+      stock.startdate > stock.lstCouponDate
+    ) {
+      CustomException(ErrorCode.NotQualifyDataException);
+    }
+
+    return { stock, data };
+  };
   checkExchange = async exchangeid => {
     var exchange = await this.exchangeRepository.findUnique({
       id: exchangeid

@@ -147,7 +147,7 @@ export class TransactionValidator extends WalletValidator {
     var { data } = this.validate(
       {
         walletId: this._joi.number().required(),
-        userId: this._joi.number().required(),
+        // userId: this._joi.number().required(),
         startDate: this._joi.date().required(),
         endDate: this._joi.date().required(),
         skip: this._joi.number(),
@@ -155,16 +155,16 @@ export class TransactionValidator extends WalletValidator {
       },
       params
     );
-    this.checkWallet(
-      {
-        id: data.walletId,
-        status: WalletConst.STATUS_ACTIVE,
-        userId: data.userId
-      },
-      {
-        walletBalance: true
-      }
-    );
+    // this.checkWallet(
+    //   {
+    //     id: data.walletId,
+    //     status: WalletConst.STATUS_ACTIVE,
+    //     userId: data.userId
+    //   },
+    //   {
+    //     walletBalance: true
+    //   }
+    // );
 
     return data;
   };

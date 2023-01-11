@@ -11,6 +11,7 @@ export class StockTypeConst extends BaseConst {
   static PCKG = 4;
   static INT_SEC = 5;
   static INT_BOND = 6;
+  static PRIVATE = 7;
 
   static getTypes = () => [
     StockTypeConst.SEC,
