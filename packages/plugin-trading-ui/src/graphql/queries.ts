@@ -148,6 +148,29 @@ query TradingWallets($status: Int, $type: Int, $walletIds: [Int]) {
   }
 }
 `;
+const tradingUserWallets = `
+query TradingUserWallets($userId: String!, $currencyCode: String) {
+  tradingUserWallets(userId: $userId, currencyCode: $currencyCode) {
+    createUserId
+    createdAt
+    currencyCode
+    firstName
+    id
+    lastName
+    name
+    status
+    updatedAt
+    updatedUserId
+    userId
+    stockBalances
+    user
+    walletBalance
+    walletNumber
+    walletNumberId
+    walletNumberModel
+  }
+}
+`;
 export default {
   list,
   totalCount,
@@ -155,5 +178,6 @@ export default {
   stockList,
   TradingStocks,
   prefixList,
-  tradingWallets
+  tradingWallets,
+  tradingUserWallets
 };

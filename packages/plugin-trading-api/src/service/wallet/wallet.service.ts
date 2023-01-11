@@ -93,10 +93,9 @@ class WalletService {
       params
     );
     let i = 0;
-    console.log('userWallet', userWallet);
-    // if (userWallet) {
-    //   userWallet.availableBalance = userWallet.balance - userWallet.holdBalance;
-    // }
+    if (userWallet) {
+      userWallet.availableBalance = userWallet.balance - userWallet.holdBalance;
+    }
     return userWallet;
   };
   getNominalWallet = async params => {

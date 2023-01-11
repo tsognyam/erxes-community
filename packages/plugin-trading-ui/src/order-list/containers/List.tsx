@@ -156,6 +156,12 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
+    graphql<Props>(gql(queries.tradingUserWallets), {
+      name: 'tradingUserWallets',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props>(gql(mutations.orderAdd), {
       name: 'tradingOrderAddMutation',
       options: ({ queryParams }) => ({
