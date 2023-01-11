@@ -4,12 +4,14 @@ type TradingOrder @key(fields:"txnid") {
     ordertype:Int
     txntype:Int!
     walletId:Int
-    wallet:JSON!
+    wallet:JSON
     orderno:String!
     stockcode:Int!
-    stock:JSON!
+    stock:JSON
     txndate:Date!
     originalCnt:Int!
+    originalPrice:Float
+    originalDonePrice:Float
     cnt:Int!
     price:Float!
     fee:Float!
@@ -84,7 +86,15 @@ stockcode:Int!,
 txnid:Int!,
 userId:String
 `;
+const confirmParams = `
+orderId: Int!
+doneprice: Float!
+donecnt: Int!
+donedate: Date!
+`;
 export const mutations = `
 tradingOrderAdd(${params}):TradingOrder,
 tradingOrderEdit(${params}):TradingOrder,
-tradingOrderCancel(${cancelParams}):JSON`;
+tradingOrderCancel(${cancelParams}):TradingOrder,
+tradingOrderConfirm(${confirmParams}):TradingOrder
+`;

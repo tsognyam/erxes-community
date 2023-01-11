@@ -75,10 +75,12 @@ model Order {
   originalCnt      Int               @default(0)
   cnt              Int
   price            Decimal           @db.Decimal(30, 4)
+  originalPrice     Decimal           @default(0) @db.Decimal(30, 4)
   fee              Decimal           @db.Decimal(30, 4)
   donedate         DateTime?
   donecnt          Int?
   doneprice        Decimal?          @db.Decimal(30, 4)
+  originalDonePrice Decimal?          @default(0) @db.Decimal(30, 4)
   startdate        DateTime?
   enddate          DateTime?
   descr            String?

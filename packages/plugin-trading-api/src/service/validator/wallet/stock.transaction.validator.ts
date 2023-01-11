@@ -50,13 +50,17 @@ export default class StockTransactionValidator extends BaseValidator {
     if (senderBalance == undefined && receiverBalance == undefined) {
       CustomException(ErrorCode.InvalidParamException);
     }
+    console.log('senderBalance', {
+      senderBalance,
+      receiverBalance
+    });
     return { data, senderBalance, receiverBalance };
   };
   validateStatement = async params => {
     var { error, data } = this.validate(
       {
         walletId: this._joi.number().required(),
-        userId: this._joi.number().required(),
+        // userId: this._joi.number().required(),
         startDate: this._joi.date().required(),
         endDate: this._joi.date().required(),
         skip: this._joi.number(),
@@ -65,10 +69,10 @@ export default class StockTransactionValidator extends BaseValidator {
       params
     );
 
-    this.walletValidator.checkWallet({
-      id: data.walletId,
-      userId: data.userId
-    });
+    // this.walletValidator.checkWallet({
+    //   id: data.walletId,
+    //   userId: data.userId
+    // });
 
     return data;
   };
@@ -83,11 +87,11 @@ export default class StockTransactionValidator extends BaseValidator {
       if (senderBalance.wallet.userId == receiverBalance.wallet.userId) {
         CustomException(ErrorCode.DuplicateUserException);
       }
-      if (senderBalance.wallet.type + receiverBalance.wallet.type !== 3) {
+      if (senderBalance.wallet.type + receiverBalance.wallet.type == 6) {
         CustomException(ErrorCode.InvalidWalletException);
       }
       if (
-        senderBalance.wallet.currency.id != receiverBalance.wallet.currency.id
+        senderBalance.wallet.currencyCode != receiverBalance.wallet.currencyCode
       ) {
         CustomException(ErrorCode.WalletCurrencyException);
       }

@@ -4,11 +4,11 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import UserService from '../../../service/user/user.service';
-import TransactionService from '../../../service/wallet/transaction.service';
+import StockTransactionService from '../../../service/wallet/stock.transaction.service';
 
-let service = new TransactionService();
-const TransactionQueries = {
-  tradingTransactionGet: async (
+let service = new StockTransactionService();
+const StockTransactionQueries = {
+  tradingStockTransactionGet: async (
     _root: any,
     params,
     { models, subdomain, user }: IContext
@@ -17,4 +17,4 @@ const TransactionQueries = {
   }
 };
 //   requireLogin(TransactionQueries, 'tradingTransactionGet');
-export default TransactionQueries;
+export default StockTransactionQueries;
