@@ -276,3 +276,20 @@ export const ChartTable = styled.div`
 export const FinanceAmount = styled.div`
   float: right;
 `;
+export const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
+  margin: ${dimensions.unitSpacing}px 0 0 ${dimensions.unitSpacing}px;
+  max-height: 100%;
+  position: relative;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  overflow-x: auto;
+  border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
+
+  @-moz-document url-prefix() {
+    overflow: hidden;
+  }
+`;

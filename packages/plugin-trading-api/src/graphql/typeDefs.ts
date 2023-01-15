@@ -69,6 +69,12 @@ import {
   mutations as StockTransactionMutations
 } from './schema/stock.transaction';
 
+import {
+  types as CustFeeTypes,
+  queries as CustFeeQueries,
+  mutations as CustFeeMutations
+} from './schema/custFee';
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -86,6 +92,7 @@ const typeDefs = async _serviceDiscovery => {
     ${WithdrawTypes}
     ${TransactionTypes}
     ${StockTransactionTypes}
+    ${CustFeeTypes}
     
     extend type Query {
       ${WalletQueries}
@@ -100,6 +107,7 @@ const typeDefs = async _serviceDiscovery => {
       ${WithdrawQueries}
       ${TransactionQueries}
       ${StockTransactionQueries}
+      ${CustFeeQueries}
     }
     
     extend type Mutation {
@@ -113,6 +121,7 @@ const typeDefs = async _serviceDiscovery => {
       ${StockMutations}
       ${WithdrawMutations}
       ${StockTransactionMutations}
+      ${CustFeeMutations}
     }
   `;
 };

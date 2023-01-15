@@ -8,6 +8,7 @@ import UserMutations from './user';
 import StockMutations from './stock';
 import WithdrawMutations from './withdraw';
 import StockTransactionsMutations from './stock.transactions';
+import CustFeeMutations from './custFee';
 export {
   WalletMutations,
   SystemMutations,
@@ -18,5 +19,6 @@ export {
   UserMutations,
   StockMutations,
   WithdrawMutations,
-  StockTransactionsMutations
+  StockTransactionsMutations,
+  CustFeeMutations
 };

@@ -3,6 +3,9 @@ import { FinanceAmount, StyledTr } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import { StockChange } from '../../styles';
 import dayjs from 'dayjs';
+import { ActionButtons, Tip } from '@erxes/ui';
+import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
+import Form from './Form';
 type Props = {
   wallet: any;
   index: number;
@@ -36,11 +39,34 @@ class Row extends React.Component<Props> {
       );
     }
   }
+  renderForm = props => {
+    return <Form {...props} />;
+  };
+  renderModal = object => {
+    const content = props => {
+      console.log('button');
+      return this.renderForm({ ...props, object });
+    };
+    const viewTrigger = (
+      <Button btnStyle="default" block>
+        View Detail
+      </Button>
+    );
+    return (
+      <ModalTrigger
+        size="xl"
+        title="View"
+        trigger={viewTrigger}
+        content={content}
+      />
+    );
+  };
+
   render() {
     const { index, wallet } = this.props;
 
     return (
-      <StyledTr key={index}>
+      <StyledTr onDoubleClick={this.renderModal} key={index}>
         <td>{index + 1}</td>
         <td>{wallet.user.prefix}</td>
         <td>{wallet.user.bdcAccountId}</td>
@@ -61,6 +87,7 @@ class Row extends React.Component<Props> {
                 'YYYY-MM-DD HH:mm:ss'
               )}
         </td>
+        <td>{this.renderModal(wallet)}</td>
       </StyledTr>
     );
   }

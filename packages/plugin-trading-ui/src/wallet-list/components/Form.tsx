@@ -18,46 +18,58 @@ import {
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { Table, Tabs, TabTitle } from '@erxes/ui/src';
+import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
+import { TabCaption } from '@erxes/ui/src/components/tabs/styles';
+import { TabContent } from '@erxes/ui/src/styles/main';
+import List from '../containers/custFee/List';
+import ListStatement from '../containers/statement/List';
+// import Row from './custFee/Row';
+// import List from '../containers/custFee/List';
 type Props = {
   object?;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
+type State = {
+  currentTab: string;
+};
+class Forms extends React.Component<Props & ICommonFormProps, State> {
+  constructor(props) {
+    super(props);
+    const custFee = props.custFee || {};
 
-class Forms extends React.Component<Props & ICommonFormProps> {
-  generateDoc = (values: {
-    id?: string;
-    exchangeid: string;
-    symbol: string;
-    stockname: string;
-    stocktypeId: string;
-    stockcode: string;
-    stockprice: string;
-    cnt: string;
-    ipo: string;
-    startdate: Date;
-    enddate: Date;
-  }) => {
+    this.state = {
+      currentTab: custFee ? 'custFee' : 'Category'
+    };
+  }
+  generateDoc = (values: any) => {
     const { object } = this.props;
     const finalValues = values;
 
     if (object) {
       finalValues.id = object.id;
     }
-    return {
-      id: finalValues.id,
-      exchangeid: parseInt(finalValues.exchangeid),
-      symbol: finalValues.symbol,
-      stockname: finalValues.stockname,
-      stocktypeId: parseInt(finalValues.stocktypeId),
-      stockcode: parseInt(finalValues.stockcode),
-      stockprice: parseFloat(finalValues.stockprice),
-      cnt: parseInt(finalValues.cnt),
-      ipo: parseInt(finalValues.ipo),
-      startdate: finalValues.startdate,
-      enddate: finalValues.enddate
-    };
+    return {};
   };
-  prefixChange = val => {};
+  onChangeCurrentTab = selecteTab => {
+    switch (selecteTab) {
+      case 'Fee':
+        this.setState({ currentTab: selecteTab });
+        break;
+      case 'Statement':
+        this.setState({ currentTab: selecteTab });
+        break;
+    }
+  };
+  // renderCustFee(trigger: React.ReactNode) {
+  //   const content = props => (
+  //     <List {...props} />
+  //   );
+
+  //   return (
+  //     <></>
+  //   );
+  // }
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as any);
     // const prefixList = this.props.prefix.map(x => {
@@ -73,122 +85,44 @@ class Forms extends React.Component<Props & ICommonFormProps> {
     //   };
     // });
 
+    const currentTabItem = () => {
+      const { currentTab } = this.state;
+
+      const handleSelect = (value, name) => {
+        this.setState({ [name]: value } as Pick<State, keyof State>);
+      };
+
+      if (currentTab === 'Fee') {
+        const updatedProps = {
+          userId: object.userId
+        };
+        return <List {...updatedProps} {...object} />;
+      }
+      const updatedProps = {
+        walletId: object.id,
+        startDate: '2023-01-01',
+        endDate: new Date()
+      };
+      return <ListStatement {...updatedProps} {...object} />;
+    };
     return (
       <>
-        <FormGroup>
-          <ControlLabel>{__('Exchange')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            name="exchangeid"
-            placeholder={__('Хөрөнгийн бирж')}
-            options={EXCHANGE}
-            // onChange={this.prefixChange}
-            value={object.exchangeid}
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <ControlLabel>{__('Symbol')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            placeholder={__('Үнэт цаасны симбол')}
-            defaultValue={object.symbol}
-            name="symbol"
-            // options={_.sortBy(prefixList, ['label'])}
-            // onChange={this.prefixChange}
-            value={object.symbol}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Stock name')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            placeholder={__('Үнэт цаасны нэр')}
-            name="stockname"
-            value={object.stockname}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Stock type')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            name="stocktypeId"
-            placeholder={__('Үнэт цаасны төрөл')}
-            options={STOCKTYPE}
-            // onChange={this.prefixChange}
-            value={object.stocktypeId}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Stock code')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            placeholder={__('Үнэт цаасны код')}
-            name="stockcode"
-            defaultValue={object.stockcode}
-            type="number"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Price')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="stockprice"
-            defaultValue={object.stockprice}
-            type="number"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Quantity')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="cnt"
-            defaultValue={object.quantity}
-            type="number"
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('IPO')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            name="ipo"
-            placeholder={__(
-              'Монголын хөрөнгийн бирж дээр IPO хийж байгаа эсэх'
-            )}
-            options={IPO}
-            // onChange={this.prefixChange}
-            value={object.ipo}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Эхлэх өдөр')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            type="date"
-            defaultValue={dayjs(object.endDate || new Date()).format(
-              'YYYY-MM-DD'
-            )}
-            required={true}
-            name="startdate"
-            placeholder={'Эхлэх өдөр'}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Дуусах өдөр')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            type="date"
-            defaultValue={dayjs(object.endDate || new Date()).format(
-              'YYYY-MM-DD'
-            )}
-            required={true}
-            name="enddate"
-            placeholder={'Дуусах өдөр'}
-          />
-        </FormGroup>
+        <TabContainer>
+          <TabCaption>
+            <Tabs full>
+              {['Fee', 'Statement'].map(item => (
+                <TabTitle
+                  className={this.state.currentTab === item ? 'active' : ''}
+                  key={item}
+                  onClick={this.onChangeCurrentTab.bind(this, item)}
+                >
+                  {item}
+                </TabTitle>
+              ))}
+            </Tabs>
+          </TabCaption>
+        </TabContainer>
+        <TabContent>{currentTabItem()}</TabContent>
       </>
     );
   };

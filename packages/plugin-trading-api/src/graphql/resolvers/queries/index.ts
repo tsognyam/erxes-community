@@ -10,6 +10,7 @@ import UserMcsdQueries from './user.mcsd';
 import WithdrawQueries from './withdraw';
 import TransactionQueries from './transaction';
 import StockTransactionQueries from './stock.transaction';
+import CustFeeQueries from './custFee';
 export {
   WalletQueries,
   SystemQueries,
@@ -22,5 +23,6 @@ export {
   UserMcsdQueries,
   WithdrawQueries,
   TransactionQueries,
-  StockTransactionQueries
+  StockTransactionQueries,
+  CustFeeQueries
 };

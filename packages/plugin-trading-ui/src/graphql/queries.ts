@@ -171,6 +171,82 @@ query TradingUserWallets($userId: String!, $currencyCode: String) {
   }
 }
 `;
+const tradingCustFeeList = `
+query TradingCustFeeGetList($userId: String) {
+  tradingCustFeeGetList(userId: $userId) {
+    count
+    total
+    values {
+      descr
+      id
+      name
+      name2
+      sidetype
+      status
+      stocktypeId
+      updatedby
+      updateddate
+      user
+      userId
+      value
+    }
+  }
+}
+`;
+const tradingTransactionGet = `
+query TradingTransactionGet($walletId: Int, $startDate: Date, $endDate: Date) {
+  tradingTransactionGet(walletId: $walletId, startDate: $startDate, endDate: $endDate) {
+    beginBalance
+    count
+    endBalance
+    total
+    values {
+      afterBalance
+      amount
+      beforeBalance
+      createdAt
+      createdUserId
+      dater
+      description
+      id
+      order
+      orderId
+      status
+      type
+      updatedAt
+      updatedUserId
+      wallet
+      walletId
+    }
+  }
+}
+`;
+const tradingWithdrawGet = `
+query TradingWithdrawGet($skip: Int, $status: Int, $take: Int, $type: Int, $walletId: Int) {
+  tradingWithdrawGet(skip: $skip, status: $status, take: $take, type: $type, walletId: $walletId) {
+    count
+    total
+    values {
+      amount
+      bankTransactionId
+      createdAt
+      createdUserId
+      dater
+      description
+      feeAmount
+      id
+      status
+      type
+      updatedAt
+      updatedUserId
+      user
+      userBankAccountId
+      walletId
+      withdraws
+    }
+  }
+}
+`;
 export default {
   list,
   totalCount,
@@ -179,5 +255,8 @@ export default {
   TradingStocks,
   prefixList,
   tradingWallets,
-  tradingUserWallets
+  tradingUserWallets,
+  tradingCustFeeList,
+  tradingTransactionGet,
+  tradingWithdrawGet
 };

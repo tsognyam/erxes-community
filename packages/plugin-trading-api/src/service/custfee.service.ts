@@ -15,6 +15,7 @@ export default class CustFeeService {
   }
   get = async data => {
     let res = await this.custFeeValidator.validateGetFee(data);
+    console.log('res', res);
     return res;
   };
   getFee = async (userId, stockcode) => {

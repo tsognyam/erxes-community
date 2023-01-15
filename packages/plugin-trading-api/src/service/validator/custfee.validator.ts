@@ -11,7 +11,7 @@ export default class CustfeeValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         stockcode: this._joi.number().required(),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required()
       },
       params
     );
@@ -37,7 +37,7 @@ export default class CustfeeValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         stocktypeId: this._joi.number(),
-        userId: this._joi.number(),
+        userId: this._joi.string(),
         // sidetype: this._joi.number().allow(0,1),
         // stockcode: this._joi.number(),
         value: this._joi.number(),
