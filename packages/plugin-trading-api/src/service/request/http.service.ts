@@ -2,7 +2,7 @@ import axios from 'axios';
 // const errorHandler = require('../../exception/error-handler');
 // const errorAPI = require('../../exception/error-api');
 import Helper from '../../middleware/helper.service';
-import soap from 'soap';
+import * as soap from 'soap';
 import ErrorException from '../../exception/error-exception';
 const { logger } = require('../../middleware/logger');
 import * as https from 'https';
