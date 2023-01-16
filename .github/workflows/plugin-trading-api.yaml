@@ -45,7 +45,6 @@ jobs:
           yarn build plugin trading
           cd plugin-trading-api
           cat package.json
-          yarn prisma
           cd .erxes
           cd dist/main/.erxes/src
 
