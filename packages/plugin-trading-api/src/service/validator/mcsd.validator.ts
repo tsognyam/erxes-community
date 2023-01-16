@@ -1,6 +1,4 @@
 import BaseValidator from './base.validator';
-const Joi = require('joi');
-// import Joi from 'joi'
 // const { DuplicateException } = require('../../exception/error');
 import UserRepository from '../../repository/user/user.repository';
 import TransactionMCSDRepository from '../../repository/mcsd.repository';
@@ -11,10 +9,10 @@ export default class TransactionMCSDValidator extends BaseValidator {
   validateSaveTransaction = async params => {
     var { error, data } = this.validate(
       {
-        BeginDate: Joi.date().default(
-          new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
-        ),
-        EndDate: Joi.date().default(new Date())
+        BeginDate: this._joi
+          .date()
+          .default(new Date(new Date().getTime() - 24 * 60 * 60 * 1000)),
+        EndDate: this._joi.date().default(new Date())
       },
       params
     );
@@ -44,17 +42,19 @@ export default class TransactionMCSDValidator extends BaseValidator {
   validateGet = async params => {
     var { error, data } = this.validate(
       {
-        mitPrefix: Joi.string(),
-        userId: Joi.custom(this.isNumber, 'custom validation'),
-        transactionDate: Joi.object({
-          gt: Joi.date(),
-          gte: Joi.date(),
-          lt: Joi.date(),
-          lte: Joi.date()
-        }).required(),
-        skip: Joi.custom(this.isNumber, 'custom validation'),
-        take: Joi.custom(this.isNumber, 'custom validation'),
-        orderBy: Joi.any()
+        mitPrefix: this._joi.string(),
+        userId: this._joi.custom(this.isNumber, 'custom validation'),
+        transactionDate: this._joi
+          .object({
+            gt: this._joi.date(),
+            gte: this._joi.date(),
+            lt: this._joi.date(),
+            lte: this._joi.date()
+          })
+          .required(),
+        skip: this._joi.custom(this.isNumber, 'custom validation'),
+        take: this._joi.custom(this.isNumber, 'custom validation'),
+        orderBy: this._joi.any()
       },
       params
     );
@@ -97,5 +97,90 @@ export default class TransactionMCSDValidator extends BaseValidator {
     transactions.beginBalance = beginBalance;
     transactions.endBalance = endBalance;
     return transactions;
+  };
+  checkParams = data => {
+    const { error } = this._joi
+      .object({
+        BeginDate: this._joi.date().required(),
+        EndDate: this._joi.date().required()
+      })
+      .validate(data);
+
+    Helper.checkError(error);
+  };
+
+  checkSetAccount = data => {
+    const { error } = this._joi
+      .object({
+        BDCAccountId: this._joi
+          .string()
+          .max(30)
+          .required(),
+        BDCAccountNumber: this._joi
+          .string()
+          .max(8)
+          .required(),
+        RegistryNumber: this._joi
+          .string()
+          .max(50)
+          .required(),
+        FirstName: this._joi.string().required(),
+        LastName: this._joi.string().required(),
+        BirthDate: this._joi.date().required(),
+        Country: this._joi.string().required(),
+        Gender: this._joi
+          .string()
+          .valid('Male', 'Female')
+          .required(),
+        HomePhone: this._joi
+          .string()
+          .max(20)
+          .required(),
+        MobilePhone: this._joi
+          .string()
+          .max(20)
+          .required(),
+        Occupation: this._joi
+          .string()
+          .max(200)
+          .required(),
+        HomeAddress: this._joi
+          .string()
+          .max(200)
+          .required(),
+        CustomerType: this._joi
+          .number()
+          .valid(0, 1)
+          .required(),
+        BankCode: this._joi
+          .string()
+          .max(10)
+          .required(),
+        BankName: this._joi
+          .string()
+          .max(150)
+          .required(),
+        BankAccountNumber: this._joi
+          .string()
+          .max(20)
+          .required(),
+        FeeEquity: this._joi.number().required(),
+        FeeDebt: this._joi.number().required(),
+        FeeCorpDebt: this._joi.number().required()
+      })
+      .validate(data);
+
+    Helper.checkError(error);
+  };
+  GetAccounts = async data => {
+    this.checkParams(data);
+  };
+
+  SetAccounts = async data => {
+    this.checkSetAccount(data);
+  };
+
+  UpdateAccounts = async data => {
+    this.checkSetAccount(data);
   };
 }

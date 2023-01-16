@@ -1,6 +1,6 @@
 import HttpService from './request/http.service';
 import Helper from '../middleware/helper.service';
-let validator = require('../schema/mcsd.schema');
+import validator = require('../schema/mcsd.schema');
 import TransactionMCSDRepository from '../repository/mcsd.repository';
 // let { loggerMCSD } = require('../middleware/logger');
 import TransactionMCSDValidator from './validator/mcsd.validator';
@@ -55,7 +55,7 @@ export default class Securities {
     return args;
   };
   GetAccounts = async data => {
-    await validator.GetAccounts(data);
+    await this.transactionValidator.GetAccounts(data);
 
     var args = this.options(data, 1);
     return await this.http.requestSOAP('GetAccounts', args);
@@ -68,7 +68,7 @@ export default class Securities {
     };
     for (let i = 0; i < data.length; i++) {
       if (data[i]) {
-        await validator.SetAccounts(data[i]);
+        await this.transactionValidator.SetAccounts(data[i]);
         buildData.Accounts.Account[i] = data[i];
       }
     }
@@ -96,7 +96,7 @@ export default class Securities {
     };
     for (let i = 0; i < data.length; i++) {
       if (data[i]) {
-        await validator.UpdateAccounts(data[i]);
+        await this.transactionValidator.UpdateAccounts(data[i]);
         buildData.Accounts.Account[i] = data[i];
       }
     }
