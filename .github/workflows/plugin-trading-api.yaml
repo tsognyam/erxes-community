@@ -42,7 +42,10 @@ jobs:
           cd dist
           yarn install
           ls -la
+          cd plugin-trading-api
+          cat package.json
           yarn prisma
+          cd ../
           yarn build plugin trading
           cd plugin-trading-api
           cat package.json
