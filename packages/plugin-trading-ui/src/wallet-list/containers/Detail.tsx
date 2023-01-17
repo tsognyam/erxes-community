@@ -12,7 +12,7 @@ import {
   PropertyProvider
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ButtonMutate } from '@erxes/ui';
+import { ButtonMutate } from '@erxes/ui/src/components';
 
 type Props = {
   id: string;

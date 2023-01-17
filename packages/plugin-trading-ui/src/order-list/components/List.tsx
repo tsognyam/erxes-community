@@ -16,7 +16,7 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
-
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
@@ -65,7 +65,9 @@ class List extends React.Component<IProps> {
       renderButton,
       orders,
       total,
-      count
+      count,
+      stocks,
+      prefix
     } = this.props;
     const onChangeAll = () => {
       toggleAll(orders, 'orders');
@@ -144,6 +146,8 @@ class List extends React.Component<IProps> {
               isChecked={bulk.includes(order)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
+              stocks={stocks}
+              prefix={prefix}
             />
           ))}
         </tbody>
@@ -152,13 +156,14 @@ class List extends React.Component<IProps> {
   };
 
   renderFilter() {
-    const { queryParams, onSearch, onSelect, clearFilter } = this.props;
+    const { queryParams, onSearch, onSelect, clearFilter, stocks } = this.props;
 
     const rightMenuProps = {
       queryParams,
       onSearch,
       onSelect,
-      clearFilter
+      clearFilter,
+      stocks
     };
 
     return <RightMenu {...rightMenuProps} />;
@@ -238,7 +243,7 @@ class List extends React.Component<IProps> {
             }
           />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} />}
+        //leftSidebar={<Sidebar queryParams={queryParams} />}
         content={
           <DataWithLoader
             data={this.renderContent()}
@@ -248,7 +253,18 @@ class List extends React.Component<IProps> {
             emptyImage="/images/actions/20.svg"
           />
         }
-        footer={<Pagination count={total} />}
+        footer={
+          <Wrapper.ActionBar
+            left={<Pagination count={total} />}
+            right={
+              <ControlLabel>
+                {__('Total order=')}
+                {total}
+              </ControlLabel>
+            }
+          />
+        }
+        transparent={true}
         hasBorder
       />
     );

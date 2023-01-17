@@ -14,6 +14,7 @@ import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { FinanceAmount } from '../../styles';
+import { STATE_LIST } from '../../constants';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   order: any;
@@ -21,6 +22,8 @@ type Props = {
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   onCancelOrder: (txnid: number) => void;
+  stocks: any[];
+  prefix: any[];
 } & ICommonListProps;
 
 class Row extends React.Component<Props> {
@@ -50,7 +53,7 @@ class Row extends React.Component<Props> {
     });
   };
   renderEditAction = object => {
-    const { save } = this.props;
+    const { save, stocks, prefix } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -61,9 +64,8 @@ class Row extends React.Component<Props> {
     );
 
     const content = props => {
-      return this.renderForm({ ...props, object, save });
+      return this.renderForm({ ...props, object, save, stocks, prefix });
     };
-
     return (
       <ModalTrigger
         size="lg"
@@ -96,17 +98,6 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, index, order, toggleBulk } = this.props;
-    const stateList = [
-      { status: 0, statusName: 'Цуцлагдсан', styleName: 'danger' },
-      { status: 1, statusName: 'Шинэ', styleName: 'primary' },
-      { status: 2, statusName: 'Хүлээн авсан', styleName: 'primary' },
-      { status: 3, statusName: 'Review', styleName: 'warning' },
-      { status: 4, statusName: 'Хэсэгчилж биелсэн', styleName: 'success' },
-      { status: 5, statusName: 'Биелсэн', styleName: 'success' },
-      { status: 6, statusName: 'Түтгэлзсэн', styleName: 'danger' },
-      { status: 7, statusName: 'Хугацаа нь дууссан', styleName: 'danger' },
-      { status: 9, statusName: 'Шинэчлэгдсэн', styleName: 'default' }
-    ];
     const onChange = e => {
       if (toggleBulk) {
         toggleBulk(order, e.target.checked);
@@ -152,12 +143,12 @@ class Row extends React.Component<Props> {
         <td>{left}</td>
         <td>
           <Label
-            lblStyle={stateList.find(x => x.status == order.status)?.styleName}
+            lblStyle={STATE_LIST.find(x => x.status == order.status)?.styleName}
           >
-            {stateList.find(x => x.status == order.status)?.statusName}
+            {STATE_LIST.find(x => x.status == order.status)?.statusName}
           </Label>
         </td>
-        <td>{dayjs(order.regdate).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>{dayjs(order.txndate).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td>{this.displayValue(order, 'total', total)}</td>
         <td>{this.displayValue(order, 'fee', fee)}</td>
         <td>

@@ -118,7 +118,8 @@ class OrderValidator extends BaseValidator {
         }
       },
       wallet: true,
-      transactionOrder: true
+      transactionOrder: true,
+      user: true
     };
     if (data != undefined) {
       delete data.detail;

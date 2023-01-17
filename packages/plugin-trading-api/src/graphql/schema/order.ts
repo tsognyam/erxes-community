@@ -50,7 +50,6 @@ type TradingOrder @key(fields:"txnid") {
     transactionOrder:JSON
     stockOrder:JSON
     user:JSON
-    userMCSDAccount:JSON
 }
 type TradingOrderList {
     total:Int,
@@ -66,7 +65,9 @@ tradingOrders(
     status:Int,
     txntype:Int,
     sortField:String,
-    sortDirection:String
+    sortDirection:String,
+    startDate:Date,
+    endDate:Date
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 `;

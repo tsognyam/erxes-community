@@ -14,7 +14,9 @@ query tradingOrders(
   $stockcode: Int, 
   $txntype: Int,
   $sortField:String,
-  $sortDirection:String
+  $sortDirection:String,
+  $startDate:Date,
+  $endDate:Date
   ) 
 {
   tradingOrders(
@@ -24,7 +26,9 @@ query tradingOrders(
     stockcode: $stockcode, 
     txntype: $txntype,
     sortField:$sortField,
-    sortDirection:$sortDirection
+    sortDirection:$sortDirection,
+    startDate:$startDate,
+    endDate:$endDate
     ) {
     total,
     count,
@@ -49,7 +53,9 @@ query tradingOrders(
       descr2,
       status,
       regdate,
-      condid
+      condid,
+      user,
+      userId    
     }
   }
 }
