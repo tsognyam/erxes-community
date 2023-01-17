@@ -1,18 +1,20 @@
 import React from 'react';
-import { FinanceAmount, StyledTr } from '../../styles';
+import { FinanceAmount, StyledTr } from '../../../styles';
 import { __ } from '@erxes/ui/src/utils';
-import { StockChange } from '../../styles';
+
 import dayjs from 'dayjs';
 import { ActionButtons, Tip } from '@erxes/ui';
 import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
 import Form from './Form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+
 type Props = {
   wallet: any;
   index: number;
-  history: any;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
-class Row extends React.Component<Props> {
+class WalletRow extends React.Component<Props> {
   displayValue(value, type = 'number') {
     console.log('value', value);
     if (type == 'number') {
@@ -41,59 +43,53 @@ class Row extends React.Component<Props> {
     }
   }
   renderForm = props => {
-    return <Form {...props} />;
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
-  // renderModal = object => {
-  //   const content = props => {
-  //     console.log('button');
-  //     return this.renderForm({ ...props, object });
-  //   };
+  renderModal = object => {
+    const content = props => {
+      return this.renderForm({ ...props, object });
+    };
 
-  //   const viewTrigger = (
-  //     <Button onClick={onTrClick} btnStyle="default" block>
-  //       View Detail
-  //     </Button>
-  //   );
-  //   return (
-  //     <ModalTrigger
-  //       size="xl"
-  //       title="View"
-  //       trigger={viewTrigger}
-  //       content={content}
-  //     />
-  //   );
-  // };
+    const viewTrigger = (
+      <Button btnStyle="default" block>
+        {__('Орлого')}
+      </Button>
+    );
+    return (
+      <ModalTrigger
+        size="sm"
+        title={__('Орлого хийх')}
+        trigger={viewTrigger}
+        content={content}
+      />
+    );
+  };
 
   render() {
-    const { index, wallet, history } = this.props;
+    const { index, wallet } = this.props;
     console.log('userMcsd', wallet);
-    const onTrClick = () => {
-      history.push(`/trading/account/details/${wallet.userId}`);
-    };
+
     return (
-      <StyledTr onDoubleClick={onTrClick} key={index}>
+      <StyledTr key={index}>
         <td>{index + 1}</td>
-        <td>{wallet.prefix}</td>
-        <td>{wallet.bdcAccountId}</td>
-        <td>{wallet.lastName}</td>
-        <td>{wallet.firstName}</td>
+        <td>{wallet.name}</td>
+        <td>{wallet.currencyCode}</td>
+        <td>{wallet.walletBalance.balance}</td>
+        <td>
+          {wallet.walletBalance.balance - wallet.walletBalance.holdBalance}
+        </td>
+        <td>{wallet.walletBalance.holdBalance}</td>
+        <td>{wallet.walletBalance.tradeBalance}</td>
         <td>{wallet.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
-        <td>{wallet.description}</td>
         <td>
           {wallet.updatedAt != null
             ? dayjs(wallet.updatedAt).format('YYYY-MM-DD HH:mm:ss')
             : dayjs(wallet.createdAt).format('YYYY-MM-DD HH:mm:ss')}
         </td>
-        <td>
-          {
-            <Button onClick={onTrClick} btnStyle="default" block>
-              View Detail
-            </Button>
-          }
-        </td>
+        <td>{this.renderModal(wallet)}</td>
       </StyledTr>
     );
   }
 }
 
-export default Row;
+export default WalletRow;

@@ -131,7 +131,6 @@ class List extends React.Component<Props & ICommonFormProps> {
   };
   render() {
     const { queryParams, total, count } = this.props;
-    const breadcrumb = [{ title: __('Fee List'), link: '/tradings/fee-list' }];
 
     return (
       <Contents hasBorder={true}>

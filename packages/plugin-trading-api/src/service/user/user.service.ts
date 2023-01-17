@@ -31,6 +31,8 @@ import { CustomException, ErrorCode } from '../../exception/error-code';
 import ErrorException from '../../exception/error-exception';
 import { sendContactsMessage, sendCoreMessage, sendCPMessage, sendLogsMessage } from '../../messageBroker';
 import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repository';
+import { any } from 'joi';
+import { getUsers } from '../../models/utils';
 
 export default class UserService {
   #validator: UserValidator;
@@ -54,18 +56,56 @@ export default class UserService {
     this.#userMcsdRepository = new UserMCSDAccountRepository();
   }
   // getFullInfo = (user) => this.#userRepository.findById(+user.id, true);
-  getFullInfo = async(params) => {
-      let user = await this.#userMcsdRepository.findMany({
-        prefix: {
-          startsWith: params.prefix
+  getFullInfo = async (params) => {
+    let where: any = {};
+
+    if (params.prefix != undefined) {
+      where.prefix = {
+        startsWith: params.prefix
+      }
+    }
+    if (params.userId != undefined) {
+      where.userId = params.userId;
+    }
+
+    let account = await this.#userMcsdRepository.findAll(where, {
+      Wallet: {
+        select: {
+          id: true,
+          name: true,
+          currencyCode: true,
+          status: true,
+          createdAt: true,
+          walletNumber: true,
+          walletBalance: true,
+          stockBalances: true
         }
-      })
-      return user;
+      }
+    })
+    let userIds = account.values.map(function (obj: any) {
+      return obj.userId;
+    });
+    let query = {
+      _id: { $in: userIds }
+    };
+    let users = await getUsers(query);
+    let user: any;
+    account.values.forEach((el: any, index) => {
+      user = users.find((x: any) => x._id == el.userId);
+      if (user != undefined) {
+        console.log('user', user)
+        account.values[index].firstName = user.firstName;
+        account.values[index].lastName = user.lastName;
+        console.log('wallets[index]', account.values[index]);
+      }
+    });
+    return account;
+
   }
 
   changeStep = async (user, step = UserStepConst.STEP_1) =>
     // await this.#userRepository.update({ id: +user.id }, { externalId: step });
-    console.log('user step completed:',step)
+    console.log('user step completed:', step)
 
   getUserInfoById = async (userId) => {
     const user = await this.#userRepository.findById(+userId, true);
@@ -77,9 +117,9 @@ export default class UserService {
     return user;
   };
 
-  getUser = async (subdomain,userUuid) => {
+  getUser = async (subdomain, userUuid) => {
     // let user = this.#userRepository.findByUuid(userUuid);
-    console.log('userUuid',userUuid)
+    console.log('userUuid', userUuid)
     let cpUser = await sendCPMessage({
       subdomain,
       action: 'clientPortals.findOne',
@@ -88,8 +128,8 @@ export default class UserService {
       },
       isRPC: true
     })
-    console.log('cpUser',cpUser)
-    
+    console.log('cpUser', cpUser)
+
     let user = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -101,20 +141,20 @@ export default class UserService {
     // console.log('user',user)
     return user;
   };
-  
+
 
   cooperateGW = async (params) => {
     const { data, user } = await this.#validator.validateMCSDAccount(params);
-    
+
 
     let userMcsdAccount = await this.#userMcsdRepository.findUnique({
       userId: user._id
     })
-    
+
     // if (userMcsdAccount.status == UserConst.STATUS_ACTIVE || userMcsdAccount.status == UserConst.STATUS_MCSD_PENDING) {
     //   throw new Error('User created');
     // }
-    
+
     //Компанийн бондын шимтгэл
     const feeCorpDebt = await Helper.getValue('FeeCorpDebt');
     //ЗГ бондын шимтгэл
@@ -122,7 +162,7 @@ export default class UserService {
     //Хувьцааны шимтгэл
     const feeEquity = await Helper.getValue('FeeEquity');
 
-    console.log('feeCorpDebt',feeCorpDebt)
+    console.log('feeCorpDebt', feeCorpDebt)
     if (!userMcsdAccount) {
       try {
         //change status on customer erxes
@@ -173,7 +213,7 @@ export default class UserService {
       // }, 'USD');
 
       await this.changeStep(user, UserStepConst.STEP_5);
-    }else{
+    } else {
       if (userMcsdAccount.status == UserConst.STATUS_MCSD_ERROR) {
         return await this.updateMCSDAccount({ userId: data.userId });
       }
@@ -203,7 +243,7 @@ export default class UserService {
     //   }
     // );
     // let user = rawUsers.values[0];
-    let user = await this.getUser('localhost',userId)
+    let user = await this.getUser('localhost', userId)
     if (user == undefined) {
       throw new Error('User not found');
     }
@@ -226,7 +266,7 @@ export default class UserService {
     // if (bankAccount == undefined) {
     //   CustomException(ErrorCode.UserBankNotFoundException);
     // }
-    if(user.customFieldsDataByFieldCode.userBank == undefined || user.customFieldsDataByFieldCode.userBankAccountNo == undefined){
+    if (user.customFieldsDataByFieldCode.userBank == undefined || user.customFieldsDataByFieldCode.userBankAccountNo == undefined) {
       await this.#userMcsdRepository.update(
         userMcsdAccount.id,
         {
@@ -241,7 +281,7 @@ export default class UserService {
     }
     // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
     const birthdate = moment(new Date(user.birthDate), 'YYYY-MM-DD').format().slice(0, 10);
-    if(user.customFieldsDataByFieldCode.address == undefined){
+    if (user.customFieldsDataByFieldCode.address == undefined) {
       await this.#userMcsdRepository.update(
         userMcsdAccount.id,
         {
@@ -251,7 +291,7 @@ export default class UserService {
       CustomException(ErrorCode.CityNotFoundException)
     }
     let address = user.customFieldsDataByFieldCode.address.value
-    if(user.customFieldsDataByFieldCode.registerNumber == undefined){
+    if (user.customFieldsDataByFieldCode.registerNumber == undefined) {
       await this.#userMcsdRepository.update(
         userMcsdAccount.id,
         {
@@ -261,7 +301,7 @@ export default class UserService {
       CustomException(ErrorCode.RegisterNumberMismatchException)
     }
     let registerNumber = user.customFieldsDataByFieldCode.registerNumber.value;
-    if(user.customFieldsDataByFieldCode.profession == undefined){
+    if (user.customFieldsDataByFieldCode.profession == undefined) {
       await this.#userMcsdRepository.update(
         userMcsdAccount.id,
         {
@@ -271,12 +311,12 @@ export default class UserService {
       CustomException(ErrorCode.UserInfoProNotFoundException)
     }
     let profession = user.customFieldsDataByFieldCode.profession.value;
-    if(user.primaryPhone == null){
+    if (user.primaryPhone == null) {
       CustomException(ErrorCode.UserInfoPhoneNotFoundException)
     }
     let phone = user.primaryPhone;
 
-    if(user.sex == null){
+    if (user.sex == null) {
       CustomException(ErrorCode.UserInfoGenderNotFoundException)
     }
     let sex = user.sex;
@@ -728,7 +768,7 @@ export default class UserService {
   };
 
   getBank = async (params) => {
-    
+
     const userBankAccount = await this.#userBankAccountRepository.findAll(params);
 
     return userBankAccount.values;

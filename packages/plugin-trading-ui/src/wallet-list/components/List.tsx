@@ -14,7 +14,7 @@ import Form from './Form';
 type Props = {
   queryParams: any;
   history: any;
-  tradingWallets: any[];
+  tradingUserByPrefix: any[];
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -22,7 +22,8 @@ type Props = {
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingWallets } = this.props;
+    const { tradingUserByPrefix, history } = this.props;
+    console.log('tradingUserByPrefix123', tradingUserByPrefix);
     return (
       <Table>
         <thead>
@@ -32,18 +33,14 @@ class ListComp extends React.Component<Props> {
             <th>{__('Bdc Account')}</th>
             <th>{__('Lastname')}</th>
             <th>{__('Firstname')}</th>
-            <th>{__('Currency')}</th>
-            <th>{__('Balance')}</th>
-            <th>{__('Hold balance')}</th>
-            <th>{__('Trade Balance')}</th>
             <th>{__('Status')}</th>
             <th>{__('Description')}</th>
             <th>{__('Updated At')}</th>
           </tr>
         </thead>
         <tbody id="orders">
-          {(tradingWallets || []).map((wallet, index) => (
-            <Row index={index} wallet={wallet} />
+          {(tradingUserByPrefix || []).map((wallet, index) => (
+            <Row history={history} index={index} wallet={wallet} />
           ))}
         </tbody>
       </Table>
@@ -75,7 +72,7 @@ class ListComp extends React.Component<Props> {
   render() {
     const { queryParams, total, count } = this.props;
     const breadcrumb = [
-      { title: __('Wallet List'), link: '/tradings/stock-list' }
+      { title: __('Wallet List'), link: '/tradings/wallet-list' }
     ];
 
     return (
@@ -92,7 +89,7 @@ class ListComp extends React.Component<Props> {
             data={this.renderContent()}
             loading={false}
             count={total}
-            emptyText="There is no stock list."
+            emptyText="There is no wallet list."
             emptyImage="/images/actions/20.svg"
           />
         }

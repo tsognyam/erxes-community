@@ -12,7 +12,7 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 type Props = {
   queryParams: any;
   history: any;
-  tradingWalletsQuery: any;
+  tradingUserByPrefixQuery: any;
 };
 
 type FinalProps = {} & Props & IRouterProps;
@@ -41,12 +41,13 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { history, queryParams, tradingWalletsQuery } = this.props;
-    const total = tradingWalletsQuery?.tradingWallets?.length || 0;
-    const count = tradingWalletsQuery?.tradingWallets?.length || 0;
+    const { history, queryParams, tradingUserByPrefixQuery } = this.props;
+    const total = tradingUserByPrefixQuery?.tradingUserByPrefix?.total || 0;
+    const count = tradingUserByPrefixQuery?.tradingUserByPrefix?.count || 0;
     // let tradingStocks = tradingStocksQuery.tradingStocks || {};
-    let tradingWallets = tradingWalletsQuery?.tradingWallets || [];
-    console.log('tradingWallets', tradingWallets);
+    let tradingUserByPrefix =
+      tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
+    console.log('tradingWallets', tradingUserByPrefix);
     // if ('values' in tradingStocks) {
     //   tradingStocks = tradingStocks.values;
     // } else {
@@ -57,8 +58,8 @@ class ListContainer extends React.Component<FinalProps> {
     // tradingStocks = []
     const updatedProps = {
       ...this.props,
-      tradingWallets,
-      loading: tradingWalletsQuery.loading,
+      tradingUserByPrefix,
+      loading: tradingUserByPrefixQuery.loading,
       total,
       count,
       renderButton: this.renderButton,
@@ -81,12 +82,12 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 const getRefetchQueries = () => {
-  return ['tradingWallets'];
+  return ['tradingUserByPrefix'];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingWallets), {
-      name: 'tradingWalletsQuery',
+    graphql<Props>(gql(queries.tradingUserByPrefix), {
+      name: 'tradingUserByPrefixQuery',
       options: props => ({
         variables: { ...props }
       })

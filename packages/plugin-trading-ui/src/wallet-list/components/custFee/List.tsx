@@ -76,7 +76,6 @@ class List extends React.Component<Props> {
   };
   render() {
     const { queryParams, total, count } = this.props;
-    const breadcrumb = [{ title: __('Fee List'), link: '/tradings/fee-list' }];
 
     return (
       //   <Wrapper
@@ -101,13 +100,7 @@ class List extends React.Component<Props> {
       //     hasBorder
       //   />
       <VerticalContent>
-        {
-          <Wrapper.Header
-            title={__('List')}
-            breadcrumb={breadcrumb}
-            queryParams={queryParams}
-          />
-        }
+        {<Wrapper.Header title={__('List')} queryParams={queryParams} />}
         {/* <MainHead>{mainHead}</MainHead> */}
         <HeightedWrapper>
           <Contents hasBorder={true}>
