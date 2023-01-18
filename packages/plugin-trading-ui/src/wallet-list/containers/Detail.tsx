@@ -12,7 +12,7 @@ import {
   PropertyProvider
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ButtonMutate } from '@erxes/ui';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 
 type Props = {
   id: string;
@@ -25,7 +25,7 @@ type FinalProps = {
 function CustomerDetailsContainer(props: FinalProps) {
   const { id, tradingUserByPrefixQuery } = props;
   const renderButton = ({
-    passedName,
+    name,
     values,
     isSubmitted,
     callback,
@@ -36,12 +36,12 @@ function CustomerDetailsContainer(props: FinalProps) {
         mutation={mutations.tradingWalletCharge}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries(object)}
         isSubmitted={isSubmitted}
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a ${passedName}`}
+        } a ${name}`}
       />
     );
   };
@@ -59,7 +59,7 @@ function CustomerDetailsContainer(props: FinalProps) {
   // let tradingStocks = tradingStocksQuery.tradingStocks || {};
   let tradingUserByPrefix =
     tradingUserByPrefixQuery?.tradingUserByPrefix?.values[0] || {};
-  console.log('account list12', tradingUserByPrefix);
+
   const taggerRefetchQueries = [
     {
       query: gql(queries.tradingUserByPrefix),
@@ -97,8 +97,16 @@ function CustomerDetailsContainer(props: FinalProps) {
     </PropertyProvider>
   );
 }
-const getRefetchQueries = () => {
-  return ['tradingUserByPrefix'];
+const getRefetchQueries = values => {
+  console.log('values', values);
+  return [
+    {
+      query: gql(queries.tradingUserByPrefix),
+      variables: {
+        id: values.id
+      }
+    }
+  ];
 };
 export default withProps<Props>(
   compose(

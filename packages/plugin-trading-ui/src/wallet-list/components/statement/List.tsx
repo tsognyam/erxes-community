@@ -133,19 +133,18 @@ class List extends React.Component<Props & ICommonFormProps> {
     const { queryParams, total, count } = this.props;
 
     return (
-      <Contents hasBorder={true}>
-        {/* {leftSidebar} */}
-        {this.renderContent()}
-        {/* {rightSidebar} */}
-      </Contents>
-      // <CommonForm
-      //     {...this.props}
-      //     name="name"
-      //     renderContent={this.renderContent}
-      //     generateDoc={this.generateDoc}
-      //     renderButton={this.props.renderButton}
-      //     object={this.props.object}
-      // />
+      // <Contents hasBorder={true}>
+      //   {/* {leftSidebar} */}
+      //   {this.renderContent()}
+      //   {/* {rightSidebar} */}
+      // </Contents>
+      <CommonForm
+        {...this.props}
+        name="name"
+        renderContent={this.renderContent}
+        generateDoc={this.generateDoc}
+        object={this.props.object}
+      />
     );
   }
 }

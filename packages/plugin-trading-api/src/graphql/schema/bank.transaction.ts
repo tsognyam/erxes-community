@@ -3,20 +3,20 @@ type TradingBankTransaction @key(fields:"id") {
     id: Int!
     type:Int!
     amount:Float!
-    jrno:String!
-    txnSign:String!
+    jrno:String
+    txnSign:String
     currencyCode:String!
     status:Int!
     orderId:Int
     order:JSON
-    description:String!
+    description:String
     oldDescription:String
-    dater:Date!
-    bank:JSON!
-    recAccountNo:String!
-    contAccountNo:String!
-    accountNo:String!
-    accountName:String!
+    dater:Date
+    bank:JSON
+    recAccountNo:String
+    contAccountNo:String
+    accountNo:String
+    accountName:String
     message:String
     createdAt:Date
     createUserId:Int

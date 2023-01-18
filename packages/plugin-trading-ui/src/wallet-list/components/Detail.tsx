@@ -5,7 +5,7 @@ import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSec
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 
-import { IField } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
@@ -31,6 +31,7 @@ type Props = {
   fields: IField[];
   taggerRefetchQueries?: any[];
   deviceFieldsVisibility: (key: string) => IFieldsVisibility;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Detail extends React.Component<Props> {
@@ -93,7 +94,7 @@ class Detail extends React.Component<Props> {
     return null;
   };
   renderContent = () => {
-    const { customer } = this.props;
+    const { customer, renderButton } = this.props;
 
     return (
       <>
@@ -116,7 +117,11 @@ class Detail extends React.Component<Props> {
           </thead>
           <tbody id="wallet">
             {(customer.Wallet || []).map((wallet, index) => (
-              <WalletRow index={index} wallet={wallet} />
+              <WalletRow
+                index={index}
+                wallet={wallet}
+                renderButton={renderButton}
+              />
             ))}
           </tbody>
         </Table>

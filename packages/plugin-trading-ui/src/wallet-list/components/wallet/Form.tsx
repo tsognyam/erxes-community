@@ -28,49 +28,35 @@ type Props = {
   object?;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 } & ICommonFormProps;
-type State = {
-  currentTab: string;
-};
-class Forms extends React.Component<Props & ICommonFormProps, State> {
+
+class Forms extends React.Component<Props & ICommonFormProps> {
   constructor(props) {
     super(props);
-    const custFee = props.custFee || {};
-
-    this.state = {
-      currentTab: custFee ? 'custFee' : 'Category'
-    };
   }
-  generateDoc = (values: any) => {
+  generateDoc = (values: { amount: string }) => {
     const { object } = this.props;
     const finalValues = values;
-
-    if (object) {
-      finalValues.id = object.id;
-    }
-    return {};
+    console.log('this.generateDoc', finalValues);
+    return {
+      walletId: object.id,
+      amount: parseInt(finalValues.amount)
+    };
   };
 
-  // renderCustFee(trigger: React.ReactNode) {
-  //   const content = props => (
-  //     <List {...props} />
-  //   );
-
-  //   return (
-  //     <></>
-  //   );
-  // }
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as any);
     console.log('object', object);
-
+    console.log('formProps', formProps);
     return (
       <>
         <FormGroup>
           <ControlLabel>{__('Мөнгөн дүн')}</ControlLabel>
           <FormControl
+            {...formProps}
             name="amount"
+            type="number"
             placeholder={__('Оруулах дүн')}
-            value={0}
+            defaultValue={0}
             required
           ></FormControl>
         </FormGroup>
@@ -82,7 +68,7 @@ class Forms extends React.Component<Props & ICommonFormProps, State> {
     return (
       <CommonForm
         {...this.props}
-        name="name"
+        name="deposit"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         renderButton={this.props.renderButton}
