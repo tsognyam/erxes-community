@@ -16,6 +16,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { OrderQueryResponse } from '../../types/orderTypes';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { OrderCancelMutationResponse } from '../../types';
 type Props = {
   queryParams: any;
   history: any;
@@ -61,7 +62,31 @@ class ListContainer extends React.Component<FinalProps> {
       />
     );
   };
-
+  renderButtonExecute = ({
+    passedName,
+    values,
+    isSubmitted,
+    callback,
+    object
+  }: IButtonMutateProps) => {
+    const { tradingOrdersQuery } = this.props;
+    const afterMutate = () => {
+      tradingOrdersQuery.refetch();
+      if (callback) {
+        callback();
+      }
+    };
+    return (
+      <ButtonMutate
+        mutation={mutations.orderConfirm}
+        variables={values}
+        callback={afterMutate}
+        isSubmitted={isSubmitted}
+        type="submit"
+        successMessage={`You successfully executed`}
+      />
+    );
+  };
   onSearch = (search: string, type: string) => {
     if (!search) {
       return routerUtils.removeParams(this.props.history, type);
@@ -72,6 +97,7 @@ class ListContainer extends React.Component<FinalProps> {
   };
   onCancelOrder = txnid => {
     const {} = this.props;
+    alert(txnid);
   };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
@@ -102,7 +128,7 @@ class ListContainer extends React.Component<FinalProps> {
     const orders = tradingOrdersQuery?.tradingOrders?.values || [];
     const total = tradingOrdersQuery?.tradingOrders?.total || 0;
     const count = tradingOrdersQuery?.tradingOrders?.count || 0;
-    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix || [];
+    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const extendedProps = {
       ...this.props,
@@ -115,7 +141,9 @@ class ListContainer extends React.Component<FinalProps> {
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
       onSearch: this.onSearch,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
+      renderButtonExecute: this.renderButtonExecute,
+      onCancelOrder: this.onCancelOrder
       // remove: this.remove,
       // removeOrders,
     };
@@ -143,12 +171,14 @@ const generateParams = ({ queryParams }) => {
     ...generatePaginationParams(queryParams)
   };
 };
-// const getRefetchQueries = (queryParams?: any) => {
-//   return [{
-//     query: gql(queries.orderList),
-//     variables: { ...generateParams({ queryParams }) }
-//   }];
-// };
+const getRefetchQueries = (queryParams?: any) => {
+  return [
+    {
+      query: gql(queries.orderList),
+      variables: { ...generateParams({ queryParams }) }
+    }
+  ];
+};
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.orderList), {
@@ -158,7 +188,17 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.prefixList), {
+    graphql<
+      Props,
+      OrderCancelMutationResponse,
+      { txnid: number; stockcode: number; userId: string }
+    >(gql(mutations.orderCancel), {
+      name: 'cancelMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: getRefetchQueries(queryParams)
+      })
+    }),
+    graphql<Props>(gql(queries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
@@ -167,16 +207,6 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.stockList), {
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.tradingUserWallets), {
-      name: 'tradingUserWalletsQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          userId: '1',
-          currencyCode: 'MNT'
-        },
         fetchPolicy: 'network-only'
       })
     })

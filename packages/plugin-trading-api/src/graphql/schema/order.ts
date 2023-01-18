@@ -32,7 +32,7 @@ type TradingOrder @key(fields:"txnid") {
     updateUserId:Int
     ostatus:Int
     oupdatedate:Date
-    oupdateUserId:Int
+    oupdateUserId:String
     tradecode:String
     yield:Int
     msgid:Int
@@ -71,21 +71,30 @@ tradingOrders(
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 `;
-const params = `
+const addParams = `
 ordertype:Int!,
 txntype:Int!,
 stockcode:Int!,
 cnt:Int!,
 price:Float,
 enddate:Date!,
-condid:Int!,
+condid:Int,
 txnsource:Int!,
 userId:String
 `;
-const cancelParams = `
-stockcode:Int!,
+const editParams = `
 txnid:Int!,
+stockcode:Int!,
+ordertype:Int!,
+cnt:Int!,
+price:Float,
+condid:Int,
 userId:String
+`;
+const cancelParams = `
+stockcode:Int!, 
+txnid:Int!,
+userId:String!
 `;
 const confirmParams = `
 orderId: Int!
@@ -94,8 +103,8 @@ donecnt: Int!
 donedate: Date!
 `;
 export const mutations = `
-tradingOrderAdd(${params}):TradingOrder,
-tradingOrderEdit(${params}):TradingOrder,
+tradingOrderAdd(${addParams}):TradingOrder,
+tradingOrderEdit(${editParams}):TradingOrder,
 tradingOrderCancel(${cancelParams}):TradingOrder,
 tradingOrderConfirm(${confirmParams}):TradingOrder
 `;

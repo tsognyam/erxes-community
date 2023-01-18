@@ -117,7 +117,11 @@ class OrderValidator extends BaseValidator {
           stockname: true
         }
       },
-      wallet: true,
+      wallet: {
+        include: {
+          walletBalance: true
+        }
+      },
       transactionOrder: true,
       user: true
     };
@@ -324,7 +328,7 @@ class OrderValidator extends BaseValidator {
     let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
     if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
-    //await this.checkUser(data.userId);
+    await this.checkUser(data.userId);
     return data;
   };
   validateCancelIPO = async params => {
@@ -352,7 +356,7 @@ class OrderValidator extends BaseValidator {
     return data;
   };
   checkUser = async userId => {
-    let user = await getUser('', userId);
+    let user = await getUser({ _id: userId });
 
     if (!user) {
       CustomException(ErrorCode.UserNotFoundException);

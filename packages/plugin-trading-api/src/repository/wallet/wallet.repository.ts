@@ -24,7 +24,8 @@ export default class WalletRepository extends BaseRepository {
         walletBalance: {
           select: {
             balance: true,
-            holdBalance: true
+            holdBalance: true,
+            tradeBalance: true
           }
         }
       }

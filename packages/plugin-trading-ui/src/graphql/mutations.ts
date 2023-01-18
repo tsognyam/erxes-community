@@ -53,7 +53,62 @@ mutation tradingOrderEdit($enddate: Date!) {
   }
 }
 `;
-
+const orderConfirm = `
+mutation TradingOrderConfirm($donecnt: Int!, $donedate: Date!, $doneprice: Float!, $orderId: Int!) {
+  tradingOrderConfirm(donecnt: $donecnt, donedate: $donedate, doneprice: $doneprice, orderId: $orderId) {
+    brchno
+    cnt
+    condid
+    descr
+    descr2
+    donecnt
+    donedate
+    doneprice
+    enddate
+    fee
+    filename
+    ipaddress
+    ipo
+    mseExecutionId
+    mseOrderId
+    msgid
+    orderno
+    ordertype
+    originalCnt
+    originalDonePrice
+    originalPrice
+    ostatus
+    oupdateUserId
+    oupdatedate
+    price
+    regdate
+    settlementMCSD
+    settlementMCSDId
+    settlementMSCC
+    settlementMSCCId
+    startdate
+    status
+    stock
+    stockOrder
+    stockOrderId
+    stockcode
+    tradecode
+    tranOrderId
+    transactionOrder
+    txndate
+    txnid
+    txnsource
+    txntype
+    updateUserId
+    updatedate
+    user
+    userId
+    wallet
+    walletId
+    yield
+  }
+}
+`;
 const stockAdd = `
 mutation TradingStockAdd($enddate: Date!, $startdate: Date!, $stockcode: Int!, $stockname: String!, $stockprice: Float!, $stocktypeId: Int!, $symbol: String!, $ipo: Int!, $exchangeid: Int!, $cnt: Int) {
   tradingStockAdd(enddate: $enddate, startdate: $startdate, stockcode: $stockcode, stockname: $stockname, stockprice: $stockprice, stocktypeId: $stocktypeId, symbol: $symbol, ipo: $ipo, exchangeid: $exchangeid, cnt: $cnt) {
@@ -96,8 +151,60 @@ mutation TradingStockAdd($enddate: Date!, $startdate: Date!, $stockcode: Int!, $
   }
 }
 `;
-const orderCancel = `
-mutation tradingOrder
+const orderCancel = `mutation TradingOrderCancel($txnid: Int!, $userId: String!, $stockcode: Int!) {
+  tradingOrderCancel( txnid: $txnid, userId: $userId, stockcode: $stockcode) {
+    brchno
+    cnt
+    condid
+    descr
+    descr2
+    donecnt
+    donedate
+    doneprice
+    enddate
+    fee
+    filename
+    ipaddress
+    ipo
+    mseExecutionId
+    mseOrderId
+    msgid
+    orderno
+    ordertype
+    originalCnt
+    originalDonePrice
+    originalPrice
+    ostatus
+    oupdateUserId
+    oupdatedate
+    price
+    regdate
+    settlementMCSD
+    settlementMCSDId
+    settlementMSCC
+    settlementMSCCId
+    startdate
+    status
+    stock
+    stockOrder
+    stockOrderId
+    stockcode
+    tradecode
+    tranOrderId
+    transactionOrder
+    txndate
+    txnid
+    txnsource
+    txntype
+    updateUserId
+    updatedate
+    user
+    userId
+    wallet
+    walletId
+    yield
+  }
+}
 `;
 const tradingWalletCharge = `
 mutation TradingWalletCharge($amount: Float!, $walletId: Int!) {
@@ -134,6 +241,8 @@ export default {
   add,
   orderAdd,
   orderEdit,
+  orderConfirm,
+  orderCancel,
   stockAdd,
   tradingWalletCharge
 };

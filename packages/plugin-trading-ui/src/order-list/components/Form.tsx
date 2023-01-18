@@ -10,6 +10,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import gql from 'graphql-tag';
+import queries from '../../graphql/queries';
+import client from '@erxes/ui/src/apolloClient';
 type Props = {
   object: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -24,7 +27,7 @@ type State = {
   orderType: number;
   price: string;
   txntype: number;
-  tradeBalance: number;
+  tradeBalance: string;
 };
 class Forms extends React.Component<Props, State> {
   constructor(props) {
@@ -38,7 +41,9 @@ class Forms extends React.Component<Props, State> {
       isPrice: object?.orderType == 2 ? false : true,
       price: object?.price,
       txntype: object?.txntype || 1,
-      tradeBalance: 0
+      tradeBalance: this.numberFormat(
+        object?.wallet?.walletBalance.tradeBalance
+      )
     };
   }
   generateDoc = (values: {
@@ -70,8 +75,29 @@ class Forms extends React.Component<Props, State> {
   };
   prefixChange = (option: { value: string }) => {
     const value = !option ? '' : option.value;
-    alert();
     this.setState({ userId: value });
+    client
+      .query({
+        query: gql(queries.tradingUserWallets),
+        fetchPolicy: 'network-only',
+        variables: { userId: value, currencyCode: 'MNT' }
+      })
+      .then(({ data }: any) => {
+        if (data?.tradingUserWallets.length > 0) {
+          this.setState({
+            tradeBalance: this.numberFormat(
+              data.tradingUserWallets[0].walletBalance.tradeBalance
+            )
+          });
+        } else this.setState({ tradeBalance: this.numberFormat('0') });
+      });
+  };
+  numberFormat = (value: string) => {
+    if (value == undefined || value == '') value = '0';
+    return parseFloat(value).toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    });
   };
   stockChange = (option: { value: string }) => {
     const value = !option ? '' : option.value.toString();
