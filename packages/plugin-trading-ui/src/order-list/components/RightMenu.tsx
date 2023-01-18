@@ -14,14 +14,15 @@ import {
   BarItems,
   MenuFooter
 } from '../../styles';
-import { SEC_STATUS, STOCK, TYPE, ORDER_TYPE } from '../../constants';
+import { STATE_LIST, STOCK, TYPE, ORDER_TYPE } from '../../constants';
 import { IOption } from '@erxes/ui/src/types';
-
+import _ from 'lodash';
 type Props = {
   queryParams: any;
   clearFilter: () => void;
-  onSearch: (search: string) => void;
+  onSearch: (search: string, type: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
+  stocks: any[];
 };
 
 type State = {
@@ -96,14 +97,18 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { queryParams, onSelect } = this.props;
+    const { queryParams, onSelect, stocks } = this.props;
+    const stockList = stocks.map(x => {
+      return {
+        value: x.stockcode,
+        label: x.symbol + ' - ' + x.stockname
+      };
+    });
+    const stock = queryParams?.stockcode ? queryParams.stockcode : [];
 
-    const stockValues = STOCK.map(p => ({ label: p.label, value: p.value }));
-    const stock = queryParams ? queryParams.stock : [];
-
-    const statusValues = SEC_STATUS.map(p => ({
-      label: p.label,
-      value: p.value
+    const statusValues = STATE_LIST.map(p => ({
+      label: p.statusName,
+      value: p.status
     }));
     const status = queryParams ? queryParams.status : [];
 
@@ -117,7 +122,10 @@ export default class RightMenu extends React.Component<Props, State> {
     const orderType = queryParams ? queryParams.orderType : [];
 
     const onFilterSelect = (ops: IOption[], type: string) => {
-      onSelect(ops[ops.length - 1].value, type);
+      console.log(ops);
+      if (type == 'status' || type == 'stockcode') {
+        onSelect(ops[ops.length - 1].value, type);
+      } else onSelect(ops[ops.length - 1].label, type);
     };
 
     return (
@@ -150,9 +158,9 @@ export default class RightMenu extends React.Component<Props, State> {
         <Select
           placeholder={__('Filter by stock')}
           value={stock}
-          options={stockValues}
-          name="stock"
-          onChange={ops => onFilterSelect(ops, 'stock')}
+          options={stockList}
+          name="stockcode"
+          onChange={ops => onFilterSelect(ops, 'stockcode')}
           multi={true}
           loadingPlaceholder={__('Loading...')}
         />
@@ -206,7 +214,7 @@ export default class RightMenu extends React.Component<Props, State> {
         <Select
           placeholder={__('Filter by Status')}
           value={status}
-          options={statusValues}
+          options={_.sortBy(statusValues, ['label'])}
           name="status"
           onChange={ops => onFilterSelect(ops, 'status')}
           multi={true}

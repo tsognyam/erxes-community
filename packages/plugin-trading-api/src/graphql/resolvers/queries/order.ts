@@ -6,12 +6,23 @@ import { IContext } from '../../../connectionResolver';
 import OrderRepository from '../../../repository/order.repository';
 import OrderService from '../../../service/order.service';
 import { getUsers } from '../../../models/utils';
+import { start } from 'repl';
 let orderRepository = new OrderRepository();
 let orderService = new OrderService();
 const OrderQueries = {
   tradingOrders: async (
     _root: any,
-    { page, perPage, status, stockcode, txntype, sortDirection, sortField },
+    {
+      page,
+      perPage,
+      status,
+      stockcode,
+      txntype,
+      sortDirection,
+      sortField,
+      startDate,
+      endDate
+    },
     { models, subdomain, user }: IContext
   ) => {
     let orderBy: any = undefined;
@@ -30,14 +41,36 @@ const OrderQueries = {
       orderBy = {
         regdate: 'desc'
       };
+    let dateFilter = {};
+    if (startDate != undefined && endDate != undefined)
+      dateFilter = {
+        txndate: {
+          gte: startDate,
+          lte: endDate
+        }
+      };
+    else if (startDate != undefined)
+      dateFilter = {
+        txndate: {
+          gte: startDate
+        }
+      };
+    else if (endDate != undefined)
+      dateFilter = {
+        txndate: {
+          lte: endDate
+        }
+      };
     let params = {
       skip: (page - 1) * perPage,
       take: perPage,
       status,
       stockcode,
       txntype,
-      orderBy
+      orderBy,
+      ...dateFilter
     };
+    console.log('params=', params);
     let orderList = await orderService.get(params);
     let userIds = orderList.values?.map(function(obj: any) {
       return obj.userId;
@@ -53,7 +86,7 @@ const OrderQueries = {
     orderList.values?.forEach((el: any) => {
       orderUser = users.find((x: any) => x._id == el.userId);
       if (orderUser != undefined && orderUser.details != undefined) {
-        el.user = user.details;
+        el.user.details = user.details;
       }
     });
     return orderList;

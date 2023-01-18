@@ -43,17 +43,21 @@ class ListContainer extends React.Component<FinalProps> {
     callback,
     object
   }: IButtonMutateProps) => {
+    const { tradingOrdersQuery } = this.props;
+    const afterMutate = () => {
+      tradingOrdersQuery.refetch();
+      if (callback) {
+        callback();
+      }
+    };
     return (
       <ButtonMutate
         mutation={object ? mutations.orderEdit : mutations.orderAdd}
         variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries}
+        callback={afterMutate}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
+        successMessage={`You successfully ${object ? 'updated' : 'added'}`}
       />
     );
   };
@@ -64,13 +68,13 @@ class ListContainer extends React.Component<FinalProps> {
     }
 
     routerUtils.setParams(this.props.history, search);
+    //getRefetchQueries();
   };
   onCancelOrder = txnid => {
     const {} = this.props;
   };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
-
     if (params[key] === values) {
       console.log('params[key] === value', params[key], values);
       return routerUtils.removeParams(this.props.history, key);
@@ -125,22 +129,32 @@ class ListContainer extends React.Component<FinalProps> {
     return <Bulk content={content} />;
   }
 }
-const getRefetchQueries = () => {
-  return ['tradingOrders'];
+const generateParams = ({ queryParams }) => {
+  return {
+    stockcode: queryParams.stockcode
+      ? parseInt(queryParams.stockcode)
+      : undefined,
+    txntype: queryParams.txntype,
+    status: queryParams.status,
+    sortField: queryParams.sortField,
+    sortDirection: queryParams.sortDirection,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    ...generatePaginationParams(queryParams)
+  };
 };
+// const getRefetchQueries = (queryParams?: any) => {
+//   return [{
+//     query: gql(queries.orderList),
+//     variables: { ...generateParams({ queryParams }) }
+//   }];
+// };
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.orderList), {
       name: 'tradingOrdersQuery',
       options: ({ queryParams }) => ({
-        variables: {
-          stockcode: queryParams.stockcode,
-          txntype: queryParams.txntype,
-          status: queryParams.status,
-          sortField: queryParams.sortField,
-          sortDirection: queryParams.sortDirection,
-          ...generatePaginationParams(queryParams)
-        },
+        variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'
       })
     }),
@@ -157,16 +171,11 @@ export default withProps<Props>(
       })
     }),
     graphql<Props>(gql(queries.tradingUserWallets), {
-      name: 'tradingUserWallets',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(mutations.orderAdd), {
-      name: 'tradingOrderAddMutation',
+      name: 'tradingUserWalletsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          enddate: '2022-12-30'
+          userId: '1',
+          currencyCode: 'MNT'
         },
         fetchPolicy: 'network-only'
       })

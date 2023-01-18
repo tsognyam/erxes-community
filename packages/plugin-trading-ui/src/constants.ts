@@ -431,3 +431,14 @@ export const chartColors = [
   '#d1a924',
   '#503b2c'
 ];
+export const STATE_LIST = [
+  { status: 0, statusName: 'Цуцлагдсан', styleName: 'danger' },
+  { status: 1, statusName: 'Шинэ', styleName: 'primary' },
+  { status: 2, statusName: 'Хүлээн авсан', styleName: 'primary' },
+  { status: 3, statusName: 'Review', styleName: 'warning' },
+  { status: 4, statusName: 'Хэсэгчилж биелсэн', styleName: 'success' },
+  { status: 5, statusName: 'Биелсэн', styleName: 'success' },
+  { status: 6, statusName: 'Түтгэлзсэн', styleName: 'danger' },
+  { status: 7, statusName: 'Хугацаа нь дууссан', styleName: 'danger' },
+  { status: 9, statusName: 'Шинэчлэгдсэн', styleName: 'default' }
+];

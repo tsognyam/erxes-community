@@ -11,7 +11,7 @@ import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 type Props = {
-  order: any;
+  object: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   prefix: any[];
   stocks: any[];
@@ -29,14 +29,15 @@ type State = {
 class Forms extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    const { order } = this.props;
+    const { object } = this.props;
+
     this.state = {
-      userId: order?.userId,
-      stockcode: order?.stockcode,
-      orderType: order?.orderType || 1,
-      isPrice: order?.orderType == 2 ? false : true,
-      price: order?.price,
-      txntype: order?.txntype || 1,
+      userId: object?.userId,
+      stockcode: object?.stockcode,
+      orderType: object?.orderType || 1,
+      isPrice: object?.orderType == 2 ? false : true,
+      price: object?.price,
+      txntype: object?.txntype || 1,
       tradeBalance: 0
     };
   }
@@ -50,11 +51,11 @@ class Forms extends React.Component<Props, State> {
     enddate: Date;
     userId: string;
   }) => {
-    const { order } = this.props;
+    const { object } = this.props;
     const finalValues = values;
 
-    if (order) {
-      finalValues.txnid = order.txnid;
+    if (object) {
+      finalValues.txnid = object.txnid;
     }
     return {
       txnid: finalValues.txnid,
@@ -69,6 +70,7 @@ class Forms extends React.Component<Props, State> {
   };
   prefixChange = (option: { value: string }) => {
     const value = !option ? '' : option.value;
+    alert();
     this.setState({ userId: value });
   };
   stockChange = (option: { value: string }) => {
@@ -90,7 +92,7 @@ class Forms extends React.Component<Props, State> {
     this.setState({ txntype: value });
   };
   renderContent = (formProps: IFormProps) => {
-    const order = this.props.order || ({} as any);
+    const order = this.props.object || ({} as any);
     const prefixList = this.props.prefix.map(x => {
       return {
         value: x.userId,
@@ -199,7 +201,7 @@ class Forms extends React.Component<Props, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         renderButton={this.props.renderButton}
-        object={this.props.order}
+        object={this.props.object}
       />
     );
   }
