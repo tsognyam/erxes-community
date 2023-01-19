@@ -150,8 +150,20 @@ class Detail extends React.Component<Props> {
         <Contents>
           <div>ҮЦ дансны дугаар: {customer.bdcAccountId}</div>
           <div>Префикс: {customer.fullPrefix}</div>
-          <div>Төлөв: {USER_STATUS.find(item => { return item.status == customer.status })?.description}</div>
-          <div>Шинэчлэгдсэн огноо: {customer.updatedAt != null ? displayValue(customer.updatedAt, 'date') : displayValue(customer.createdAt, 'date')}</div>
+          <div>
+            Төлөв:{' '}
+            {
+              USER_STATUS.find(item => {
+                return item.status == customer.status;
+              })?.description
+            }
+          </div>
+          <div>
+            Шинэчлэгдсэн огноо:{' '}
+            {customer.updatedAt != null
+              ? displayValue(customer.updatedAt, 'date')
+              : displayValue(customer.createdAt, 'date')}
+          </div>
         </Contents>
         <Contents headers="Wallet list" hasBorder={true}>
           {this.renderContent()}

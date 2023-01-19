@@ -47,7 +47,7 @@ class ListContainer extends React.Component<FinalProps> {
     const count = tradingWithdrawGetQuery?.tradingWithdrawGet?.count || 0;
     // let tradingStocks = tradingStocksQuery.tradingStocks || {};
     let tradingWithdrawGet =
-    tradingWithdrawGetQuery?.tradingWithdrawGet?.values || [];
+      tradingWithdrawGetQuery?.tradingWithdrawGet?.values || [];
     console.log('tradingWithdrawGet', tradingWithdrawGet);
     // if ('values' in tradingStocks) {
     //   tradingStocks = tradingStocks.values;
@@ -82,7 +82,7 @@ class ListContainer extends React.Component<FinalProps> {
     );
   }
 }
-const getRefetchQueries = (values) => {
+const getRefetchQueries = values => {
   return [
     {
       query: gql(queries.tradingWithdrawGet),
@@ -96,7 +96,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.tradingWithdrawGet), {
       name: 'tradingWithdrawGetQuery',
-      options: ({walletId}) => ({
+      options: ({ walletId }) => ({
         variables: { walletId: walletId }
       })
     })

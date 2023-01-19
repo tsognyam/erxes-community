@@ -149,7 +149,7 @@ mutation TradingWithdrawCreate($amount: Float!, $type: Int!, $walletId: Int!) {
     walletId
   }
 }
-`
+`;
 export default {
   add,
   orderAdd,

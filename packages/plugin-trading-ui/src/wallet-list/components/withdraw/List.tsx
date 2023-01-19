@@ -36,7 +36,7 @@ class List extends React.Component<Props> {
       <Table>
         <thead>
           <tr>
-          <th>
+            <th>
               <FormControl
                 // checked={isAllSelected}
                 componentClass="checkbox"

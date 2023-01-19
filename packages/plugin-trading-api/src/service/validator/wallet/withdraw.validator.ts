@@ -68,7 +68,7 @@ export default class WithdrawValidator extends BaseValidator {
     let user = await getUser({
       _id: wallet.userId
     });
-    console.log('user',user)
+    console.log('user', user);
     if (
       user.customFieldsDataByFieldCode.userBank == undefined ||
       user.customFieldsDataByFieldCode.userBankAccountNo == undefined

@@ -53,9 +53,9 @@ class Tab extends React.PureComponent<Props, State> {
       return <ListStatement {...updatedProps} {...object} />;
     }
     if (currentTab === 'withdraw') {
-      console.log('object',object)
-      let walletIdList:any = [];
-      for(let i=0;i<object.Wallet.length;i++){
+      console.log('object', object);
+      let walletIdList: any = [];
+      for (let i = 0; i < object.Wallet.length; i++) {
         walletIdList.push(object.Wallet[i].id);
       }
       const updatedProps = {
@@ -91,9 +91,7 @@ class Tab extends React.PureComponent<Props, State> {
       tabs.push(
         this.renderTabTitle('wallet-statement', '', 'Wallet statement')
       );
-      tabs.push(
-        this.renderTabTitle('withdraw', '', 'Withdrawal')
-      );
+      tabs.push(this.renderTabTitle('withdraw', '', 'Withdrawal'));
     }
 
     return (

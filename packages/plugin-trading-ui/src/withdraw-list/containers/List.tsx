@@ -68,7 +68,7 @@ class ListContainer extends React.Component<FinalProps> {
   };
   onConfirm = id => {
     const {} = this.props;
-    console.log('onConfirm',id)
+    console.log('onConfirm', id);
   };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);

@@ -27,7 +27,6 @@ type Props = {
 class ActionSection extends React.Component<Props> {
   constructor(props) {
     super(props);
-
   }
 
   renderButton() {
@@ -106,20 +105,13 @@ class ActionSection extends React.Component<Props> {
         <Dropdown.Toggle as={DropdownToggle} id="dropdown-action">
           {this.renderButton()}
         </Dropdown.Toggle>
-        <Dropdown.Menu>
-          {this.renderEditButton()}
-         
-        </Dropdown.Menu>
+        <Dropdown.Menu>{this.renderEditButton()}</Dropdown.Menu>
       </Dropdown>
     );
   }
 
   render() {
-    return (
-      <Actions>
-        {this.renderDropdown()}
-      </Actions>
-    );
+    return <Actions>{this.renderDropdown()}</Actions>;
   }
 }
 

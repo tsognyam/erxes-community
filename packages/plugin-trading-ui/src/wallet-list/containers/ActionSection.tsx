@@ -45,7 +45,6 @@ const ActionSectionContainer = (props: FinalProps) => {
   //     });
   // };
 
-
   // const searchCustomer = (
   //   searchValue: string,
   //   callback: (data?: any) => void
@@ -68,7 +67,7 @@ const ActionSectionContainer = (props: FinalProps) => {
   const updatedProps = {
     isSmall,
     coc: customer,
-    cocType: 'customer',
+    cocType: 'customer'
     // remove,
     // search: searchCustomer
   };
@@ -81,15 +80,14 @@ const generateOptions = () => ({
 });
 
 export default withProps<Props>(
-  compose(
-    // mutations
-    
-    // graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
-    //   gql(mutations.customersChangeState),
-    //   {
-    //     name: 'customersChangeState',
-    //     options: generateOptions()
-    //   }
-    // )
-  )(withRouter<FinalProps>(ActionSectionContainer))
+  compose()(withRouter<FinalProps>(ActionSectionContainer))
+  // mutations
+
+  // graphql<Props, ChangeStateMutationResponse, ChangeStateMutationVariables>(
+  //   gql(mutations.customersChangeState),
+  //   {
+  //     name: 'customersChangeState',
+  //     options: generateOptions()
+  //   }
+  // )
 );

@@ -123,8 +123,6 @@ class Forms extends React.Component<Props, State> {
           />
         </FormGroup>
 
-
-
         <FormGroup>
           <ControlLabel>{__('Мөнгөн дүн')}</ControlLabel>
           <FormControl

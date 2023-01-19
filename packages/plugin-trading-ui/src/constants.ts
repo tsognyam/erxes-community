@@ -444,23 +444,23 @@ export const STATE_LIST = [
 ];
 
 export const USER_STATUS = [
-  { status: 0, description: "Идэвхигүй" },
-  { status: 1, description: "Идэвхитэй" },
-  { status: 5, description: "Төлбөр төлөгдсөн" },
-  { status: 6, description: "ҮЦТХТ данс нээх хүсэлт илгээгдсэн" },
-  { status: 7, description: "ҮЦТХТ дансны мэдээлэл алдаатай" },
-]
+  { status: 0, description: 'Идэвхигүй' },
+  { status: 1, description: 'Идэвхитэй' },
+  { status: 5, description: 'Төлбөр төлөгдсөн' },
+  { status: 6, description: 'ҮЦТХТ данс нээх хүсэлт илгээгдсэн' },
+  { status: 7, description: 'ҮЦТХТ дансны мэдээлэл алдаатай' }
+];
 
 export const WITHDRAW_STATUS = [
-  { status: 1, description: "Амжилттай", styleName: "success" },
-  { status: 3, description: "Түтгэлзсэн", styleName: "warning" },
-  { status: 4, description: "Алдаа гарсан", styleName: "danger" },
-  { status: 5, description: "Шинэ", styleName: "default" },
-  { status: 6, description: "Шинэ", styleName: "primary" },
-  { status: 7, description: "Түтгэлзсэн", styleName: "warning" },
-]
+  { status: 1, description: 'Амжилттай', styleName: 'success' },
+  { status: 3, description: 'Түтгэлзсэн', styleName: 'warning' },
+  { status: 4, description: 'Алдаа гарсан', styleName: 'danger' },
+  { status: 5, description: 'Шинэ', styleName: 'default' },
+  { status: 6, description: 'Шинэ', styleName: 'primary' },
+  { status: 7, description: 'Түтгэлзсэн', styleName: 'warning' }
+];
 
 export const WITHDRAW_TYPE = [
-  { value: 1, label: "Номинал", styleName: "primary" },
-  { value: 2, label: "ҮЦТХТ", styleName: "warning" }
-]
+  { value: 1, label: 'Номинал', styleName: 'primary' },
+  { value: 2, label: 'ҮЦТХТ', styleName: 'warning' }
+];

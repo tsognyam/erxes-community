@@ -36,12 +36,13 @@ type State = {
   amount: number;
   // description: string;
   avBalance: number;
-}
+};
 class Forms extends React.Component<Props & ICommonFormProps, State> {
   constructor(props) {
     super(props);
     const { object } = this.props;
-    const avBalance = (object?.walletBalance.balance - object?.walletBalance.holdBalance);
+    const avBalance =
+      object?.walletBalance.balance - object?.walletBalance.holdBalance;
     this.state = {
       walletId: object?.walletId,
       amount: object?.amount,
@@ -51,7 +52,7 @@ class Forms extends React.Component<Props & ICommonFormProps, State> {
     };
   }
 
-  generateDoc = (values: { amount: string, type: string }) => {
+  generateDoc = (values: { amount: string; type: string }) => {
     const { object } = this.props;
     const finalValues = values;
     return {
@@ -73,7 +74,6 @@ class Forms extends React.Component<Props & ICommonFormProps, State> {
           <ControlLabel>{__('Төрөл сонгох')}</ControlLabel>
           <Select
             {...formProps}
-            
             placeholder={__('Сонгох')}
             value={this.state.type}
             options={WITHDRAW_TYPE}

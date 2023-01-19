@@ -20,9 +20,9 @@ export default class WithdrawRepository extends BaseRepository {
           user: true
         }
       }
-    }
+    };
     let withdrawList = await this.findAll(data, select, options);
-    let userIds = withdrawList.values.map(function (obj: any) {
+    let userIds = withdrawList.values.map(function(obj: any) {
       return obj.wallet.user.userId;
     });
     let query = {

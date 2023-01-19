@@ -15,7 +15,6 @@ type Props = {
 };
 
 class WalletRow extends React.Component<Props> {
-  
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };

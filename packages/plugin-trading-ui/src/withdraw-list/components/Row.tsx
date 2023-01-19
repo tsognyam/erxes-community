@@ -103,7 +103,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, index, withdraw, toggleBulk } = this.props;
-    
+
     const onChange = e => {
       if (toggleBulk) {
         toggleBulk(withdraw, e.target.checked);
@@ -127,19 +127,35 @@ class Row extends React.Component<Props> {
         <td>{withdraw.wallet.user.prefix}</td>
         <td>{withdraw.lastName}</td>
         <td>{withdraw.firstName}</td>
-        <td>{<Label
-            lblStyle={WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.styleName}
-          >
-            {WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.label}
-          </Label>}</td>
+        <td>
+          {
+            <Label
+              lblStyle={
+                WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.styleName
+              }
+            >
+              {WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.label}
+            </Label>
+          }
+        </td>
         <td>{withdraw.amount}</td>
         <td>{withdraw.feeAmount}</td>
         <td>{withdraw.description}</td>
-        <td>{<Label
-            lblStyle={WITHDRAW_STATUS.find(x => x.status == withdraw.status)?.styleName}
-          >
-            {WITHDRAW_STATUS.find(x => x.status == withdraw.status)?.description}
-          </Label>}</td>
+        <td>
+          {
+            <Label
+              lblStyle={
+                WITHDRAW_STATUS.find(x => x.status == withdraw.status)
+                  ?.styleName
+              }
+            >
+              {
+                WITHDRAW_STATUS.find(x => x.status == withdraw.status)
+                  ?.description
+              }
+            </Label>
+          }
+        </td>
         <td>{displayValue(withdraw.createdAt, 'date')}</td>
         <td>{withdraw.createdUserId}</td>
         <td>{this.renderActions(withdraw)}</td>
