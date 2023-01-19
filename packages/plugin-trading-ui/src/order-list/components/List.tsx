@@ -17,10 +17,12 @@ import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormExecute from './FormExecute';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  renderButtonExecute: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
   orders: IOrder[]; //buh order
   prefix: any[];
@@ -35,7 +37,7 @@ interface IProps extends IRouterProps {
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
-  onCancelOrder: () => void;
+  onCancelOrder: (txnid: number) => void;
 }
 
 class List extends React.Component<IProps> {
@@ -67,7 +69,8 @@ class List extends React.Component<IProps> {
       total,
       count,
       stocks,
-      prefix
+      prefix,
+      onCancelOrder
     } = this.props;
     const onChangeAll = () => {
       toggleAll(orders, 'orders');
@@ -148,6 +151,7 @@ class List extends React.Component<IProps> {
               renderButton={renderButton}
               stocks={stocks}
               prefix={prefix}
+              onCancelOrder={onCancelOrder}
             />
           ))}
         </tbody>
@@ -168,7 +172,6 @@ class List extends React.Component<IProps> {
 
     return <RightMenu {...rightMenuProps} />;
   }
-
   // removeOrders = orders => {
   //   const orderIds: string[] = [];
 
@@ -180,7 +183,21 @@ class List extends React.Component<IProps> {
 
   //   removeOrders({ orderIds }, emptyBulk);
   // };
-
+  renderExecuteForm = props => {
+    const { bulk } = this.props;
+    let object: any;
+    if (bulk.length > 0) object = bulk[0];
+    let updatedProps = {
+      ...props,
+      object
+    };
+    return (
+      <FormExecute
+        {...updatedProps}
+        renderButton={this.props.renderButtonExecute}
+      />
+    );
+  };
   render() {
     const { queryParams, bulk, orders, total, count } = this.props;
     const breadcrumb = [
@@ -198,14 +215,30 @@ class List extends React.Component<IProps> {
       //   });
 
       actionBarLeft = (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="times-circle"
-          onClick={onClick}
-        >
-          Remove
-        </Button>
+        <Flex>
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="times-circle"
+            onClick={onClick}
+          >
+            Remove
+          </Button>
+          <ModalTrigger
+            title="Execute order"
+            size={'sm'}
+            trigger={
+              <Button
+                id={'executeButton'}
+                btnStyle="primary"
+                icon="plus-circle"
+              >
+                Execute
+              </Button>
+            }
+            content={this.renderExecuteForm}
+          />
+        </Flex>
       );
     }
 

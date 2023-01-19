@@ -27,6 +27,7 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
+    console.log('params', params);
     return await orderService.updateOrder(params);
   },
   tradingOrderCancel: async (

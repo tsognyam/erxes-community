@@ -33,38 +33,57 @@ query tradingOrders(
     total,
     count,
     values {
-      txnid,
-      ordertype,
-      txntype,
-      walletId,
-      wallet,
-      orderno,
-      stockcode,
-      stock,
-      txndate,
-      originalCnt,
-      cnt,
-      price,
-      fee,
-      donedate,
-      donecnt,
-      doneprice,
-      descr,
-      descr2,
-      status,
-      regdate,
-      condid,
-      user,
-      userId    
+      brchno
+      cnt
+      condid
+      descr
+      descr2
+      donecnt
+      donedate
+      doneprice
+      enddate
+      fee
+      filename
+      ipaddress
+      ipo
+      mseExecutionId
+      mseOrderId
+      msgid
+      orderno
+      ordertype
+      originalCnt
+      originalDonePrice
+      originalPrice
+      ostatus
+      oupdateUserId
+      oupdatedate
+      price
+      regdate
+      settlementMCSD
+      settlementMCSDId
+      settlementMSCC
+      settlementMSCCId
+      startdate
+      status
+      stock
+      stockOrder
+      stockOrderId
+      stockcode
+      tradecode
+      tranOrderId
+      transactionOrder
+      txndate
+      txnid
+      txnsource
+      txntype
+      updateUserId
+      updatedate
+      user
+      userId
+      wallet
+      walletId
+      yield  
     }
-  }
-}
-`;
-const prefixList = `
-query TradingUserByPrefix {
-  tradingUserByPrefix {
-    userId,
-    prefix
   }
 }
 `;
@@ -302,7 +321,6 @@ export default {
   orderList,
   stockList,
   TradingStocks,
-  prefixList,
   tradingWallets,
   tradingUserWallets,
   tradingCustFeeList,

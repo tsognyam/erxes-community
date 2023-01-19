@@ -111,6 +111,19 @@ class Row extends React.Component<Props> {
       order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt);
     const total = order.cnt * order.price;
     const fee = (total * order.fee) / 100;
+    const userDetails = order.user?.details;
+    let userName = '';
+    let registerNumber = '';
+    if (userDetails) {
+      userName = userDetails.lastName + ' ' + userDetails.firstName;
+    }
+    if (
+      userDetails &&
+      userDetails.customFieldsDataByFieldCode?.registerNumber != undefined
+    ) {
+      registerNumber =
+        userDetails.customFieldsDataByFieldCode?.registerNumber.value;
+    }
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
@@ -121,9 +134,9 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{order.txnid}</td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td>{order.user?.prefix}</td>
+        <td>{registerNumber}</td>
+        <td>{userName}</td>
         <td>{order.stock.symbol}</td>
         <td>
           <Label lblStyle={order.txntype === 1 ? 'primary' : 'danger'}>

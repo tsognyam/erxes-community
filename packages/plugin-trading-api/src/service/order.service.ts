@@ -79,11 +79,9 @@ class OrderService {
     if (wallets.length == 0) {
       CustomException(ErrorCode.WalletNotFoundException);
     }
-    console.log('nominalWallet123');
     let nominalWallet = await this.walletService.getNominalWallet({
       currencyCode: stockdata.currencyCode
     });
-    console.log('nominalWallet', nominalWallet);
     data.walletId = wallets[0].id;
 
     let dataValid = await this.orderValidator.validateCreateSO(data);
