@@ -34,10 +34,12 @@ stocktypeId:Int
 `;
 
 const updateParams = `
+id:Int!
 name:String
 name2:String
 stocktypeId:Int
 userId:String
+value:Float
 `;
 export const queries = `
 tradingCustFeeByStock(${inputParams}):Float

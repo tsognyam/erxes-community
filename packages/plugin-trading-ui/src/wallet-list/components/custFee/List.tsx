@@ -29,7 +29,7 @@ type Props = {
 
 class List extends React.Component<Props> {
   renderContent = () => {
-    const { tradingCustFeeGetList } = this.props;
+    const { tradingCustFeeGetList, renderButton } = this.props;
 
     return (
       <Table>
@@ -41,11 +41,12 @@ class List extends React.Component<Props> {
             <th>{__('Value')}</th>
             <th>{__('Status')}</th>
             <th>{__('Updated date')}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="fees">
           {(tradingCustFeeGetList || []).map((custFee, index) => (
-            <Row index={index} custFee={custFee} />
+            <Row index={index} custFee={custFee} renderButton={renderButton} />
           ))}
         </tbody>
       </Table>

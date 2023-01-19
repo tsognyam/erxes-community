@@ -215,30 +215,16 @@ class List extends React.Component<IProps> {
       //   });
 
       actionBarLeft = (
-        <Flex>
-          <Button
-            btnStyle="danger"
-            size="small"
-            icon="times-circle"
-            onClick={onClick}
-          >
-            Remove
-          </Button>
-          <ModalTrigger
-            title="Execute order"
-            size={'sm'}
-            trigger={
-              <Button
-                id={'executeButton'}
-                btnStyle="primary"
-                icon="plus-circle"
-              >
-                Execute
-              </Button>
-            }
-            content={this.renderExecuteForm}
-          />
-        </Flex>
+        <ModalTrigger
+          title="Execute order"
+          size={'sm'}
+          trigger={
+            <Button id={'executeButton'} btnStyle="primary" icon="plus-circle">
+              Execute
+            </Button>
+          }
+          content={this.renderExecuteForm}
+        />
       );
     }
 

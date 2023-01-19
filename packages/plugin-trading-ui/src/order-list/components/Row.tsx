@@ -127,11 +127,20 @@ class Row extends React.Component<Props> {
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
-          <FormControl
+          {order.status !== 1 && order.status !== 2 ? (
+            ''
+          ) : (
+            <FormControl
+              checked={isChecked}
+              componentClass="checkbox"
+              onChange={onChange}
+            />
+          )}
+          {/* <FormControl
             checked={isChecked}
             componentClass="checkbox"
             onChange={onChange}
-          />
+          /> */}
         </td>
         <td>{order.txnid}</td>
         <td>{order.user?.prefix}</td>

@@ -99,7 +99,7 @@ class List extends React.Component<Props & ICommonFormProps> {
             <FormControl
               // {...formProps}
               name="startDate"
-              defaultValue={this.props.startDate}
+              defaultValue={'2023-01-01'}
               type="date"
             />
           </FormColumn>
@@ -108,7 +108,7 @@ class List extends React.Component<Props & ICommonFormProps> {
             <FormControl
               // {...formProps}
               name="endDate"
-              defaultValue={this.props.endDate}
+              defaultValue={'2023-01-19'}
               type="date"
             />
           </FormColumn>

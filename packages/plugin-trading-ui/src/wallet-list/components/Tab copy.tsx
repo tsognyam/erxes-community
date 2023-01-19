@@ -10,7 +10,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import List from '../containers/custFee/List';
 import ListStatement from '../containers/statement/List';
-import ListWithdrawal from '../containers/withdraw/List';
+
 type Props = {
   contentType: string;
   object: any;
@@ -47,26 +47,15 @@ class Tab extends React.PureComponent<Props, State> {
       return <List {...updatedProps} {...object} />;
     }
     if (currentTab === 'wallet-statement') {
+      console.log('wallet=', object);
       let walletId = 0;
       if (object.Wallet?.length > 0) walletId = object.Wallet[0].id;
+      console.log('walletId=', walletId);
       const updatedProps = {
         userId: object.userId,
         walletId: walletId
       };
       return <ListStatement {...updatedProps} {...object} />;
-    }
-    if (currentTab === 'withdraw') {
-      console.log('object', object);
-      let walletIdList: any = [];
-      for (let i = 0; i < object.Wallet.length; i++) {
-        walletIdList.push(object.Wallet[i].id);
-      }
-      const updatedProps = {
-        walletId: {
-          in: walletIdList
-        }
-      };
-      return <ListWithdrawal {...updatedProps} {...object} />;
     }
 
     return null;
@@ -94,7 +83,6 @@ class Tab extends React.PureComponent<Props, State> {
       tabs.push(
         this.renderTabTitle('wallet-statement', '', 'Wallet statement')
       );
-      tabs.push(this.renderTabTitle('withdraw', '', 'Withdrawal'));
     }
 
     return (

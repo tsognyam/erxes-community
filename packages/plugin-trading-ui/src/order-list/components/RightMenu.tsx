@@ -73,15 +73,6 @@ export default class RightMenu extends React.Component<Props, State> {
       if (type === 'prefix') {
         data = { prefix: target.value || '' };
       }
-      if (type === 'registry') {
-        data = { registry: target.value || '' };
-      }
-      if (type === 'lastName') {
-        data = { lastName: target.value || '' };
-      }
-      if (type === 'firstName') {
-        data = { firstName: target.value || '' };
-      }
       this.props.onSearch(data, type);
     }
   };
@@ -170,25 +161,6 @@ export default class RightMenu extends React.Component<Props, State> {
           placeholder={__('Enter prefix')}
           type="number"
           onKeyPress={e => this.onSearch(e, 'prefix')}
-        />
-        <ControlLabel>{__('Registry number')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.registry}
-          type="text"
-          placeholder={__('Enter registry number')}
-          onKeyPress={e => this.onSearch(e, 'registry')}
-        />
-        <ControlLabel>{__('Last Name')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.lastName}
-          placeholder={__('Enter last name')}
-          onKeyPress={e => this.onSearch(e, 'lastName')}
-        />
-        <ControlLabel>{__('First Name')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.firstName}
-          placeholder={__('Enter first name')}
-          onKeyPress={e => this.onSearch(e, 'firstName')}
         />
         <ControlLabel>{__('Type')}</ControlLabel>
         <Select

@@ -2,14 +2,19 @@ import React from 'react';
 import { FinanceAmount, StyledTr } from '../../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
-import { ActionButtons, Tip } from '@erxes/ui';
-import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
-import Form from '../Form';
+import Tip from '@erxes/ui/src/components/Tip';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger, confirm } from '@erxes/ui/src';
+import Form from './Form';
 import { STOCKTYPE } from '../../../constants';
+import Icon from '@erxes/ui/src/components/Icon';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 type Props = {
   custFee: any;
   index: number;
-};
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+} & ICommonListProps;
 
 class Row extends React.Component<Props> {
   displayValue(value, type = 'number') {
@@ -38,7 +43,32 @@ class Row extends React.Component<Props> {
       );
     }
   }
+  renderForm = props => {
+    return <Form {...props} renderButton={this.props.renderButton} />;
+  };
+  renderEditAction = object => {
+    const { save } = this.props;
 
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => {
+      return this.renderForm({ ...props, object, save });
+    };
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
+    );
+  };
   render() {
     const { index, custFee } = this.props;
     console.log('custFee', custFee);
@@ -50,6 +80,7 @@ class Row extends React.Component<Props> {
         <td>{this.displayValue(custFee.value)}</td>
         <td>{custFee.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
         <td>{dayjs(custFee.updateddate).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>{this.renderEditAction(custFee)}</td>
       </StyledTr>
     );
   }

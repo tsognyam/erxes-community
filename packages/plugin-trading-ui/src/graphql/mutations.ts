@@ -36,20 +36,58 @@ mutation tradingOrderAdd(
 }
 `;
 const orderEdit = `
-mutation tradingOrderEdit($enddate: Date!) {
-  tradingOrderEdit(
-  ordertype: 2, # 1 Зах зээл, 2 Market
-  txntype: 1, #
-  stockcode: 3020,
-  cnt: 10,
-  price: 1000,
-  condid: 1, 
-  txnsource: 1, #1=self or 2=broker
-  enddate: $enddate, 
-  )  
-  {
-    cnt,
+mutation TradingOrderEdit($cnt: Int!, $ordertype: Int!, $stockcode: Int!, $txnid: Int!, $userId: String!, $price: Float) {
+  tradingOrderEdit(cnt: $cnt, ordertype: $ordertype, stockcode: $stockcode, txnid: $txnid, userId: $userId, price: $price) {
+    brchno
+    cnt
+    condid
+    descr
+    descr2
+    donecnt
+    donedate
+    doneprice
+    enddate
+    fee
+    filename
+    ipaddress
+    ipo
+    mseExecutionId
+    mseOrderId
+    msgid
+    orderno
+    ordertype
+    originalCnt
+    originalDonePrice
+    originalPrice
+    ostatus
+    oupdateUserId
+    oupdatedate
+    price
+    regdate
+    settlementMCSD
+    settlementMCSDId
+    settlementMSCC
+    settlementMSCCId
+    startdate
+    status
+    stock
+    stockOrder
+    stockOrderId
+    stockcode
+    tradecode
+    tranOrderId
+    transactionOrder
+    txndate
+    txnid
+    txnsource
+    txntype
+    updateUserId
+    updatedate
     user
+    userId
+    wallet
+    walletId
+    yield
   }
 }
 `;
@@ -257,6 +295,23 @@ mutation TradingWithdrawCreate($amount: Float!, $type: Int!, $walletId: Int!) {
   }
 }
 `;
+const tradingCustFeeUpdate = `mutation TradingCustFeeUpdate($id: Int!, $value: Float) {
+  tradingCustFeeUpdate(id: $id, value: $value) {
+    descr
+    id
+    name
+    name2
+    sidetype
+    status
+    stocktypeId
+    updatedby
+    updateddate
+    user
+    userId
+    value
+  }
+}
+`;
 export default {
   add,
   orderAdd,
@@ -265,5 +320,6 @@ export default {
   orderCancel,
   stockAdd,
   tradingWalletCharge,
-  tradingWithdrawCreate
+  tradingWithdrawCreate,
+  tradingCustFeeUpdate
 };

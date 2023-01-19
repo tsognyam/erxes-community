@@ -29,7 +29,7 @@ class ListContainer extends React.Component<FinalProps> {
     object
   }: IButtonMutateProps) => {
     return (
-      <Button btnStyle="default" onClick={getRefetchQueries.bind(object)}>
+      <Button btnStyle="default" onClick={getRefetchQueries}>
         Find
       </Button>
     );
@@ -58,7 +58,6 @@ class ListContainer extends React.Component<FinalProps> {
       // searchValue,
       queryParams
     };
-    console.log('updatedProps', updatedProps);
     // return <List history={history} queryParams={queryParams} />;
     // return <List {...updatedProps} />;
     const content = props => {
@@ -73,14 +72,8 @@ class ListContainer extends React.Component<FinalProps> {
     );
   }
 }
-const getRefetchQueries = values => {
-  console.log('values', values);
-  return [
-    {
-      query: gql(queries.tradingTransactionGet),
-      variables: values
-    }
-  ];
+const getRefetchQueries = () => {
+  return ['tradingTransactionGet'];
 };
 export default withProps<Props>(
   compose(
@@ -88,8 +81,8 @@ export default withProps<Props>(
       name: 'tradingTransactionGetQuery',
       options: ({ startDate, endDate, walletId }) => ({
         variables: {
-          startDate: startDate,
-          endDate: endDate,
+          startDate: '2023-01-01',
+          endDate: '2023-01-19',
           walletId: walletId
         }
       })

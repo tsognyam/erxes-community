@@ -28,15 +28,13 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.stockAdd : mutations.stockAdd}
+        mutation={mutations.tradingCustFeeUpdate}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
+        successMessage={`You successfully updated`}
       />
     );
   };

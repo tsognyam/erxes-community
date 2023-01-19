@@ -17,7 +17,17 @@ class Row extends React.Component<Props> {
     return (
       <StyledTr key={index}>
         <td>{index + 1}</td>
-        <td>{transaction.type}</td>
+        <td>
+          {transaction.type == 1
+            ? 'Орлого'
+            : transaction.type == 2
+            ? 'Зарлага'
+            : transaction.type == 3
+            ? 'Шимтгэлийн орлого'
+            : transaction.type == 4
+            ? 'Шимтгэлийн зарлага'
+            : ''}
+        </td>
         <td>{displayValue(transaction.amount)}</td>
         <td>{displayValue(transaction.beforeBalance)}</td>
         <td>{displayValue(transaction.afterBalance)}</td>
