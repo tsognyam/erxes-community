@@ -130,10 +130,31 @@ mutation TradingWalletCharge($amount: Float!, $walletId: Int!) {
   }
 }
 `;
+const tradingWithdrawCreate = `
+mutation TradingWithdrawCreate($amount: Float!, $type: Int!, $walletId: Int!) {
+  tradingWithdrawCreate(amount: $amount, type: $type, walletId: $walletId) {
+    amount
+    bankTransactionId
+    createdAt
+    createdUserId
+    dater
+    description
+    feeAmount
+    id
+    status
+    type
+    updatedAt
+    updatedUserId
+    userBankAccountId
+    walletId
+  }
+}
+`
 export default {
   add,
   orderAdd,
   orderEdit,
   stockAdd,
-  tradingWalletCharge
+  tradingWalletCharge,
+  tradingWithdrawCreate
 };

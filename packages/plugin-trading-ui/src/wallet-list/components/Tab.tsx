@@ -10,7 +10,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import List from '../containers/custFee/List';
 import ListStatement from '../containers/statement/List';
-
+import ListWithdrawal from '../containers/withdraw/List';
 type Props = {
   contentType: string;
   object: any;
@@ -52,6 +52,19 @@ class Tab extends React.PureComponent<Props, State> {
       };
       return <ListStatement {...updatedProps} {...object} />;
     }
+    if (currentTab === 'withdraw') {
+      console.log('object',object)
+      let walletIdList:any = [];
+      for(let i=0;i<object.Wallet.length;i++){
+        walletIdList.push(object.Wallet[i].id);
+      }
+      const updatedProps = {
+        walletId: {
+          in: walletIdList
+        }
+      };
+      return <ListWithdrawal {...updatedProps} {...object} />;
+    }
 
     return null;
   }
@@ -77,6 +90,9 @@ class Tab extends React.PureComponent<Props, State> {
     if (contentType === 'account') {
       tabs.push(
         this.renderTabTitle('wallet-statement', '', 'Wallet statement')
+      );
+      tabs.push(
+        this.renderTabTitle('withdraw', '', 'Withdrawal')
       );
     }
 

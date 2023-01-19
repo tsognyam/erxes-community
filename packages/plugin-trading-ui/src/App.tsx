@@ -3,7 +3,7 @@ import GeneralRoutes from './generalRoutes';
 import { PluginLayout } from '@erxes/ui/src/styles/main';
 import { AppProvider } from 'coreui/appContext';
 import { FinanceAmount } from './styles';
-
+import dayjs from 'dayjs';
 const App = () => {
   return (
     <AppProvider>
@@ -27,7 +27,7 @@ export function displayValue(value, type = 'number') {
   } else if (type == 'date') {
     return (
       <>
-        {(value || 0).toLocaleString('default', {
+        {/* {(value || 0).toLocaleString('default', {
           year: 'numeric',
           month: 'numeric',
           day: 'numeric',
@@ -35,7 +35,8 @@ export function displayValue(value, type = 'number') {
           minute: 'numeric',
           second: 'numeric',
           hour12: false
-        })}
+        })} */}
+        {dayjs(value).format('YYYY-MM-DD HH:mm:ss')}
       </>
     );
   }

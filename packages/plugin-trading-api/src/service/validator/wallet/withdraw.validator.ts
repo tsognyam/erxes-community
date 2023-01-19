@@ -29,7 +29,7 @@ export default class WithdrawValidator extends BaseValidator {
         take: this._joi.number(),
         skip: this._joi.number(),
         orderBy: this._joi.any(),
-        userId: this._joi.number()
+        walletId: this._joi.any()
       },
       params
     );
@@ -39,6 +39,7 @@ export default class WithdrawValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         walletId: this._joi.number().required(),
+        userId: this._joi.string(),
         type: this._joi
           .number()
           .required()
@@ -67,6 +68,7 @@ export default class WithdrawValidator extends BaseValidator {
     let user = await getUser({
       _id: wallet.userId
     });
+    console.log('user',user)
     if (
       user.customFieldsDataByFieldCode.userBank == undefined ||
       user.customFieldsDataByFieldCode.userBankAccountNo == undefined

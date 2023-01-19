@@ -33,7 +33,7 @@ function CustomerDetailsContainer(props: FinalProps) {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.tradingWalletCharge}
+        mutation={name == "deposit" ? mutations.tradingWalletCharge : mutations.tradingWithdrawCreate}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries(object)}

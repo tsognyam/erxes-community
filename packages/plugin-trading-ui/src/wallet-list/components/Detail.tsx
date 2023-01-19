@@ -1,7 +1,7 @@
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import { __, renderFullName } from 'coreui/utils';
 
-import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
+import ActionSection from './ActionSection';
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 
@@ -23,6 +23,8 @@ import Tab from './Tab';
 import { Table } from '@erxes/ui/src';
 import { Contents } from '../../styles';
 import WalletRow from './wallet/walletRow';
+import { USER_STATUS } from '../../constants';
+import { displayValue } from '../../App';
 
 type Props = {
   customer: any;
@@ -145,6 +147,12 @@ class Detail extends React.Component<Props> {
 
     const content = (
       <>
+        <Contents>
+          <div>ҮЦ дансны дугаар: {customer.bdcAccountId}</div>
+          <div>Префикс: {customer.fullPrefix}</div>
+          <div>Төлөв: {USER_STATUS.find(item => { return item.status == customer.status })?.description}</div>
+          <div>Шинэчлэгдсэн огноо: {customer.updatedAt != null ? displayValue(customer.updatedAt, 'date') : displayValue(customer.createdAt, 'date')}</div>
+        </Contents>
         <Contents headers="Wallet list" hasBorder={true}>
           {this.renderContent()}
         </Contents>

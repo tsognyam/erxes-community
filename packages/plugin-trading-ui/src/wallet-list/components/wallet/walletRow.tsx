@@ -7,7 +7,7 @@ import { ActionButtons, Tip } from '@erxes/ui';
 import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
 import Form from './Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-
+import WithdrawForm from './withdrawForm';
 type Props = {
   wallet: any;
   index: number;
@@ -15,33 +15,7 @@ type Props = {
 };
 
 class WalletRow extends React.Component<Props> {
-  displayValue(value, type = 'number') {
-    console.log('value', value);
-    if (type == 'number') {
-      return (
-        <FinanceAmount>
-          {(value || 0).toLocaleString(undefined, {
-            minimumFractionDigits: 4,
-            maximumFractionDigits: 4
-          })}
-        </FinanceAmount>
-      );
-    } else if (type == 'date') {
-      return (
-        <>
-          {(value || 0).toLocaleString('default', {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false
-          })}
-        </>
-      );
-    }
-  }
+  
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -64,10 +38,31 @@ class WalletRow extends React.Component<Props> {
       />
     );
   };
+  renderWithdrawForm = props => {
+    return <WithdrawForm {...props} renderButton={this.props.renderButton} />;
+  };
+  renderWithdrawModal = object => {
+    const content = props => {
+      return this.renderWithdrawForm({ ...props, object });
+    };
+
+    const viewTrigger = (
+      <Button btnStyle="default" block>
+        {__('Зарлага')}
+      </Button>
+    );
+    return (
+      <ModalTrigger
+        size="sm"
+        title={__('Зарлага хийх')}
+        trigger={viewTrigger}
+        content={content}
+      />
+    );
+  };
 
   render() {
     const { index, wallet } = this.props;
-    console.log('userMcsd', wallet);
 
     return (
       <StyledTr key={index}>
@@ -87,6 +82,7 @@ class WalletRow extends React.Component<Props> {
             : dayjs(wallet.createdAt).format('YYYY-MM-DD HH:mm:ss')}
         </td>
         <td>{this.renderModal(wallet)}</td>
+        <td>{this.renderWithdrawModal(wallet)}</td>
       </StyledTr>
     );
   }

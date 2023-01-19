@@ -5,17 +5,22 @@ import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { __, Alert } from '@erxes/ui/src/utils';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { TYPE, ORDER_TYPE } from '../../constants';
+import { TYPE, ORDER_TYPE, WITHDRAW_TYPE } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 type Props = {
   withdraw: any;
+  prefix: any;
+  userId: any;
+  prefixList: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
 type State = {
+  prefix: string;
+  userId: string;
   walletId: number;
   type: number;
   amount: number;
@@ -25,8 +30,10 @@ type State = {
 class Forms extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    const { withdraw } = this.props;
+    const { withdraw, prefix, userId } = this.props;
     this.state = {
+      prefix: prefix,
+      userId: userId,
       walletId: withdraw?.walletId,
       amount: withdraw?.amount,
       type: withdraw?.type,
@@ -55,24 +62,57 @@ class Forms extends React.Component<Props, State> {
       description: this.state.description
     };
   };
-  // prefixChange = (option: { value: string }) => {
-  //   const value = !option ? '' : option.value;
-  //   this.setState({ userId: value });
-  // };
+  typeChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value;
+    this.setState({ type: parseInt(value) });
+  };
+  prefixChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value;
+    this.setState({ type: parseInt(value) });
+  };
   renderContent = (formProps: IFormProps) => {
     const withdraw = this.props.withdraw || ({} as any);
-
+    const prefixList = this.props.prefixList.map(x => {
+      return {
+        value: x.userId,
+        label: x.prefix
+      };
+    });
     return (
       <>
         <FormGroup>
           <ControlLabel>{__('Prefix')}</ControlLabel>
-          {/* <Select
-            placeholder={__('Prefix')}
+          {/* <FormControl
+            {...formProps}
+            name="prefix"
+
+          /> */}
+          <Select
+            placeholder={__('Сонгох')}
             value={this.state.userId}
             options={_.sortBy(prefixList, ['label'])}
-            onChange={this.prefixChange}
+            onChange={this.typeChange}
             required={true}
-          /> */}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Төрөл сонгох')}</ControlLabel>
+          <Select
+            placeholder={__('Сонгох')}
+            value={this.state.type}
+            options={WITHDRAW_TYPE}
+            onChange={this.typeChange}
+            required={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Данс сонгох')}</ControlLabel>
+          <Select
+            placeholder={__('Prefix')}
+            options={_.sortBy(prefixList, ['label'])}
+            // onChange={this.prefixChange}
+            required={true}
+          />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Дансны үлдэгдэл')}</ControlLabel>
@@ -83,17 +123,7 @@ class Forms extends React.Component<Props, State> {
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>{__('Данс сонгох')}</ControlLabel>
-          {/* <FormControl
-            name="txntype"
-            componentClass="select"
-            options={TYPE}
-            defaultValue={order.txntype}
-            value={this.state.txntype}
-            onChange={this.txntypeChange}
-          /> */}
-        </FormGroup>
+
 
         <FormGroup>
           <ControlLabel>{__('Мөнгөн дүн')}</ControlLabel>

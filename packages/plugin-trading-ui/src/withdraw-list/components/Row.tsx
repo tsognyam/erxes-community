@@ -14,39 +14,38 @@ import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { FinanceAmount } from '../../styles';
+import { WITHDRAW_STATUS, WITHDRAW_TYPE } from '../../constants';
+import { displayValue } from '../../App';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   withdraw: any;
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  onCancelOrder: (txnid: number) => void;
+  onConfirm: (id: number) => void;
+  onCancel: (id: number) => void;
 } & ICommonListProps;
 
 class Row extends React.Component<Props> {
-  displayValue(order, name, defaultValue = 0) {
-    let value = 0;
-    if (name == 'total' || name == 'fee') value = defaultValue;
-    else value = _.get(order, name);
-    return (
-      <FinanceAmount>
-        {(value || 0).toLocaleString(undefined, {
-          minimumFractionDigits: 4,
-          maximumFractionDigits: 4
-        })}
-      </FinanceAmount>
-    );
-  }
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
-  cancelOrder = e => {
-    const { withdraw, onCancelOrder } = this.props;
+  confirmOrder = e => {
+    const { withdraw, onConfirm } = this.props;
     e.stopPropagation();
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
-      onCancelOrder(withdraw.txnid);
+      onConfirm(withdraw.id);
+    });
+  };
+  cancelOrder = e => {
+    const { withdraw, onCancel } = this.props;
+    e.stopPropagation();
+    const message = 'Are you sure?';
+
+    confirm(message).then(() => {
+      onCancel(withdraw.id);
     });
   };
   renderEditAction = object => {
@@ -75,12 +74,20 @@ class Row extends React.Component<Props> {
   };
 
   renderActions = object => {
-    if (object.status !== 1 && object.status !== 2) {
+    if (object.status == 1 || object.status == 3) {
       return null;
     }
 
     return (
       <ActionButtons>
+        <Tip text={__('Зөвшөөрөх')} placement="bottom">
+          <Button
+            size="large"
+            btnStyle="link"
+            onClick={this.confirmOrder}
+            icon="check-1"
+          />
+        </Tip>
         {this.renderEditAction(object)}
         <Tip text={__('Цуцлах')} placement="bottom">
           <Button
@@ -96,17 +103,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, index, withdraw, toggleBulk } = this.props;
-    const stateList = [
-      { status: 0, statusName: 'Цуцлагдсан', styleName: 'danger' },
-      { status: 1, statusName: 'Шинэ', styleName: 'primary' },
-      { status: 2, statusName: 'Хүлээн авсан', styleName: 'primary' },
-      { status: 3, statusName: 'Review', styleName: 'warning' },
-      { status: 4, statusName: 'Хэсэгчилж биелсэн', styleName: 'success' },
-      { status: 5, statusName: 'Биелсэн', styleName: 'success' },
-      { status: 6, statusName: 'Түтгэлзсэн', styleName: 'danger' },
-      { status: 7, statusName: 'Хугацаа нь дууссан', styleName: 'danger' },
-      { status: 9, statusName: 'Шинэчлэгдсэн', styleName: 'default' }
-    ];
+    
     const onChange = e => {
       if (toggleBulk) {
         toggleBulk(withdraw, e.target.checked);
@@ -127,15 +124,23 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index + 1}</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>{withdraw.type}</td>
+        <td>{withdraw.wallet.user.prefix}</td>
+        <td>{withdraw.lastName}</td>
+        <td>{withdraw.firstName}</td>
+        <td>{<Label
+            lblStyle={WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.styleName}
+          >
+            {WITHDRAW_TYPE.find(x => x.value == withdraw.type)?.label}
+          </Label>}</td>
         <td>{withdraw.amount}</td>
         <td>{withdraw.feeAmount}</td>
         <td>{withdraw.description}</td>
-        <td>{withdraw.status}</td>
-        <td>{withdraw.createdAt}</td>
+        <td>{<Label
+            lblStyle={WITHDRAW_STATUS.find(x => x.status == withdraw.status)?.styleName}
+          >
+            {WITHDRAW_STATUS.find(x => x.status == withdraw.status)?.description}
+          </Label>}</td>
+        <td>{displayValue(withdraw.createdAt, 'date')}</td>
         <td>{withdraw.createdUserId}</td>
         <td>{this.renderActions(withdraw)}</td>
       </StyledTr>

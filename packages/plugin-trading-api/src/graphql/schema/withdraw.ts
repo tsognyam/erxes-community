@@ -14,8 +14,9 @@ type tradingWithdraw @key(fields:"id") {
     updatedAt: Date
     updatedUserId: Int
     userBankAccountId:Int
-    withdraws: JSON
-    user:JSON
+    wallet: JSON
+    firstName: String
+    lastName: String
 }
 type tradingWalletList {
     total:Int,
@@ -30,7 +31,6 @@ amount:Float!,
 type:Int!
 description:String
 dater:Date
-userBankAccountId:Int
 `;
 const updateParams = `
 walletId:Int!,
@@ -48,7 +48,7 @@ updatedUserId:Int
 userBankAccountId:Int
 `;
 const inputParams = `
-walletId:Int,
+walletId:JSON,
 type:Int,
 status:Int,
 take:Int,

@@ -228,7 +228,7 @@ query TradingTransactionGet($walletId: Int, $startDate: Date, $endDate: Date) {
 }
 `;
 const tradingWithdrawGet = `
-query TradingWithdrawGet($skip: Int, $status: Int, $take: Int, $type: Int, $walletId: Int) {
+query TradingWithdrawGet($skip: Int, $status: Int, $take: Int, $type: Int, $walletId: JSON) {
   tradingWithdrawGet(skip: $skip, status: $status, take: $take, type: $type, walletId: $walletId) {
     count
     total
@@ -245,10 +245,11 @@ query TradingWithdrawGet($skip: Int, $status: Int, $take: Int, $type: Int, $wall
       type
       updatedAt
       updatedUserId
-      user
       userBankAccountId
       walletId
-      withdraws
+      wallet
+      lastName
+      firstName
     }
   }
 }

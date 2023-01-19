@@ -33,7 +33,8 @@ interface IProps extends IRouterProps {
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
-  onCancelOrder: () => void;
+  onCancel: () => void;
+  onConfirm: () => void;
 }
 
 class List extends React.Component<IProps> {
@@ -54,6 +55,8 @@ class List extends React.Component<IProps> {
       bulk,
       toggleBulk,
       renderButton,
+      onCancel,
+      onConfirm,
       list,
       total,
       count
@@ -74,8 +77,8 @@ class List extends React.Component<IProps> {
             </th>
             <th>№</th>
             <th>Prefix</th>
-            <th>Register</th>
-            <th>Name</th>
+            <th>LastName</th>
+            <th>FirstName</th>
             <th>
               <SortHandler sortField={'Type'} label={__('Type')} />
             </th>
@@ -116,6 +119,8 @@ class List extends React.Component<IProps> {
               isChecked={bulk.includes(withdraw)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
+              onCancel={onCancel}
+              onConfirm={onConfirm}
             />
           ))}
         </tbody>
@@ -210,7 +215,6 @@ class List extends React.Component<IProps> {
             }
           />
         }
-        leftSidebar={<Sidebar queryParams={queryParams} />}
         content={
           <DataWithLoader
             data={this.renderContent()}

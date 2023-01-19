@@ -93,10 +93,8 @@ export default class UserService {
     account.values.forEach((el: any, index) => {
       user = users.find((x: any) => x._id == el.userId);
       if (user != undefined) {
-        console.log('user', user)
         account.values[index].firstName = user.firstName;
         account.values[index].lastName = user.lastName;
-        console.log('wallets[index]', account.values[index]);
       }
     });
     return account;
@@ -206,11 +204,13 @@ export default class UserService {
         currencyCode: 'MNT'
       }, 'MNT');
 
-      // await this.#walletService.createWallet({
-      //   name: user.firstName,
-      //   userId: user.id
-      //   // currency: CurrencyConst.USD,
-      // }, 'USD');
+      await this.#walletService.createWallet({
+        name: user.firstName,
+        userId: user.id,
+        type: WalletConst.TYPE_USER,
+        status: WalletConst.STATUS_ACTIVE,
+        currencyCode: CurrencyConst.USD,
+      }, 'USD');
 
       await this.changeStep(user, UserStepConst.STEP_5);
     } else {

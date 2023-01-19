@@ -3,7 +3,6 @@ import OrderListRoutes from './order-list/routes';
 import StockListRoutes from './stock-list/routes';
 import StockOrderRoutes from './stock-order/routes';
 import WalletListRoutes from './wallet-list/routes';
-import StatementListRoutes from './statement-list/routes';
 import WithdrawListRoutes from './withdraw-list/routes';
 const routes = () => {
   return (
@@ -12,7 +11,6 @@ const routes = () => {
       <OrderListRoutes />
       <StockOrderRoutes />
       <WalletListRoutes />
-      <StatementListRoutes />
       <WithdrawListRoutes />
     </React.Fragment>
   );
