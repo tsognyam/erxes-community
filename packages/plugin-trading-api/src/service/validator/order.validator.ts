@@ -277,11 +277,9 @@ class OrderValidator extends BaseValidator {
     }
     return data;
   };
-
   validateUpdateSO = async params => {
     let schema: any = {
       txnid: this._joi.number().required(),
-      stockcode: this._joi.number().required(),
       ordertype: this._joi.number().required(),
       cnt: this._joi.number().required(),
       fee: this._joi.number().required(),
@@ -297,12 +295,7 @@ class OrderValidator extends BaseValidator {
       schema.enddate = this._joi.date().default(new Date());
     }
     let { data } = this.validate(schema, params);
-
-    let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
-
-    this.checkUser(data.userId);
-
+    await this.checkUser(data.userId);
     if (data.ordertype == 1) {
       // let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
       // if (marketStock.length == 0)
@@ -357,11 +350,9 @@ class OrderValidator extends BaseValidator {
   };
   checkUser = async userId => {
     let user = await getUser({ _id: userId });
-
     if (!user) {
       CustomException(ErrorCode.UserNotFoundException);
     }
-
     return user;
   };
   checkOrder = async txnid => {

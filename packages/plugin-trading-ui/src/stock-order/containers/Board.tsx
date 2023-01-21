@@ -30,7 +30,6 @@ class ListContainer extends React.Component<FinalProps> {
     const params = generateQueryParams(this.props.history);
 
     if (params[key] === values) {
-      console.log('params[key] === value', params[key], values);
       return routerUtils.removeParams(this.props.history, key);
     }
 

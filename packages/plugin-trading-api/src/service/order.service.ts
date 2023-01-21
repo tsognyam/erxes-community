@@ -253,20 +253,20 @@ class OrderService {
   updateOrder = async data => {
     // if (mseSocket.getSocket().isConnected() != 1)
     //   CustomException(ErrorCode.NotConnectedtoMITException);
-    let stockdata = await this.stockService.getStockCode({
-      stockcode: data.stockcode
-    });
-    // data.status = '0';
-
-    data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
-    if (stockdata.ipo == StockConst.IPO)
-      CustomException(ErrorCode.IpoCannotUpdateException);
-    else return await this.updateSO(data, stockdata);
-  };
-  updateSO = async (data, stockdata) => {
-    let dataValid = await this.orderValidator.validateUpdateSO(data);
     let order = await this.orderRepository.findOne(data.txnid);
     if (!order) CustomException(ErrorCode.OrderNotFoundException);
+    let stockdata = await this.stockService.getStockCode({
+      stockcode: order.stockcode
+    });
+    // data.status = '0';
+    data.userId = order.userId;
+    data.fee = await this.custFeeService.getFee(order.userId, order.stockcode);
+    if (stockdata.ipo == StockConst.IPO)
+      CustomException(ErrorCode.IpoCannotUpdateException);
+    else return await this.updateSO(data, stockdata, order);
+  };
+  updateSO = async (data, stockdata, order) => {
+    let dataValid = await this.orderValidator.validateUpdateSO(data);
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });

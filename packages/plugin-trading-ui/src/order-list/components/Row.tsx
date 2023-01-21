@@ -43,14 +43,9 @@ class Row extends React.Component<Props> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
-  cancelOrder = e => {
+  cancelOrder = () => {
     const { order, onCancelOrder } = this.props;
-    e.stopPropagation();
-    const message = 'Are you sure?';
-
-    confirm(message).then(() => {
-      onCancelOrder(order.txnid);
-    });
+    onCancelOrder(order);
   };
   renderEditAction = object => {
     const { save, stocks, prefix } = this.props;

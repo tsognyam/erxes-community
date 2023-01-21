@@ -19,7 +19,6 @@ const OrderMutations = {
     //   if (user != null) params.userId = user._id;
     //   else CustomException(ErrorCode.UserNotFoundException);
     // }
-    console.log(params);
     return await orderService.create(params);
   },
   tradingOrderEdit: async (
@@ -27,7 +26,6 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
-    console.log('params', params);
     return await orderService.updateOrder(params);
   },
   tradingOrderCancel: async (

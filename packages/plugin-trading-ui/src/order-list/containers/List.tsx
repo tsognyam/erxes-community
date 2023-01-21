@@ -8,7 +8,7 @@ import queryString from 'query-string';
 import { router as routerUtils } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
@@ -28,7 +28,8 @@ type FinalProps = {
   tradingUserByPrefixQuery: any;
   tradingStockListQuery: any;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  OrderCancelMutationResponse;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -95,9 +96,29 @@ class ListContainer extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, search);
     //getRefetchQueries();
   };
-  onCancelOrder = txnid => {
-    const {} = this.props;
-    alert(txnid);
+  onCancelOrder = order => {
+    const { tradingOrderCancelMutation, tradingOrdersQuery } = this.props;
+    console.log('order', order);
+    confirm(`This action will cancel order. Are you sure?`)
+      .then(() => {
+        tradingOrderCancelMutation({
+          variables: {
+            txnid: order.txnid,
+            stockcode: order.stockcode,
+            userId: order.userId
+          }
+        })
+          .then(() => {
+            Alert.success('You successfully cancelled an order');
+            tradingOrdersQuery.refetch();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
@@ -193,7 +214,7 @@ export default withProps<Props>(
       OrderCancelMutationResponse,
       { txnid: number; stockcode: number; userId: string }
     >(gql(mutations.orderCancel), {
-      name: 'cancelMutation',
+      name: 'tradingOrderCancelMutation',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)
       })

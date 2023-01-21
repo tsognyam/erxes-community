@@ -84,17 +84,13 @@ userId:String
 `;
 const editParams = `
 txnid:Int!,
-stockcode:Int!,
 ordertype:Int!,
 cnt:Int!,
 price:Float,
-condid:Int,
-userId:String
+condid:Int
 `;
 const cancelParams = `
-stockcode:Int!, 
-txnid:Int!,
-userId:String!
+txnid:Int!
 `;
 const confirmParams = `
 orderId: Int!

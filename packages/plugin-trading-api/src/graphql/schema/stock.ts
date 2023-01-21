@@ -19,7 +19,7 @@ type TradingStock @key(fields:"id") {
     regdate:Date!
     status:String!
     no:String
-    cnt:Int
+    cnt:Float
     boardname:String
     inducode:String
     lsttxndate:Date
