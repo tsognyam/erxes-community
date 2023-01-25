@@ -3,6 +3,6 @@ export interface IOrder {
 }
 export type OrderCancelMutationResponse = {
   tradingOrderCancelMutation: (params: {
-    variables: { txnid: number; stockcode: number; userId: string };
+    variables: { txnid: number };
   }) => Promise<any>;
 };

@@ -28,7 +28,7 @@ class WalletService {
         create: {
           balance: 0,
           holdBalance: 0,
-          tradeBalance: 0
+          incomingBalance: 0
         }
       },
       walletNumber: walletNumber.number,
@@ -93,9 +93,17 @@ class WalletService {
       params
     );
     let i = 0;
-    if (userWallet) {
-      userWallet.availableBalance = userWallet.balance - userWallet.holdBalance;
+    if (userWallet.length > 0) {
+      for (i = 0; i < userWallet.length; i++) {
+        userWallet[i].walletBalance.availableBalance =
+          parseFloat(userWallet[i].walletBalance.balance) -
+          parseFloat(userWallet[i].walletBalance.holdBalance);
+        userWallet[i].walletBalance.tradeBalance =
+          userWallet[i].walletBalance.availableBalance +
+          parseFloat(userWallet[i].walletBalance.incomingBalance);
+      }
     }
+    console.log(userWallet);
     return userWallet;
   };
   getNominalWallet = async params => {
@@ -114,7 +122,11 @@ class WalletService {
       balance: wallet.walletBalance.balance,
       holdBalance: wallet.walletBalance.holdBalance,
       availableBalance:
-        wallet.walletBalance.balance - wallet.walletBalance.holdBalance
+        wallet.walletBalance.balance - wallet.walletBalance.holdBalance,
+      tradeBalance:
+        wallet.walletBalance.balance -
+        wallet.walletBalance.holdBalance +
+        wallet.walletBalance.incomingBalance
     };
   };
   createNominal = async (currencyCode: string) => {
@@ -135,7 +147,7 @@ class WalletService {
           create: {
             balance: 0,
             holdBalance: 0,
-            tradeBalance: 0
+            incomingBalance: 0
           }
         },
         walletNumber: walletNumberNominal.number,

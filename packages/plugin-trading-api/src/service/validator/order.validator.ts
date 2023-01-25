@@ -286,7 +286,11 @@ class OrderValidator extends BaseValidator {
       userId: this._joi.string().required()
     };
     if (params.ordertype == 2) {
-      schema.price = this._joi.number().required();
+      schema.price = this._joi
+        .number()
+        .positive()
+        .greater(1)
+        .required();
       // schema.condid = this._joi.number().valid(StockConst.OrderCondition.Day, StockConst.OrderCondition.GTC, StockConst.OrderCondition.GTD).required()
     } else {
       //stock get max price
@@ -295,7 +299,7 @@ class OrderValidator extends BaseValidator {
       schema.enddate = this._joi.date().default(new Date());
     }
     let { data } = this.validate(schema, params);
-    await this.checkUser(data.userId);
+    //await this.checkUser(data.userId);
     if (data.ordertype == 1) {
       // let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
       // if (marketStock.length == 0)
@@ -312,16 +316,11 @@ class OrderValidator extends BaseValidator {
     let { data } = this.validate(
       {
         txnid: this._joi.number().required(),
-        stockcode: this._joi.number().required(),
         userId: this._joi.string().required()
       },
       params
     );
-
-    let stockdata = await this.stockRepository.getByStockcode(data.stockcode);
-    if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
-
-    await this.checkUser(data.userId);
+    //await this.checkUser(data.userId);
     return data;
   };
   validateCancelIPO = async params => {

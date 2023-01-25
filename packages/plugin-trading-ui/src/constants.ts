@@ -177,105 +177,6 @@ export const STOCK_LIST = [
   }
 ];
 
-export const STOCK_DATA = [
-  {
-    name: 'LEND',
-    change: 15,
-    changePercent: -1.99,
-    quantity: 39
-  },
-  {
-    name: 'CU',
-    change: 20,
-    changePercent: -2.33,
-    quantity: 55
-  },
-  {
-    name: 'APU',
-    change: 20,
-    changePercent: 5.98,
-    quantity: 1597
-  },
-  {
-    name: 'SUU',
-    change: 14,
-    changePercent: 2.33,
-    quantity: 300
-  },
-  {
-    name: 'MNP',
-    change: 10,
-    changePercent: -1.99,
-    quantity: 39
-  },
-  {
-    name: 'INV',
-    change: 8,
-    changePercent: -2.33,
-    quantity: 55
-  },
-  {
-    name: 'GOV',
-    change: 22,
-    changePercent: 5.98,
-    quantity: 1597
-  },
-  {
-    name: 'BOGD',
-    change: 10,
-    changePercent: 1.99,
-    quantity: 300
-  },
-  {
-    name: 'LEND',
-    change: 15,
-    changePercent: -1.99,
-    quantity: 39
-  },
-  {
-    name: 'CU',
-    change: 20,
-    changePercent: -2.33,
-    quantity: 55
-  },
-  {
-    name: 'APU',
-    change: 20,
-    changePercent: 5.98,
-    quantity: 1597
-  },
-  {
-    name: 'SUU',
-    change: 14,
-    changePercent: 2.33,
-    quantity: 300
-  },
-  {
-    name: 'MNP',
-    change: 10,
-    changePercent: -1.99,
-    quantity: 39
-  },
-  {
-    name: 'INV',
-    change: 8,
-    changePercent: -2.33,
-    quantity: 55
-  },
-  {
-    name: 'GOV',
-    change: 22,
-    changePercent: 5.98,
-    quantity: 1597
-  },
-  {
-    name: 'BOGD',
-    change: 10,
-    changePercent: 1.99,
-    quantity: 300
-  }
-];
-
 export const ORDER_BUY_SELL = [
   {
     price: 30,
@@ -320,8 +221,9 @@ export const ORDER_BUY_SELL = [
 ];
 
 export const TIME_FRAME = [
-  { label: 'Until the order is cancelled', value: 'cancel' },
-  { label: 'Until the order is cancelled', value: 'cancel' }
+  { label: 'Захиалга оруулсан өдөр', value: 0 },
+  { label: 'Захиалга цуцлагдах хүртэл', value: 1 },
+  { label: 'Заасан өдөр хүртэл', value: 6 }
 ];
 
 export const STOCK_ORDER = [

@@ -251,16 +251,16 @@ model WalletNumber {
 }
 
 model WalletBalance {
-  id            Int       @id @default(autoincrement())
-  walletId      Int       @unique
-  balance       Decimal   @db.Decimal(30, 4)
-  holdBalance   Decimal   @db.Decimal(30, 4)
-  tradeBalance  Decimal   @db.Decimal(30, 4)
-  createdAt     DateTime  @default(now())
-  createUserId  String?
-  updatedAt     DateTime?
-  updatedUserId String?
-  wallet        Wallet    @relation(fields: [walletId], references: [id])
+  id              Int       @id @default(autoincrement())
+  walletId        Int       @unique
+  balance         Decimal   @db.Decimal(30, 4)
+  holdBalance     Decimal   @db.Decimal(30, 4)
+  incomingBalance Decimal   @db.Decimal(30, 4)
+  createdAt       DateTime  @default(now())
+  createUserId    String?
+  updatedAt       DateTime?
+  updatedUserId   String?
+  wallet          Wallet    @relation(fields: [walletId], references: [id])
 }
 
 model StockBalance {

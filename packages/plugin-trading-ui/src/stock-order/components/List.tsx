@@ -1,26 +1,50 @@
 import React from 'react';
-import { ListContainer, List, FormBox } from '../../styles';
+import {
+  ListContainer,
+  OrderBuyList,
+  OrderSellList,
+  OrderDoneList,
+  FormBox
+} from '../../styles';
 import { ORDER_BUY_SELL } from '../../constants';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
 import Form from '../../order-list/components/Form';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import {
+  ICommonFormProps,
+  ICommonListProps
+} from '@erxes/ui-settings/src/common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 type Props = {
-  object?;
+  queryParams: any;
+  history: any;
+  onSelect: (values: string[] | string, key: string) => void;
+  onSearch: (values: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  isAllSelected: boolean;
+  closeModal: () => void;
+  prefix: any[];
+  stocks: any[];
+  object?;
+  stockChange: (option: { value: string }) => void;
+  prefixChange: (option: { value: string }) => void;
+  isCancel: boolean;
+  stockcode?: string;
 } & ICommonFormProps;
 class ListComp extends React.Component<Props & ICommonFormProps> {
   constructor(props) {
     super(props);
   }
   render() {
-    const createdDate = dayjs(new Date()).format('lll');
-
+    const createdDate = dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss');
+    const extendedProps = {
+      ...this.props
+    };
+    const { queryParams, history } = this.props;
     return (
       <ListContainer>
-        <List>
+        <OrderBuyList>
           <thead>
             <tr>
               <th colSpan={2}>{__('Order to buy')}</th>
@@ -35,19 +59,16 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               <tr>
                 <td>
                   {item.price.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
                 </td>
-                <td>
-                  {item.quantity.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  })}
-                </td>
+                <td>{item.quantity}</td>
               </tr>
             ))}
           </tbody>
-        </List>
-        <List>
+        </OrderBuyList>
+        <OrderSellList>
           <thead>
             <tr>
               <th colSpan={2}>{__('Order to sell')}</th>
@@ -62,19 +83,16 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               <tr>
                 <td>
                   {item.price.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
                 </td>
-                <td>
-                  {item.quantity.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  })}
-                </td>
+                <td>{item.quantity}</td>
               </tr>
             ))}
           </tbody>
-        </List>
-        <List>
+        </OrderSellList>
+        <OrderDoneList>
           <thead>
             <tr>
               <th colSpan={3}>{__('Successful deals')}</th>
@@ -91,25 +109,17 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                 <td>{createdDate}</td>
                 <td>
                   {item.price.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}
                 </td>
-                <td>
-                  {item.quantity.toLocaleString(undefined, {
-                    maximumFractionDigits: 2
-                  })}
-                </td>
+                <td>{item.quantity}</td>
               </tr>
             ))}
           </tbody>
-        </List>
+        </OrderDoneList>
         <FormBox>
-          <Form
-            {...this.props}
-            renderButton={this.props.renderButton}
-            prefix={[]}
-            stocks={[]}
-          />
+          <Form {...extendedProps} />
         </FormBox>
       </ListContainer>
     );

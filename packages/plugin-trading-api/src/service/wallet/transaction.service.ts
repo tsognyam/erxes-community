@@ -294,9 +294,6 @@ class TransactionService {
                     balance: {
                       increment: transaction.amount
                     },
-                    tradeBalance: {
-                      increment: transaction.amount
-                    },
                     updatedAt: new Date()
                   }
                 }
@@ -310,7 +307,7 @@ class TransactionService {
               update: {
                 walletBalance: {
                   update: {
-                    tradeBalance: {
+                    incomingBalance: {
                       increment: transaction.amount
                     },
                     updatedAt: new Date()
@@ -353,12 +350,6 @@ class TransactionService {
                       },
                       holdBalance: {
                         increment: transaction.amount
-                      },
-                      tradeBalance: {
-                        increment:
-                          status == TransactionConst.STATUS_SUCCESS
-                            ? transaction.amount
-                            : 0
                       },
                       updatedAt: new Date()
                     }
@@ -415,18 +406,10 @@ class TransactionService {
                   ? data.feeAmount
                   : 0)
             },
-            tradeBalance: {
-              decrement:
-                data.amount +
-                (data.feeType == TransactionConst.FEE_TYPE_SENDER
-                  ? data.feeAmount
-                  : 0)
-            },
             updatedAt: new Date()
           }
         }
       };
-
       await this.walletRepository.update(senderWallet.id, walletBalanceUpdate);
     }
     if (receiverWallet != undefined) {
@@ -509,9 +492,6 @@ class TransactionService {
             update: {
               holdBalance: {
                 increment: data.feeAmount
-              },
-              tradeBalance: {
-                decrement: data.feeAmount
               },
               updatedAt: new Date()
             }

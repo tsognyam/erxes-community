@@ -20,7 +20,8 @@ const OrderQueries = {
       sortDirection,
       sortField,
       startDate,
-      endDate
+      endDate,
+      userId
     },
     { models, subdomain, user }: IContext
   ) => {
@@ -67,6 +68,7 @@ const OrderQueries = {
       stockcode,
       txntype,
       orderBy,
+      userId,
       ...dateFilter
     };
     let orderList = await orderService.get(params);

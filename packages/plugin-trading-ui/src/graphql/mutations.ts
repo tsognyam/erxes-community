@@ -11,12 +11,13 @@ const add = `
 const orderAdd = `
 mutation tradingOrderAdd(
   $cnt: Int!,  
-  $enddate: Date!, 
+  $enddate: Date, 
   $ordertype: Int!, 
   $price: Float, 
   $stockcode: Int!, 
   $txntype: Int!,
-  $userId:String
+  $userId:String,
+  $condid:Int
   ) {
   tradingOrderAdd(
     cnt: $cnt, 
@@ -25,7 +26,7 @@ mutation tradingOrderAdd(
     price: $price, 
     stockcode: $stockcode, 
     txnsource: 2,
-    condid:1, 
+    condid:$condid, 
     txntype: $txntype,
     userId:$userId
   )  
@@ -36,8 +37,8 @@ mutation tradingOrderAdd(
 }
 `;
 const orderEdit = `
-mutation TradingOrderEdit($cnt: Int!, $ordertype: Int!, $stockcode: Int!, $txnid: Int!, $userId: String!, $price: Float) {
-  tradingOrderEdit(cnt: $cnt, ordertype: $ordertype, stockcode: $stockcode, txnid: $txnid, userId: $userId, price: $price) {
+mutation TradingOrderEdit($cnt: Int!, $ordertype: Int!, $txnid: Int!, $price: Float) {
+  tradingOrderEdit(cnt: $cnt, ordertype: $ordertype, txnid: $txnid, price: $price) {
     brchno
     cnt
     condid
@@ -189,8 +190,8 @@ mutation TradingStockAdd($enddate: Date!, $startdate: Date!, $stockcode: Int!, $
   }
 }
 `;
-const orderCancel = `mutation TradingOrderCancel($txnid: Int!, $userId: String!, $stockcode: Int!) {
-  tradingOrderCancel( txnid: $txnid, userId: $userId, stockcode: $stockcode) {
+const orderCancel = `mutation TradingOrderCancel($txnid: Int!) {
+  tradingOrderCancel( txnid: $txnid) {
     brchno
     cnt
     condid

@@ -2,9 +2,6 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import { Table, FormControl, SortHandler } from '@erxes/ui/src/components';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { STOCK_DATA, STOCK } from '../../constants';
 import {
   StockDataContainer,
   StockData,
@@ -12,96 +9,196 @@ import {
   Filter,
   SearchBar,
   SearchInput,
-  SearchIcon
+  SearchIcon,
+  FinanceAmount
 } from '../../styles';
-import Row from './Row';
 import Chart from './Chart';
 import List from './List';
 import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Button from '@erxes/ui/src/components/Button';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from './Form';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import { useEffect, useState } from 'react';
 import { IOrder } from '../../types/orderTypes';
+import dayjs from 'dayjs';
+import _ from 'lodash';
+import OrderList from '../components/OrderList';
+import gql from 'graphql-tag';
+import { queries, mutations } from '../../graphql';
+import client from '@erxes/ui/src/apolloClient';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 type Props = {
   queryParams: any;
   history: any;
   onSelect: (values: string[] | string, key: string) => void;
   onSearch: (values: string) => void;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   isAllSelected: boolean;
-  toggleAll: (targets: IOrder[], containerId: string) => void;
-  orders: IOrder[];
   closeModal: () => void;
+  prefix: any[];
+  stocks: any[];
+  isCancel: boolean;
+  stockcode: string;
 };
 
 type State = {
-  countDown: any;
+  stockcode?: string;
+  closeprice: number;
+  closedate?: Date;
+  userId: string;
+  orders: any[];
+  total: number;
+  count: number;
 };
-
-interface ICountdown {
-  hours: number;
-  minutes: number;
-  seconds: number;
-}
 
 class BoardComp extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      countDown: 0
+      userId: '',
+      closeprice: 0,
+      orders: [],
+      total: 0,
+      count: 0
     };
   }
-  renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
+  renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
+    const afterMutate = () => {
+      this.fetchOrders();
+      if (callback) {
+        callback();
+      }
+    };
+    return (
+      <ButtonMutate
+        mutation={mutations.orderAdd}
+        variables={values}
+        callback={afterMutate}
+        isSubmitted={isSubmitted}
+        type="submit"
+        icon="check-circle"
+        successMessage={`You successfully added order`}
+      />
+    );
   };
-
+  displayValue(value: number) {
+    return (
+      <FinanceAmount>
+        {(value || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4
+        })}
+      </FinanceAmount>
+    );
+  }
   onSearch = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       const target = e.currentTarget as HTMLInputElement;
       this.props.onSearch(target.value);
     }
   };
-
+  stockChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value.toString();
+    this.setState({ stockcode: value }, () => {
+      this.fetchOrders();
+    });
+    const stockList = this.props.stocks;
+    const stock = stockList.find(x => x.stockcode == value);
+    if (stock) {
+      this.setState({ closeprice: stock.closeprice });
+      this.setState({ closedate: new Date(stock.order_enddate) });
+    }
+  };
+  prefixChange = (option: { value: string }) => {
+    const value = !option ? '' : option.value.toString();
+    this.setState({ userId: value }, () => {
+      this.fetchOrders();
+    });
+  };
+  fetchOrders = () => {
+    if (this.state.userId != '' && this.state.userId != undefined) {
+      let variables: any = {
+        userId: this.state.userId,
+        page: 1,
+        perPage: 10
+      };
+      if (this.state.stockcode != null && this.state.stockcode != '') {
+        variables.stockcode = Number(this.state.stockcode);
+      }
+      client
+        .query({
+          query: gql(queries.orderList),
+          fetchPolicy: 'network-only',
+          variables: variables
+        })
+        .then(({ data }: any) => {
+          const orders = data?.tradingOrders?.values || [];
+          const total = data?.tradingOrders?.total || 0;
+          const count = data?.tradingOrders?.count || 0;
+          this.setState({ orders: orders, total: total, count: count });
+        });
+    } else this.setState({ orders: [], total: 0, count: 0 });
+  };
   renderContent = () => {
     const {
       onSelect,
       queryParams,
       onSearch,
       isAllSelected,
-      toggleAll,
-      orders
+      stocks,
+      prefix
     } = this.props;
-
-    const stockValues = STOCK.map(p => ({ label: p.label, value: p.value }));
-    const stock = queryParams ? queryParams.stock : [];
-
-    const onFilterSelect = (ops: IOption[], type: string) => {
-      console.log('ops', ops);
-      onSelect(ops[ops.length - 1].value, type);
+    let stockValues: any[] = [];
+    let stockList: any[] = [];
+    stocks.map(x => {
+      stockValues.push({
+        value: x.stockcode,
+        label: x.symbol + ' - ' + x.stockname
+      });
+      let changePercent = 0;
+      let diff = x.closeprice - x.openprice;
+      if (x.openprice != 0)
+        changePercent = Math.round((diff / x.openprice) * 100);
+      if (x.symbol != 'NULL')
+        stockList.push({
+          ...x,
+          changePercent
+        });
+    });
+    const extendedProps = {
+      ...this.props,
+      renderButton: this.renderButton,
+      stockChange: this.stockChange,
+      stockcode: this.state.stockcode,
+      prefixChange: this.prefixChange
     };
-    const onChangeAll = () => {
-      toggleAll(orders, 'orders');
+    const orderListProps = {
+      ...this.props,
+      renderButton: this.renderButton,
+      orders: this.state.orders,
+      prefix,
+      stocks,
+      loading: false,
+      total: this.state.total,
+      count: this.state.count
     };
     return (
       <>
         <StockDataContainer>
-          {STOCK_DATA.map(stock => (
+          {stockList.map(stock => (
             <StockData>
-              <h5>{stock.name}</h5>
+              <h5>{stock.symbol}</h5>
               <StockChange isIncreased={stock.changePercent > 0 ? true : false}>
                 {stock.changePercent > 0 ? '↑' : '↓'}&nbsp;
                 {stock.changePercent}%
               </StockChange>
-              <h5>{stock.quantity}</h5>
+              <h5>{stock.cnt}</h5>
               <StockChange isIncreased={stock.changePercent > 0 ? true : false}>
                 {stock.changePercent > 0 ? '↑' : '↓'}&nbsp;
-                {stock.change}
+                {stock.closeprice}
               </StockChange>
             </StockData>
           ))}
@@ -109,107 +206,38 @@ class BoardComp extends React.Component<Props, State> {
         <Filter>
           <Select
             placeholder={__('Filter by stock')}
-            value={stock || 'CU'}
+            value={this.state.stockcode}
             options={stockValues}
             name="stock"
-            onChange={ops => onFilterSelect(ops, 'stock')}
-            multi={true}
+            onChange={this.stockChange}
             loadingPlaceholder={__('Loading...')}
           />
           <ControlLabel>
-            <b>{__('Close Price')}:</b> 200
+            <b>{__('Close Price')}:</b>{' '}
+            {this.displayValue(this.state.closeprice)}
           </ControlLabel>
           <ControlLabel>
-            <b>{__('Close Date')}:</b> 2023-03-01
+            <b>{__('Close Date')}:</b>{' '}
+            {dayjs(this.state.closedate).format('YYYY-MM-DD HH:mm:ss')}
           </ControlLabel>
         </Filter>
-        <List {...this.props} renderButton={this.props.renderButton} />
-        <Table>
-          <thead>
-            <tr>
-              <th>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={onChangeAll}
-                />
-              </th>
-              <th>№</th>
-              <th>Prefix</th>
-              <th>Register</th>
-              <th>Username</th>
-              <th>
-                <SortHandler sortField={'stockcode'} label={__('Хувьцаа')} />
-              </th>
-              <th>
-                <SortHandler sortField={'order.txntype'} label={__('Төрөл')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'ordertype'}
-                  label={__('Захиалгын төрөл')}
-                />
-              </th>
-              <th>
-                <SortHandler sortField={'price'} label={__('Үнэ')} />
-              </th>
-              <th>
-                <SortHandler sortField={'cnt'} label={__('Тоо ширхэг')} />
-              </th>
-              <th>
-                <SortHandler sortField={'donecnt'} label={__('Биелсэн')} />
-              </th>
-              <th>
-                {/* <SortHandler sortField={'donecnt'} label={__('Үлдсэн')} /> */}
-                {__('Үлдсэн')}
-              </th>
-              <th>
-                <SortHandler sortField={'status'} label={__('Төлөв')} />
-              </th>
-              <th>
-                <SortHandler sortField={'regdate'} label={__('Огноо')} />
-              </th>
-              <th>
-                {/* <SortHandler sortField={''} label={__('Нийт')} /> */}
-                {__('Нийт')}
-              </th>
-              <th>
-                <SortHandler sortField={'fee'} label={__('Шимтгэл')} />
-              </th>
-              <th>
-                <SortHandler sortField={'condid'} label={__('Хугацаа')} />
-              </th>
-              <th>
-                <SortHandler
-                  sortField={'userId'}
-                  label={__('Оруулсан хэрэглэгч')}
-                />
-              </th>
-              <th>{__('')}</th>
-            </tr>
-          </thead>
-          <tbody id="orders"></tbody>
-        </Table>
-        <Pagination count={90} />
+        <List {...extendedProps} />
+        <Filter>
+          <ControlLabel>
+            <b>Last 20 orders</b>
+          </ControlLabel>
+        </Filter>
+        <OrderList {...orderListProps} />
       </>
     );
   };
-
   renderActionBar() {
     const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
     const actionBarRight = (
       <>
-        <ControlLabel>{__('Trade closing time:')}&nbsp;01:30:25</ControlLabel>
-        <ModalTrigger
-          title="Place an order"
-          size={'lg'}
-          trigger={
-            <Button id="add-order" btnStyle="success" icon="plus-circle">
-              {__('Add Order')}
-            </Button>
-          }
-          content={this.renderForm}
-        />
+        <ControlLabel>
+          {__('Trade closing time:')}&nbsp;10:00 - 13:00
+        </ControlLabel>
       </>
     );
 
@@ -228,7 +256,7 @@ class BoardComp extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Board')}
+            title={__('Stock order')}
             breadcrumb={breadcrumb}
             queryParams={queryParams}
           />
