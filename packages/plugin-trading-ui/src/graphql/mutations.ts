@@ -276,8 +276,8 @@ mutation TradingWalletCharge($amount: Float!, $walletId: Int!) {
 }
 `;
 const tradingWithdrawCreate = `
-mutation TradingWithdrawCreate($amount: Float!, $type: Int!, $walletId: Int!) {
-  tradingWithdrawCreate(amount: $amount, type: $type, walletId: $walletId) {
+mutation TradingWithdrawCreate($amount: Float!, $type: Int!, $walletId: Int!, $description: String) {
+  tradingWithdrawCreate(amount: $amount, type: $type, walletId: $walletId, description: $description) {
     amount
     bankTransactionId
     createdAt
@@ -312,6 +312,36 @@ const tradingCustFeeUpdate = `mutation TradingCustFeeUpdate($id: Int!, $value: F
   }
 }
 `;
+
+const tradingWithdrawConfirm = `
+mutation TradingWithdrawConfirm($confirm: Int, $requestId: Int) {
+  tradingWithdrawConfirm(confirm: $confirm, requestId: $requestId) {
+    amount
+    bankTransactionId
+    createdAt
+    createdUserId
+    dater
+    description
+    feeAmount
+    firstName
+    id
+    lastName
+    status
+    type
+    updatedAt
+    updatedUserId
+    userBankAccountId
+    wallet
+    walletId
+  }
+}
+`;
+
+const tradingWithdrawCancel = `
+mutation TradingWithdrawCancel($requestId: Int!, $userId: String!) {
+  tradingWithdrawCancel(requestId: $requestId, userId: $userId)
+}
+`;
 export default {
   add,
   orderAdd,
@@ -321,5 +351,7 @@ export default {
   stockAdd,
   tradingWalletCharge,
   tradingWithdrawCreate,
-  tradingCustFeeUpdate
+  tradingCustFeeUpdate,
+  tradingWithdrawConfirm,
+  tradingWithdrawCancel
 };
