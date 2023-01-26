@@ -10,7 +10,7 @@ const List = asyncComponent(() =>
 const domestic = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <List history={history} queryParams={queryParams} />;
+  return <List full={true} history={history} queryParams={queryParams} />;
 };
 
 const routes = () => {

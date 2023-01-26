@@ -16,13 +16,15 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
+import { ControlLabel } from '@erxes/ui/src';
 
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  toggleAll: (targets: IOrder[], containerId: string) => void;
-  list: IOrder[]; //list
+  toggleAll: (targets: any[], containerId: string) => void;
+  list: any[]; //list
+  prefixList: any[];
   total: number;
   count: number;
   isAllSelected: boolean;
@@ -33,13 +35,19 @@ interface IProps extends IRouterProps {
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
-  onCancel: () => void;
-  onConfirm: () => void;
+  onCancel: (id, userId) => void;
+  onConfirm: (id) => void;
 }
 
 class List extends React.Component<IProps> {
   renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
+    return (
+      <Form
+        {...props}
+        prefixList={this.props.prefixList}
+        renderButton={this.props.renderButton}
+      />
+    );
   };
 
   // remove = (order) => {
@@ -57,6 +65,7 @@ class List extends React.Component<IProps> {
       renderButton,
       onCancel,
       onConfirm,
+      prefixList,
       list,
       total,
       count
@@ -81,6 +90,9 @@ class List extends React.Component<IProps> {
             <th>FirstName</th>
             <th>
               <SortHandler sortField={'Type'} label={__('Type')} />
+            </th>
+            <th>
+              <SortHandler sortField={'Currency'} label={__('Currency')} />
             </th>
             <th>
               <SortHandler sortField={'Amount'} label={__('Amount')} />
@@ -121,6 +133,7 @@ class List extends React.Component<IProps> {
               renderButton={renderButton}
               onCancel={onCancel}
               onConfirm={onConfirm}
+              prefixList={prefixList}
             />
           ))}
         </tbody>
@@ -154,7 +167,7 @@ class List extends React.Component<IProps> {
   // };
 
   render() {
-    const { queryParams, bulk, list, total, count } = this.props;
+    const { queryParams, bulk, list, total, count, prefixList } = this.props;
     const breadcrumb = [
       { title: __('Мөнгө хүсэх өргөдөл'), link: '/trading/withdraw-list' }
     ];
@@ -224,7 +237,17 @@ class List extends React.Component<IProps> {
             emptyImage="/images/actions/20.svg"
           />
         }
-        footer={<Pagination count={total} />}
+        footer={
+          <Wrapper.ActionBar
+            left={<Pagination count={total} />}
+            right={
+              <ControlLabel>
+                {__('Total:')}
+                {total}
+              </ControlLabel>
+            }
+          />
+        }
         hasBorder
       />
     );

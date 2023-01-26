@@ -19,16 +19,27 @@ import { displayValue } from '../../App';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   withdraw: any;
+  prefixList: any[];
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   onConfirm: (id: number) => void;
-  onCancel: (id: number) => void;
+  onCancel: (id: number, userId) => void;
 } & ICommonListProps;
 
 class Row extends React.Component<Props> {
   renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
+    return (
+      <Form
+        {...props}
+        withdraw={this.props.withdraw}
+        onCancel={this.props.onCancel}
+        onConfirm={this.props.onConfirm}
+        prefixList={this.props.prefixList}
+        prefix={this.props.withdraw.wallet.user.prefix}
+        renderButton={this.props.renderButton}
+      />
+    );
   };
   confirmOrder = e => {
     const { withdraw, onConfirm } = this.props;
@@ -45,7 +56,7 @@ class Row extends React.Component<Props> {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
-      onCancel(withdraw.id);
+      onCancel(withdraw.id, withdraw.wallet.user.userId);
     });
   };
   renderEditAction = object => {
@@ -53,8 +64,8 @@ class Row extends React.Component<Props> {
 
     const editTrigger = (
       <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
+        <Tip text={__('View')} placement="bottom">
+          <Icon icon="eye" />
         </Tip>
       </Button>
     );
@@ -124,7 +135,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index + 1}</td>
-        <td>{withdraw.wallet.user.prefix}</td>
+        <td>{withdraw?.wallet?.user?.prefix}</td>
         <td>{withdraw.lastName}</td>
         <td>{withdraw.firstName}</td>
         <td>
@@ -138,6 +149,7 @@ class Row extends React.Component<Props> {
             </Label>
           }
         </td>
+        <td>{withdraw?.wallet?.currencyCode}</td>
         <td>{withdraw.amount}</td>
         <td>{withdraw.feeAmount}</td>
         <td>{withdraw.description}</td>

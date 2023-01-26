@@ -18,9 +18,12 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormExecute from './FormExecute';
+import { PageContent } from '@erxes/ui/src';
+import { Contents } from '../../styles';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
+  full: boolean;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   renderButtonExecute: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: IOrder[], containerId: string) => void;
@@ -199,7 +202,8 @@ class List extends React.Component<IProps> {
     );
   };
   render() {
-    const { queryParams, bulk, orders, total, count } = this.props;
+    const { queryParams, bulk, orders, total, count, full } = this.props;
+    console.log('full', full);
     const breadcrumb = [
       { title: __('Дотоод арилжаа'), link: '/trading/order-list' }
     ];
@@ -227,66 +231,121 @@ class List extends React.Component<IProps> {
         />
       );
     }
+    if (full) {
+      return (
+        <Wrapper
+          header={
+            <Wrapper.Header
+              title={__('List')}
+              breadcrumb={breadcrumb}
+              queryParams={queryParams}
+            />
+          }
+          actionBar={
+            <Wrapper.ActionBar
+              left={actionBarLeft}
+              right={
+                <Flex>
+                  <ModalTrigger
+                    title="Add an order"
+                    size={'lg'}
+                    trigger={
+                      <Button
+                        id={'NewOrderButton'}
+                        btnStyle="success"
+                        block={true}
+                        icon="plus-circle"
+                      >
+                        Add Order
+                      </Button>
+                    }
+                    content={this.renderForm}
+                  />
+                  {this.renderFilter()}
+                </Flex>
+              }
+            />
+          }
+          //leftSidebar={<Sidebar queryParams={queryParams} />}
+          content={
+            <DataWithLoader
+              data={this.renderContent()}
+              loading={false}
+              count={total}
+              emptyText="There is no order."
+              emptyImage="/images/actions/20.svg"
+            />
+          }
+          footer={
+            <Wrapper.ActionBar
+              left={<Pagination count={total} />}
+              right={
+                <ControlLabel>
+                  {__('Total order=')}
+                  {total}
+                </ControlLabel>
+              }
+            />
+          }
+          transparent={true}
+          hasBorder
+        />
+      );
+    } else {
+      return (
+        // <Wrapper
 
-    return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('List')}
-            breadcrumb={breadcrumb}
-            queryParams={queryParams}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={
-              <Flex>
-                <ModalTrigger
-                  title="Add an order"
-                  size={'lg'}
-                  trigger={
-                    <Button
-                      id={'NewOrderButton'}
-                      btnStyle="success"
-                      block={true}
-                      icon="plus-circle"
-                    >
-                      Add Order
-                    </Button>
-                  }
-                  content={this.renderForm}
-                />
-                {this.renderFilter()}
-              </Flex>
+        //   //leftSidebar={<Sidebar queryParams={queryParams} />}
+        //   content={
+        //     <DataWithLoader
+        //       data={this.renderContent()}
+        //       loading={false}
+        //       count={total}
+        //       emptyText="There is no order."
+        //       emptyImage="/images/actions/20.svg"
+        //     />
+        //   }
+        //   footer={
+        //     <Wrapper.ActionBar
+        //       left={<Pagination count={total} />}
+        //       right={
+        //         <ControlLabel>
+        //           {__('Total order=')}
+        //           {total}
+        //         </ControlLabel>
+        //       }
+        //     />
+        //   }
+        //   transparent={true}
+        //   hasBorder
+        // />
+
+        <Contents hasBorder={true}>
+          <PageContent
+            footer={
+              <Wrapper.ActionBar
+                left={<Pagination count={total} />}
+                right={
+                  <ControlLabel>
+                    {__('Total order=')}
+                    {total}
+                  </ControlLabel>
+                }
+              />
             }
-          />
-        }
-        //leftSidebar={<Sidebar queryParams={queryParams} />}
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={false}
-            count={total}
-            emptyText="There is no order."
-            emptyImage="/images/actions/20.svg"
-          />
-        }
-        footer={
-          <Wrapper.ActionBar
-            left={<Pagination count={total} />}
-            right={
-              <ControlLabel>
-                {__('Total order=')}
-                {total}
-              </ControlLabel>
-            }
-          />
-        }
-        transparent={true}
-        hasBorder
-      />
-    );
+            transparent={true}
+          >
+            <DataWithLoader
+              data={this.renderContent()}
+              loading={false}
+              count={total}
+              emptyText="There is no order."
+              emptyImage="/images/actions/20.svg"
+            />
+          </PageContent>
+        </Contents>
+      );
+    }
   }
 }
 

@@ -28,6 +28,8 @@ import { displayValue } from '../../App';
 
 type Props = {
   customer: any;
+  queryParams: any;
+  history: any;
   fieldsVisibility: (key: string) => IFieldsVisibility;
   deviceFields: IField[];
   fields: IField[];
@@ -133,6 +135,8 @@ class Detail extends React.Component<Props> {
   render() {
     const {
       customer,
+      queryParams,
+      history,
       deviceFields,
       fields,
       taggerRefetchQueries,
@@ -165,10 +169,21 @@ class Detail extends React.Component<Props> {
               : displayValue(customer.createdAt, 'date')}
           </div>
         </Contents>
-        <Contents headers="Wallet list" hasBorder={true}>
+        <Tab
+          history={history}
+          queryParams={queryParams}
+          contentType="account-top"
+          object={customer}
+        />
+        {/* <Contents headers="Wallet list" hasBorder={true}>
           {this.renderContent()}
-        </Contents>
-        <Tab contentType="account" object={customer} />
+        </Contents> */}
+        <Tab
+          history={history}
+          queryParams={queryParams}
+          contentType="account"
+          object={customer}
+        />
       </>
     );
 

@@ -5,8 +5,8 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Detail from '../components/Detail';
-import { mutations, queries } from '../../graphql';
+import List from '../../components/wallet/List';
+import { mutations, queries } from '../../../graphql';
 import {
   PropertyConsumer,
   PropertyProvider
@@ -82,26 +82,13 @@ function CustomerDetailsContainer(props: FinalProps) {
   };
 
   return (
-    <PropertyProvider>
-      <PropertyConsumer>
-        {({
-          deviceFields,
-          customerVisibility,
-          deviceVisibility,
-          customerFields
-        }) => {
-          return (
-            <Detail
-              {...updatedProps}
-              deviceFields={deviceFields}
-              fields={customerFields}
-              fieldsVisibility={customerVisibility}
-              deviceFieldsVisibility={deviceVisibility}
-            />
-          );
-        }}
-      </PropertyConsumer>
-    </PropertyProvider>
+    <List
+      {...updatedProps}
+      // deviceFields={deviceFields}
+      // fields={customerFields}
+      // fieldsVisibility={customerVisibility}
+      // deviceFieldsVisibility={deviceVisibility}
+    />
   );
 }
 const getRefetchQueries = values => {

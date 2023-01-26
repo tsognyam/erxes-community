@@ -17,8 +17,9 @@ const list = ({ history, location }) => {
 
 const detail = ({ match }) => {
   const id = match.params.id;
+  const queryParams = queryString.parse(location.search);
 
-  return <Detail id={id} />;
+  return <Detail id={id} queryParams={queryParams} />;
 };
 
 const routes = () => {

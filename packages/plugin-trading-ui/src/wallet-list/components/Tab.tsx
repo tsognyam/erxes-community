@@ -11,12 +11,17 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import List from '../containers/custFee/List';
 import ListStatement from '../containers/statement/List';
 import ListWithdrawal from '../containers/withdraw/List';
+import ListOrder from '../../order-list/containers/List';
+import ListWallet from '../containers/wallet/List';
+import { generateQueryParams } from '../../App';
 type Props = {
   contentType: string;
   object: any;
   toEmail?: string;
   toEmails?: string[];
   extraTabs?: React.ReactNode;
+  queryParams: any;
+  history: any;
 };
 
 type State = {
@@ -26,18 +31,20 @@ type State = {
 class Tab extends React.PureComponent<Props, State> {
   constructor(props) {
     super(props);
-
+    const { contentType } = this.props;
     this.state = {
-      currentTab: 'trading-fee'
+      currentTab: contentType == 'account-top' ? 'wallet-list' : 'trading-fee'
     };
   }
 
   onChangeTab = currentTab => {
+    // const params = generateQueryParams(this.props.history);
+
     this.setState({ currentTab });
   };
 
   renderTabContent() {
-    const { contentType, object } = this.props;
+    const { contentType, object, queryParams } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'trading-fee') {
@@ -56,7 +63,6 @@ class Tab extends React.PureComponent<Props, State> {
       return <ListStatement {...updatedProps} {...object} />;
     }
     if (currentTab === 'withdraw') {
-      console.log('object', object);
       let walletIdList: any = [];
       for (let i = 0; i < object.Wallet.length; i++) {
         walletIdList.push(object.Wallet[i].id);
@@ -67,6 +73,20 @@ class Tab extends React.PureComponent<Props, State> {
         }
       };
       return <ListWithdrawal {...updatedProps} {...object} />;
+    }
+    if (currentTab === 'order-list') {
+      queryParams.userId = object.userId;
+      const updatedProps = {
+        queryParams: queryParams,
+        full: false
+      };
+      return <ListOrder {...updatedProps} {...object} />;
+    }
+    if (currentTab === 'wallet-list') {
+      const updatedProps = {
+        id: object.userId
+      };
+      return <ListWallet {...updatedProps} />;
     }
 
     return null;
@@ -95,6 +115,13 @@ class Tab extends React.PureComponent<Props, State> {
         this.renderTabTitle('wallet-statement', '', 'Wallet statement')
       );
       tabs.push(this.renderTabTitle('withdraw', '', 'Withdrawal'));
+      tabs.push(this.renderTabTitle('order-list', '', 'Order list'));
+      tabs.push(this.renderTabTitle('trading-fee', '', 'Trading fee'));
+    }
+    if (contentType === 'account-top') {
+      tabs.push(this.renderTabTitle('wallet-list', '', 'Wallet list'));
+      tabs.push(this.renderTabTitle('stock-list', '', 'Stock list'));
+      // tabs.push(this.renderTabTitle('order-list', '', 'Order list'));
     }
 
     return (
@@ -109,11 +136,7 @@ class Tab extends React.PureComponent<Props, State> {
     return (
       <ErrorBoundary>
         <WhiteBoxRoot>
-          <Tabs>
-            {this.renderTabTitle('trading-fee', '', 'Trading fee')}
-
-            {this.renderExtraTab()}
-          </Tabs>
+          <Tabs>{this.renderExtraTab()}</Tabs>
 
           {this.renderTabContent()}
         </WhiteBoxRoot>

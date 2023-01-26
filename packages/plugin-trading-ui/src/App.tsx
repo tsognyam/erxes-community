@@ -4,6 +4,7 @@ import { PluginLayout } from '@erxes/ui/src/styles/main';
 import { AppProvider } from 'coreui/appContext';
 import { FinanceAmount } from './styles';
 import dayjs from 'dayjs';
+import queryString from 'query-string';
 const App = () => {
   return (
     <AppProvider>
@@ -13,9 +14,16 @@ const App = () => {
     </AppProvider>
   );
 };
-
+export const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
 export function displayValue(value, type = 'number') {
-  if (type == 'number') {
+  if (type == 'raw-number') {
+    return parseFloat(value || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    });
+  } else if (type == 'number') {
     return (
       <FinanceAmount>
         {(value || 0).toLocaleString(undefined, {
@@ -40,5 +48,7 @@ export function displayValue(value, type = 'number') {
       </>
     );
   }
+
+  return value;
 }
 export default App;

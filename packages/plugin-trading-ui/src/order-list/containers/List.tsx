@@ -21,6 +21,7 @@ type Props = {
   queryParams: any;
   history: any;
   currentUser: IUser;
+  full: boolean;
 };
 
 type FinalProps = {
@@ -176,6 +177,7 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 const generateParams = ({ queryParams }) => {
+  console.log('queryParams', queryParams);
   return {
     stockcode: queryParams.stockcode
       ? parseInt(queryParams.stockcode)
@@ -186,6 +188,7 @@ const generateParams = ({ queryParams }) => {
     sortDirection: queryParams.sortDirection,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
+    userId: queryParams.userId,
     ...generatePaginationParams(queryParams)
   };
 };

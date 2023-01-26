@@ -23,7 +23,7 @@ type Props = {
 class ListComp extends React.Component<Props> {
   renderContent = () => {
     const { tradingUserByPrefix, history } = this.props;
-    console.log('tradingUserByPrefix123', tradingUserByPrefix);
+
     return (
       <Table>
         <thead>

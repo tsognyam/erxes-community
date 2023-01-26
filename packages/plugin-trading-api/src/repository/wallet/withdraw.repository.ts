@@ -17,6 +17,7 @@ export default class WithdrawRepository extends BaseRepository {
     let select = {
       wallet: {
         select: {
+          currencyCode: true,
           user: true
         }
       }

@@ -10,11 +10,18 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Select from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql';
+import { displayValue } from '../../App';
+import { Button, confirm } from '@erxes/ui/src';
 type Props = {
   withdraw: any;
+  onConfirm: (id) => void;
+  onCancel: (id, userId) => void;
   prefix: any;
   userId: any;
-  prefixList: any;
+  prefixList: any[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
 };
@@ -26,11 +33,22 @@ type State = {
   amount: number;
   description: string;
   avBalance: number;
+  walletList: any[];
 };
 class Forms extends React.Component<Props, State> {
+  preList;
   constructor(props) {
     super(props);
     const { withdraw, prefix, userId } = this.props;
+
+    let prefixList = this.props.prefixList || ([] as any);
+    this.preList = prefixList.map(x => {
+      return {
+        value: x.prefix,
+        label: x.prefix
+      };
+    });
+    console.log(this.preList);
     this.state = {
       prefix: prefix,
       userId: userId,
@@ -38,13 +56,27 @@ class Forms extends React.Component<Props, State> {
       amount: withdraw?.amount,
       type: withdraw?.type,
       description: withdraw?.description,
-      avBalance: 0
+      avBalance: 0,
+      walletList: []
     };
+  }
+  componentDidMount(): void {
+    let { withdraw } = this.props;
+
+    if (withdraw) {
+      this.prefixChange({
+        label: this.state.prefix,
+        value: this.state.prefix
+      });
+      this.walletChange({
+        value: this.state.walletId
+      });
+    }
   }
   generateDoc = (values: {
     id?: number;
     type: number;
-    amount: number;
+    amount: string;
     walletId: number;
     description: string;
   }) => {
@@ -57,42 +89,111 @@ class Forms extends React.Component<Props, State> {
     return {
       id: finalValues.id,
       type: Number(this.state.type),
-      amount: Number(this.state.amount),
+      amount: Number(finalValues.amount),
       walletId: Number(this.state.walletId),
-      description: this.state.description
+      description: finalValues.description
     };
   };
   typeChange = (option: { value: string }) => {
     const value = !option ? '' : option.value;
     this.setState({ type: parseInt(value) });
   };
-  prefixChange = (option: { value: string }) => {
+  walletChange = (option: { value: number }) => {
     const value = !option ? '' : option.value;
-    this.setState({ type: parseInt(value) });
+    this.setState({ walletId: Number(value) });
+    client
+      .query({
+        query: gql(queries.tradingWallets),
+        fetchPolicy: 'network-only',
+        variables: { walletIds: [value] }
+      })
+      .then(({ data }: any) => {
+        if (data?.tradingWallets.length > 0) {
+          this.setState({
+            avBalance: displayValue(
+              data.tradingWallets[0].walletBalance.balance -
+                data.tradingWallets[0].walletBalance.holdBalance,
+              'raw-number'
+            )
+          });
+        } else this.setState({ avBalance: displayValue('0', 'raw-number') });
+      });
+  };
+  prefixChange = (option: { value: string; label: string }) => {
+    const value = !option ? '' : option.value;
+    const label = !option ? '' : option.label;
+    console.log('label', label);
+    this.setState({ prefix: value });
+    client
+      .query({
+        query: gql(queries.tradingUserByPrefix),
+        fetchPolicy: 'network-only',
+        variables: { prefix: value }
+      })
+      .then(({ data }: any) => {
+        if (data?.tradingUserByPrefix.values[0].Wallet.length > 0) {
+          let walletList = data.tradingUserByPrefix.values[0].Wallet.map(x => {
+            return {
+              value: x.id,
+              label: x.name + ' - ' + x.currencyCode
+            };
+          });
+          this.setState({
+            walletList: walletList
+          });
+        } else this.setState({ walletList: [] });
+      });
+  };
+  cancelOrder = e => {
+    const { withdraw, onCancel } = this.props;
+    e.stopPropagation();
+    const message = 'Are you sure?';
+
+    confirm(message).then(() => {
+      onCancel(withdraw.id, withdraw.wallet.user.userId);
+    });
+  };
+  confirmOrder = e => {
+    const { withdraw, onConfirm } = this.props;
+    e.stopPropagation();
+    const message = 'Are you sure?';
+
+    confirm(message).then(() => {
+      onConfirm(withdraw.id);
+    });
+  };
+  renderButtons = props => {
+    const { withdraw } = this.props;
+    return (
+      <>
+        {withdraw != undefined ? (
+          <>
+            <Button btnStyle="danger" onClick={this.cancelOrder}>
+              Reject
+            </Button>
+            <Button onClick={this.confirmOrder}>Confirm</Button>
+          </>
+        ) : (
+          this.props.renderButton(props)
+        )}
+      </>
+    );
   };
   renderContent = (formProps: IFormProps) => {
-    const withdraw = this.props.withdraw || ({} as any);
-    const prefixList = this.props.prefixList.map(x => {
-      return {
-        value: x.userId,
-        label: x.prefix
-      };
-    });
+    const withdraw = this.props.withdraw || undefined;
+
     return (
       <>
         <FormGroup>
           <ControlLabel>{__('Prefix')}</ControlLabel>
-          {/* <FormControl
-            {...formProps}
-            name="prefix"
 
-          /> */}
           <Select
             placeholder={__('Сонгох')}
-            value={this.state.userId}
-            options={_.sortBy(prefixList, ['label'])}
-            onChange={this.typeChange}
+            value={this.state.prefix}
+            options={_.sortBy(this.preList, ['label'])}
+            onChange={this.prefixChange}
             required={true}
+            disabled={withdraw != undefined ? true : false}
           />
         </FormGroup>
         <FormGroup>
@@ -103,21 +204,24 @@ class Forms extends React.Component<Props, State> {
             options={WITHDRAW_TYPE}
             onChange={this.typeChange}
             required={true}
+            disabled={withdraw != undefined ? true : false}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Данс сонгох')}</ControlLabel>
           <Select
-            placeholder={__('Prefix')}
-            options={_.sortBy(prefixList, ['label'])}
-            // onChange={this.prefixChange}
+            placeholder={__('Wallet')}
+            value={this.state.walletId}
+            options={_.sortBy(this.state.walletList, ['label'])}
+            onChange={this.walletChange}
             required={true}
+            disabled={withdraw != undefined ? true : false}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Дансны үлдэгдэл')}</ControlLabel>
           <FormControl
-            name="tradeBalance"
+            name="avBalance"
             disabled={true}
             value={this.state.avBalance}
           />
@@ -128,10 +232,8 @@ class Forms extends React.Component<Props, State> {
           <FormControl
             {...formProps}
             name="amount"
-            defaultValue={withdraw?.amount || 0}
-            // disabled={this.state.amount}
+            type="number"
             value={this.state.amount}
-            min={0}
           />
         </FormGroup>
         <FormGroup>
@@ -154,7 +256,7 @@ class Forms extends React.Component<Props, State> {
         name="name"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
-        renderButton={this.props.renderButton}
+        renderButton={this.renderButtons}
         object={this.props.withdraw}
       />
     );

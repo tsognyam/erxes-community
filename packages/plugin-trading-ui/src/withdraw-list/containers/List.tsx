@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { graphql, useMutation } from 'react-apollo';
 import List from '../components/List';
 import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
-import { router as routerUtils } from '@erxes/ui/src/utils';
+import { Alert, router as routerUtils } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -13,7 +13,6 @@ import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { OrderQueryResponse } from '../../types/orderTypes';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
@@ -24,6 +23,13 @@ type Props = {
 
 type FinalProps = {
   tradingWithdrawGetQuery: any;
+  tradingUserByPrefixQuery: any;
+  tradingWithdrawConfirmMutation: (params: {
+    variables: { requestId: number; confirm: number };
+  }) => Promise<any>;
+  tradingWithdrawCancelMutation: (params: {
+    variables: { requestId: number; userId: string };
+  }) => Promise<any>;
 } & Props &
   IRouterProps;
 
@@ -43,7 +49,7 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.orderEdit : mutations.orderAdd}
+        mutation={object ? '' : mutations.tradingWithdrawCreate}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -63,12 +69,46 @@ class ListContainer extends React.Component<FinalProps> {
 
     routerUtils.setParams(this.props.history, search);
   };
-  onCancel = id => {
-    const {} = this.props;
+  onCancel = (id, userId) => {
+    const {
+      tradingWithdrawCancelMutation,
+      tradingWithdrawGetQuery
+    } = this.props;
+    let variables: any = {
+      requestId: id,
+      userId: userId
+    };
+    tradingWithdrawCancelMutation({
+      variables
+    })
+      .then(() => {
+        Alert.success('You successfully cancelled');
+        // tradingWithdrawGetQuery.refetch();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
   onConfirm = id => {
-    const {} = this.props;
-    console.log('onConfirm', id);
+    const {
+      tradingWithdrawConfirmMutation,
+      tradingWithdrawGetQuery
+    } = this.props;
+
+    tradingWithdrawConfirmMutation({
+      variables: {
+        requestId: id,
+        confirm: 1
+      }
+    })
+      .then(() => {
+        Alert.success('You successfully confirmed');
+        // tradingWithdrawGetQuery.refetch();
+        // getRefetchQueries(this.props.queryParams)
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
@@ -91,21 +131,30 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { tradingWithdrawGetQuery, queryParams } = this.props;
+    const {
+      tradingWithdrawGetQuery,
+      tradingUserByPrefixQuery,
+      queryParams
+    } = this.props;
     const list = tradingWithdrawGetQuery?.tradingWithdrawGet?.values || [];
     const total = tradingWithdrawGetQuery?.tradingWithdrawGet?.total || 0;
     const count = tradingWithdrawGetQuery?.tradingWithdrawGet?.count || 0;
-
+    console.log('rendering', list ?? undefined);
+    const prefixList =
+      tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const extendedProps = {
       ...this.props,
       list,
+      prefixList,
       loading: tradingWithdrawGetQuery.loading,
       total,
       count,
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
       onSearch: this.onSearch,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
+      onCancel: this.onCancel,
+      onConfirm: this.onConfirm
       // remove: this.remove,
       // removeOrders,
     };
@@ -119,21 +168,50 @@ class ListContainer extends React.Component<FinalProps> {
     return <Bulk content={content} />;
   }
 }
-const getRefetchQueries = () => {
-  return ['tradingWithdrawGetQuery'];
+
+const getRefetchQueries = (queryParams?: any) => {
+  return [
+    {
+      query: gql(queries.tradingWithdrawGet),
+      variables: {
+        type: queryParams.type,
+        walletId: queryParams.walletId,
+        status: queryParams.status,
+        ...generatePaginationParams(queryParams)
+      }
+    }
+  ];
 };
 export default withProps<Props>(
   compose(
+    graphql<Props>(gql(queries.tradingUserByPrefix), {
+      name: 'tradingUserByPrefixQuery',
+      options: ({ queryParams }) => ({
+        refetchQueries: getRefetchQueries(queryParams)
+      })
+    }),
     graphql<Props>(gql(queries.tradingWithdrawGet), {
       name: 'tradingWithdrawGetQuery',
       options: ({ queryParams }) => ({
-        variables: {
-          type: queryParams.type,
-          walletId: queryParams.walletId,
-          status: queryParams.status,
-          ...generatePaginationParams(queryParams)
-        },
-        fetchPolicy: 'network-only'
+        refetchQueries: getRefetchQueries(queryParams)
+      })
+    }),
+    graphql<Props>(gql(mutations.tradingWithdrawCancel), {
+      name: 'tradingWithdrawCancelMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: getRefetchQueries(queryParams)
+      })
+    }),
+    graphql<Props>(gql(mutations.tradingWithdrawConfirm), {
+      name: 'tradingWithdrawConfirmMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: getRefetchQueries(queryParams)
+      })
+    }),
+    graphql<Props>(gql(mutations.tradingWithdrawCreate), {
+      name: 'tradingWithdrawCreateMutation',
+      options: ({ queryParams }) => ({
+        refetchQueries: getRefetchQueries(queryParams)
       })
     })
   )(ListContainer)
