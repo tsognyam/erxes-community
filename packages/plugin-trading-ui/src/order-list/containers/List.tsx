@@ -39,7 +39,7 @@ const defaultParams = ['id'];
 
 class ListContainer extends React.Component<FinalProps> {
   renderButton = ({
-    passedName,
+    name,
     values,
     isSubmitted,
     callback,
@@ -59,7 +59,9 @@ class ListContainer extends React.Component<FinalProps> {
         callback={afterMutate}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${object ? 'updated' : 'added'}`}
+        successMessage={`You successfully order ${
+          object ? 'updated' : 'added'
+        }`}
       />
     );
   };
@@ -98,19 +100,15 @@ class ListContainer extends React.Component<FinalProps> {
   };
   onCancelOrder = order => {
     const { tradingOrderCancelMutation, tradingOrdersQuery } = this.props;
-    console.log('order', order);
     confirm(`This action will cancel order. Are you sure?`)
       .then(() => {
         tradingOrderCancelMutation({
           variables: {
-            txnid: order.txnid,
-            stockcode: order.stockcode,
-            userId: order.userId
+            txnid: order.txnid
           }
         })
           .then(() => {
             Alert.success('You successfully cancelled an order');
-            tradingOrdersQuery.refetch();
           })
           .catch(e => {
             Alert.error(e.message);
@@ -123,7 +121,6 @@ class ListContainer extends React.Component<FinalProps> {
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
     if (params[key] === values) {
-      console.log('params[key] === value', params[key], values);
       return routerUtils.removeParams(this.props.history, key);
     }
 
@@ -209,16 +206,15 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<
-      Props,
-      OrderCancelMutationResponse,
-      { txnid: number; stockcode: number; userId: string }
-    >(gql(mutations.orderCancel), {
-      name: 'tradingOrderCancelMutation',
-      options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
-      })
-    }),
+    graphql<Props, OrderCancelMutationResponse, { txnid: number }>(
+      gql(mutations.orderCancel),
+      {
+        name: 'tradingOrderCancelMutation',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
+      }
+    ),
     graphql<Props>(gql(queries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({

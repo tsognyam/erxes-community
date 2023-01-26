@@ -10,21 +10,26 @@ import * as compose from 'lodash.flowright';
 import { router as routerUtils } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
 type Props = {
   queryParams: any;
   history: any;
+  closeModal: () => void;
+  isAllSelected: boolean;
 };
 
-type FinalProps = {} & Props & IRouterProps;
+type FinalProps = {
+  tradingUserByPrefixQuery: any;
+  tradingStockListQuery: any;
+} & Props &
+  IRouterProps;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
 const defaultParams = ['stock'];
-
 class ListContainer extends React.Component<FinalProps> {
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
@@ -44,40 +49,41 @@ class ListContainer extends React.Component<FinalProps> {
     routerUtils.setParams(this.props.history, { search });
   };
 
-  renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object}
-        variables={values}
-        callback={callback}
-        // refetchQueries={getRefetchQueries(queryParams, currentOrderId)}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
-      />
-    );
-  };
-
   render() {
+    const { tradingUserByPrefixQuery, tradingStockListQuery } = this.props;
+    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
+    const stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const extendedProps = {
       ...this.props,
+      prefix,
+      stocks,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
-      renderButton: this.renderButton
+      isCancel: false,
+      stockcode: ''
     };
 
-    return <Board {...extendedProps} />;
+    return (
+      <>
+        <Board {...extendedProps} />
+      </>
+    );
   }
 }
 
 export default withProps<Props>(
-  compose()(withRouter<FinalProps>(ListContainer))
+  compose(
+    graphql<Props>(gql(queries.tradingUserByPrefix), {
+      name: 'tradingUserByPrefixQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.stockList), {
+      name: 'tradingStockListQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only'
+      })
+    })
+  )(ListContainer)
 );

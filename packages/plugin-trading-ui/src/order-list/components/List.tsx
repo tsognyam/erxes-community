@@ -186,7 +186,7 @@ class List extends React.Component<IProps> {
   renderExecuteForm = props => {
     const { bulk } = this.props;
     let object: any;
-    if (bulk.length > 0) object = bulk[0];
+    if (bulk != undefined && bulk.length > 0) object = bulk[0];
     let updatedProps = {
       ...props,
       object
@@ -205,7 +205,7 @@ class List extends React.Component<IProps> {
     ];
     let actionBarLeft: React.ReactNode;
 
-    if (bulk.length > 0) {
+    if (bulk != undefined && bulk.length > 0) {
       const onClick = () => confirm('Are you sure? This cannot be undone.');
       // .then(() => {
       //     this.removeOrders(bulk);
@@ -243,7 +243,7 @@ class List extends React.Component<IProps> {
             right={
               <Flex>
                 <ModalTrigger
-                  title="Place an order"
+                  title="Add an order"
                   size={'lg'}
                   trigger={
                     <Button

@@ -67,7 +67,8 @@ tradingOrders(
     sortField:String,
     sortDirection:String,
     startDate:Date,
-    endDate:Date
+    endDate:Date,
+    userId:String
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 `;
@@ -77,7 +78,7 @@ txntype:Int!,
 stockcode:Int!,
 cnt:Int!,
 price:Float,
-enddate:Date!,
+enddate:Date,
 condid:Int,
 txnsource:Int!,
 userId:String

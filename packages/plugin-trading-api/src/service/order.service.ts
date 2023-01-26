@@ -254,6 +254,7 @@ class OrderService {
     // if (mseSocket.getSocket().isConnected() != 1)
     //   CustomException(ErrorCode.NotConnectedtoMITException);
     let order = await this.orderRepository.findOne(data.txnid);
+    console.log('order=', order);
     if (!order) CustomException(ErrorCode.OrderNotFoundException);
     let stockdata = await this.stockService.getStockCode({
       stockcode: order.stockcode
@@ -283,7 +284,7 @@ class OrderService {
     //Wallet balance check
 
     let params: any = {
-      userId: dataValid.userId,
+      userId: order.userId,
       currencyCode: stockdata.currencyCode
     };
     const wallets = await this.walletService.getWalletWithUser(params);
@@ -403,10 +404,8 @@ class OrderService {
     return res;
   };
   executeSO = async data => {};
-  cancelPckg = async (data, stockdata) => {
+  cancelPckg = async (data, order) => {
     let dataValid = await this.orderValidator.validateCancelSO(data);
-    let order = await this.orderRepository.findOne(data.txnid);
-
     if (order.txntype == OrderTxnType.Buy) {
       let params = {
         orderId: order.tranOrderId,
@@ -430,19 +429,16 @@ class OrderService {
     let res = await this.orderRepository.update(order);
     return res;
   };
-  cancelSO = async (data, stockdata) => {
+  cancelSO = async (data, stockdata, order) => {
     // if (mseSocket.getSocket().isConnected() != 1)
     //   CustomException(ErrorCode.NotConnectedtoMITException);
     let dataValid = await this.orderValidator.validateCancelSO(data);
-
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
-      userId: data.userId
+      userId: order.userId
     });
     if (!userMCSD) {
       CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
-
-    let order = await this.orderRepository.findOne(data.txnid);
     if (order.status == OrderStatus.STATUS_NEW) {
       // CustomException(ErrorCode.OrderCannotCancelException);
       if (order.txntype == OrderTxnType.Buy) {
@@ -495,7 +491,7 @@ class OrderService {
     }
     CustomException(ErrorCode.OrderCannotCancelException);
   };
-  cancelIPO = async data => {
+  cancelIPO = async (data, order) => {
     let dataValid = await this.orderValidator.validateCancelIPO(data);
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
@@ -503,8 +499,6 @@ class OrderService {
     if (userMCSD.length == 0) {
       CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
-    let order = await this.orderRepository.findOne(data.txnid);
-
     if (
       order.status == OrderStatus.STATUS_NEW ||
       order.status == OrderStatus.STATUS_RECEIVE
@@ -516,16 +510,18 @@ class OrderService {
     CustomException(ErrorCode.OrderCannotCancelException);
   };
   cancelOrder = async data => {
+    let order = await this.orderRepository.findOne(data.txnid);
+    if (!order) CustomException(ErrorCode.OrderNotFoundException);
     let stockdata = await this.stockService.getStockCode({
-      stockcode: data.stockcode
+      stockcode: order.stockcode
     });
 
     // data.fee = await this.custFeeService.getFee(data.userId, data.stockcode);
     if (stockdata.stocktypeId == StockTypeConst.PCKG) {
-      return await this.cancelPckg(data, stockdata);
+      return await this.cancelPckg(data, order);
     }
-    if (stockdata.ipo == 0) return await this.cancelIPO(data);
-    else return await this.cancelSO(data, stockdata);
+    if (stockdata.ipo == 0) return await this.cancelIPO(data, order);
+    else return await this.cancelSO(data, stockdata, order);
   };
 
   collectNew = async (status, ostatus) => {

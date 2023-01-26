@@ -47,7 +47,7 @@ export const FormBox = styled.div`
   border: 1px solid #eee;
   padding: ${dimensions.unitSpacing}px;
   display: flex;
-  width: 30%;
+  width: 35%;
   form {
     width: 100%;
   }
@@ -148,6 +148,9 @@ export const Filter = styled.div`
   margin: 0 auto;
   justify-content: space-between;
   padding: ${dimensions.unitSpacing}px 0;
+  .Select {
+    width: 200px;
+  }
 `;
 
 export const ListContainer = styled.div`
@@ -157,26 +160,79 @@ export const ListContainer = styled.div`
   display: flex;
 `;
 
-export const List = styled.table`
-  width: 23%;
+export const OrderBuyList = styled.table`
+  width: 20%;
   margin-right: 10px;
-  background: #fff;
+  border-collapse: collapse;
   border: 1px solid #eee;
-  text-align: center;
-
+  th,
+  td {
+    border: 1px solid #eee;
+  }
   &:last-child {
     margin-right: 0px;
   }
-
+  text-align: center;
+  thead {
+    text-align: center;
+    tr {
+      &:first-child {
+        height: 35px;
+        background: ${colors.colorCoreGreen};
+      }
+    }
+    th {
+      text-align: center;
+    }
+  }
+`;
+export const OrderSellList = styled.table`
+  width: 20%;
+  margin-right: 10px;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+  th,
+  td {
+    border: 1px solid #eee;
+  }
+  text-align: center;
+  &:last-child {
+    margin-right: 0px;
+  }
   thead {
     text-align: center;
 
     tr {
       &:first-child {
-        background: #fff;
         height: 35px;
+        background: ${colors.colorCoreRed};
       }
-      background: #ddd;
+    }
+    th {
+      text-align: center;
+    }
+  }
+`;
+export const OrderDoneList = styled.table`
+  width: 25%;
+  margin-right: 10px;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+  th,
+  td {
+    border: 1px solid #eee;
+  }
+  text-align: center;
+  &:last-child {
+    margin-right: 0px;
+  }
+  thead {
+    text-align: center;
+    tr {
+      &:first-child {
+        height: 35px;
+        background: ${colors.colorCoreGray};
+      }
     }
     th {
       text-align: center;
@@ -185,7 +241,6 @@ export const List = styled.table`
   tbody {
     tr {
       &:nth-child(even) {
-        background: #eee;
       }
     }
   }

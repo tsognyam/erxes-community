@@ -26,6 +26,7 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
+    if (user != null) params.userId = user._id;
     return await orderService.updateOrder(params);
   },
   tradingOrderCancel: async (
@@ -33,6 +34,7 @@ const OrderMutations = {
     params: any,
     { user, models, subdomain }: IContext
   ) => {
+    if (user != null) params.userId = user._id;
     return await orderService.cancelOrder(params);
   },
   tradingOrderConfirm: async (
@@ -43,5 +45,8 @@ const OrderMutations = {
     return await transactionService.reCreateTransaction(params);
   }
 };
-//requireLogin(walletMutations, 'tradingWalletAdd');
+requireLogin(OrderMutations, 'tradingOrderAdd');
+requireLogin(OrderMutations, 'tradingOrderEdit');
+requireLogin(OrderMutations, 'tradingOrderCancel');
+requireLogin(OrderMutations, 'tradingOrderConfirm');
 export default OrderMutations;

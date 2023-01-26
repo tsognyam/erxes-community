@@ -16,7 +16,8 @@ query tradingOrders(
   $sortField:String,
   $sortDirection:String,
   $startDate:Date,
-  $endDate:Date
+  $endDate:Date,
+  $userId:String
   ) 
 {
   tradingOrders(
@@ -28,7 +29,8 @@ query tradingOrders(
     sortField:$sortField,
     sortDirection:$sortDirection,
     startDate:$startDate,
-    endDate:$endDate
+    endDate:$endDate,
+    userId:$userId
     ) {
     total,
     count,
@@ -93,7 +95,10 @@ query TradingStocks {
     values {
       stockcode,
       stockname,
-      symbol
+      symbol,
+      openprice,
+      closeprice,
+      order_enddate
     }
   }
 }
