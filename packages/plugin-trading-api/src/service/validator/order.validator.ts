@@ -239,7 +239,11 @@ class OrderValidator extends BaseValidator {
       tranorderid: this._joi.number()
     };
     if (params.ordertype == 2) {
-      schema.price = this._joi.number().required();
+      schema.price = this._joi
+        .number()
+        .positive()
+        .greater(0)
+        .required();
       schema.condid = this._joi
         .number()
         .valid(OrderCondition.Day, OrderCondition.GTC, OrderCondition.GTD)
@@ -289,7 +293,7 @@ class OrderValidator extends BaseValidator {
       schema.price = this._joi
         .number()
         .positive()
-        .greater(1)
+        .greater(0)
         .required();
       // schema.condid = this._joi.number().valid(StockConst.OrderCondition.Day, StockConst.OrderCondition.GTC, StockConst.OrderCondition.GTD).required()
     } else {

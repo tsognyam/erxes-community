@@ -27,7 +27,8 @@ export default class WalletRepository extends BaseRepository {
             holdBalance: true,
             incomingBalance: true
           }
-        }
+        },
+        stockBalances: true
       }
     });
   };

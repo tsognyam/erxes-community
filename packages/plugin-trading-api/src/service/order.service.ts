@@ -254,7 +254,6 @@ class OrderService {
     // if (mseSocket.getSocket().isConnected() != 1)
     //   CustomException(ErrorCode.NotConnectedtoMITException);
     let order = await this.orderRepository.findOne(data.txnid);
-    console.log('order=', order);
     if (!order) CustomException(ErrorCode.OrderNotFoundException);
     let stockdata = await this.stockService.getStockCode({
       stockcode: order.stockcode
@@ -262,6 +261,7 @@ class OrderService {
     // data.status = '0';
     data.userId = order.userId;
     data.fee = await this.custFeeService.getFee(order.userId, order.stockcode);
+    data.ordertype = order.ordertype;
     if (stockdata.ipo == StockConst.IPO)
       CustomException(ErrorCode.IpoCannotUpdateException);
     else return await this.updateSO(data, stockdata, order);

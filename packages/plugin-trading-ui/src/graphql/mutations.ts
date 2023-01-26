@@ -37,8 +37,8 @@ mutation tradingOrderAdd(
 }
 `;
 const orderEdit = `
-mutation TradingOrderEdit($cnt: Int!, $ordertype: Int!, $txnid: Int!, $price: Float) {
-  tradingOrderEdit(cnt: $cnt, ordertype: $ordertype, txnid: $txnid, price: $price) {
+mutation TradingOrderEdit($cnt: Int!, $txnid: Int!, $price: Float) {
+  tradingOrderEdit(cnt: $cnt, txnid: $txnid, price: $price) {
     brchno
     cnt
     condid

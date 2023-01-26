@@ -236,7 +236,7 @@ class List extends React.Component<IProps> {
         <Wrapper
           header={
             <Wrapper.Header
-              title={__('List')}
+              title={__('Order list')}
               breadcrumb={breadcrumb}
               queryParams={queryParams}
             />

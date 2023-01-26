@@ -104,8 +104,9 @@ class Row extends React.Component<Props> {
     };
     const left =
       order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt);
-    const total = order.cnt * order.price;
+    let total = order.cnt * order.price;
     const fee = (total * order.fee) / 100;
+    total += fee;
     const userDetails = order.user?.details;
     let userName = '';
     let registerNumber = '';
@@ -143,7 +144,7 @@ class Row extends React.Component<Props> {
         <td>{userName}</td>
         <td>{order.stock.symbol}</td>
         <td>
-          <Label lblStyle={order.txntype === 1 ? 'primary' : 'danger'}>
+          <Label lblStyle={order.txntype === 1 ? 'success' : 'danger'}>
             {order.txntype === 1 ? 'Авах' : 'Зарах'}
           </Label>
         </td>
