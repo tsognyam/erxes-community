@@ -293,57 +293,55 @@ class List extends React.Component<IProps> {
       );
     } else {
       return (
-        // <Wrapper
-
-        //   //leftSidebar={<Sidebar queryParams={queryParams} />}
-        //   content={
-        //     <DataWithLoader
-        //       data={this.renderContent()}
-        //       loading={false}
-        //       count={total}
-        //       emptyText="There is no order."
-        //       emptyImage="/images/actions/20.svg"
-        //     />
-        //   }
-        //   footer={
-        //     <Wrapper.ActionBar
-        //       left={<Pagination count={total} />}
-        //       right={
-        //         <ControlLabel>
-        //           {__('Total order=')}
-        //           {total}
-        //         </ControlLabel>
-        //       }
-        //     />
-        //   }
-        //   transparent={true}
-        //   hasBorder
-        // />
-
-        <Contents hasBorder={true}>
-          <PageContent
-            footer={
-              <Wrapper.ActionBar
-                left={<Pagination count={total} />}
-                right={
-                  <ControlLabel>
-                    {__('Total order=')}
-                    {total}
-                  </ControlLabel>
-                }
-              />
+        <>
+          <Wrapper.ActionBar
+            left={actionBarLeft}
+            right={
+              <Flex>
+                <ModalTrigger
+                  title="Add an order"
+                  size={'lg'}
+                  trigger={
+                    <Button
+                      id={'NewOrderButton'}
+                      btnStyle="success"
+                      block={true}
+                      icon="plus-circle"
+                    >
+                      Add Order
+                    </Button>
+                  }
+                  content={this.renderForm}
+                />
+                {this.renderFilter()}
+              </Flex>
             }
-            transparent={true}
-          >
-            <DataWithLoader
-              data={this.renderContent()}
-              loading={false}
-              count={total}
-              emptyText="There is no order."
-              emptyImage="/images/actions/20.svg"
-            />
-          </PageContent>
-        </Contents>
+          />
+          <Contents hasBorder={true}>
+            <PageContent
+              footer={
+                <Wrapper.ActionBar
+                  left={<Pagination count={total} />}
+                  right={
+                    <ControlLabel>
+                      {__('Total order=')}
+                      {total}
+                    </ControlLabel>
+                  }
+                />
+              }
+              transparent={true}
+            >
+              <DataWithLoader
+                data={this.renderContent()}
+                loading={false}
+                count={total}
+                emptyText="There is no order."
+                emptyImage="/images/actions/20.svg"
+              />
+            </PageContent>
+          </Contents>
+        </>
       );
     }
   }
