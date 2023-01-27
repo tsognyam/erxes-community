@@ -13,6 +13,7 @@ import ListStatement from '../containers/statement/List';
 import ListWithdrawal from '../containers/withdraw/List';
 import ListOrder from '../../order-list/containers/List';
 import ListWallet from '../containers/wallet/List';
+import ListStock from '../containers/stock-list/List';
 import { generateQueryParams } from '../../App';
 type Props = {
   contentType: string;
@@ -33,7 +34,7 @@ class Tab extends React.PureComponent<Props, State> {
     super(props);
     const { contentType } = this.props;
     this.state = {
-      currentTab: contentType == 'account-top' ? 'wallet-list' : 'trading-fee'
+      currentTab: contentType == 'account-top' ? 'wallet-list' : 'order-list'
     };
   }
 
@@ -84,9 +85,21 @@ class Tab extends React.PureComponent<Props, State> {
     }
     if (currentTab === 'wallet-list') {
       const updatedProps = {
-        id: object.userId
+        id: object.userId,
+        queryParams: queryParams
       };
       return <ListWallet {...updatedProps} />;
+    }
+    if (currentTab === 'stock-list') {
+      let walletIdList: any = [];
+      for (let i = 0; i < object.Wallet.length; i++) {
+        walletIdList.push(object.Wallet[i].id);
+      }
+      const updatedProps = {
+        walletIds: walletIdList,
+        queryParams: queryParams
+      };
+      return <ListStock {...updatedProps} />;
     }
 
     return null;
@@ -120,8 +133,10 @@ class Tab extends React.PureComponent<Props, State> {
     }
     if (contentType === 'account-top') {
       tabs.push(this.renderTabTitle('wallet-list', '', 'Wallet list'));
-      tabs.push(this.renderTabTitle('stock-list', '', 'Stock list'));
-      // tabs.push(this.renderTabTitle('order-list', '', 'Order list'));
+      tabs.push(this.renderTabTitle('stock-list', '', 'Stock wallet'));
+      tabs.push(
+        this.renderTabTitle('account-position', '', 'Account position')
+      );
     }
 
     return (

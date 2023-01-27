@@ -255,7 +255,7 @@ model WalletBalance {
   walletId        Int       @unique
   balance         Decimal   @db.Decimal(30, 4)
   holdBalance     Decimal   @db.Decimal(30, 4)
-  incomingBalance Decimal   @db.Decimal(30, 4)
+  incomingBalance Decimal   @db.Decimal(30, 4) @default(0)
   createdAt       DateTime  @default(now())
   createUserId    String?
   updatedAt       DateTime?

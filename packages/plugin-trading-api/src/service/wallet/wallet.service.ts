@@ -59,7 +59,18 @@ class WalletService {
     let include = {
       walletNumberModel: true,
       walletBalance: true,
-      stockBalances: true,
+      stockBalances: {
+        select: {
+          id: true,
+          stockCode: true,
+          walletId: true,
+          balance: true,
+          holdBalance: true,
+          createdAt: true,
+          updatedAt: true,
+          stock: true
+        }
+      },
       stockTransactions: true,
       user: true
     };
