@@ -85,10 +85,8 @@ userId:String
 `;
 const editParams = `
 txnid:Int!,
-ordertype:Int!,
 cnt:Int!,
 price:Float,
-condid:Int
 `;
 const cancelParams = `
 txnid:Int!

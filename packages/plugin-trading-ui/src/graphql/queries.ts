@@ -320,6 +320,34 @@ query TradingUserByPrefix($userId: String, $prefix: String) {
   }
 }
 `;
+const tradingStockWallets = `
+query TradingStockWallets($page: Int!, $perPage: Int!, $sortDirection: String, $sortField: String, $stockCode: Int, $walletId: Int) {
+  tradingStockWallets(page: $page, perPage: $perPage, sortDirection: $sortDirection, sortField: $sortField, stockCode: $stockCode, walletId: $walletId) {
+    count
+    total
+    values {
+      balance
+      createdAt
+      createuserId
+      holdBalance
+      id
+      stockCode
+      updatedAt
+      updatedUserId
+      walletId
+      stock {
+        symbol
+        stockname
+      }
+      wallet {
+        id
+        currencyCode
+        user
+      }
+    }
+  }
+}
+`;
 export default {
   list,
   totalCount,
@@ -331,5 +359,6 @@ export default {
   tradingCustFeeList,
   tradingTransactionGet,
   tradingWithdrawGet,
-  tradingUserByPrefix
+  tradingUserByPrefix,
+  tradingStockWallets
 };

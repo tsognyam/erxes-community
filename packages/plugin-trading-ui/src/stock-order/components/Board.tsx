@@ -10,7 +10,8 @@ import {
   SearchBar,
   SearchInput,
   SearchIcon,
-  FinanceAmount
+  FinanceAmount,
+  StockOrderLabel
 } from '../../styles';
 import Chart from './Chart';
 import List from './List';
@@ -52,6 +53,8 @@ type State = {
   orders: any[];
   total: number;
   count: number;
+  userPrefix: string;
+  stockname: string;
 };
 
 class BoardComp extends React.Component<Props, State> {
@@ -62,7 +65,9 @@ class BoardComp extends React.Component<Props, State> {
       closeprice: 0,
       orders: [],
       total: 0,
-      count: 0
+      count: 0,
+      userPrefix: '',
+      stockname: ''
     };
   }
   renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
@@ -100,8 +105,10 @@ class BoardComp extends React.Component<Props, State> {
       this.props.onSearch(target.value);
     }
   };
-  stockChange = (option: { value: string }) => {
+  stockChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
+    const label = !option ? '' : option.label.toString();
+    this.setState({ stockname: label });
     this.setState({ stockcode: value }, () => {
       this.fetchOrders();
     });
@@ -112,8 +119,10 @@ class BoardComp extends React.Component<Props, State> {
       this.setState({ closedate: new Date(stock.order_enddate) });
     }
   };
-  prefixChange = (option: { value: string }) => {
+  prefixChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
+    const label = !option ? '' : option.label.toString();
+    this.setState({ userPrefix: label });
     this.setState({ userId: value }, () => {
       this.fetchOrders();
     });
@@ -222,11 +231,19 @@ class BoardComp extends React.Component<Props, State> {
           </ControlLabel>
         </Filter>
         <List {...extendedProps} />
-        <Filter>
+        <StockOrderLabel>
           <ControlLabel>
-            <b>Last 20 orders</b>
+            <label style={{ color: '#5629B6' }}>
+              {this.state.userPrefix != ''
+                ? '“' + this.state.userPrefix + '” хэрэглэгчийн '
+                : ''}
+              {this.state.stockname != ''
+                ? '“' + this.state.stockname + '” хувьцааны '
+                : ''}
+              Сүүлд хийсэн 20 арилжааны жагсаалт
+            </label>
           </ControlLabel>
-        </Filter>
+        </StockOrderLabel>
         <OrderList {...orderListProps} />
       </>
     );

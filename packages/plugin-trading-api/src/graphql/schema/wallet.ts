@@ -18,11 +18,36 @@ export const types = `
     stockBalances:JSON
     user:JSON
  }
+ type TradingStockWallet @key(fields:"id") {
+   id:Int!
+   stockCode:Int
+   walletId:Int
+   balance:Int
+   holdBalance:Int
+   createdAt:Date
+   createuserId:String
+   updatedAt:Date
+   updatedUserId:String
+   stock:TradingStock
+   wallet:TradingWallet
+ }
+ type TradingStockWalletList {
+   total:Int,
+   count:Int,
+   values:[TradingStockWallet]
+ }
 `;
 export const queries = `
 tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
 tradingUserWallets(userId:String!,currencyCode:String):[TradingWallet]
-`;
+tradingStockWallets(
+   page:Int!,
+   perPage:Int!,
+   walletId:Int,
+   stockCode:Int,
+   sortField:String,
+   sortDirection:String
+):TradingStockWalletList`;
 const params = `
 currencyCode:String,
 userId:String,

@@ -12,7 +12,7 @@ import _ from 'lodash';
 import gql from 'graphql-tag';
 import queries from '../../graphql/queries';
 import client from '@erxes/ui/src/apolloClient';
-import { Button, Icon } from '@erxes/ui/src/components';
+import { Button, Icon, Label } from '@erxes/ui/src/components';
 //import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
@@ -31,16 +31,19 @@ type Props = {
 type State = {
   userId: string;
   stockcode: string;
-  isPrice: boolean;
-  orderType: number;
+  isHide: boolean;
+  ordertype: number;
   price?: number;
   cnt: number;
   txntype: number;
   tradeBalance: number;
   isCanceled: boolean;
-  condid?: number;
+  condid: number;
   fee?: number;
   total: number;
+  isEditable: boolean;
+  stockSymbol: string;
+  stockBalance: number;
 };
 class Forms extends React.Component<Props, State> {
   constructor(props) {
@@ -56,8 +59,8 @@ class Forms extends React.Component<Props, State> {
       isCanceled: false,
       userId: object?.userId,
       stockcode: object?.stockcode,
-      orderType: object?.orderType || 1,
-      isPrice: object?.orderType == 2 ? false : true,
+      ordertype: object?.ordertype || 1,
+      isHide: object?.ordertype == 2 ? false : true,
       price: object?.price || 0,
       txntype: object?.txntype || 1,
       tradeBalance:
@@ -66,7 +69,11 @@ class Forms extends React.Component<Props, State> {
           parseFloat(object?.wallet?.walletBalance.incomingBalance) || 0,
       fee: object?.fee || 0,
       total: total,
-      cnt: object?.cnt || 1
+      cnt: object?.cnt || 1,
+      condid: object?.condid || 0,
+      isEditable: object ? false : true,
+      stockSymbol: object?.stock?.symbol,
+      stockBalance: 0
     };
   }
   generateDoc = (values: {
@@ -78,7 +85,7 @@ class Forms extends React.Component<Props, State> {
     cnt: number;
     enddate?: Date;
     userId: string;
-    condid?: number;
+    condid: number;
   }) => {
     const { object } = this.props;
     const finalValues = values;
@@ -88,15 +95,15 @@ class Forms extends React.Component<Props, State> {
     return {
       txnid: finalValues.txnid,
       enddate: finalValues.enddate,
-      price: this.state.orderType == 1 ? undefined : Number(finalValues.price),
+      price: this.state.ordertype == 1 ? undefined : Number(finalValues.price),
       cnt: Number(finalValues.cnt),
       txntype: Number(this.state.txntype),
-      ordertype: Number(this.state.orderType),
+      ordertype: Number(this.state.ordertype),
       stockcode: Number.isNaN(this.state.stockcode)
         ? undefined
         : Number(this.state.stockcode),
       userId: this.state.userId,
-      condid: this.state.condid
+      condid: Number(this.state.condid)
     };
   };
   prefixChange = (option: { value: string }) => {
@@ -122,8 +129,30 @@ class Forms extends React.Component<Props, State> {
                 data.tradingUserWallets[0].walletBalance.tradeBalance
               )
             });
-          } else this.setState({ tradeBalance: 0 });
-          Alert.success('Trade balance updated');
+            let stockBalances = data.tradingUserWallets[0].stockBalances;
+            if (stockBalances && stockBalances.length > 0) {
+              let stockBalance = stockBalances.find(
+                x => x.stockCode == this.state.stockcode
+              );
+              if (stockBalance) {
+                this.setState({
+                  stockBalance:
+                    parseFloat(stockBalance.balance) -
+                    parseFloat(stockBalance.holdBalance)
+                });
+              } else
+                this.setState({
+                  stockBalance: 0
+                });
+            } else
+              this.setState({
+                stockBalance: 0
+              });
+          } else {
+            this.setState({ tradeBalance: 0 });
+            this.setState({ stockBalance: 0 });
+          }
+          Alert.success('Balance updated');
         });
     else Alert.warning('Choose prefix');
   };
@@ -165,8 +194,14 @@ class Forms extends React.Component<Props, State> {
   };
   stockChange = (option: { value: string }) => {
     const value = !option ? '' : option.value.toString();
+    const { stocks } = this.props;
     this.setState({ stockcode: value }, () => {
       this.setTotalPrice();
+      this.changeTradeBalance();
+      let stock = stocks.find(x => x.stockcode == value);
+      if (stock) {
+        this.setState({ stockSymbol: stock.symbol });
+      }
     });
     if (this.props.stockChange != undefined) this.props.stockChange(option);
   };
@@ -181,7 +216,7 @@ class Forms extends React.Component<Props, State> {
     });
   };
   setTotalPrice = () => {
-    if (this.state.orderType == 1) {
+    if (this.state.ordertype == 1) {
       let stock = this.props.stocks.find(
         x => x.stockcode == this.state.stockcode
       );
@@ -205,17 +240,17 @@ class Forms extends React.Component<Props, State> {
       this.setState({ total: price + fee });
     }
   };
-  orderTypeChange = e => {
+  ordertypeChange = e => {
     const value = e.target.value;
-    this.setState({ orderType: Number(value) });
+    this.setState({ ordertype: Number(value) });
 
     if (value == 1) {
       this.setState({ price: 0 }, () => {
         this.setTotalPrice();
       });
-      this.setState({ isPrice: true });
+      this.setState({ isHide: true });
     } else
-      this.setState({ isPrice: false }, () => {
+      this.setState({ isHide: false }, () => {
         this.setTotalPrice();
       });
   };
@@ -294,6 +329,7 @@ class Forms extends React.Component<Props, State> {
             onChange={this.prefixChange}
             required={true}
             name="userId"
+            disabled={this.state.isEditable ? false : true}
           />
         </FormGroup>
         <FormGroup>
@@ -306,6 +342,7 @@ class Forms extends React.Component<Props, State> {
             value={this.state.stockcode}
             onChange={this.stockChange}
             required={true}
+            disabled={this.state.isEditable ? false : true}
           />
         </FormGroup>
         <FormGroup>
@@ -319,6 +356,7 @@ class Forms extends React.Component<Props, State> {
             value={this.state.txntype}
             onChange={this.txntypeChange}
             required={true}
+            disabled={this.state.isEditable ? false : true}
           />
         </FormGroup>
         <FormGroup>
@@ -328,24 +366,36 @@ class Forms extends React.Component<Props, State> {
             name="ordertype"
             componentClass="select"
             options={ORDER_TYPE}
-            defaultValue={order.orderType}
-            onChange={this.orderTypeChange}
+            defaultValue={order?.ordertype}
+            value={this.state.ordertype}
+            onChange={this.ordertypeChange}
             required={true}
+            disabled={this.state.isEditable ? false : true}
           />
         </FormGroup>
-        {this.state.isPrice == false ? (
+        {this.state.isHide == false ? (
           <FormGroup>
             <ControlLabel required={true}>{__('Үнэ')}</ControlLabel>
             <FormControl
               {...formProps}
               name="price"
               defaultValue={order?.price || 0}
-              disabled={this.state.isPrice}
+              disabled={this.state.isHide}
               value={this.state.price}
               min={0}
               required={true}
               onChange={this.priceChange}
             />
+          </FormGroup>
+        ) : (
+          ''
+        )}
+        {this.state.txntype == 2 ? (
+          <FormGroup>
+            <ControlLabel>{__('Боломжит үлдэгдэл')}</ControlLabel>
+            <label style={{ color: '#5629B6' }}>
+              {this.state.stockBalance}
+            </label>
           </FormGroup>
         ) : (
           ''
@@ -362,42 +412,68 @@ class Forms extends React.Component<Props, State> {
             onChange={this.cntChange}
           />
         </FormGroup>
+        {this.state.isHide == false ? (
+          <FormGroup>
+            <ControlLabel required={this.state.isHide ? false : true}>
+              {__('Хугацаа')}
+            </ControlLabel>
+            <FormControl
+              {...formProps}
+              name="condid"
+              componentClass="select"
+              options={TIME_FRAME}
+              value={this.state.condid}
+              onChange={this.orderConditionChange}
+              required={this.state.isHide ? false : true}
+              disabled={
+                this.state.isHide ? true : this.state.isEditable ? false : true
+              }
+            />
+          </FormGroup>
+        ) : (
+          ''
+        )}
+        {this.state.isHide == false ? (
+          this.state.condid == 6 ? (
+            <FormGroup>
+              <ControlLabel>{__('Дуусах өдөр')}</ControlLabel>
+              <FormControl
+                {...formProps}
+                type="date"
+                defaultValue={dayjs(order.endDate || new Date()).format(
+                  'YYYY-MM-DD'
+                )}
+                required={
+                  this.state.isHide == false && this.state.condid == 6
+                    ? true
+                    : false
+                }
+                name="enddate"
+                placeholder={'Дуусах өдөр'}
+                disabled={
+                  this.state.isHide
+                    ? true
+                    : this.state.isEditable
+                    ? false
+                    : true
+                }
+              />
+            </FormGroup>
+          ) : (
+            ''
+          )
+        ) : (
+          ''
+        )}
         <FormGroup>
-          <ControlLabel required={true}>{__('Хугацаа')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="condid"
-            componentClass="select"
-            options={TIME_FRAME}
-            defaultValue={order.condid}
-            onChange={this.orderConditionChange}
-            required={true}
-          />
+          <ControlLabel>{__('Шимтгэлийн хувь')}</ControlLabel>
+          <label style={{ color: '#5629B6' }}>{this.state.fee + '%'}</label>
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__('Дуусах өдөр')}</ControlLabel>
-          <FormControl
-            {...formProps}
-            type="date"
-            defaultValue={dayjs(order.endDate || new Date()).format(
-              'YYYY-MM-DD'
-            )}
-            required={true}
-            name="enddate"
-            placeholder={'Дуусах өдөр'}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>
-            {__('Шимтгэлийн хувь') + ' ' + this.state.fee + '%'}
-          </ControlLabel>
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>
-            {__('Нийт(Дүн+Шимтгэл)') +
-              ' ' +
-              this.numberFormat(this.state.total)}
-          </ControlLabel>
+          <ControlLabel>{__('Нийт(Дүн+Шимтгэл)')}</ControlLabel>
+          <label style={{ color: '#5629B6' }}>
+            {this.numberFormat(this.state.total) + '₮'}
+          </label>
         </FormGroup>
         <ModalFooter>
           {isCancel == false ? (

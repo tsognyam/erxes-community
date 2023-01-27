@@ -10,4 +10,7 @@ export default class StockWalletService {
 
     return wallet;
   };
+  getStockWalletList = async params => {
+    return await this.stockWalletValidator.validateWalletList(params);
+  };
 }

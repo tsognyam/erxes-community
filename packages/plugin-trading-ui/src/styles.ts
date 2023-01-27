@@ -46,8 +46,8 @@ export const FormBox = styled.div`
   background: #fff;
   border: 1px solid #eee;
   padding: ${dimensions.unitSpacing}px;
-  display: flex;
-  width: 35%;
+  float: left;
+  width: 38%;
   form {
     width: 100%;
   }
@@ -152,16 +152,21 @@ export const Filter = styled.div`
     width: 200px;
   }
 `;
-
+export const StockOrderLabel = styled.div`
+  width: 1000px;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: space-between;
+  padding: ${dimensions.unitSpacing}px 0;
+`;
 export const ListContainer = styled.div`
   border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
   padding: ${dimensions.unitSpacing}px;
-  display: flex;
 `;
-
 export const OrderBuyList = styled.table`
   width: 20%;
+  float: left;
   margin-right: 10px;
   border-collapse: collapse;
   border: 1px solid #eee;
@@ -188,6 +193,7 @@ export const OrderBuyList = styled.table`
 `;
 export const OrderSellList = styled.table`
   width: 20%;
+  float: left;
   margin-right: 10px;
   border-collapse: collapse;
   border: 1px solid #eee;
@@ -214,7 +220,8 @@ export const OrderSellList = styled.table`
   }
 `;
 export const OrderDoneList = styled.table`
-  width: 25%;
+  float: left;
+  width: 20%;
   margin-right: 10px;
   border-collapse: collapse;
   border: 1px solid #eee;

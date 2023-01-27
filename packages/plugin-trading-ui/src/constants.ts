@@ -221,9 +221,9 @@ export const ORDER_BUY_SELL = [
 ];
 
 export const TIME_FRAME = [
-  { label: 'Захиалга оруулсан өдөр', value: 0 },
-  { label: 'Захиалга цуцлагдах хүртэл', value: 1 },
-  { label: 'Заасан өдөр хүртэл', value: 6 }
+  { label: 'Захиалга оруулсан өдөр', value: '0' },
+  { label: 'Захиалга цуцлагдах хүртэл', value: '1' },
+  { label: 'Заасан өдөр хүртэл', value: '6' }
 ];
 
 export const STOCK_ORDER = [

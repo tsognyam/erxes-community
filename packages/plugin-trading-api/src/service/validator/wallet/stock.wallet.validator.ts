@@ -111,4 +111,62 @@ export default class StockWalletValidator extends BaseValidator {
     }
     return stockBalances;
   };
+  validateWalletList = async params => {
+    var { error, data } = this.validate(
+      {
+        walletId: this._joi.number(),
+        stockCode: this._joi.number(),
+        skip: this._joi.number(),
+        take: this._joi.number(),
+        orderBy: this._joi.any()
+      },
+      params
+    );
+    let options: any = [];
+    options.take = data.take;
+    options.skip = data.skip;
+    options.orderBy = data.orderBy;
+    data.skip = undefined;
+    data.take = undefined;
+    data.orderBy = undefined;
+    if (data.stockCode)
+      await this.stockValidator.validateGetStockCode({
+        stockcode: data.stockCode
+      });
+    let stockBalances: any = undefined;
+    let where: any = undefined;
+    where = {
+      walletId: data.walletId,
+      wallet: { status: WalletConst.STATUS_ACTIVE },
+      stockCode: data.stockCode,
+      NOT: {
+        walletId: WalletConst.NOMINAL
+      },
+      OR: [
+        {
+          balance: {
+            gt: 0
+          }
+        },
+        {
+          holdBalance: {
+            gt: 0
+          }
+        }
+      ]
+    };
+    stockBalances = await this.stockBalanceRepository.findAll(
+      where,
+      {
+        stock: true,
+        wallet: {
+          include: {
+            user: true
+          }
+        }
+      },
+      options
+    );
+    return stockBalances;
+  };
 }
