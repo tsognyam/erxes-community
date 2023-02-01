@@ -50,3 +50,14 @@ export const getUser = async (data: any, subdomain: string = 'localhost') => {
   });
   return user;
 };
+export const getSystemUsers = async (
+  data: any,
+  subdomain: string = 'localhost'
+) => {
+  const user = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: data,
+    isRPC: true
+  });
+};

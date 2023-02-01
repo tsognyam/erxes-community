@@ -7,6 +7,7 @@ import {
 import OrderService from '../../../service/order.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
 import TransactionService from '../../../service/wallet/transaction.service';
+import { sendLogsMessage } from '../../../messageBroker';
 let orderService = new OrderService();
 let transactionService = new TransactionService();
 const OrderMutations = {
@@ -19,7 +20,8 @@ const OrderMutations = {
     //   if (user != null) params.userId = user._id;
     //   else CustomException(ErrorCode.UserNotFoundException);
     // }
-    return await orderService.create(params);
+    let order = await orderService.create(params);
+    return order;
   },
   tradingOrderEdit: async (
     _root: any,

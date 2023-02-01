@@ -87,6 +87,7 @@ const OrderQueries = {
         el.user.details = orderUser;
       }
     });
+    console.log(orderList);
     return orderList;
   },
   tradingOrderDetail: async (

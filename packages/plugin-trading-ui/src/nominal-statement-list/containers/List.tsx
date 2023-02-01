@@ -23,9 +23,7 @@ type Props = {
 };
 
 type FinalProps = {
-  tradingOrdersQuery: any;
-  tradingUserByPrefixQuery: any;
-  tradingStockListQuery: any;
+  tradingStockWalletQuery: any;
 } & Props &
   IRouterProps;
 
@@ -89,23 +87,15 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const {
-      tradingOrdersQuery,
-      tradingUserByPrefixQuery,
-      queryParams,
-      tradingStockListQuery
-    } = this.props;
-    const orders = tradingOrdersQuery?.tradingOrders?.values || [];
-    const total = tradingOrdersQuery?.tradingOrders?.total || 0;
-    const count = tradingOrdersQuery?.tradingOrders?.count || 0;
-    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix || [];
-    const stocks = tradingStockListQuery?.tradingStocks?.values || [];
+    const { tradingStockWalletQuery, queryParams } = this.props;
+    const stockWallets =
+      tradingStockWalletQuery?.tradingStockWallets?.values || [];
+    const total = tradingStockWalletQuery?.tradingStockWallets?.total || 0;
+    const count = tradingStockWalletQuery?.tradingStockWallets?.count || 0;
     const extendedProps = {
       ...this.props,
-      orders,
-      prefix,
-      stocks,
-      loading: tradingOrdersQuery.loading,
+      stockWallets,
+      loading: tradingStockWalletQuery.loading,
       total,
       count,
       onSelect: this.onSelect,
@@ -115,7 +105,7 @@ class ListContainer extends React.Component<FinalProps> {
       // remove: this.remove,
       // removeOrders,
     };
-    if (tradingOrdersQuery.loading) {
+    if (tradingStockWalletQuery.loading) {
       return <Spinner />;
     }
     const content = props => {
@@ -130,37 +120,15 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.orderList), {
-      name: 'tradingOrdersQuery',
+    graphql<Props>(gql(queries.tradingStockWallets), {
+      name: 'tradingStockWalletQuery',
       options: ({ queryParams }) => ({
         variables: {
-          stockcode: queryParams.stockcode,
-          txntype: queryParams.txntype,
-          status: queryParams.status,
+          walletId: queryParams.walletId,
+          stockCode: queryParams.stockCode,
           sortField: queryParams.sortField,
           sortDirection: queryParams.sortDirection,
           ...generatePaginationParams(queryParams)
-        },
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.prefixList), {
-      name: 'tradingUserByPrefixQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(queries.stockList), {
-      name: 'tradingStockListQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props>(gql(mutations.orderAdd), {
-      name: 'tradingOrderAddMutation',
-      options: ({ queryParams }) => ({
-        variables: {
-          enddate: '2022-12-30'
         },
         fetchPolicy: 'network-only'
       })

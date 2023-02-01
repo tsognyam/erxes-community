@@ -155,6 +155,7 @@ class TransactionService {
         orderId: order.tranOrderId,
         confirm: TransactionConst.STATUS_SUCCESS
       });
+    } else {
     }
     return order;
   };

@@ -1,7 +1,6 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import Form from './Form';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -9,22 +8,20 @@ import Button from '@erxes/ui/src/components/Button';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Sidebar from '../containers/Sidebar';
-import RightMenu from '../components/RightMenu';
+import RightMenu from './RightMenu';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
-
+import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  toggleAll: (targets: IOrder[], containerId: string) => void;
-  orders: IOrder[]; //buh order
-  prefix: any[];
-  stocks: any[];
+  toggleAll: (targets: any, containerId: string) => void;
+  stockWallets: any[];
   total: number;
   count: number;
   isAllSelected: boolean;
@@ -39,23 +36,6 @@ interface IProps extends IRouterProps {
 }
 
 class List extends React.Component<IProps> {
-  renderForm = props => {
-    return (
-      <Form
-        {...props}
-        renderButton={this.props.renderButton}
-        prefix={this.props.prefix}
-        stocks={this.props.stocks}
-      />
-    );
-  };
-
-  // remove = (order) => {
-  //   const { remove } = this.props;
-
-  //   remove(order._id);
-  // };
-
   renderContent = () => {
     const {
       toggleAll,
@@ -63,12 +43,12 @@ class List extends React.Component<IProps> {
       bulk,
       toggleBulk,
       renderButton,
-      orders,
+      stockWallets,
       total,
       count
     } = this.props;
     const onChangeAll = () => {
-      toggleAll(orders, 'orders');
+      toggleAll(stockWallets, 'stockWallets');
     };
     return (
       <Table>
@@ -82,52 +62,22 @@ class List extends React.Component<IProps> {
               />
             </th>
             <th>№</th>
-            <th>Регистр</th>
-            <th>Журналын дугаар</th>
-            <th>Гүйлгээний дүн</th>
-            <th>
-              <SortHandler sortField={'stockcode'} label={__('Төрөл')} />
-            </th>
-            <th>
-              <SortHandler sortField={'order.txntype'} label={__('Огноо')} />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'ordertype'}
-                label={__('Харьцсан данс')}
-              />
-            </th>
-            <th>
-              <SortHandler sortField={'price'} label={__('Гүйлгээний утга')} />
-            </th>
-            <th>
-              <SortHandler sortField={'cnt'} label={__('Жинхэнэ данс')} />
-            </th>
-            <th>
-              <SortHandler
-                sortField={'donecnt'}
-                label={__('Данс эзэмшигчийн нэр')}
-              />
-            </th>
-            <th>
-              {/* <SortHandler sortField={'donecnt'} label={__('Үлдсэн')} /> */}
-              {__('Үүсгэсэн огноо')}
-            </th>
-            <th>
-              <SortHandler
-                sortField={'status'}
-                label={__('Номинал дансны дугаар')}
-              />
-            </th>
+            <th>Prefix</th>
+            <th>Хувьцааны симбол</th>
+            <th>Хувьцааны нэр</th>
+            <th>Үлдэгдэл</th>
+            <th>Барилт хийсэн дүн</th>
+            <th>Боломжит үлдэгдэл</th>
+            <th>Сүүлд засагдсан огноо</th>
           </tr>
         </thead>
-        <tbody id="statements">
-          {(orders || []).map((order, index) => (
+        <tbody id="stockWallets">
+          {(stockWallets || []).map((stockWallet, index) => (
             <Row
               index={index}
-              order={order}
+              stockWallet={stockWallet}
               totalCount={total}
-              isChecked={bulk.includes(order)}
+              isChecked={bulk.includes(stockWallet)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
             />
@@ -163,65 +113,25 @@ class List extends React.Component<IProps> {
   // };
 
   render() {
-    const { queryParams, bulk, orders, total, count } = this.props;
+    const { queryParams, total } = this.props;
     const breadcrumb = [
-      { title: __('Дотоод арилжаа'), link: '/trading/order-list' }
+      { title: __('Stock wallet list'), link: '/trading/stock-wallet-list' }
     ];
     let actionBarLeft: React.ReactNode;
-
-    if (bulk.length > 0) {
-      const onClick = () => confirm('Are you sure? This cannot be undone.');
-      // .then(() => {
-      //     this.removeOrders(bulk);
-      //   })
-      //   .catch(e => {
-      //     Alert.error(e.message);
-      //   });
-
-      actionBarLeft = (
-        <Button
-          btnStyle="danger"
-          size="small"
-          icon="times-circle"
-          onClick={onClick}
-        >
-          Remove
-        </Button>
-      );
-    }
-
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('List')}
-            breadcrumb={breadcrumb}
+            title={__('Номинал хуулга')}
+            //breadcrumb={breadcrumb}
             queryParams={queryParams}
+            submenu={nominalStatementMenus}
           />
         }
         actionBar={
           <Wrapper.ActionBar
             left={actionBarLeft}
-            right={
-              <Flex>
-                <ModalTrigger
-                  title="Place an order"
-                  size={'lg'}
-                  trigger={
-                    <Button
-                      id={'NewOrderButton'}
-                      btnStyle="success"
-                      block={true}
-                      icon="plus-circle"
-                    >
-                      Add Order
-                    </Button>
-                  }
-                  content={this.renderForm}
-                />
-                {this.renderFilter()}
-              </Flex>
-            }
+            right={<Flex>{this.renderFilter()}</Flex>}
           />
         }
         leftSidebar={<Sidebar queryParams={queryParams} />}

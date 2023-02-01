@@ -92,6 +92,7 @@ model Order {
   brchno            String?
   regdate           DateTime          @default(now())
   status            Int
+  createdUserId     String?
   updatedate        DateTime?
   updateUserId      String?
   ostatus           Int               @default(1)
@@ -255,7 +256,7 @@ model WalletBalance {
   walletId        Int       @unique
   balance         Decimal   @db.Decimal(30, 4)
   holdBalance     Decimal   @db.Decimal(30, 4)
-  incomingBalance Decimal   @db.Decimal(30, 4) @default(0)
+  incomingBalance Decimal   @default(0) @db.Decimal(30, 4)
   createdAt       DateTime  @default(now())
   createUserId    String?
   updatedAt       DateTime?

@@ -59,5 +59,12 @@ module.exports = {
       scope: 'trading',
       image: '/images/icons/erxes-18.svg',
     },
+    {
+      text: 'Nominal statement list',
+      to: '/trading/nominal-statement-list',
+      location: 'settings',
+      scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
+    }
   ]
 };

@@ -138,7 +138,7 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           /> */}
         </td>
-        <td>{order.txnid}</td>
+        <td>{index + 1}</td>
         <td>{order.user?.prefix}</td>
         <td>{registerNumber}</td>
         <td>{userName}</td>
