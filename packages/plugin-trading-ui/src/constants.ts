@@ -366,3 +366,11 @@ export const WITHDRAW_TYPE = [
   { value: 1, label: 'Номинал', styleName: 'primary' },
   { value: 2, label: 'ҮЦТХТ', styleName: 'warning' }
 ];
+export const TRANSACTION_STATUS = [
+  { status: 0, statusName: 'Идэвхгүй', styleName: 'default' },
+  { status: 1, statusName: 'Амжилттай', styleName: 'success' },
+  { status: 2, statusName: 'Хүлээгдэж буй', styleName: 'warning' },
+  { status: 3, statusName: 'Цуцлагдсан', styleName: 'danger' },
+  { status: 4, statusName: 'Failed', styleName: 'danger' },
+  { status: 5, statusName: 'Blocked', styleName: 'danger' }
+];

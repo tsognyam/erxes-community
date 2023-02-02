@@ -178,7 +178,7 @@ class Row extends React.Component<Props> {
             ? 'GTD'
             : ''}
         </td>
-        <td>{order.user?.details?.shortName}</td>
+        <td>{order.createdUserDetails?.email || 'System user'}</td>
         <td>{this.renderActions(order)}</td>
       </StyledTr>
     );

@@ -71,7 +71,8 @@ class BankTransactionService {
     });
     await this.bankTransactionRepository.update(bankTransaction.id, {
       status: TransactionConst.STATUS_SUCCESS,
-      message: 'test success'
+      message: 'test success',
+      orderId: order.id
     });
     return bankTransaction;
   };

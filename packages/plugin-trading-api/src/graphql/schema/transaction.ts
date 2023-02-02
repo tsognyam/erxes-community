@@ -16,6 +16,7 @@ type tradingTransaction @key(fields:"id") {
     updatedAt: Date
     updatedUserId: Int
     wallet:JSON
+    user:JSON
 }
 type tradingTransactionList {
     total:Int,

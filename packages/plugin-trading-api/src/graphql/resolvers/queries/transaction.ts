@@ -3,8 +3,8 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import UserService from '../../../service/user/user.service';
 import TransactionService from '../../../service/wallet/transaction.service';
+import { getUsers } from '../../../models/utils';
 let service = new TransactionService();
 const TransactionQueries = {
   tradingTransactionGet: async (
@@ -19,7 +19,17 @@ const TransactionQueries = {
     params,
     { models, subdomain, user }: IContext
   ) => {
-    return await service.nominalStatement(params);
+    let updatedParams = {
+      skip: (params.page - 1) * params.perPage,
+      take: params.perPage,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    };
+    let dataList = await service.nominalStatement(updatedParams);
+    return dataList;
   }
 };
 //   requireLogin(TransactionQueries, 'tradingTransactionGet');

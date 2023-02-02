@@ -82,11 +82,19 @@ class List extends React.Component<IProps, State> {
       renderButton,
       transactions,
       total,
-      count
+      count,
+      queryParams
     } = this.props;
     const onChangeAll = () => {
       toggleAll(transactions, 'transactions');
     };
+    let indexCounter = 0,
+      page = 1,
+      perPage = 20;
+    if (queryParams && queryParams.page && queryParams.page > 1)
+      page = queryParams.page;
+    if (queryParams && queryParams.perPage) perPage = queryParams.perPage;
+    indexCounter = (page - 1) * perPage;
     return (
       <>
         <Table>
@@ -100,8 +108,7 @@ class List extends React.Component<IProps, State> {
                 />
               </th>
               <th>№</th>
-              <th>Регистр</th>
-              <th>Журналын дугаар </th>
+              <th>Префикс</th>
               <th>Гүйлгээний дүн</th>
               <th>Төрөл</th>
               <th>Огноо</th>
@@ -111,12 +118,13 @@ class List extends React.Component<IProps, State> {
               <th>Данс эзэмшигчийн нэр</th>
               <th>Үүсгэсэн огноо</th>
               <th>Номинал дансны дугаар</th>
+              <th>Төлөв</th>
             </tr>
           </thead>
           <tbody id="transactions">
             {(transactions || []).map((transaction, index) => (
               <Row
-                index={index}
+                index={indexCounter + index}
                 transaction={transaction}
                 totalCount={total}
                 isChecked={bulk.includes(transaction)}

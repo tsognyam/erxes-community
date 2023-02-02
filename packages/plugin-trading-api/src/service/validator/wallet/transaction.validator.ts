@@ -146,10 +146,11 @@ export class TransactionValidator extends WalletValidator {
   validateStatement = async (params: any) => {
     var { data } = this.validate(
       {
-        startDate: this._joi.date().required(),
-        endDate: this._joi.date().required(),
+        startDate: this._joi.date(),
+        endDate: this._joi.date(),
         skip: this._joi.number(),
-        take: this._joi.number()
+        take: this._joi.number(),
+        orderBy: this._joi.any()
       },
       params
     );

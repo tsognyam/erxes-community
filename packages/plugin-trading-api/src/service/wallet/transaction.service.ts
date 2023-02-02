@@ -231,19 +231,32 @@ class TransactionService {
     options.take = data.take;
     options.skip = data.skip;
     options.orderBy = data.orderBy;
+    let dateFilter;
+    if (data.startDate != undefined && data.endDate != undefined) {
+      dateFilter = {
+        dater: {
+          gte: data.startDate,
+          lte: data.endDate
+        }
+      };
+    }
     let where = {
       NOT: {
-        walletId: WalletConst.NOMINAL
+        wallet: {
+          type: WalletConst.NOMINAL
+        }
       },
-      dater: {
-        gte: data.startDate,
-        lte: data.endDate
-      }
+      ...dateFilter
     };
     let select = {
       order: {
         include: {
           bankTransaction: true
+        }
+      },
+      wallet: {
+        include: {
+          user: true
         }
       }
     };
@@ -252,28 +265,8 @@ class TransactionService {
       select,
       options
     );
-    let beginBalance = await this.transactionRepository._prisma
-      .$queryRaw`SELECT IFNULL(SUM(ss.amount),0) as amount FROM (SELECT SUM(tr.amount) AS amount,tr.walletId
-        FROM \`Transaction\` tr
-        WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} 
-        GROUP BY tr.walletId
-        UNION ALL 
-        SELECT wb.balance-SUM(tr.amount),tr.walletId FROM \`Transaction\` tr
-        INNER JOIN WalletBalance wb ON wb.walletId=tr.walletId
-        WHERE tr.walletId=${data.walletId} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId) ss`;
-    let endBalance = await this.transactionRepository._prisma
-      .$queryRaw`SELECT IFNULL(sum(ss.amount),0) AS amount FROM (SELECT IFNULL(SUM(tr.amount),0) AS amount,tr.walletId FROM 
-        \`Transaction\` tr
-        WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} Group BY tr.walletId
-        UNION all
-        SELECT IFNULL(SUM(tr.amount),0) AS amount,tr.walletId FROM \`Transaction\` tr
-        WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId
-        UNION ALL 
-        SELECT wb.balance-SUM(tr.amount),tr.walletId FROM \`Transaction\` tr
-        INNER JOIN WalletBalance wb ON wb.walletId=tr.walletId
-        WHERE tr.walletId=${data.walletId} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId) ss`;
-    statementList.beginBalance = beginBalance[0].amount;
-    statementList.endBalance = endBalance[0].amount;
+    statementList.beginBalance = 0;
+    statementList.endBalance = 0;
     return statementList;
   };
   settlement = async (params: any) => {
@@ -323,7 +316,7 @@ class TransactionService {
     }
     let description: string | undefined = '';
     order.transactions.forEach((transaction: Transaction) => {
-      if (order.type == TransactionConst.TYPE_ORDER)
+      if (stockName != '')
         description =
           transaction.type == TransactionConst.INCOME ||
           transaction.type == TransactionConst.OUTCOME

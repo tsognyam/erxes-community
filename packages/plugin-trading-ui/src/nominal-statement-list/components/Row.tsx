@@ -13,6 +13,7 @@ import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { FinanceAmount } from '../../styles';
+import { TRANSACTION_STATUS } from '../../constants';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   transaction: any;
@@ -23,6 +24,17 @@ type Props = {
 } & ICommonListProps;
 
 class Row extends React.Component<Props> {
+  displayValue(object, name) {
+    let value = _.get(object, name);
+    return (
+      <FinanceAmount>
+        {(value || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4
+        })}
+      </FinanceAmount>
+    );
+  }
   render() {
     const { isChecked, index, transaction, toggleBulk } = this.props;
     const onChange = e => {
@@ -43,14 +55,41 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index + 1}</td>
-        <td></td>
-        <td>{transaction.id}</td>
-        <td>{transaction.amount}</td>
-        <td>{transaction.type}</td>
-        <td>{transaction.date}</td>
+        <td>{transaction.wallet?.user?.prefix}</td>
+        <td>{this.displayValue(transaction, 'amount')}</td>
+        <td>
+          {transaction.type == 1
+            ? 'Орлого'
+            : transaction.type == 2
+            ? 'Зарлага'
+            : transaction.type == 3
+            ? 'Орлого'
+            : transaction.type == 4
+            ? 'Зарлага'
+            : ''}
+        </td>
+        <td>{dayjs(transaction.dater).format('YYYY-MM-DD')}</td>
         <td>{}</td>
+        <td>{transaction.description}</td>
+        <td></td>
+        <td></td>
         <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
         <td></td>
+        <td>
+          {
+            <Label
+              lblStyle={
+                TRANSACTION_STATUS.find(x => x.status == transaction.status)
+                  ?.styleName
+              }
+            >
+              {
+                TRANSACTION_STATUS.find(x => x.status == transaction.status)
+                  ?.statusName
+              }
+            </Label>
+          }
+        </td>
       </StyledTr>
     );
   }
