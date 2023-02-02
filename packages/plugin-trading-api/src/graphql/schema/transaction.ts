@@ -33,7 +33,14 @@ walletId:Int,
 take:Int,
 skip:Int
 `;
-
+const confirmParams = `
+orderId:Int!,
+confirm:Int!
+`;
 export const queries = `
 tradingTransactionGet(${inputParams}):tradingTransactionList
+tradingTransactionNominalList(${inputParams}):tradingTransactionList
+`;
+export const mutations = `
+tradingTransactionConfirm(${confirmParams}):JSON
 `;

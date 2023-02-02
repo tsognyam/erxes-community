@@ -29,14 +29,31 @@ class ListContainer extends React.Component<FinalProps> {
     object
   }: IButtonMutateProps) => {
     return (
-      <Button btnStyle="default" onClick={getRefetchQueries}>
+      <Button btnStyle="default" onClick={() => this.onSearchList(values)}>
         Find
       </Button>
     );
   };
-
+  onSearchList = values => {
+    const { tradingTransactionGetQuery } = this.props;
+    console.log(tradingTransactionGetQuery);
+    tradingTransactionGetQuery.refetch({
+      startDate: values.startDate,
+      endDate: values.endDate
+    });
+  };
   render() {
-    const { history, queryParams, tradingTransactionGetQuery } = this.props;
+    const {
+      history,
+      queryParams,
+      tradingTransactionGetQuery,
+      startDate,
+      endDate,
+      walletId
+    } = this.props;
+    console.log('startDate=', startDate);
+    console.log('endDate=', endDate);
+    console.log(walletId);
     const total = tradingTransactionGetQuery?.tradingTransactionGet?.total || 0;
     const count = tradingTransactionGetQuery?.tradingTransactionGet?.count || 0;
     const beginBalance =
@@ -45,7 +62,6 @@ class ListContainer extends React.Component<FinalProps> {
       tradingTransactionGetQuery?.tradingTransactionGet?.endBalance || 0;
     let tradingTransactionGet =
       tradingTransactionGetQuery?.tradingTransactionGet?.values || [];
-
     const updatedProps = {
       ...this.props,
       tradingTransactionGet,
@@ -72,19 +88,17 @@ class ListContainer extends React.Component<FinalProps> {
     );
   }
 }
-const getRefetchQueries = () => {
-  return ['tradingTransactionGet'];
-};
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.tradingTransactionGet), {
       name: 'tradingTransactionGetQuery',
       options: ({ startDate, endDate, walletId }) => ({
         variables: {
-          startDate: '2023-01-01',
-          endDate: '2023-01-19',
+          startDate: startDate,
+          endDate: endDate,
           walletId: walletId
-        }
+        },
+        fetchPolicy: 'network-only'
       })
     })
   )(ListContainer)

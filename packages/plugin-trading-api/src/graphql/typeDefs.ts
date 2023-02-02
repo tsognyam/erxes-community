@@ -59,8 +59,8 @@ import {
 
 import {
   types as TransactionTypes,
-  queries as TransactionQueries
-  // mutations as WithdrawMutations
+  queries as TransactionQueries,
+  mutations as TransactionMutations
 } from './schema/transaction';
 
 import {
@@ -122,6 +122,7 @@ const typeDefs = async _serviceDiscovery => {
       ${WithdrawMutations}
       ${StockTransactionMutations}
       ${CustFeeMutations}
+      ${TransactionMutations}
     }
   `;
 };

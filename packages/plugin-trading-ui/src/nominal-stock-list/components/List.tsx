@@ -15,7 +15,7 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
-
+import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
@@ -114,17 +114,18 @@ class List extends React.Component<IProps> {
 
   render() {
     const { queryParams, total } = this.props;
-    const breadcrumb = [
-      { title: __('Stock wallet list'), link: '/trading/stock-wallet-list' }
-    ];
+    // const breadcrumb = [
+    //   { title: __('Stock wallet list'), link: '/trading/stock-wallet-list' }
+    // ];
     let actionBarLeft: React.ReactNode;
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('List')}
-            breadcrumb={breadcrumb}
+            title={__('Nominal Stock List')}
+            //breadcrumb={breadcrumb}
             queryParams={queryParams}
+            submenu={nominalStatementMenus}
           />
         }
         actionBar={

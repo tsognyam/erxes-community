@@ -23,7 +23,7 @@ import { ControlLabel, FormControl } from '@erxes/ui/src';
 import { displayValue } from '../../../App';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-
+import dayjs from 'dayjs';
 type Props = {
   queryParams: any;
   history: any;
@@ -32,18 +32,28 @@ type Props = {
   endBalance: number;
   total: number;
   count: number;
-  startDate: Date;
-  endDate: Date;
   renderButton: (props: any) => JSX.Element;
+  closeModal: () => void;
+  startDate: string;
+  endDate: string;
 };
-
-class List extends React.Component<Props & ICommonFormProps> {
+type State = {
+  startDate: string;
+  endDate: string;
+};
+class List extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      startDate: dayjs(this.props.startDate).format('YYYY-MM-DD'),
+      endDate: dayjs(this.props.endDate).format('YYYY-MM-DD')
+    };
+  }
   generateDoc = (values: {
     walletId?: number;
     startDate: Date;
     endDate: Date;
   }) => {
-    const { object } = this.props;
     const finalValues = values;
 
     return {
@@ -52,6 +62,7 @@ class List extends React.Component<Props & ICommonFormProps> {
       endDate: finalValues.endDate
     };
   };
+
   renderContent = () => {
     const { tradingTransactionGet, beginBalance, endBalance } = this.props;
 
@@ -85,31 +96,35 @@ class List extends React.Component<Props & ICommonFormProps> {
       </>
     );
   };
+  onChangeDate = (e, type = '') => {
+    if (type == 'startDate') {
+      console.log(e.target);
+      this.setState({ startDate: e.target.value });
+    } else this.setState({ endDate: e.target.value });
+  };
   renderActionBar() {
     const { renderButton } = this.props;
-    // const { values } = formProps;
-    // console.log('formProps',formProps)
-    // const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
-    // console.log("fefefefefe", this.CountDownTimer(1,35,6))
     const actionBarLeft = (
       <>
         <FormWrapper>
           <FormColumn>
             <ControlLabel>{__('Start Date')}</ControlLabel>
             <FormControl
-              // {...formProps}
               name="startDate"
-              defaultValue={'2023-01-01'}
+              defaultValue={this.state.startDate}
+              value={this.state.startDate}
               type="date"
+              onChange={e => this.onChangeDate(e, 'startDate')}
             />
           </FormColumn>
           <FormColumn>
             <ControlLabel>{__('End Date')}</ControlLabel>
             <FormControl
-              // {...formProps}
               name="endDate"
-              defaultValue={'2023-01-19'}
+              defaultValue={this.state.endDate}
+              value={this.state.endDate}
               type="date"
+              onChange={e => this.onChangeDate(e, 'endDate')}
             />
           </FormColumn>
           <FormColumn>
@@ -117,7 +132,10 @@ class List extends React.Component<Props & ICommonFormProps> {
                             {__('Find')}
                         </Button> */}
             {renderButton({
-              // values: this.generateDoc(values),
+              values: {
+                startDate: this.state.startDate,
+                endDate: this.state.endDate
+              }
             })}
           </FormColumn>
         </FormWrapper>
@@ -138,13 +156,7 @@ class List extends React.Component<Props & ICommonFormProps> {
       //   {this.renderContent()}
       //   {/* {rightSidebar} */}
       // </Contents>
-      <CommonForm
-        {...this.props}
-        name="name"
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={this.props.object}
-      />
+      <form>{this.renderContent()}</form>
     );
   }
 }

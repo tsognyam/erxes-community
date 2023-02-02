@@ -155,7 +155,6 @@ class TransactionService {
         orderId: order.tranOrderId,
         confirm: TransactionConst.STATUS_SUCCESS
       });
-    } else {
     }
     return order;
   };
@@ -225,7 +224,58 @@ class TransactionService {
 
     return statementList;
   };
+  nominalStatement = async (params: any) => {
+    var data = await this.transactionValidator.validateStatement(params);
 
+    let options: any = {};
+    options.take = data.take;
+    options.skip = data.skip;
+    options.orderBy = data.orderBy;
+    let where = {
+      NOT: {
+        walletId: WalletConst.NOMINAL
+      },
+      dater: {
+        gte: data.startDate,
+        lte: data.endDate
+      }
+    };
+    let select = {
+      order: {
+        include: {
+          bankTransaction: true
+        }
+      }
+    };
+    let statementList: any = await this.transactionRepository.findAll(
+      where,
+      select,
+      options
+    );
+    let beginBalance = await this.transactionRepository._prisma
+      .$queryRaw`SELECT IFNULL(SUM(ss.amount),0) as amount FROM (SELECT SUM(tr.amount) AS amount,tr.walletId
+        FROM \`Transaction\` tr
+        WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} 
+        GROUP BY tr.walletId
+        UNION ALL 
+        SELECT wb.balance-SUM(tr.amount),tr.walletId FROM \`Transaction\` tr
+        INNER JOIN WalletBalance wb ON wb.walletId=tr.walletId
+        WHERE tr.walletId=${data.walletId} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId) ss`;
+    let endBalance = await this.transactionRepository._prisma
+      .$queryRaw`SELECT IFNULL(sum(ss.amount),0) AS amount FROM (SELECT IFNULL(SUM(tr.amount),0) AS amount,tr.walletId FROM 
+        \`Transaction\` tr
+        WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} Group BY tr.walletId
+        UNION all
+        SELECT IFNULL(SUM(tr.amount),0) AS amount,tr.walletId FROM \`Transaction\` tr
+        WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId
+        UNION ALL 
+        SELECT wb.balance-SUM(tr.amount),tr.walletId FROM \`Transaction\` tr
+        INNER JOIN WalletBalance wb ON wb.walletId=tr.walletId
+        WHERE tr.walletId=${data.walletId} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId) ss`;
+    statementList.beginBalance = beginBalance[0].amount;
+    statementList.endBalance = endBalance[0].amount;
+    return statementList;
+  };
   settlement = async (params: any) => {
     var data = await this.transactionValidator.validateSettlement(params);
 

@@ -185,7 +185,8 @@ class OrderValidator extends BaseValidator {
           .number()
           .required()
           .allow(TxnSourceConst.Self, TxnSourceConst.Broker),
-        userId: this._joi.number().required()
+        userId: this._joi.string().required(),
+        createdUserId: this._joi.string()
       },
       params
     );
@@ -236,7 +237,8 @@ class OrderValidator extends BaseValidator {
       filename: this._joi.string(),
       mseexecutionid: this._joi.string(),
       mseorderid: this._joi.string(),
-      tranorderid: this._joi.number()
+      tranorderid: this._joi.number(),
+      createdUserId: this._joi.string()
     };
     if (params.ordertype == 2) {
       schema.price = this._joi

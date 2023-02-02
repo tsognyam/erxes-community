@@ -20,6 +20,7 @@ const OrderMutations = {
     //   if (user != null) params.userId = user._id;
     //   else CustomException(ErrorCode.UserNotFoundException);
     // }
+    if (user != null) params.createdUserId = user._id;
     let order = await orderService.create(params);
     return order;
   },

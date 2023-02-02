@@ -98,10 +98,11 @@ class Forms extends React.Component<Props & ICommonFormProps, State> {
         };
         return <List {...updatedProps} {...object} />;
       }
+      const date = new Date();
       const updatedProps = {
         walletId: object.id,
-        startDate: '2023-01-01',
-        endDate: new Date()
+        startDate: new Date(date.getFullYear(), date.getMonth(), 1),
+        endDate: date
       };
       return <ListStatement {...updatedProps} {...object} />;
     };

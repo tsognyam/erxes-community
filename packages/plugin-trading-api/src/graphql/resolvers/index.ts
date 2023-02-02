@@ -11,7 +11,8 @@ import {
   StockMutations,
   WithdrawMutations,
   StockTransactionsMutations,
-  CustFeeMutations
+  CustFeeMutations,
+  TransactionMutations
 } from './mutations';
 import {
   WalletQueries,
@@ -42,6 +43,7 @@ const resolvers: any = async serviceDiscovery => ({
     ...StockMutations,
     ...WithdrawMutations,
     ...StockTransactionsMutations,
+    ...TransactionMutations,
     ...CustFeeMutations
   },
   Query: {

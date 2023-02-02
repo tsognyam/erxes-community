@@ -4,7 +4,7 @@ import StockListRoutes from './stock-list/routes';
 import StockOrderRoutes from './stock-order/routes';
 import WalletListRoutes from './wallet-list/routes';
 import WithdrawListRoutes from './withdraw-list/routes';
-import StockWalletListRoutes from './stock-wallet-list/routes';
+import NominalStockRoutes from './nominal-stock-list/routes';
 import NominalStatementRoutes from './nominal-statement-list/routes';
 const routes = () => {
   return (
@@ -14,7 +14,7 @@ const routes = () => {
       <StockOrderRoutes />
       <WalletListRoutes />
       <WithdrawListRoutes />
-      <StockWalletListRoutes />
+      <NominalStockRoutes />
       <NominalStatementRoutes />
     </React.Fragment>
   );

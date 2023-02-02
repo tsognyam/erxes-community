@@ -46,13 +46,6 @@ module.exports = {
       image: '/images/icons/erxes-18.svg',
     },
     {
-      text: 'Stock Wallet List',
-      to: '/trading/stock-wallet-list',
-      location: 'settings',
-      scope: 'trading',
-      image: '/images/icons/erxes-18.svg',
-    },
-    {
       text: 'Withdraw List',
       to: '/trading/withdraw-list',
       location: 'settings',
