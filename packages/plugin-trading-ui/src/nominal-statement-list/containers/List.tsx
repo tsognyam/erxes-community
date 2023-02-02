@@ -23,7 +23,7 @@ type Props = {
 };
 
 type FinalProps = {
-  tradingStockWalletQuery: any;
+  tradingTransactionNominalQuery: any;
 } & Props &
   IRouterProps;
 
@@ -87,15 +87,18 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { tradingStockWalletQuery, queryParams } = this.props;
-    const stockWallets =
-      tradingStockWalletQuery?.tradingStockWallets?.values || [];
-    const total = tradingStockWalletQuery?.tradingStockWallets?.total || 0;
-    const count = tradingStockWalletQuery?.tradingStockWallets?.count || 0;
+    const { tradingTransactionNominalQuery, queryParams } = this.props;
+    const transactions =
+      tradingTransactionNominalQuery?.tradingTransactionNominalList?.values ||
+      [];
+    const total =
+      tradingTransactionNominalQuery?.tradingTransactionNominalList?.total || 0;
+    const count =
+      tradingTransactionNominalQuery?.tradingTransactionNominalList?.count || 0;
     const extendedProps = {
       ...this.props,
-      stockWallets,
-      loading: tradingStockWalletQuery.loading,
+      transactions,
+      loading: tradingTransactionNominalQuery.loading,
       total,
       count,
       onSelect: this.onSelect,
@@ -105,7 +108,7 @@ class ListContainer extends React.Component<FinalProps> {
       // remove: this.remove,
       // removeOrders,
     };
-    if (tradingStockWalletQuery.loading) {
+    if (tradingTransactionNominalQuery.loading) {
       return <Spinner />;
     }
     const content = props => {
@@ -116,18 +119,16 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 const getRefetchQueries = () => {
-  return ['tradingOrders'];
+  return ['tradingTransactionNominalList'];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingStockWallets), {
-      name: 'tradingStockWalletQuery',
+    graphql<Props>(gql(queries.tradingTransactionNominalList), {
+      name: 'tradingTransactionNominalQuery',
       options: ({ queryParams }) => ({
         variables: {
-          walletId: queryParams.walletId,
-          stockCode: queryParams.stockCode,
-          sortField: queryParams.sortField,
-          sortDirection: queryParams.sortDirection,
+          startDate: queryParams.startDate,
+          endDate: queryParams.endDate,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'

@@ -1,5 +1,5 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -7,21 +7,24 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Button from '@erxes/ui/src/components/Button';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Sidebar from '../containers/Sidebar';
-import RightMenu from './RightMenu';
-import { Flex } from '@erxes/ui/src/styles/main';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
+import { FormWrapper, FormColumn } from '@erxes/ui/src/styles/main';
+import { ControlLabel, FormControl } from '@erxes/ui/src';
+import Datetime from '@nateradebaugh/react-datetime';
+import {
+  FilterItem,
+  FilterWrapper
+} from '@erxes/ui-settings/src/permissions/styles';
+import dayjs from 'dayjs';
+import _ from 'lodash';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: any, containerId: string) => void;
-  stockWallets: any[];
+  transactions: any[];
   total: number;
   count: number;
   isAllSelected: boolean;
@@ -34,8 +37,42 @@ interface IProps extends IRouterProps {
   toggleBulk: (target: any, toAdd: boolean) => void;
   onCancelOrder: () => void;
 }
+type State = {
+  startDate?: string;
+  endDate: string;
+};
+class List extends React.Component<IProps, State> {
+  constructor(props) {
+    super(props);
+    const qp = props.queryParams || {
+      startDate: '',
+      endDate: ''
+    };
+    this.state = {
+      startDate: qp.startDate,
+      endDate: qp.endDate
+    };
+  }
+  onDateChange(type: string, date) {
+    const filter = { ...this.state };
 
-class List extends React.Component<IProps> {
+    if (date) {
+      filter[type] = dayjs(date).format('YYYY-MM-DD HH:mm');
+    } else {
+      filter.startDate = '';
+      filter.endDate = '';
+    }
+    this.setState(filter);
+  }
+  onClick = () => {
+    const { history } = this.props;
+    const { startDate, endDate } = this.state;
+
+    router.setParams(history, {
+      startDate,
+      endDate
+    });
+  };
   renderContent = () => {
     const {
       toggleAll,
@@ -43,110 +80,124 @@ class List extends React.Component<IProps> {
       bulk,
       toggleBulk,
       renderButton,
-      stockWallets,
+      transactions,
       total,
       count
     } = this.props;
     const onChangeAll = () => {
-      toggleAll(stockWallets, 'stockWallets');
+      toggleAll(transactions, 'transactions');
     };
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>
-              <FormControl
-                checked={isAllSelected}
-                componentClass="checkbox"
-                onChange={onChangeAll}
+      <>
+        <Table>
+          <thead>
+            <tr>
+              <th>
+                <FormControl
+                  checked={isAllSelected}
+                  componentClass="checkbox"
+                  onChange={onChangeAll}
+                />
+              </th>
+              <th>№</th>
+              <th>Регистр</th>
+              <th>Журналын дугаар </th>
+              <th>Гүйлгээний дүн</th>
+              <th>Төрөл</th>
+              <th>Огноо</th>
+              <th>Харьцсан данс</th>
+              <th>Гүйлгээний утга</th>
+              <th>Жинхэнэ данс</th>
+              <th>Данс эзэмшигчийн нэр</th>
+              <th>Үүсгэсэн огноо</th>
+              <th>Номинал дансны дугаар</th>
+            </tr>
+          </thead>
+          <tbody id="transactions">
+            {(transactions || []).map((transaction, index) => (
+              <Row
+                index={index}
+                transaction={transaction}
+                totalCount={total}
+                isChecked={bulk.includes(transaction)}
+                toggleBulk={toggleBulk}
+                renderButton={renderButton}
               />
-            </th>
-            <th>№</th>
-            <th>Prefix</th>
-            <th>Хувьцааны симбол</th>
-            <th>Хувьцааны нэр</th>
-            <th>Үлдэгдэл</th>
-            <th>Барилт хийсэн дүн</th>
-            <th>Боломжит үлдэгдэл</th>
-            <th>Сүүлд засагдсан огноо</th>
-          </tr>
-        </thead>
-        <tbody id="stockWallets">
-          {(stockWallets || []).map((stockWallet, index) => (
-            <Row
-              index={index}
-              stockWallet={stockWallet}
-              totalCount={total}
-              isChecked={bulk.includes(stockWallet)}
-              toggleBulk={toggleBulk}
-              renderButton={renderButton}
-            />
-          ))}
-        </tbody>
-      </Table>
+            ))}
+          </tbody>
+        </Table>
+      </>
     );
   };
 
-  renderFilter() {
-    const { queryParams, onSearch, onSelect, clearFilter } = this.props;
-
-    const rightMenuProps = {
-      queryParams,
-      onSearch,
-      onSelect,
-      clearFilter
+  renderDateFilter = (name: string) => {
+    const props = {
+      value: this.state[name],
+      onChange: this.onDateChange.bind(this, name),
+      inputProps: {
+        placeholder: `${__(`Choose ${name}`)}`
+      }
     };
 
-    return <RightMenu {...rightMenuProps} />;
+    return (
+      <FilterItem>
+        <Datetime
+          {...props}
+          dateFormat="YYYY/MM/DD"
+          timeFormat="HH:mm"
+          closeOnSelect={true}
+        />
+      </FilterItem>
+    );
+  };
+  renderFilter() {
+    const { renderButton } = this.props;
+    return (
+      <FilterWrapper style={{ padding: '10px 0px' }}>
+        <strong>{__('Filters')}:</strong>
+        {this.renderDateFilter('startDate')}
+        {this.renderDateFilter('endDate')}
+        <Button
+          btnStyle="primary"
+          icon="filter-1"
+          onClick={this.onClick}
+          size="small"
+        >
+          {__('Filter')}
+        </Button>
+      </FilterWrapper>
+    );
   }
-
-  // removeOrders = orders => {
-  //   const orderIds: string[] = [];
-
-  //   orders.forEach(order => {
-  //     orderIds.push(order._id);
-  //   });
-
-  //   const { removeOrders, emptyBulk } = this.props;
-
-  //   removeOrders({ orderIds }, emptyBulk);
-  // };
 
   render() {
     const { queryParams, total } = this.props;
-    const breadcrumb = [
-      { title: __('Stock wallet list'), link: '/trading/stock-wallet-list' }
-    ];
-    let actionBarLeft: React.ReactNode;
     return (
-      <Wrapper
-        header={
-          <Wrapper.Header
-            title={__('Номинал хуулга')}
-            //breadcrumb={breadcrumb}
-            queryParams={queryParams}
-            submenu={nominalStatementMenus}
-          />
-        }
-        actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={<Flex>{this.renderFilter()}</Flex>}
-          />
-        }
-        leftSidebar={<Sidebar queryParams={queryParams} />}
-        content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={false}
-            count={total}
-            emptyText="There is no order."
-            emptyImage="/images/actions/20.svg"
-          />
-        }
-        footer={<Pagination count={total} />}
-        hasBorder
-      />
+      <>
+        <Wrapper
+          header={
+            <Wrapper.Header
+              title={__('Номинал хуулга')}
+              //breadcrumb={breadcrumb}
+              //queryParams={queryParams}
+              submenu={nominalStatementMenus}
+            />
+          }
+          content={
+            <>
+              {this.renderFilter()}
+              <DataWithLoader
+                data={this.renderContent()}
+                loading={false}
+                count={total}
+                emptyText="There is no transactions."
+                emptyImage="/images/actions/20.svg"
+              />
+            </>
+          }
+          footer={<Pagination count={total} />}
+          hasBorder
+        />
+      </>
     );
   }
 }

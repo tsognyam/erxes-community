@@ -15,7 +15,7 @@ import _ from 'lodash';
 import { FinanceAmount } from '../../styles';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
-  stockWallet: any;
+  transaction: any;
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -24,21 +24,15 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { isChecked, index, stockWallet, toggleBulk } = this.props;
+    const { isChecked, index, transaction, toggleBulk } = this.props;
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(stockWallet, e.target.checked);
+        toggleBulk(transaction, e.target.checked);
       }
     };
     const onClick = e => {
       e.stopPropagation();
     };
-    const availableBalance =
-      parseFloat(stockWallet.balance) - parseFloat(stockWallet.holdBalance);
-    let updatedDate = stockWallet.updatedAt;
-    if (!updatedDate) {
-      updatedDate = stockWallet.createdAt;
-    }
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
@@ -48,14 +42,15 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{stockWallet.id}</td>
-        <td>{stockWallet.wallet?.user?.prefix}</td>
-        <td>{stockWallet.stock?.symbol}</td>
-        <td>{stockWallet.stock?.stockname}</td>
-        <td>{stockWallet.balance}</td>
-        <td>{stockWallet.holdBalance}</td>
-        <td>{availableBalance}</td>
-        <td>{dayjs(updatedDate).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>{index + 1}</td>
+        <td></td>
+        <td>{transaction.id}</td>
+        <td>{transaction.amount}</td>
+        <td>{transaction.type}</td>
+        <td>{transaction.date}</td>
+        <td>{}</td>
+        <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td></td>
       </StyledTr>
     );
   }

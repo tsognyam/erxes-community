@@ -251,6 +251,34 @@ query TradingTransactionGet($walletId: Int, $startDate: Date, $endDate: Date) {
   }
 }
 `;
+const tradingTransactionNominalList = `
+query TradingTransactionNominalList($endDate: Date, $startDate: Date) {
+  tradingTransactionNominalList(endDate: $endDate, startDate: $startDate) {
+    beginBalance
+    count
+    endBalance
+    total
+    values {
+      afterBalance
+      amount
+      beforeBalance
+      createdAt
+      createdUserId
+      dater
+      description
+      id
+      order
+      orderId
+      status
+      type
+      updatedAt
+      updatedUserId
+      wallet
+      walletId
+    }
+  }
+}
+`;
 const tradingWithdrawGet = `
 query TradingWithdrawGet($skip: Int, $status: Int, $take: Int, $type: Int, $walletId: JSON) {
   tradingWithdrawGet(skip: $skip, status: $status, take: $take, type: $type, walletId: $walletId) {
@@ -360,5 +388,6 @@ export default {
   tradingTransactionGet,
   tradingWithdrawGet,
   tradingUserByPrefix,
-  tradingStockWallets
+  tradingStockWallets,
+  tradingTransactionNominalList
 };

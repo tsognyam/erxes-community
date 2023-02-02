@@ -39,7 +39,12 @@ confirm:Int!
 `;
 export const queries = `
 tradingTransactionGet(${inputParams}):tradingTransactionList
-tradingTransactionNominalList(${inputParams}):tradingTransactionList
+tradingTransactionNominalList(
+startDate:Date,
+endDate:Date,
+page:Int,
+perPage:Int
+):tradingTransactionList
 `;
 export const mutations = `
 tradingTransactionConfirm(${confirmParams}):JSON
