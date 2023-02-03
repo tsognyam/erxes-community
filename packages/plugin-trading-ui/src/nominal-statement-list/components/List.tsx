@@ -19,6 +19,8 @@ import {
 } from '@erxes/ui-settings/src/permissions/styles';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import Select from 'react-select-plus';
+import { TRANSACTION_STATUS } from '../../constants';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
@@ -39,7 +41,8 @@ interface IProps extends IRouterProps {
 }
 type State = {
   startDate?: string;
-  endDate: string;
+  endDate?: string;
+  status?: number;
 };
 class List extends React.Component<IProps, State> {
   constructor(props) {
@@ -50,7 +53,8 @@ class List extends React.Component<IProps, State> {
     };
     this.state = {
       startDate: qp.startDate,
-      endDate: qp.endDate
+      endDate: qp.endDate,
+      status: qp.status
     };
   }
   onDateChange(type: string, date) {
@@ -66,13 +70,27 @@ class List extends React.Component<IProps, State> {
   }
   onClick = () => {
     const { history } = this.props;
-    const { startDate, endDate } = this.state;
-
+    const { startDate, endDate, status } = this.state;
     router.setParams(history, {
       startDate,
-      endDate
+      endDate,
+      status
     });
   };
+  setFilter(
+    name: string,
+    selectedItem: string | { value: string; label?: string }
+  ) {
+    const value =
+      typeof selectedItem === 'string'
+        ? selectedItem
+        : selectedItem
+        ? selectedItem.value
+        : '';
+    this.setState({
+      [name]: value
+    });
+  }
   renderContent = () => {
     const {
       toggleAll,
@@ -160,11 +178,27 @@ class List extends React.Component<IProps, State> {
   };
   renderFilter() {
     const { renderButton } = this.props;
+    const transactionStatusOptions = TRANSACTION_STATUS.map(x => {
+      return {
+        value: x.status,
+        label: x.statusName
+      };
+    });
     return (
       <FilterWrapper style={{ padding: '10px 0px' }}>
         <strong>{__('Filters')}:</strong>
         {this.renderDateFilter('startDate')}
         {this.renderDateFilter('endDate')}
+        <FilterItem>
+          <FilterItem>
+            <Select
+              placeholder={__('Choose transaction status')}
+              value={this.state.status}
+              options={transactionStatusOptions}
+              onChange={this.setFilter.bind(this, 'status')}
+            />
+          </FilterItem>
+        </FilterItem>
         <Button
           btnStyle="primary"
           icon="filter-1"

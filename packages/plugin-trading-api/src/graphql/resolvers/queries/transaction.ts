@@ -26,7 +26,8 @@ const TransactionQueries = {
       endDate: params.endDate,
       orderBy: {
         createdAt: 'desc'
-      }
+      },
+      status: params.status
     };
     let dataList = await service.nominalStatement(updatedParams);
     return dataList;

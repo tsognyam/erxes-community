@@ -129,6 +129,7 @@ export default withProps<Props>(
         variables: {
           startDate: queryParams.startDate,
           endDate: queryParams.endDate,
+          status: queryParams.status ? Number(queryParams.status) : undefined,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'

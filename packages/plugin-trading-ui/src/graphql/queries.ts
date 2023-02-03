@@ -252,8 +252,8 @@ query TradingTransactionGet($walletId: Int, $startDate: Date, $endDate: Date) {
 }
 `;
 const tradingTransactionNominalList = `
-query TradingTransactionNominalList($endDate: Date, $startDate: Date,$page:Int,$perPage:Int) {
-  tradingTransactionNominalList(endDate: $endDate, startDate: $startDate, page:$page, perPage:$perPage) {
+query TradingTransactionNominalList($endDate: Date, $startDate: Date,$status:Int,$page:Int,$perPage:Int) {
+  tradingTransactionNominalList(endDate: $endDate, startDate: $startDate,status:$status, page:$page, perPage:$perPage) {
     beginBalance
     count
     endBalance

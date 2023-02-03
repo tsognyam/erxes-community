@@ -44,7 +44,8 @@ tradingTransactionNominalList(
 startDate:Date,
 endDate:Date,
 page:Int,
-perPage:Int
+perPage:Int,
+status:Int
 ):tradingTransactionList
 `;
 export const mutations = `

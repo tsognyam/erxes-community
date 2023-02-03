@@ -226,7 +226,7 @@ class TransactionService {
   };
   nominalStatement = async (params: any) => {
     var data = await this.transactionValidator.validateStatement(params);
-
+    console.log(data);
     let options: any = {};
     options.take = data.take;
     options.skip = data.skip;
@@ -246,7 +246,8 @@ class TransactionService {
           type: WalletConst.NOMINAL
         }
       },
-      ...dateFilter
+      ...dateFilter,
+      status: data.status
     };
     let select = {
       order: {

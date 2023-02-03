@@ -150,7 +150,8 @@ export class TransactionValidator extends WalletValidator {
         endDate: this._joi.date(),
         skip: this._joi.number(),
         take: this._joi.number(),
-        orderBy: this._joi.any()
+        orderBy: this._joi.any(),
+        status: this._joi.number()
       },
       params
     );
