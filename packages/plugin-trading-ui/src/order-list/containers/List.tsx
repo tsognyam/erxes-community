@@ -5,7 +5,7 @@ import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
-import { router as routerUtils } from '@erxes/ui/src/utils';
+import { isValidUsername, router as routerUtils } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
@@ -176,19 +176,32 @@ class ListContainer extends React.Component<FinalProps> {
     return <Bulk content={content} />;
   }
 }
+const generateNumberArray = (value: any) => {
+  let values: number[] | undefined = undefined;
+  if (value) {
+    if (typeof value == 'string') {
+      values = [];
+      values.push(parseInt(value));
+    } else values = value.map(Number);
+  }
+  return values;
+};
 const generateParams = ({ queryParams }) => {
-  console.log('queryParams', queryParams);
+  let stockcode = generateNumberArray(queryParams.stockcode);
+  let status = generateNumberArray(queryParams.orderstatus);
+  let ordertype = generateNumberArray(queryParams.ordertype);
+  let txntype = generateNumberArray(queryParams.txntype);
   return {
-    stockcode: queryParams.stockcode
-      ? parseInt(queryParams.stockcode)
-      : undefined,
-    txntype: queryParams.txntype,
-    status: queryParams.status,
+    stockcode: stockcode,
+    txntype: txntype,
+    status: status,
+    prefix: queryParams.prefix,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection,
     startDate: queryParams.startDate,
     endDate: queryParams.endDate,
     userId: queryParams.userId,
+    ordertype: ordertype,
     ...generatePaginationParams(queryParams)
   };
 };

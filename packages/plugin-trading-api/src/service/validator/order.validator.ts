@@ -20,11 +20,11 @@ class OrderValidator extends BaseValidator {
   validateGet = async params => {
     let { data } = this.validate(
       {
-        ordertype: this._joi.number(),
-        txntype: this._joi.number(),
+        ordertype: this._joi.array().items(this._joi.number()),
+        txntype: this._joi.array().items(this._joi.number()),
         walletId: this._joi.number(),
         orderno: this._joi.string(),
-        stockcode: this._joi.number(),
+        stockcode: this._joi.array().items(this._joi.number()),
         txndate: this._joi.object({
           gt: this._joi.date(),
           gte: this._joi.date(),
@@ -57,7 +57,7 @@ class OrderValidator extends BaseValidator {
         condid: this._joi.number(),
         userId: this._joi.string(),
         brchno: this._joi.string(),
-        status: this._joi.any(),
+        status: this._joi.array().items(this._joi.number()),
         updatedate: this._joi.date(),
         updateUserId: this._joi.string(),
         ostatus: this._joi.number(),
@@ -73,7 +73,7 @@ class OrderValidator extends BaseValidator {
         skip: this._joi.number(),
         take: this._joi.number(),
         detail: this._joi.any(),
-        prefix: this._joi.any(),
+        prefix: this._joi.array().items(this._joi.string()),
         orderBy: this._joi.any()
       },
       params
@@ -98,13 +98,31 @@ class OrderValidator extends BaseValidator {
     }
     if (data != undefined && data.prefix != undefined) {
       data.user = {
-        UserMCSDAccount: {
-          some: {
-            prefix: data.prefix
-          }
+        prefix: {
+          in: data.prefix
         }
       };
       data.prefix = undefined;
+    }
+    if (data != undefined && data.stockcode != undefined) {
+      data.stockcode = {
+        in: data.stockcode
+      };
+    }
+    if (data != undefined && data.status != undefined) {
+      data.status = {
+        in: data.status
+      };
+    }
+    if (data != undefined && data.txntype != undefined) {
+      data.txntype = {
+        in: data.txntype
+      };
+    }
+    if (data != undefined && data.ordertype != undefined) {
+      data.ordertype = {
+        in: data.ordertype
+      };
     }
     select = {
       stock: {
@@ -130,6 +148,7 @@ class OrderValidator extends BaseValidator {
       delete data.stocktypeId;
       delete data.groupBy;
     }
+    console.log(data);
     let order = await this.orderRepository.findAll(data, select, options);
     return order;
   };

@@ -61,14 +61,16 @@ export const queries = `
 tradingOrders(
     page:Int!,
     perPage:Int!,
-    stockcode:Int,
-    status:Int,
-    txntype:Int,
+    stockcode:[Int],
+    status:[Int],
+    txntype:[Int],
+    ordertype:[Int],
     sortField:String,
     sortDirection:String,
     startDate:Date,
     endDate:Date,
-    userId:String
+    userId:String,
+    prefix:[String]
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
 `;

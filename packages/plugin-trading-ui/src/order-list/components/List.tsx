@@ -125,6 +125,9 @@ class List extends React.Component<IProps> {
               <SortHandler sortField={'regdate'} label={__('Огноо')} />
             </th>
             <th>
+              <SortHandler sortField={'donedate'} label={__('Биелсэн огноо')} />
+            </th>
+            <th>
               {/* <SortHandler sortField={''} label={__('Нийт')} /> */}
               {__('Нийт')}
             </th>
@@ -163,14 +166,22 @@ class List extends React.Component<IProps> {
   };
 
   renderFilter() {
-    const { queryParams, onSearch, onSelect, clearFilter, stocks } = this.props;
+    const {
+      queryParams,
+      onSearch,
+      onSelect,
+      clearFilter,
+      stocks,
+      prefix
+    } = this.props;
 
     const rightMenuProps = {
       queryParams,
       onSearch,
       onSelect,
       clearFilter,
-      stocks
+      stocks,
+      prefix
     };
 
     return <RightMenu {...rightMenuProps} />;

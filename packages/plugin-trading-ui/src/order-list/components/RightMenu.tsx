@@ -23,6 +23,7 @@ type Props = {
   onSearch: (search: string, type: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
   stocks: any[];
+  prefix: any[];
 };
 
 type State = {
@@ -88,35 +89,42 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { queryParams, onSelect, stocks } = this.props;
+    const { queryParams, onSelect, stocks, prefix } = this.props;
     const stockList = stocks.map(x => {
       return {
         value: x.stockcode,
         label: x.symbol + ' - ' + x.stockname
       };
     });
+    const prefixList = prefix.map(x => {
+      return {
+        value: x.prefix,
+        label: x.prefix
+      };
+    });
     const stock = queryParams?.stockcode ? queryParams.stockcode : [];
-
+    const userPrefix = queryParams?.prefix ? queryParams.prefix : [];
     const statusValues = STATE_LIST.map(p => ({
       label: p.statusName,
       value: p.status
     }));
-    const status = queryParams ? queryParams.status : [];
+    const status = queryParams ? queryParams.orderstatus : [];
 
     const typeValues = TYPE.map(p => ({ label: p.label, value: p.value }));
-    const type = queryParams ? queryParams.type : [];
+    const type = queryParams ? queryParams.txntype : [];
 
     const orderTypeValues = ORDER_TYPE.map(p => ({
       label: p.label,
       value: p.value
     }));
-    const orderType = queryParams ? queryParams.orderType : [];
+    const orderType = queryParams ? queryParams.ordertype : [];
 
     const onFilterSelect = (ops: IOption[], type: string) => {
-      console.log(ops);
-      if (type == 'status' || type == 'stockcode') {
-        onSelect(ops[ops.length - 1].value, type);
-      } else onSelect(ops[ops.length - 1].label, type);
+      let values: any = [];
+      ops.map(item => {
+        values.push(item.value);
+      });
+      onSelect(values, type);
     };
 
     return (
@@ -156,21 +164,24 @@ export default class RightMenu extends React.Component<Props, State> {
           loadingPlaceholder={__('Loading...')}
         />
         <ControlLabel>{__('Prefix')}</ControlLabel>
-        <FormControl
-          defaultValue={queryParams.prefix}
-          placeholder={__('Enter prefix')}
-          type="number"
-          onKeyPress={e => this.onSearch(e, 'prefix')}
-        />
-        <ControlLabel>{__('Type')}</ControlLabel>
         <Select
-          placeholder={__('Filter by type')}
+          placeholder={__('Filter by prefix')}
+          value={userPrefix}
+          options={prefixList}
+          name="stockcode"
+          onChange={ops => onFilterSelect(ops, 'prefix')}
+          loadingPlaceholder={__('Loading...')}
+          multi={true}
+        />
+        <ControlLabel>{__('Buy/Sell')}</ControlLabel>
+        <Select
+          placeholder={__('Filter by buy and sell')}
           value={type}
           options={typeValues}
           name="type"
-          onChange={ops => onFilterSelect(ops, 'type')}
-          multi={true}
+          onChange={ops => onFilterSelect(ops, 'txntype')}
           loadingPlaceholder={__('Loading...')}
+          multi={true}
         />
         <ControlLabel>{__('Order Type')}</ControlLabel>
         <Select
@@ -178,9 +189,9 @@ export default class RightMenu extends React.Component<Props, State> {
           value={orderType}
           options={orderTypeValues}
           name="orderType"
-          onChange={ops => onFilterSelect(ops, 'orderType')}
-          multi={true}
+          onChange={ops => onFilterSelect(ops, 'ordertype')}
           loadingPlaceholder={__('Loading...')}
+          multi={true}
         />
         <ControlLabel>{__('Status')}</ControlLabel>
         <Select
@@ -188,9 +199,9 @@ export default class RightMenu extends React.Component<Props, State> {
           value={status}
           options={_.sortBy(statusValues, ['label'])}
           name="status"
-          onChange={ops => onFilterSelect(ops, 'status')}
-          multi={true}
+          onChange={ops => onFilterSelect(ops, 'orderstatus')}
           loadingPlaceholder={__('Loading...')}
+          multi={true}
         />
       </FilterBox>
     );

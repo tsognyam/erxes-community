@@ -167,6 +167,11 @@ class Row extends React.Component<Props> {
           </Label>
         </td>
         <td>{dayjs(order.txndate).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>
+          {order.donedate != undefined
+            ? dayjs(order.donedate).format('YYYY-MM-DD HH:mm:ss')
+            : '  '}
+        </td>
         <td>{this.displayValue(order, 'total', total)}</td>
         <td>{this.displayValue(order, 'fee', fee)}</td>
         <td>

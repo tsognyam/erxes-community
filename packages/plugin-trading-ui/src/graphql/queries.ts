@@ -10,9 +10,11 @@ const orderList = `
 query tradingOrders(
   $page: Int!, 
   $perPage: Int!, 
-  $status: Int, 
-  $stockcode: Int, 
-  $txntype: Int,
+  $status: [Int], 
+  $stockcode: [Int],
+  $prefix:[String], 
+  $txntype: [Int],
+  $ordertype:[Int],
   $sortField:String,
   $sortDirection:String,
   $startDate:Date,
@@ -30,7 +32,9 @@ query tradingOrders(
     sortDirection:$sortDirection,
     startDate:$startDate,
     endDate:$endDate,
-    userId:$userId
+    userId:$userId,
+    prefix:$prefix,
+    ordertype:$ordertype
     ) {
     total,
     count,
