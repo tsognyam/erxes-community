@@ -9,10 +9,11 @@ import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import Button from '@erxes/ui/src/components/Button';
+import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   queryParams: any;
   history: any;
-  tradingTransactionGetQuery: any;
+  tradingTransactionStatementQuery: any;
   startDate: Date;
   endDate: Date;
   walletId: number;
@@ -35,9 +36,8 @@ class ListContainer extends React.Component<FinalProps> {
     );
   };
   onSearchList = values => {
-    const { tradingTransactionGetQuery } = this.props;
-    console.log(tradingTransactionGetQuery);
-    tradingTransactionGetQuery.refetch({
+    const { tradingTransactionStatementQuery } = this.props;
+    tradingTransactionStatementQuery.refetch({
       startDate: values.startDate,
       endDate: values.endDate
     });
@@ -46,36 +46,33 @@ class ListContainer extends React.Component<FinalProps> {
     const {
       history,
       queryParams,
-      tradingTransactionGetQuery,
+      tradingTransactionStatementQuery,
       startDate,
       endDate,
       walletId
     } = this.props;
-    console.log('startDate=', startDate);
-    console.log('endDate=', endDate);
-    console.log(walletId);
-    const total = tradingTransactionGetQuery?.tradingTransactionGet?.total || 0;
-    const count = tradingTransactionGetQuery?.tradingTransactionGet?.count || 0;
-    const beginBalance =
-      tradingTransactionGetQuery?.tradingTransactionGet?.beginBalance || 0;
-    const endBalance =
-      tradingTransactionGetQuery?.tradingTransactionGet?.endBalance || 0;
-    let tradingTransactionGet =
-      tradingTransactionGetQuery?.tradingTransactionGet?.values || [];
+    const total =
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.total || 0;
+    const count =
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.count || 0;
+    let tradingStatements =
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.values ||
+      [];
     const updatedProps = {
       ...this.props,
-      tradingTransactionGet,
-      loading: tradingTransactionGetQuery.loading,
+      tradingStatements,
+      loading: tradingTransactionStatementQuery.loading,
       total,
       count,
-      beginBalance,
-      endBalance,
       renderButton: this.renderButton,
       // searchValue,
       queryParams
     };
     // return <List history={history} queryParams={queryParams} />;
     // return <List {...updatedProps} />;
+    if (tradingTransactionStatementQuery.loading) {
+      return <Spinner />;
+    }
     const content = props => {
       return <List {...updatedProps} {...props} />;
     };
@@ -90,8 +87,8 @@ class ListContainer extends React.Component<FinalProps> {
 }
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingTransactionGet), {
-      name: 'tradingTransactionGetQuery',
+    graphql<Props>(gql(queries.tradingTransactionStatement), {
+      name: 'tradingTransactionStatementQuery',
       options: ({ startDate, endDate, walletId }) => ({
         variables: {
           startDate: startDate,

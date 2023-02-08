@@ -380,6 +380,29 @@ query TradingStockWallets($page: Int!, $perPage: Int!, $sortDirection: String, $
   }
 }
 `;
+const tradingTransactionStatement = `
+query TradingTransactionStatement($endDate: Date, $page: Int, $perPage: Int, $startDate: Date) {
+  tradingTransactionStatement(endDate: $endDate, page: $page, perPage: $perPage, startDate: $startDate) {
+    values {
+      createdAt
+      dater
+      expectedIncome
+      expectedOutcome
+      feeAmount
+      income
+      outcome
+      price
+      stockcode
+      stockname
+      symbol
+      type
+      totalAmount
+    }
+    total
+    count
+  }
+}
+`;
 export default {
   list,
   totalCount,
@@ -393,5 +416,6 @@ export default {
   tradingWithdrawGet,
   tradingUserByPrefix,
   tradingStockWallets,
-  tradingTransactionNominalList
+  tradingTransactionNominalList,
+  tradingTransactionStatement
 };

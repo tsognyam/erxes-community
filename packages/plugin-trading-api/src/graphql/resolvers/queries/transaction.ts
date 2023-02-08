@@ -31,6 +31,24 @@ const TransactionQueries = {
     };
     let dataList = await service.nominalStatement(updatedParams);
     return dataList;
+  },
+  tradingTransactionStatement: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    let updatedParams = {
+      skip:
+        params.page != undefined
+          ? (params.page - 1) * params.perPage
+          : undefined,
+      take: params.perPage,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      walletId: params.walletId
+    };
+    let statementList = await service.transactionStatement(updatedParams);
+    return statementList;
   }
 };
 //   requireLogin(TransactionQueries, 'tradingTransactionGet');

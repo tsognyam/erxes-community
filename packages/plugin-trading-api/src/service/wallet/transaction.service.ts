@@ -21,6 +21,7 @@ import {
 } from '../../constants/stock';
 import WalletService from './wallet.service';
 import StockTransactionService from './stock.transaction.service';
+import * as moment from 'moment';
 class TransactionService {
   private transactionValidator: TransactionValidator;
   private transactionRepository: TransactionRepository;
@@ -226,7 +227,6 @@ class TransactionService {
   };
   nominalStatement = async (params: any) => {
     var data = await this.transactionValidator.validateStatement(params);
-    console.log(data);
     let options: any = {};
     options.take = data.take;
     options.skip = data.skip;
@@ -687,6 +687,54 @@ class TransactionService {
     );
 
     return newOrder;
+  };
+  transactionStatement = async (params: any) => {
+    let dateFilter = '';
+    console.log(params);
+    if (params.startDate != undefined && params.endDate != undefined) {
+      dateFilter =
+        " and tr.dater between '" +
+        moment(params.startDate).format('YYYY-MM-DD') +
+        "' and '" +
+        moment(params.endDate).format('YYYY-MM-DD') +
+        "'";
+    }
+    let walletFilter = '';
+    if (params.walletId) {
+      walletFilter = `and (tr.walletIdFrom=${params.walletId} or tr.walletIdTo=${params.walletId})`;
+    }
+    let sql =
+      `SELECT 
+    tr.type,tr.dater,tr.createdAt,stock.stockname,
+    stock.stockcode,stock.symbol,tr.amount+tr.feeAmount as totalAmount,
+    case 
+    when (tr.type=${TransactionConst.TYPE_CHARGE} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
+    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
+    else 0 end as income,
+    case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount else 0 end as outcome,
+    case  
+    when (tr.type=${TransactionConst.TYPE_WITHDRAW} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount
+    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount
+    else 0 end as expectedIncome,
+    case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount else 0 end as expectedOutcome,
+    tr.feeAmount,o.price
+ FROM
+     \`TransactionOrder\` tr 
+ left join \`Order\` o on o.tranOrderId=tr.id 
+ left join \`Stock\` stock on stock.stockcode=o.stockcode
+ left join \`StockOrder\` stOrder on stOrder.id=o.stockOrderId
+ where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
+      dateFilter +
+      walletFilter;
+    let statementList = await this.transactionRepository._prisma.$queryRawUnsafe(
+      sql
+    );
+    let dataList = {
+      total: statementList.length,
+      count: statementList.length,
+      values: statementList
+    };
+    return dataList;
   };
 }
 export default TransactionService;

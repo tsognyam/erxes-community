@@ -27,7 +27,7 @@ import dayjs from 'dayjs';
 type Props = {
   queryParams: any;
   history: any;
-  tradingTransactionGet: any[];
+  tradingStatements: any[];
   beginBalance: number;
   endBalance: number;
   total: number;
@@ -64,31 +64,36 @@ class List extends React.Component<Props, State> {
   };
 
   renderContent = () => {
-    const { tradingTransactionGet, beginBalance, endBalance } = this.props;
+    const { tradingStatements, beginBalance, endBalance } = this.props;
 
     return (
       <>
         {this.renderActionBar()}
-        <div style={{ float: 'right', paddingRight: '20px' }}>
+        {/* <div style={{ float: 'right', paddingRight: '20px' }}>
           <div>Begin Balance: {displayValue(beginBalance)}</div>
           <div>End Balance: {displayValue(endBalance)}</div>
-        </div>
-
+        </div> */}
         <Table>
           <thead>
             <tr>
               <th>{__('Index')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Amount')}</th>
-              <th>{__('Before balance')}</th>
-              <th>{__('After balance')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Description')}</th>
-              <th>{__('CreatedAt')}</th>
+              <th>{__('Огноо')}</th>
+              <th>{__('Төрөл')}</th>
+              <th>{__('Үнэт цаасны нэр')}</th>
+              <th>{__('Симбол')}</th>
+              <th>{__('Код')}</th>
+              <th>{__('Орлого')}</th>
+              <th>{__('Зарлага')}</th>
+              <th>{__('ХБО')}</th>
+              <th>{__('ХБЗ')}</th>
+              <th>{__('Үнэ')}</th>
+              <th>{__('Нийт дүн')}</th>
+              <th>{__('Шимтгэл')}</th>
+              <th>{__('Тайлбар')}</th>
             </tr>
           </thead>
           <tbody id="transactions">
-            {(tradingTransactionGet || []).map((transaction, index) => (
+            {(tradingStatements || []).map((transaction, index) => (
               <Row index={index} transaction={transaction} />
             ))}
           </tbody>

@@ -5,7 +5,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import { STOCK_LIST } from '../../../constants';
-import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import {
@@ -31,6 +30,8 @@ type Props = {
   customer: any;
   beginBalance: number;
   endBalance: number;
+  total: number;
+  count: number;
   renderButton: (props: any) => JSX.Element;
 };
 

@@ -25,6 +25,26 @@ type tradingTransactionList {
     endBalance: Float
     values:[tradingTransaction]
 }
+type tradingTransactionStatement {
+    type:Int,
+    dater:Date,
+    createdAt:Date,
+    stockname:String,
+    stockcode:String,
+    symbol:String,
+    income:Float,
+    outcome:Float,
+    expectedIncome:Float,
+    expectedOutcome:Float,
+    totalAmount:Float,
+    feeAmount:Float,
+    price:Float,
+}
+type tradingTransactionStatementList {
+    total:Int,
+    count:Int,
+    values:[tradingTransactionStatement]
+}
 `;
 
 const inputParams = `
@@ -47,6 +67,13 @@ page:Int,
 perPage:Int,
 status:Int
 ):tradingTransactionList
+tradingTransactionStatement(
+    startDate:Date,
+    endDate:Date,
+    page:Int,
+    perPage:Int,
+    walletId:Int
+):tradingTransactionStatementList
 `;
 export const mutations = `
 tradingTransactionConfirm(${confirmParams}):JSON
