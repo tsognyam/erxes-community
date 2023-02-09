@@ -8,7 +8,7 @@ import TransactionRepository from '../../repository/wallet/transaction.repositor
 import SettlementMCSDRepository from '../../repository/wallet/settlement.mcsd.repository';
 import TransactionOrderRepository from '../../repository/wallet/transaction.order.repository';
 import WalletRepository from '../../repository/wallet/wallet.repository';
-import { Transaction } from '@prisma/client';
+import { Prisma, Transaction } from '@prisma/client';
 import WalletValidator from '../validator/wallet/wallet.validator';
 import { CustomException, ErrorCode } from '../../exception/error-code';
 import OrderRepository from '../../repository/order.repository';
@@ -753,6 +753,10 @@ class TransactionService {
       `SELECT 
     tr.type,tr.dater,tr.createdAt,stock.stockname,
     stock.stockcode,stock.symbol,tr.amount+tr.feeAmount as totalAmount,
+    case when o.txntype=${OrderTxnType.Buy} then "1"
+    when o.txntype=${OrderTxnType.Sell} then "2"
+    when tr.type=${TransactionConst.TYPE_CHARGE} then "3"
+    when tr.type=${TransactionConst.TYPE_WITHDRAW} then "4" else "0" end as classfication,
     case 
     when (tr.type=${TransactionConst.TYPE_CHARGE} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
     when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount
@@ -772,8 +776,8 @@ class TransactionService {
  where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       walletFilter;
-    let statementList = await this.transactionRepository._prisma.$queryRawUnsafe(
-      sql
+    let statementList = await this.transactionRepository._prisma.$queryRaw(
+      Prisma.raw(sql)
     );
     let dataList = {
       total: statementList.length,

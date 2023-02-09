@@ -397,6 +397,7 @@ query TradingTransactionStatement($endDate: Date, $page: Int, $perPage: Int, $st
       symbol
       type
       totalAmount
+      classfication
     }
     total
     count

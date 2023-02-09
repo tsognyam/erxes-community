@@ -29,7 +29,17 @@ class Row extends React.Component<Props> {
             ? 'Бэлэн мөнгө'
             : ''}
         </td>
-        <td></td>
+        <td>
+          {transaction.classfication == 1
+            ? 'Авах'
+            : transaction.classfication == 2
+            ? 'Зарах'
+            : transaction.classfication == 3
+            ? 'Орлого'
+            : transaction.classfication == 4
+            ? 'Зарлага'
+            : ''}
+        </td>
         <td>{transaction.stockname}</td>
         <td>{transaction.symbol}</td>
         <td>{transaction.stockcode}</td>

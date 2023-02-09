@@ -39,6 +39,7 @@ type tradingTransactionStatement {
     totalAmount:Float,
     feeAmount:Float,
     price:Float,
+    classfication:Int
 }
 type tradingTransactionStatementList {
     total:Int,
