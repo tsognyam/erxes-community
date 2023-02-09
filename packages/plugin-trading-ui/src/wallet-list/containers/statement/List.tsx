@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import List from '../../components/statement/List';
 import { mutations, queries } from '../../../graphql';
-import React from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -20,8 +20,14 @@ type Props = {
 };
 
 type FinalProps = {} & Props & IRouterProps;
+class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
+  constructor(props: FinalProps) {
+    super(props);
 
-class ListContainer extends React.Component<FinalProps> {
+    this.state = {
+      isLoading: false
+    };
+  }
   renderButton = ({
     passedName,
     values,
@@ -29,9 +35,10 @@ class ListContainer extends React.Component<FinalProps> {
     callback,
     object
   }: IButtonMutateProps) => {
+    //const { isLoading } = this.state;
     return (
-      <Button btnStyle="default" onClick={() => this.onSearchList(values)}>
-        Find
+      <Button btnStyle="primary" onClick={() => this.onSearchList(values)}>
+        ХАЙХ
       </Button>
     );
   };
@@ -68,8 +75,6 @@ class ListContainer extends React.Component<FinalProps> {
       // searchValue,
       queryParams
     };
-    // return <List history={history} queryParams={queryParams} />;
-    // return <List {...updatedProps} />;
     if (tradingTransactionStatementQuery.loading) {
       return <Spinner />;
     }
@@ -95,7 +100,8 @@ export default withProps<Props>(
           endDate: endDate,
           walletId: walletId
         },
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
+        notifyOnNetworkStatusChange: true
       })
     })
   )(ListContainer)

@@ -22,6 +22,7 @@ import {
 import WalletService from './wallet.service';
 import StockTransactionService from './stock.transaction.service';
 import * as moment from 'moment';
+import StockOrderRepository from '../../repository/wallet/stock.transaction.order.repository';
 class TransactionService {
   private transactionValidator: TransactionValidator;
   private transactionRepository: TransactionRepository;
@@ -33,6 +34,7 @@ class TransactionService {
   private stockService: StockService;
   private walletService: WalletService;
   private stockTransactionService: StockTransactionService;
+  private stockOrderRepository: StockOrderRepository;
   constructor() {
     this.transactionValidator = new TransactionValidator();
     this.walletValidator = new WalletValidator();
@@ -44,6 +46,7 @@ class TransactionService {
     this.stockService = new StockService();
     this.walletService = new WalletService();
     this.stockTransactionService = new StockTransactionService();
+    this.stockOrderRepository = new StockOrderRepository();
   }
   w2w = async (params: any) => {
     var {
@@ -90,6 +93,9 @@ class TransactionService {
       order.doneprice = data.doneprice;
       order.donedate = data.donedate;
     }
+    let nominalWallet = await this.walletService.getNominalWallet({
+      currencyCode: stockdata.currencyCode
+    });
     if (order.txntype == OrderTxnType.Buy) {
       if (order.ipo != StockConst.IPO) {
         let transactionOrder = await this.transactionOrderRepository.findById(
@@ -125,10 +131,6 @@ class TransactionService {
         receiverWalletId = order.walletId;
       }
       if (order.stockOrderId == null || order.stockOrderId == undefined) {
-        let nominalWallet = await this.walletService.getNominalWallet({
-          currencyCode: stockdata.currencyCode
-        });
-
         let stockOrder = await this.stockTransactionService.w2w({
           senderWalletId: nominalWallet.id,
           receiverWalletId: receiverWalletId,
@@ -136,6 +138,45 @@ class TransactionService {
           stockCode: order.stockcode
         });
         order.stockOrderId = stockOrder.id;
+      }
+    } else if (
+      order.txntype == OrderTxnType.Sell &&
+      order.ipo != StockConst.IPO
+    ) {
+      let stockOrder = await this.stockOrderRepository.findById(
+        order.stockOrderId
+      );
+      if (stockOrder.stockCount != order.donecnt) {
+        let stockTransactionParams = {
+          orderId: order.stockOrderId,
+          stockCount: order.donecnt
+        };
+        let oldStockOrder = order.stockOrderId;
+        let newStockOrder = await this.stockTransactionService.participateTransaction(
+          stockTransactionParams
+        );
+        order.stockOrderId = newStockOrder.id;
+        receiverWalletId = newStockOrder.walletIdFrom;
+        let params = {
+          orderId: oldStockOrder,
+          confirm: 0
+        };
+        await this.stockTransactionService.confirmTransaction(params);
+      } else {
+        receiverWalletId = stockOrder.walletIdFrom;
+      }
+      if (order.tranOrderId == null || order.tranOrderId == undefined) {
+        let camount = parseFloat(order.doneprice) * parseInt(order.donecnt);
+        let feeamount = camount * (order.fee / 100);
+        let tranOrder = await this.w2w({
+          senderWalletId: nominalWallet.id,
+          receiverWalletId: stockOrder.walletIdFrom,
+          amount: parseFloat(camount.toFixed(4)),
+          feeAmount: parseFloat(feeamount.toFixed(4)),
+          feeType: TransactionConst.FEE_TYPE_RECEIVER,
+          type: TransactionConst.TYPE_W2W
+        });
+        order.tranOrderId = tranOrder.id;
       }
     }
     order.descr = 'Биелсэн';
@@ -328,39 +369,24 @@ class TransactionService {
         case TransactionConst.INCOME:
         case TransactionConst.FEE_INCOME:
           var walletUpdate: any = undefined;
-          if (
-            status == TransactionConst.STATUS_SUCCESS &&
-            order.type != TransactionConst.TYPE_ORDER
-          ) {
-            walletUpdate = {
-              update: {
-                walletBalance: {
-                  update: {
-                    balance: {
-                      increment: transaction.amount
-                    },
-                    updatedAt: new Date()
-                  }
+          walletUpdate = {
+            update: {
+              walletBalance: {
+                update: {
+                  balance: {
+                    increment:
+                      status == TransactionConst.STATUS_SUCCESS
+                        ? transaction.amount
+                        : 0
+                  },
+                  incomingBalance: {
+                    decrement: transaction.amount
+                  },
+                  updatedAt: new Date()
                 }
               }
-            };
-          } else if (
-            status == TransactionConst.STATUS_SUCCESS &&
-            order.type == TransactionConst.TYPE_ORDER
-          ) {
-            walletUpdate = {
-              update: {
-                walletBalance: {
-                  update: {
-                    incomingBalance: {
-                      increment: transaction.amount
-                    },
-                    updatedAt: new Date()
-                  }
-                }
-              }
-            };
-          }
+            }
+          };
           transactions.push({
             where: {
               id: transaction.id
@@ -458,7 +484,7 @@ class TransactionService {
       await this.walletRepository.update(senderWallet.id, walletBalanceUpdate);
     }
     if (receiverWallet != undefined) {
-      if (data.amount != 0)
+      if (data.amount != 0) {
         transactions.push({
           walletId: receiverWallet.id,
           type: TransactionConst.INCOME,
@@ -472,6 +498,27 @@ class TransactionService {
           description: data.description,
           createdAt: new Date()
         });
+        let walletBalanceUpdate = {
+          walletBalance: {
+            update: {
+              incomingBalance: {
+                increment:
+                  parseFloat(data.amount) +
+                  parseFloat(
+                    data.feeType == TransactionConst.FEE_TYPE_SENDER
+                      ? data.feeAmount
+                      : 0
+                  )
+              },
+              updatedAt: new Date()
+            }
+          }
+        };
+        await this.walletRepository.update(
+          receiverWallet.id,
+          walletBalanceUpdate
+        );
+      }
     }
     if (data.feeAmount > 0) {
       transactions.push({
@@ -690,7 +737,6 @@ class TransactionService {
   };
   transactionStatement = async (params: any) => {
     let dateFilter = '';
-    console.log(params);
     if (params.startDate != undefined && params.endDate != undefined) {
       dateFilter =
         " and tr.dater between '" +
@@ -709,12 +755,12 @@ class TransactionService {
     stock.stockcode,stock.symbol,tr.amount+tr.feeAmount as totalAmount,
     case 
     when (tr.type=${TransactionConst.TYPE_CHARGE} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
-    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
+    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount
     else 0 end as income,
     case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount else 0 end as outcome,
     case  
     when (tr.type=${TransactionConst.TYPE_WITHDRAW} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount
-    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount
+    when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount
     else 0 end as expectedIncome,
     case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount else 0 end as expectedOutcome,
     tr.feeAmount,o.price

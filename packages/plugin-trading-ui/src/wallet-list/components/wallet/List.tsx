@@ -60,15 +60,16 @@ class List extends React.Component<Props & ICommonFormProps> {
         <Table>
           <thead>
             <tr>
-              <th>{__('Index')}</th>
-              <th>{__('Name')}</th>
-              <th>{__('Currency')}</th>
-              <th>{__('Balance')}</th>
-              <th>{__('Av.balance')}</th>
-              <th>{__('Hold balance')}</th>
-              <th>{__('Wait balance')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('CreatedAt')}</th>
+              <th>{__('№')}</th>
+              <th>{__('Нэр')}</th>
+              <th>{__('Валют')}</th>
+              <th>{__('Үлдэгдэл')}</th>
+              <th>{__('Хүлээгдэж буй зарлага')}</th>
+              <th>{__('Хүлээгдэж буй орлого')}</th>
+              <th>{__('Арилжаа хийх боломжит үлдэгдэл')}</th>
+              <th>{__('Зарлага хийх боломжит үлдэгдэл')}</th>
+              <th>{__('Төлөв')}</th>
+              <th>{__('Үүсгэсэн огноо')}</th>
               <th></th>
             </tr>
           </thead>

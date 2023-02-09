@@ -19,10 +19,14 @@ export const generateQueryParams = ({ location }) => {
 };
 export function displayValue(value, type = 'number') {
   if (type == 'raw-number') {
-    return parseFloat(value || 0).toLocaleString(undefined, {
-      minimumFractionDigits: 4,
-      maximumFractionDigits: 4
-    });
+    return (
+      <FinanceAmount>
+        {parseFloat(value || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4
+        })}
+      </FinanceAmount>
+    );
   } else if (type == 'number') {
     return (
       <FinanceAmount>

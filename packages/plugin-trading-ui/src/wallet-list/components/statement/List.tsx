@@ -32,6 +32,7 @@ type Props = {
   endBalance: number;
   total: number;
   count: number;
+  loading: boolean;
   renderButton: (props: any) => JSX.Element;
   closeModal: () => void;
   startDate: string;
@@ -79,6 +80,7 @@ class List extends React.Component<Props, State> {
               <th>{__('Index')}</th>
               <th>{__('Огноо')}</th>
               <th>{__('Төрөл')}</th>
+              <th>{__('Ангилал')}</th>
               <th>{__('Үнэт цаасны нэр')}</th>
               <th>{__('Симбол')}</th>
               <th>{__('Код')}</th>
@@ -103,7 +105,6 @@ class List extends React.Component<Props, State> {
   };
   onChangeDate = (e, type = '') => {
     if (type == 'startDate') {
-      console.log(e.target);
       this.setState({ startDate: e.target.value });
     } else this.setState({ endDate: e.target.value });
   };
@@ -161,7 +162,13 @@ class List extends React.Component<Props, State> {
       //   {this.renderContent()}
       //   {/* {rightSidebar} */}
       // </Contents>
-      <form>{this.renderContent()}</form>
+      <DataWithLoader
+        data={this.renderContent()}
+        loading={false}
+        count={total}
+        emptyText="There is no statements."
+        emptyImage="/images/actions/20.svg"
+      />
     );
   }
 }

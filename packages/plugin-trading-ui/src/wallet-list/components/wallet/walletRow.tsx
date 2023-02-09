@@ -8,6 +8,7 @@ import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
 import Form from './Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import WithdrawForm from './withdrawForm';
+import { displayValue } from '../../../App';
 type Props = {
   wallet: any;
   index: number;
@@ -68,12 +69,23 @@ class WalletRow extends React.Component<Props> {
         <td>{index + 1}</td>
         <td>{wallet.name}</td>
         <td>{wallet.currencyCode}</td>
-        <td>{wallet.walletBalance.balance}</td>
+        <td>{displayValue(wallet.walletBalance.balance, 'raw-number')}</td>
+        <td>{displayValue(wallet.walletBalance.holdBalance, 'raw-number')}</td>
         <td>
-          {wallet.walletBalance.balance - wallet.walletBalance.holdBalance}
+          {displayValue(wallet.walletBalance.incomingBalance, 'raw-number')}
         </td>
-        <td>{wallet.walletBalance.holdBalance}</td>
-        <td>{wallet.walletBalance.tradeBalance}</td>
+        <td>
+          {displayValue(
+            parseFloat(wallet.walletBalance.balance) -
+              parseFloat(wallet.walletBalance.holdBalance) +
+              parseFloat(wallet.walletBalance.incomingBalance)
+          )}
+        </td>
+        <td>
+          {displayValue(
+            wallet.walletBalance.balance - wallet.walletBalance.holdBalance
+          )}
+        </td>
         <td>{wallet.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
         <td>
           {wallet.updatedAt != null
