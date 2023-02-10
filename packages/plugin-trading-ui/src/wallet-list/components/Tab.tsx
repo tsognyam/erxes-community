@@ -14,6 +14,7 @@ import ListWithdrawal from '../containers/withdraw/List';
 import ListOrder from '../../order-list/containers/List';
 import ListWallet from '../containers/wallet/List';
 import ListStock from '../containers/stock-list/List';
+import ListPosition from '../containers/account-position/List';
 import { generateQueryParams } from '../../App';
 type Props = {
   contentType: string;
@@ -103,6 +104,12 @@ class Tab extends React.PureComponent<Props, State> {
         queryParams: queryParams
       };
       return <ListStock {...updatedProps} />;
+    }
+    if (currentTab === 'account-position') {
+      const updatedProps = {
+        queryParams: queryParams
+      };
+      return <ListPosition {...updatedProps} />;
     }
 
     return null;

@@ -62,6 +62,13 @@ tradingStocks(
     stockname:JSON,
     symbol:JSON
 ):TradingStockList
+
+tradingGetPosition(
+    stockcode:Int,
+    userId:String!,
+    beginDate:Date!,
+    endDate:Date!
+):JSON
 `;
 const createParams = `
 stockcode:Int!,

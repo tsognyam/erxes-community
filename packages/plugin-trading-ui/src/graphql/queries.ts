@@ -404,6 +404,11 @@ query TradingTransactionStatement($endDate: Date, $page: Int, $perPage: Int, $st
   }
 }
 `;
+const tradingGetPosition = `
+query TradingGetPosition($beginDate: Date!, $endDate: Date!, $userId: String!) {
+  tradingGetPosition(beginDate: $beginDate, endDate: $endDate, userId: $userId)
+}
+`;
 export default {
   list,
   totalCount,
@@ -418,5 +423,6 @@ export default {
   tradingUserByPrefix,
   tradingStockWallets,
   tradingTransactionNominalList,
-  tradingTransactionStatement
+  tradingTransactionStatement,
+  tradingGetPosition
 };

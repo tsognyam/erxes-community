@@ -272,7 +272,7 @@ class StockValidator extends BaseValidator {
   validatePosition = async (subdomain: string, params: any) => {
     let schema = {
       stockcode: this._joi.number(),
-      userId: this._joi.number().required(),
+      userId: this._joi.string().required(),
       beginDate: this._joi.date().required(),
       endDate: this._joi.date().required()
     };

@@ -30,7 +30,6 @@ type Props = {
   wallets: any;
   beginBalance: number;
   endBalance: number;
-  renderButton: (props: any) => JSX.Element;
 };
 
 class List extends React.Component<Props & ICommonFormProps> {
@@ -49,7 +48,7 @@ class List extends React.Component<Props & ICommonFormProps> {
     };
   };
   renderContent = () => {
-    const { wallets, renderButton } = this.props;
+    const { wallets } = this.props;
     console.log('wallet', wallets);
     return (
       <>
@@ -59,30 +58,24 @@ class List extends React.Component<Props & ICommonFormProps> {
             <thead>
               <tr>
                 <th>{__('Index')}</th>
+                <th>{__('Stock code')}</th>
                 <th>{__('Symbol')}</th>
                 <th>{__('Balance')}</th>
-                <th>{__('Hold balance')}</th>
-                <th>{__('UpdatedAt')}</th>
+                <th>{__('Income')}</th>
+                <th>{__('Outcome')}</th>
+                <th>{__('Avg price')}</th>
+                <th>{__('+/-')}</th>
               </tr>
             </thead>
             <tbody id="stock-list">
-              {(wallets || []).map((stockBalance, index) =>
-                (stockBalance.stockBalances || []).map((wallet, index) => (
-                  <Row
-                    index={index}
-                    wallet={wallet}
-                    // renderButton={renderButton}
-                  />
-                ))
-              )}
+              {(wallets || []).map((list, index) => (
+                <Row index={index} wallet={list} />
+              ))}
             </tbody>
           </Table>
         </ErrorBoundary>
       </>
     );
-  };
-  renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
   };
   render() {
     const { queryParams } = this.props;

@@ -28,6 +28,13 @@ const StockQueries = {
     return await stockRepository.findUnique({
       id: id
     });
+  },
+  tradingGetPosition: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await stockService.getPosition(subdomain, params);
   }
 };
 export default StockQueries;
