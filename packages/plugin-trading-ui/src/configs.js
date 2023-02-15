@@ -14,7 +14,7 @@ module.exports = {
     {
       text: 'Trading',
       url: '/trading/home',
-      icon: 'icon-laptop',
+      icon: 'icon-dashboard',
       location: 'mainNavigation',
     },
     {
@@ -38,7 +38,7 @@ module.exports = {
     {
       text: 'Wallet List',
       url: '/trading/wallet-list',
-      icon: 'icon-laptop',
+      icon: 'icon-wallet',
       location: 'mainNavigation',
     },
     {

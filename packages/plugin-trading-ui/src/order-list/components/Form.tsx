@@ -22,9 +22,9 @@ type Props = {
   prefix: any[];
   stocks: any[];
   closeModal: () => void;
-  stockChange: (option: { value: string }) => void;
-  prefixChange: (option: { value: string }) => void;
-  stockcode: string;
+  stockChange: (option: { value: string; label: string }) => void;
+  prefixChange: (option: { value: string; label: string }) => void;
+  stockcode?: string;
   confirmationUpdate?: boolean;
   isCancel: boolean;
 };
@@ -106,7 +106,7 @@ class Forms extends React.Component<Props, State> {
       condid: Number(this.state.condid)
     };
   };
-  prefixChange = (option: { value: string }) => {
+  prefixChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value;
     this.setState({ userId: value }, () => {
       this.changeTradeBalance();
@@ -183,7 +183,7 @@ class Forms extends React.Component<Props, State> {
   };
   componentDidUpdate = (prevProps: Props) => {
     if (prevProps != this.props)
-      this.setState({ stockcode: this.props.stockcode });
+      this.setState({ stockcode: this.props.stockcode as string });
   };
   numberFormat = (value: number) => {
     if (value == undefined) value = 0;
@@ -192,7 +192,7 @@ class Forms extends React.Component<Props, State> {
       maximumFractionDigits: 4
     });
   };
-  stockChange = (option: { value: string }) => {
+  stockChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
     const { stocks } = this.props;
     this.setState({ stockcode: value }, () => {

@@ -24,7 +24,8 @@ type Props = {
   onCancelOrder: (txnid: number) => void;
   stocks: any[];
   prefix: any[];
-} & ICommonListProps;
+  totalCount: number;
+};
 
 class Row extends React.Component<Props> {
   displayValue(order, name, defaultValue = 0) {
@@ -48,7 +49,7 @@ class Row extends React.Component<Props> {
     onCancelOrder(order);
   };
   renderEditAction = object => {
-    const { save, stocks, prefix } = this.props;
+    const { stocks, prefix } = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -59,7 +60,7 @@ class Row extends React.Component<Props> {
     );
 
     const content = props => {
-      return this.renderForm({ ...props, object, save, stocks, prefix });
+      return this.renderForm({ ...props, object, stocks, prefix });
     };
     return (
       <ModalTrigger
