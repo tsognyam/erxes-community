@@ -19,9 +19,6 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
-  stockCounts?: any;
-  statusCounts?: any;
-  typeCounts?: any;
   history?: any;
   queryParams: any;
 };
