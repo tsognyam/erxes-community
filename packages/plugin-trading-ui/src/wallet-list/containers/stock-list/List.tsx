@@ -13,6 +13,7 @@ import {
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 
 type Props = {
   id: string;
@@ -23,7 +24,8 @@ type Props = {
 type FinalProps = {
   tradingWalletsQuery: any;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  ICommonFormProps;
 
 function CustomerDetailsContainer(props: FinalProps) {
   const { id, tradingWalletsQuery, queryParams } = props;
@@ -39,8 +41,8 @@ function CustomerDetailsContainer(props: FinalProps) {
       <ButtonMutate
         mutation={
           name == 'deposit'
-            ? mutations.tradingWalletCharge
-            : mutations.tradingWithdrawCreate
+            ? mutations.WalletMutations.tradingWalletCharge
+            : mutations.WithdrawMutations.tradingWithdrawCreate
         }
         variables={values}
         callback={callback}
@@ -70,7 +72,9 @@ function CustomerDetailsContainer(props: FinalProps) {
   const updatedProps = {
     ...props,
     renderButton: renderButton,
-    wallets: tradingWallets || ({} as any)
+    wallets: tradingWallets || ({} as any),
+    beginBalance: 0,
+    endBalance: 0
   };
 
   return (
@@ -87,7 +91,7 @@ const getRefetchQueries = values => {
   console.log('values', values);
   return [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: {
         id: values.id
       }
@@ -96,13 +100,16 @@ const getRefetchQueries = values => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props, { userId: string }>(gql(queries.tradingWallets), {
-      name: 'tradingWalletsQuery',
-      options: ({ walletIds }) => ({
-        variables: {
-          walletIds: walletIds
-        }
-      })
-    })
+    graphql<Props, { userId: string }>(
+      gql(queries.WalletQueries.tradingWallets),
+      {
+        name: 'tradingWalletsQuery',
+        options: ({ walletIds }) => ({
+          variables: {
+            walletIds: walletIds
+          }
+        })
+      }
+    )
   )(CustomerDetailsContainer)
 );

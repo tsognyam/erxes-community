@@ -74,7 +74,10 @@ import {
   queries as CustFeeQueries,
   mutations as CustFeeMutations
 } from './schema/custFee';
-
+import {
+  types as ReportTypes,
+  queries as ReportQueries
+} from './schema/report';
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -93,7 +96,7 @@ const typeDefs = async _serviceDiscovery => {
     ${TransactionTypes}
     ${StockTransactionTypes}
     ${CustFeeTypes}
-    
+    ${ReportTypes}
     extend type Query {
       ${WalletQueries}
       ${SystemQueries}
@@ -108,6 +111,7 @@ const typeDefs = async _serviceDiscovery => {
       ${TransactionQueries}
       ${StockTransactionQueries}
       ${CustFeeQueries}
+      ${ReportQueries}
     }
     
     extend type Mutation {

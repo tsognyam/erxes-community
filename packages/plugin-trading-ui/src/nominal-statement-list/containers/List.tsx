@@ -43,7 +43,11 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.orderEdit : mutations.orderAdd}
+        mutation={
+          object
+            ? mutations.OrderMutations.orderEdit
+            : mutations.OrderMutations.orderAdd
+        }
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -123,17 +127,20 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingTransactionNominalList), {
-      name: 'tradingTransactionNominalQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate,
-          status: queryParams.status ? Number(queryParams.status) : undefined,
-          ...generatePaginationParams(queryParams)
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
+    graphql<Props>(
+      gql(queries.TransactionQueries.tradingTransactionNominalList),
+      {
+        name: 'tradingTransactionNominalQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            startDate: queryParams.startDate,
+            endDate: queryParams.endDate,
+            status: queryParams.status ? Number(queryParams.status) : undefined,
+            ...generatePaginationParams(queryParams)
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
   )(ListContainer)
 );

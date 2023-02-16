@@ -144,7 +144,6 @@ class List extends React.Component<IProps, State> {
               <Row
                 index={indexCounter + index}
                 transaction={transaction}
-                totalCount={total}
                 isChecked={bulk.includes(transaction)}
                 toggleBulk={toggleBulk}
                 renderButton={renderButton}

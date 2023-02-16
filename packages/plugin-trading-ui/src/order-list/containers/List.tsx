@@ -37,7 +37,6 @@ const generateQueryParams = ({ location }) => {
 };
 
 const defaultParams = ['id'];
-
 class ListContainer extends React.Component<FinalProps> {
   renderButton = ({
     name,
@@ -55,7 +54,11 @@ class ListContainer extends React.Component<FinalProps> {
     };
     return (
       <ButtonMutate
-        mutation={object ? mutations.orderEdit : mutations.orderAdd}
+        mutation={
+          object
+            ? mutations.OrderMutations.orderEdit
+            : mutations.OrderMutations.orderAdd
+        }
         variables={values}
         callback={afterMutate}
         isSubmitted={isSubmitted}
@@ -82,7 +85,7 @@ class ListContainer extends React.Component<FinalProps> {
     };
     return (
       <ButtonMutate
-        mutation={mutations.orderConfirm}
+        mutation={mutations.OrderMutations.orderConfirm}
         variables={values}
         callback={afterMutate}
         isSubmitted={isSubmitted}
@@ -208,14 +211,14 @@ const generateParams = ({ queryParams }) => {
 const getRefetchQueries = (queryParams?: any) => {
   return [
     {
-      query: gql(queries.orderList),
+      query: gql(queries.OrderQueries.orderList),
       variables: { ...generateParams({ queryParams }) }
     }
   ];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.orderList), {
+    graphql<Props>(gql(queries.OrderQueries.orderList), {
       name: 'tradingOrdersQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
@@ -223,7 +226,7 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, OrderCancelMutationResponse, { txnid: number }>(
-      gql(mutations.orderCancel),
+      gql(mutations.OrderMutations.orderCancel),
       {
         name: 'tradingOrderCancelMutation',
         options: ({ queryParams }) => ({
@@ -231,13 +234,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
+    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.stockList), {
+    graphql<Props>(gql(queries.StockQueries.stockList), {
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'

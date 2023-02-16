@@ -47,7 +47,9 @@ tradingStockWallets(
    stockCode:Int,
    sortField:String,
    sortDirection:String
-):TradingStockWalletList`;
+):TradingStockWalletList
+tradingNominalWallet(currencyCode:String!):TradingWallet
+`;
 const params = `
 currencyCode:String,
 userId:String,

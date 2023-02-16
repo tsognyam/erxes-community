@@ -81,7 +81,7 @@ class BoardComp extends React.Component<Props, State> {
     };
     return (
       <ButtonMutate
-        mutation={mutations.orderAdd}
+        mutation={mutations.OrderMutations.orderAdd}
         variables={values}
         callback={afterMutate}
         isSubmitted={isSubmitted}
@@ -141,7 +141,7 @@ class BoardComp extends React.Component<Props, State> {
       }
       client
         .query({
-          query: gql(queries.orderList),
+          query: gql(queries.OrderQueries.orderList),
           fetchPolicy: 'network-only',
           variables: variables
         })

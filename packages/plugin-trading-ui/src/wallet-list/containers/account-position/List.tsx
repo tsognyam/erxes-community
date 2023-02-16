@@ -44,7 +44,9 @@ function AccountPosition(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    wallets: list || ({} as any)
+    wallets: list || ({} as any),
+    beginBalance: 0,
+    endBalance: 0
   };
 
   return (
@@ -61,7 +63,7 @@ const getRefetchQueries = values => {
   console.log('values', values);
   return [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: {
         id: values.id
       }
@@ -71,7 +73,7 @@ const getRefetchQueries = values => {
 export default withProps<Props>(
   compose(
     graphql<Props, { userId: string; beginDate: Date; endDate: Date }>(
-      gql(queries.tradingGetPosition),
+      gql(queries.StockQueries.tradingGetPosition),
       {
         name: 'tradingGetPosition',
         options: params => ({

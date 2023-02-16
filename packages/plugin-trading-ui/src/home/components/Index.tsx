@@ -3,6 +3,13 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { __, Alert } from '@erxes/ui/src/utils';
+import {
+  Box,
+  CollapseContent,
+  Table,
+  Pagination,
+  Info
+} from '@erxes/ui/src/components';
 import _ from 'lodash';
 import {
   BoxContent,
@@ -10,6 +17,7 @@ import {
   ChartContentContainer
 } from '../../styles';
 import Chart from './Chart';
+import { displayValue } from '../../App';
 type Props = {
   history?: any;
   queryParams: any;
@@ -100,65 +108,184 @@ const PIE_COLORS = [
   '#27aeef',
   '#b33dc6'
 ];
-const stockByAmountData = [
-  {
-    symbol: 'LendMN',
-    amount: 10000
-  },
-  {
-    symbol: 'Other',
-    amount: 9000
-  },
-  {
-    symbol: '1',
-    amount: 8000
-  },
-  {
-    symbol: '2',
-    amount: 7000
-  },
-  {
-    symbol: '3',
-    amount: 6000
-  },
-  {
-    symbol: '4',
-    amount: 5500
-  },
-  {
-    symbol: 'UID',
-    amount: 5000
-  },
-  {
-    symbol: 'TUM',
-    amount: 4500
-  },
-  {
-    symbol: 'APU',
-    amount: 220
-  }
-];
-type FinalProps = Props & IRouterProps;
+// const stockByAmountData = [
+//   {
+//     symbol: 'LendMN',
+//     amount: 10000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: 'Other',
+//     amount: 9000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: '1',
+//     amount: 8000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: '2',
+//     amount: 7000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: '3',
+//     amount: 6000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: '4',
+//     amount: 5500,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: 'UID',
+//     amount: 5000,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: 'TUM',
+//     amount: 4500,
+//     cnt: 10,
+//     price: 1000
+//   },
+//   {
+//     symbol: 'APU',
+//     amount: 220,
+//     cnt: 10,
+//     price: 1000
+//   }
+// ];
+type FinalProps = {
+  tradingNominalWalletQuery: any;
+  tradingNominalStockBalanceQuery: any;
+} & Props &
+  IRouterProps;
 class Index extends React.Component<FinalProps> {
   renderContent = () => {
+    const {
+      tradingNominalWalletQuery,
+      tradingNominalStockBalanceQuery
+    } = this.props;
+    const nominalWallet = tradingNominalWalletQuery?.tradingNominalWallet;
+    const stockByAmountData =
+      tradingNominalStockBalanceQuery?.tradingNominalStockBalancesWithAmount ||
+      [];
     return (
       <>
         <BoxContentContainer>
           <BoxContent>
-            <h5>Дансан дахь үнэт цаас /мөнгөн дүнгээр/ </h5>
-            <Chart
-              chartType="stockByAmount"
-              data={stockByAmountData}
-              colors={COLORS}
-            />
+            <Box
+              title="Дансан дахь үнэт цаас /мөнгөн дүнгээр/"
+              name="stockByAmount"
+              isOpen={true}
+            >
+              <Chart
+                chartType="stockByAmount"
+                data={stockByAmountData}
+                colors={COLORS}
+              />
+            </Box>
           </BoxContent>
           <BoxContent>
-            <h5>Дансан дахь үнэт цаас /мөнгөн дүнд эзлэх хувь/ </h5>
-            <Chart
-              chartType="stockByPercentage"
-              data={stockByAmountData}
-              colors={PIE_COLORS}
-            />
+            <Box
+              title="Дансан дахь үнэт цаас /мөнгөн дүнд эзлэх хувь/"
+              name="stockByPercentage"
+              isOpen={true}
+            >
+              <Chart
+                chartType="stockByPercentage"
+                data={stockByAmountData}
+                colors={PIE_COLORS}
+              />
+            </Box>
+          </BoxContent>
+        </BoxContentContainer>
+        <BoxContentContainer>
+          <BoxContent>
+            <Box
+              title="Дансан дахь үнэт цаас, ширхэгээр"
+              name="stockByAmount"
+              isOpen={true}
+            >
+              <Table>
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>ҮЦ нэр</th>
+                    <th>Тоо ширхэг</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stockByAmountData.map((item, index) => {
+                    return (
+                      <tr>
+                        <td>{index + 1}</td>
+                        <td>{item.symbol}</td>
+                        <td>{item.cnt}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+              <Pagination count={stockByAmountData.length} />
+            </Box>
+          </BoxContent>
+          <BoxContent>
+            <Box
+              title="Ногдол ашгийн мөнгө (ҮЦТХТ)"
+              name="mcsdAmount"
+              isOpen={true}
+            >
+              <BoxContent>
+                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}></Info>
+              </BoxContent>
+            </Box>
+            <Box
+              title="Арилжааны төлбөр тооцоо ХХК дахь мөнгө (бонд, IPO)"
+              name="tradingBondIpoAmount"
+              isOpen={true}
+            >
+              <BoxContent>
+                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
+                  {' '}
+                </Info>
+              </BoxContent>
+            </Box>
+            <Box
+              title="Номинал дансан дахь мөнгө"
+              name="nominalAmount"
+              isOpen={true}
+            >
+              <BoxContent>
+                <Info
+                  type="info"
+                  title={
+                    displayValue(
+                      nominalWallet?.walletBalance.availableBalance,
+                      'noDiv'
+                    ) + '₮'
+                  }
+                ></Info>
+              </BoxContent>
+            </Box>
+            <Box
+              title="Клиринг банкин дахь мөнгө"
+              name="msccAmount"
+              isOpen={true}
+            >
+              <BoxContent>
+                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}></Info>
+              </BoxContent>
+            </Box>
           </BoxContent>
         </BoxContentContainer>
         <ChartContentContainer>

@@ -356,7 +356,6 @@ export const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   }
 `;
 export const BoxContentContainer = styled.div`
-  height: 50vh;
   display: flex;
   h3 {
     margin-left: auto;
@@ -374,4 +373,7 @@ export const ChartContentContainer = styled.div`
 `;
 export const BoxContent = styled.div`
   flex: 1;
+  h3 {
+    margin-left: 25px;
+  }
 `;

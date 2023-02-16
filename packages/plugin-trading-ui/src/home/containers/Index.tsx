@@ -10,7 +10,11 @@ type Props = {
   queryParams: any;
   history: any;
 };
-type FinalProps = {} & Props & IRouterProps;
+type FinalProps = {
+  tradingNominalWalletQuery: any;
+  tradingNominalStockBalanceQuery: any;
+} & Props &
+  IRouterProps;
 class IndexContainer extends React.Component<FinalProps> {
   render(): React.ReactNode {
     return <Index {...this.props} />;
@@ -18,11 +22,19 @@ class IndexContainer extends React.Component<FinalProps> {
 }
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
-      options: props => ({
-        variables: { ...props }
+    graphql<Props>(gql(queries.WalletQueries.tradingNominalWallet), {
+      name: 'tradingNominalWalletQuery',
+      options: () => ({
+        variables: {
+          currencyCode: 'MNT'
+        }
       })
-    })
+    }),
+    graphql<Props>(
+      gql(queries.ReportQueries.tradingNominalStockBalancesWithAmount),
+      {
+        name: 'tradingNominalStockBalanceQuery'
+      }
+    )
   )(IndexContainer)
 );

@@ -100,6 +100,7 @@ class Tab extends React.PureComponent<Props, State> {
         walletIdList.push(object.Wallet[i].id);
       }
       const updatedProps = {
+        id: '',
         walletIds: walletIdList,
         queryParams: queryParams
       };
@@ -107,7 +108,9 @@ class Tab extends React.PureComponent<Props, State> {
     }
     if (currentTab === 'account-position') {
       const updatedProps = {
-        queryParams: queryParams
+        id: '',
+        queryParams: queryParams,
+        walletIds: []
       };
       return <ListPosition {...updatedProps} />;
     }

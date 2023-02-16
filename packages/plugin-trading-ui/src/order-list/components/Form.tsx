@@ -118,7 +118,7 @@ class Forms extends React.Component<Props, State> {
     if (this.state.userId != '' && this.state.userId != undefined)
       client
         .query({
-          query: gql(queries.tradingUserWallets),
+          query: gql(queries.WalletQueries.tradingUserWallets),
           fetchPolicy: 'network-only',
           variables: { userId: this.state.userId, currencyCode: 'MNT' }
         })
@@ -159,7 +159,7 @@ class Forms extends React.Component<Props, State> {
   getCustFee = () => {
     client
       .query({
-        query: gql(queries.tradingCustFeeList),
+        query: gql(queries.CustFeeQueries.tradingCustFeeList),
         fetchPolicy: 'network-only',
         variables: { userId: this.state.userId }
       })

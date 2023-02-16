@@ -20,8 +20,7 @@ type Props = {
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  onCancelOrder: (txnid: number) => void;
-} & ICommonListProps;
+};
 
 class Row extends React.Component<Props> {
   displayValue(object, name) {

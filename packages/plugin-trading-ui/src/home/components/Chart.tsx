@@ -1,4 +1,4 @@
-import { colors } from '@erxes/ui/src/styles';
+import { Box } from '@erxes/ui/src/components';
 import React, { PureComponent } from 'react';
 import {
   BarChart,
@@ -13,6 +13,7 @@ import {
   PieChart,
   Pie
 } from 'recharts';
+import { displayValue } from '../../App';
 type Props = {
   chartType: string;
   data: any;
@@ -27,15 +28,39 @@ export default class Chart extends PureComponent<Props> {
   //   const { payload } = props;
 
   //   return (
-  //     <ul>
+  //     <Info>
   //       {
   //         payload.map((entry, index) => (
   //           <li key={`item-${index}`}>{entry.value}</li>
   //         ))
   //       }
-  //     </ul>
+  //     </Info>
   //   );
   // }
+  renderToolTipstockByAmount = ({ payload }) => {
+    return (
+      <div
+        style={{
+          background: 'white',
+          border: '1px solid green',
+          width: '200px'
+        }}
+      >
+        {payload.map((entry, index) => {
+          return (
+            <>
+              <h5 style={{ textAlign: 'center' }}>
+                {payload?.[0]?.payload?.symbol}
+              </h5>
+              <p>Дүн: {displayValue(payload?.[0]?.payload?.amount, '1')}</p>
+              <p>Үнэ: {payload?.[0]?.payload?.price}</p>
+              <p>Тоо ширхэг: {payload?.[0]?.payload?.cnt}</p>
+            </>
+          );
+        })}
+      </div>
+    );
+  };
   CustomTooltip = ({ payload }) => {
     return (
       <div>
@@ -75,26 +100,25 @@ export default class Chart extends PureComponent<Props> {
     switch (chartType) {
       case 'stockByAmount': {
         return (
-          <ResponsiveContainer width="100%">
-            <BarChart
-              width={500}
-              height={300}
-              data={data}
-              margin={{
-                top: 30,
-                right: 30,
-                left: 20,
-                bottom: 5
-              }}
-            >
-              <XAxis dataKey="symbol" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <CartesianGrid strokeDasharray="3 3" />
-              <Bar dataKey="amount" fill={colors[0]} />;
-            </BarChart>
-          </ResponsiveContainer>
+          // <ResponsiveContainer width="100%">
+          <BarChart
+            width={500}
+            height={500}
+            data={data}
+            margin={{
+              top: 30,
+              right: 30,
+              left: 20,
+              bottom: 5
+            }}
+          >
+            <XAxis dataKey="symbol" />
+            <YAxis />
+            <Tooltip content={this.renderToolTipstockByAmount} />
+            <CartesianGrid strokeDasharray="3 3" />
+            <Bar dataKey="amount" fill={colors[0]} />;
+          </BarChart>
+          /* </ResponsiveContainer> */
         );
       }
       case 'userCountByYear': {
@@ -125,40 +149,38 @@ export default class Chart extends PureComponent<Props> {
       }
       case 'stockByPercentage': {
         return (
-          <ResponsiveContainer width="100%">
-            <PieChart width={600} height={500}>
-              {/* <Legend content={this.renderLegend} /> */}
-              <Legend
-                formatter={(value, entry, index) => (
-                  <span className="text-color-class">{data[index].symbol}</span>
-                )}
-                layout="vertical"
-                verticalAlign="middle"
-                align="right"
-              />
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={this.renderCustomizedLabel}
-                outerRadius={150}
-                fill="#8884d8"
-                dataKey="amount"
-              >
-                {data.map((entry, index) => {
-                  console.log(entry);
-                  return (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  );
-                })}
-              </Pie>
-              <Tooltip content={this.CustomTooltip} />
-            </PieChart>
-          </ResponsiveContainer>
+          <PieChart width={500} height={500}>
+            {/* <Legend content={this.renderLegend} /> */}
+            <Legend
+              formatter={(value, entry, index) => (
+                <span className="text-color-class">{data[index].symbol}</span>
+              )}
+              layout="vertical"
+              verticalAlign="middle"
+              align="right"
+            />
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              label={this.renderCustomizedLabel}
+              outerRadius={150}
+              fill="#8884d8"
+              dataKey="amount"
+            >
+              {data.map((entry, index) => {
+                console.log(entry);
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={colors[index % colors.length]}
+                  />
+                );
+              })}
+            </Pie>
+            <Tooltip content={this.CustomTooltip} />
+          </PieChart>
         );
       }
     }

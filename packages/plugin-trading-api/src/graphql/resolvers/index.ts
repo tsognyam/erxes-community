@@ -27,7 +27,8 @@ import {
   WithdrawQueries,
   TransactionQueries,
   StockTransactionQueries,
-  CustFeeQueries
+  CustFeeQueries,
+  ReportQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -59,7 +60,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...WithdrawQueries,
     ...TransactionQueries,
     ...StockTransactionQueries,
-    ...CustFeeQueries
+    ...CustFeeQueries,
+    ...ReportQueries
   }
 });
 

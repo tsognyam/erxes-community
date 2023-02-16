@@ -28,7 +28,7 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={mutations.tradingCustFeeUpdate}
+        mutation={mutations.CustFeeMutations.tradingCustFeeUpdate}
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
@@ -85,7 +85,7 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingCustFeeList), {
+    graphql<Props>(gql(queries.CustFeeQueries.tradingCustFeeList), {
       name: 'tradingCustFeeGetListQuery',
       options: ({ userId }) => ({
         variables: { userId: userId }

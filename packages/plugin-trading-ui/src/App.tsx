@@ -51,8 +51,12 @@ export function displayValue(value, type = 'number') {
         {dayjs(value).format('YYYY-MM-DD HH:mm:ss')}
       </>
     );
+  } else {
+    return (value || 0).toLocaleString(undefined, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4
+    });
   }
-
-  return value;
 }
+
 export default App;

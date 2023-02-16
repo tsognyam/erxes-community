@@ -74,13 +74,13 @@ class ListContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
+    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.stockList), {
+    graphql<Props>(gql(queries.StockQueries.stockList), {
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
