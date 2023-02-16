@@ -93,12 +93,11 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { tradingTransactionNominalQuery, queryParams } = this.props;
     const transactions =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.values ||
-      [];
+      tradingTransactionNominalQuery?.tradingBankTransactions?.values || [];
     const total =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.total || 0;
+      tradingTransactionNominalQuery?.tradingBankTransactions?.total || 0;
     const count =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.count || 0;
+      tradingTransactionNominalQuery?.tradingBankTransactions?.count || 0;
     const extendedProps = {
       ...this.props,
       transactions,
@@ -128,7 +127,7 @@ const getRefetchQueries = () => {
 export default withProps<Props>(
   compose(
     graphql<Props>(
-      gql(queries.TransactionQueries.tradingTransactionNominalList),
+      gql(queries.BankTransactionQueries.tradingBankTransactions),
       {
         name: 'tradingTransactionNominalQuery',
         options: ({ queryParams }) => ({

@@ -7,5 +7,5 @@ type tradingNominalStockBalancesWithAmount {
 }
 `;
 export const queries = `
-tradingNominalStockBalancesWithAmount:[tradingNominalStockBalancesWithAmount]
+tradingNominalStockBalancesWithAmount(currencyCode:String!):[tradingNominalStockBalancesWithAmount]
 `;

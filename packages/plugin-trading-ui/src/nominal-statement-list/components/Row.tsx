@@ -68,12 +68,12 @@ class Row extends React.Component<Props> {
             : ''}
         </td>
         <td>{dayjs(transaction.dater).format('YYYY-MM-DD')}</td>
-        <td>{}</td>
+        <td>{transaction.contAccountNo}</td>
         <td>{transaction.description}</td>
-        <td></td>
-        <td></td>
+        <td>{transaction.recAccountNo}</td>
+        <td>{transaction.accountName}</td>
         <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-        <td></td>
+        <td>{transaction.wallet.walletNumber}</td>
         <td>
           {
             <Label

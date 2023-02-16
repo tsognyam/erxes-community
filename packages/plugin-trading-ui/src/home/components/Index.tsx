@@ -175,7 +175,7 @@ class Index extends React.Component<FinalProps> {
       tradingNominalWalletQuery,
       tradingNominalStockBalanceQuery
     } = this.props;
-    const nominalWallet = tradingNominalWalletQuery?.tradingNominalWallet;
+    const nominalWallet = tradingNominalWalletQuery?.tradingNominalWallet || [];
     const stockByAmountData =
       tradingNominalStockBalanceQuery?.tradingNominalStockBalancesWithAmount ||
       [];
@@ -246,7 +246,9 @@ class Index extends React.Component<FinalProps> {
               isOpen={true}
             >
               <BoxContent>
-                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}></Info>
+                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
+                  {' '}
+                </Info>
               </BoxContent>
             </Box>
             <Box
@@ -274,7 +276,9 @@ class Index extends React.Component<FinalProps> {
                       'noDiv'
                     ) + '₮'
                   }
-                ></Info>
+                >
+                  {' '}
+                </Info>
               </BoxContent>
             </Box>
             <Box
@@ -283,7 +287,9 @@ class Index extends React.Component<FinalProps> {
               isOpen={true}
             >
               <BoxContent>
-                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}></Info>
+                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
+                  {' '}
+                </Info>
               </BoxContent>
             </Box>
           </BoxContent>

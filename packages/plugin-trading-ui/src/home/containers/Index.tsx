@@ -6,6 +6,7 @@ import { mutations, queries } from '../../graphql';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import Index from '../components/Index';
+import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   queryParams: any;
   history: any;
@@ -16,7 +17,17 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 class IndexContainer extends React.Component<FinalProps> {
-  render(): React.ReactNode {
+  render() {
+    const {
+      tradingNominalWalletQuery,
+      tradingNominalStockBalanceQuery
+    } = this.props;
+    if (
+      tradingNominalStockBalanceQuery.loading ||
+      tradingNominalWalletQuery.loading
+    ) {
+      return <Spinner />;
+    }
     return <Index {...this.props} />;
   }
 }
@@ -33,7 +44,12 @@ export default withProps<Props>(
     graphql<Props>(
       gql(queries.ReportQueries.tradingNominalStockBalancesWithAmount),
       {
-        name: 'tradingNominalStockBalanceQuery'
+        name: 'tradingNominalStockBalanceQuery',
+        options: () => ({
+          variables: {
+            currencyCode: 'MNT'
+          }
+        })
       }
     )
   )(IndexContainer)

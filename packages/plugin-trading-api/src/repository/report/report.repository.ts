@@ -5,7 +5,7 @@ export default class ReportRepository extends BaseRepository {
   constructor() {
     super('');
   }
-  getNominalStockBalancesWithAmount = async () => {
+  getNominalStockBalancesWithAmount = async (nominalWalletId: number) => {
     return await this._prisma.$queryRaw`select st.symbol,sum(sb.balance) as cnt,
         case when st.closeprice!=0 and st.closeprice is not null 
         then st.closeprice*sum(sb.balance) 
@@ -20,8 +20,9 @@ export default class ReportRepository extends BaseRepository {
          from 
         \`StockBalance\` sb
         inner join Stock st on st.stockcode=sb.stockCode
-        where sb.walletId!=${WalletConst.NOMINAL}
+        where sb.walletId!=${nominalWalletId}
         group by sb.stockcode
+        having cnt>0
         order by amount desc
         `;
   };

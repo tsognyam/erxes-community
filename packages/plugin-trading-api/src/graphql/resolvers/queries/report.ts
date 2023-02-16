@@ -3,15 +3,15 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import ReportRepository from '../../../repository/report/report.repository';
-let reportRepository = new ReportRepository();
+import ReportService from '../../../service/report/report.service';
+let reportService = new ReportService();
 const ReportQueries = {
   tradingNominalStockBalancesWithAmount: async (
     _root: any,
     params,
     { models, subdomain, user }: IContext
   ) => {
-    return await reportRepository.getNominalStockBalancesWithAmount();
+    return await reportService.getNominalStockBalancesWithAmount(params);
   }
 };
 export default ReportQueries;

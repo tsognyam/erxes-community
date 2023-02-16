@@ -6,6 +6,7 @@ import WalletQueries from './wallet';
 import WithdrawQueries from './withdraw';
 import UserQueries from './user';
 import ReportQueries from './report';
+import BankTransactionQueries from './bank.transaction';
 export default {
   OrderQueries,
   CustFeeQueries,
@@ -14,5 +15,6 @@ export default {
   WalletQueries,
   WithdrawQueries,
   UserQueries,
-  ReportQueries
+  ReportQueries,
+  BankTransactionQueries
 };

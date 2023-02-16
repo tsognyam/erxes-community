@@ -43,21 +43,19 @@ export default class Chart extends PureComponent<Props> {
         style={{
           background: 'white',
           border: '1px solid green',
-          width: '200px'
+          width: '150px'
         }}
       >
-        {payload.map((entry, index) => {
-          return (
-            <>
-              <h5 style={{ textAlign: 'center' }}>
-                {payload?.[0]?.payload?.symbol}
-              </h5>
-              <p>Дүн: {displayValue(payload?.[0]?.payload?.amount, '1')}</p>
-              <p>Үнэ: {payload?.[0]?.payload?.price}</p>
-              <p>Тоо ширхэг: {payload?.[0]?.payload?.cnt}</p>
-            </>
-          );
-        })}
+        {
+          <>
+            <h5 style={{ textAlign: 'center' }}>
+              {payload?.[0]?.payload?.symbol}
+            </h5>
+            <p>Дүн: {displayValue(payload?.[0]?.payload?.amount, '1')}</p>
+            <p>Үнэ: {payload?.[0]?.payload?.price}</p>
+            <p>Тоо ширхэг: {payload?.[0]?.payload?.cnt}</p>
+          </>
+        }
       </div>
     );
   };
@@ -170,7 +168,6 @@ export default class Chart extends PureComponent<Props> {
               dataKey="amount"
             >
               {data.map((entry, index) => {
-                console.log(entry);
                 return (
                   <Cell
                     key={`cell-${index}`}
