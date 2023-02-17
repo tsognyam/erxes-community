@@ -245,17 +245,44 @@ class BankTransactionService {
     });
     return bankTransaction;
   };
-  getBankTransactionList = async (ids?: Number[]) => {
+  getBankTransactionList = async params => {
+    var data = await this.bankTransactionValidator.validateBankTransactionList(
+      params
+    );
     let where: any = {};
-    if (ids != null) where.id = { in: ids };
+    let options: any = {};
+    options.take = data.take;
+    options.skip = data.skip;
+    options.orderBy = data.orderBy;
+    let dateFilter;
+    if (data.startDate != undefined && data.endDate != undefined) {
+      dateFilter = {
+        dater: {
+          gte: data.startDate,
+          lte: data.endDate
+        }
+      };
+    }
+    where = {
+      ...dateFilter,
+      status: data.status
+    };
     let include: Prisma.BankTransactionInclude = {
       order: true,
       withdraw: true,
-      wallet: true
+      wallet: {
+        include: {
+          user: true
+        }
+      }
       // bank: true
     };
-    let wallets = await this.bankTransactionRepository.findMany(where, include);
-    return wallets;
+    let bankTransactionList = await this.bankTransactionRepository.findAll(
+      where,
+      include,
+      options
+    );
+    return bankTransactionList;
   };
   getBankTransaction = async (id: Number) => {
     let where: any = {};

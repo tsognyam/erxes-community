@@ -38,8 +38,8 @@ function CustomerDetailsContainer(props: FinalProps) {
       <ButtonMutate
         mutation={
           name == 'deposit'
-            ? mutations.tradingWalletCharge
-            : mutations.tradingWithdrawCreate
+            ? mutations.WalletMutations.tradingWalletCharge
+            : mutations.WithdrawMutations.tradingWithdrawCreate
         }
         variables={values}
         callback={callback}
@@ -69,7 +69,7 @@ function CustomerDetailsContainer(props: FinalProps) {
 
   const taggerRefetchQueries = [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: { userId: id }
     }
   ];
@@ -108,7 +108,7 @@ const getRefetchQueries = values => {
   console.log('values', values);
   return [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: {
         id: values.id
       }
@@ -117,15 +117,18 @@ const getRefetchQueries = values => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props, { userId: string }>(gql(queries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
-      options: ({ id }) => ({
-        variables: {
-          userId: id
-        }
-      })
-    }),
-    graphql<Props>(gql(mutations.tradingWalletCharge), {
+    graphql<Props, { userId: string }>(
+      gql(queries.UserQueries.tradingUserByPrefix),
+      {
+        name: 'tradingUserByPrefixQuery',
+        options: ({ id }) => ({
+          variables: {
+            userId: id
+          }
+        })
+      }
+    ),
+    graphql<Props>(gql(mutations.WalletMutations.tradingWalletCharge), {
       name: 'tradingWalletChargeMutation',
       options: props => ({
         variables: {

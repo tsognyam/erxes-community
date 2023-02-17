@@ -6,3 +6,7 @@ export type OrderCancelMutationResponse = {
     variables: { txnid: number };
   }) => Promise<any>;
 };
+export type Item = {
+  name: string;
+  color: string;
+};

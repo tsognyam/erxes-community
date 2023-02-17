@@ -125,7 +125,26 @@ class WalletService {
       CustomException(ErrorCode.NominalWalletNotFoundException);
     return nominalWallet;
   };
-
+  getNominalWalletBalance = async (params: any) => {
+    let nominalWallet = await this.walletValidator.validateGetNominalWallet(
+      params
+    );
+    if (!nominalWallet)
+      CustomException(ErrorCode.NominalWalletNotFoundException);
+    let nominalBalance = await this.walletRepository.getNominalWalletBalance(
+      nominalWallet.currencyCode
+    );
+    nominalWallet.walletBalance.balance = nominalBalance.balance;
+    nominalWallet.walletBalance.holdBalance = nominalBalance.holdBalance;
+    nominalWallet.walletBalance.incomingBalance =
+      nominalBalance.incomingBalance;
+    nominalWallet.walletBalance.availableBalance =
+      nominalBalance.balance - nominalBalance.holdBalance;
+    nominalWallet.walletBalance.tradeBalance =
+      parseFloat(nominalWallet.walletBalance.availableBalance) +
+      parseFloat(nominalWallet.walletBalance.incomingBalance);
+    return nominalWallet;
+  };
   getBalance = async params => {
     var wallet = await this.walletValidator.validateGet(params, true);
 

@@ -26,9 +26,20 @@ type TradingBankTransaction @key(fields:"id") {
     wallet:JSON
     walletId:Int
 }
+type TradingBankTransactionList {
+    total:Int,
+    count:Int,
+    values:[TradingBankTransaction]
+}
 `;
 export const queries = `
-tradingBankTransactions(ids:[Int]):[TradingBankTransaction]
+tradingBankTransactions(
+    startDate:Date,
+    endDate:Date,
+    page:Int!,
+    perPage:Int!,
+    status:Int
+):TradingBankTransactionList
 tradingBankTransactionDetail(id:Int!):TradingBankTransaction
 `;
 const params = `

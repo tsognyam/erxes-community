@@ -13,6 +13,7 @@ import {
 } from '@erxes/ui-contacts/src/customers/propertyContext';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 
 type Props = {
   id: string;
@@ -22,7 +23,8 @@ type Props = {
 type FinalProps = {
   tradingUserByPrefixQuery: any;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  ICommonFormProps;
 
 function CustomerDetailsContainer(props: FinalProps) {
   const { id, tradingUserByPrefixQuery, queryParams } = props;
@@ -38,8 +40,8 @@ function CustomerDetailsContainer(props: FinalProps) {
       <ButtonMutate
         mutation={
           name == 'deposit'
-            ? mutations.tradingWalletCharge
-            : mutations.tradingWithdrawCreate
+            ? mutations.WalletMutations.tradingWalletCharge
+            : mutations.WithdrawMutations.tradingWithdrawCreate
         }
         variables={values}
         callback={callback}
@@ -69,7 +71,7 @@ function CustomerDetailsContainer(props: FinalProps) {
 
   const taggerRefetchQueries = [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: { userId: id }
     }
   ];
@@ -78,7 +80,11 @@ function CustomerDetailsContainer(props: FinalProps) {
     ...props,
     renderButton: renderButton,
     customer: tradingUserByPrefix || ({} as any),
-    taggerRefetchQueries
+    taggerRefetchQueries,
+    beginBalance: 0,
+    endBalance: 0,
+    total: 0,
+    count: 0
   };
 
   return (
@@ -95,7 +101,7 @@ const getRefetchQueries = values => {
   console.log('values', values);
   return [
     {
-      query: gql(queries.tradingUserByPrefix),
+      query: gql(queries.UserQueries.tradingUserByPrefix),
       variables: {
         id: values.id
       }
@@ -104,15 +110,18 @@ const getRefetchQueries = values => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props, { userId: string }>(gql(queries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
-      options: ({ id }) => ({
-        variables: {
-          userId: id
-        }
-      })
-    }),
-    graphql<Props>(gql(mutations.tradingWalletCharge), {
+    graphql<Props, { userId: string }>(
+      gql(queries.UserQueries.tradingUserByPrefix),
+      {
+        name: 'tradingUserByPrefixQuery',
+        options: ({ id }) => ({
+          variables: {
+            userId: id
+          }
+        })
+      }
+    ),
+    graphql<Props>(gql(mutations.WalletMutations.tradingWalletCharge), {
       name: 'tradingWalletChargeMutation',
       options: props => ({
         variables: {

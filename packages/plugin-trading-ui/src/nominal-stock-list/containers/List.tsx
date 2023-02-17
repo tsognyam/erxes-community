@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
-import { mutations, queries } from '../../graphql';
+import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
@@ -43,7 +43,11 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.orderEdit : mutations.orderAdd}
+        mutation={
+          object
+            ? mutations.OrderMutations.orderEdit
+            : mutations.OrderMutations.orderAdd
+        }
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -120,7 +124,7 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingStockWallets), {
+    graphql<Props>(gql(queries.WalletQueries.tradingStockWallets), {
       name: 'tradingStockWalletQuery',
       options: ({ queryParams }) => ({
         variables: {

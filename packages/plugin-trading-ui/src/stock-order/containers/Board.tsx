@@ -11,12 +11,13 @@ import { router as routerUtils } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-
+import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   queryParams: any;
   history: any;
   closeModal: () => void;
   isAllSelected: boolean;
+  currentUser: IUser;
 };
 
 type FinalProps = {
@@ -73,13 +74,13 @@ class ListContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
+    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.stockList), {
+    graphql<Props>(gql(queries.StockQueries.stockList), {
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
         fetchPolicy: 'network-only'

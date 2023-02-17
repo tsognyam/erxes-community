@@ -32,13 +32,12 @@ type Props = {
   endBalance: number;
 };
 
-class List extends React.Component<Props & ICommonFormProps> {
+class List extends React.Component<Props> {
   generateDoc = (values: {
     walletId?: number;
     startDate: Date;
     endDate: Date;
   }) => {
-    const { object } = this.props;
     const finalValues = values;
 
     return {

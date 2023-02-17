@@ -103,7 +103,7 @@ class Forms extends React.Component<Props, State> {
     this.setState({ walletId: Number(value) });
     client
       .query({
-        query: gql(queries.tradingWallets),
+        query: gql(queries.WalletQueries.tradingWallets),
         fetchPolicy: 'network-only',
         variables: { walletIds: [value] }
       })
@@ -126,11 +126,12 @@ class Forms extends React.Component<Props, State> {
     this.setState({ prefix: value });
     client
       .query({
-        query: gql(queries.tradingUserByPrefix),
+        query: gql(queries.UserQueries.tradingUserByPrefix),
         fetchPolicy: 'network-only',
         variables: { prefix: value }
       })
       .then(({ data }: any) => {
+        console.log(data);
         if (data?.tradingUserByPrefix.values[0].Wallet.length > 0) {
           let walletList = data.tradingUserByPrefix.values[0].Wallet.map(x => {
             return {

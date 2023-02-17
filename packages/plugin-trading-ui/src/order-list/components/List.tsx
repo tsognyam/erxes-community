@@ -307,26 +307,26 @@ class List extends React.Component<IProps> {
         <>
           <Wrapper.ActionBar
             left={actionBarLeft}
-            right={
-              <Flex>
-                <ModalTrigger
-                  title="Add an order"
-                  size={'lg'}
-                  trigger={
-                    <Button
-                      id={'NewOrderButton'}
-                      btnStyle="success"
-                      block={true}
-                      icon="plus-circle"
-                    >
-                      Add Order
-                    </Button>
-                  }
-                  content={this.renderForm}
-                />
-                {this.renderFilter()}
-              </Flex>
-            }
+            // right={
+            //   <Flex>
+            //     <ModalTrigger
+            //       title="Add an order"
+            //       size={'lg'}
+            //       trigger={
+            //         <Button
+            //           id={'NewOrderButton'}
+            //           btnStyle="success"
+            //           block={true}
+            //           icon="plus-circle"
+            //         >
+            //           Add Order
+            //         </Button>
+            //       }
+            //       content={this.renderForm}
+            //     />
+            //     {this.renderFilter()}
+            //   </Flex>
+            // }
           />
           <Contents hasBorder={true}>
             <PageContent

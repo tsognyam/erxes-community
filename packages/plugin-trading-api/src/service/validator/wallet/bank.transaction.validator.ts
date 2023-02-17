@@ -82,4 +82,18 @@ export default class BankTransactionValidator extends BaseValidator {
 
     return data;
   };
+  validateBankTransactionList = async (params: any) => {
+    var { data } = this.validate(
+      {
+        startDate: this._joi.date(),
+        endDate: this._joi.date(),
+        skip: this._joi.number(),
+        take: this._joi.number(),
+        orderBy: this._joi.any(),
+        status: this._joi.number()
+      },
+      params
+    );
+    return data;
+  };
 }

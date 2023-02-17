@@ -151,4 +151,13 @@ export default class WalletRepository extends BaseRepository {
       }
     });
   };
+  getNominalWalletBalance = async (currencyCode: string) => {
+    let sumBalances = await this._prisma
+      .$queryRaw`SELECT IFNULL(SUM(wb.balance),0) balance,IFNULL(SUM(wb.holdBalance),0) holdBalance,
+    IFNULL(SUM(wb.incomingBalance),0) incomingBalance
+     FROM Wallet wl
+    inner join WalletBalance wb ON wb.walletId=wl.id
+    where wl.type!=${WalletConst.NOMINAL} and wl.currencyCode=${currencyCode} limit 1`;
+    return sumBalances[0];
+  };
 }

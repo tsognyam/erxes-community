@@ -26,9 +26,9 @@ type Props = {
   closeModal: () => void;
   prefix: any[];
   stocks: any[];
-  object?;
-  stockChange: (option: { value: string }) => void;
-  prefixChange: (option: { value: string }) => void;
+  object: any;
+  stockChange: (option: { value: string; label: string }) => void;
+  prefixChange: (option: { value: string; label: string }) => void;
   isCancel: boolean;
   stockcode?: string;
 } & ICommonFormProps;

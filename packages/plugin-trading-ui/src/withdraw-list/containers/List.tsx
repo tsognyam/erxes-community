@@ -49,7 +49,9 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? '' : mutations.tradingWithdrawCreate}
+        mutation={
+          object ? '' : mutations.WithdrawMutations.tradingWithdrawCreate
+        }
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -172,7 +174,7 @@ class ListContainer extends React.Component<FinalProps> {
 const getRefetchQueries = (queryParams?: any) => {
   return [
     {
-      query: gql(queries.tradingWithdrawGet),
+      query: gql(queries.WithdrawQueries.tradingWithdrawGet),
       variables: {
         type: queryParams.type,
         walletId: queryParams.walletId,
@@ -184,31 +186,31 @@ const getRefetchQueries = (queryParams?: any) => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
+    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)
       })
     }),
-    graphql<Props>(gql(queries.tradingWithdrawGet), {
+    graphql<Props>(gql(queries.WithdrawQueries.tradingWithdrawGet), {
       name: 'tradingWithdrawGetQuery',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)
       })
     }),
-    graphql<Props>(gql(mutations.tradingWithdrawCancel), {
+    graphql<Props>(gql(mutations.WithdrawMutations.tradingWithdrawCancel), {
       name: 'tradingWithdrawCancelMutation',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)
       })
     }),
-    graphql<Props>(gql(mutations.tradingWithdrawConfirm), {
+    graphql<Props>(gql(mutations.WithdrawMutations.tradingWithdrawConfirm), {
       name: 'tradingWithdrawConfirmMutation',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)
       })
     }),
-    graphql<Props>(gql(mutations.tradingWithdrawCreate), {
+    graphql<Props>(gql(mutations.WithdrawMutations.tradingWithdrawCreate), {
       name: 'tradingWithdrawCreateMutation',
       options: ({ queryParams }) => ({
         refetchQueries: getRefetchQueries(queryParams)

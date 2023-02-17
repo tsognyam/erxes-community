@@ -92,17 +92,20 @@ class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
 }
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingTransactionStatement), {
-      name: 'tradingTransactionStatementQuery',
-      options: ({ startDate, endDate, walletId }) => ({
-        variables: {
-          startDate: startDate,
-          endDate: endDate,
-          walletId: walletId
-        },
-        fetchPolicy: 'network-only',
-        notifyOnNetworkStatusChange: true
-      })
-    })
+    graphql<Props>(
+      gql(queries.TransactionQueries.tradingTransactionStatement),
+      {
+        name: 'tradingTransactionStatementQuery',
+        options: ({ startDate, endDate, walletId }) => ({
+          variables: {
+            startDate: startDate,
+            endDate: endDate,
+            walletId: walletId
+          },
+          fetchPolicy: 'network-only',
+          notifyOnNetworkStatusChange: true
+        })
+      }
+    )
   )(ListContainer)
 );

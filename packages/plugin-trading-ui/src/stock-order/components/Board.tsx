@@ -26,12 +26,13 @@ import { useEffect, useState } from 'react';
 import { IOrder } from '../../types/orderTypes';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import OrderList from '../components/OrderList';
+import ListOrder from '../../order-list/containers/List';
 import gql from 'graphql-tag';
 import { queries, mutations } from '../../graphql';
 import client from '@erxes/ui/src/apolloClient';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   queryParams: any;
   history: any;
@@ -43,6 +44,7 @@ type Props = {
   stocks: any[];
   isCancel: boolean;
   stockcode: string;
+  currentUser: IUser;
 };
 
 type State = {
@@ -79,7 +81,7 @@ class BoardComp extends React.Component<Props, State> {
     };
     return (
       <ButtonMutate
-        mutation={mutations.orderAdd}
+        mutation={mutations.OrderMutations.orderAdd}
         variables={values}
         callback={afterMutate}
         isSubmitted={isSubmitted}
@@ -139,7 +141,7 @@ class BoardComp extends React.Component<Props, State> {
       }
       client
         .query({
-          query: gql(queries.orderList),
+          query: gql(queries.OrderQueries.orderList),
           fetchPolicy: 'network-only',
           variables: variables
         })
@@ -182,17 +184,16 @@ class BoardComp extends React.Component<Props, State> {
       renderButton: this.renderButton,
       stockChange: this.stockChange,
       stockcode: this.state.stockcode,
-      prefixChange: this.prefixChange
+      prefixChange: this.prefixChange,
+      object: null
     };
+    queryParams.userId = this.state.userId;
+    queryParams.stockcode = this.state.stockcode;
     const orderListProps = {
-      ...this.props,
-      renderButton: this.renderButton,
-      orders: this.state.orders,
-      prefix,
-      stocks,
-      loading: false,
-      total: this.state.total,
-      count: this.state.count
+      queryParams: queryParams,
+      full: false,
+      history: this.props.history,
+      currentUser: this.props.currentUser
     };
     return (
       <>
@@ -233,18 +234,18 @@ class BoardComp extends React.Component<Props, State> {
         <List {...extendedProps} />
         <StockOrderLabel>
           <ControlLabel>
-            <label style={{ color: '#5629B6' }}>
+            <h5 style={{ color: '#5629B6' }}>
               {this.state.userPrefix != ''
                 ? '“' + this.state.userPrefix + '” хэрэглэгчийн '
                 : ''}
               {this.state.stockname != ''
                 ? '“' + this.state.stockname + '” хувьцааны '
                 : ''}
-              Сүүлд хийсэн 20 арилжааны жагсаалт
-            </label>
+              захиалгийн жагсаалт
+            </h5>
           </ControlLabel>
         </StockOrderLabel>
-        <OrderList {...orderListProps} />
+        <ListOrder {...orderListProps} />
       </>
     );
   };

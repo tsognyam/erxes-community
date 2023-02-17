@@ -43,7 +43,11 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.orderEdit : mutations.orderAdd}
+        mutation={
+          object
+            ? mutations.OrderMutations.orderEdit
+            : mutations.OrderMutations.orderAdd
+        }
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries}
@@ -89,12 +93,11 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { tradingTransactionNominalQuery, queryParams } = this.props;
     const transactions =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.values ||
-      [];
+      tradingTransactionNominalQuery?.tradingBankTransactions?.values || [];
     const total =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.total || 0;
+      tradingTransactionNominalQuery?.tradingBankTransactions?.total || 0;
     const count =
-      tradingTransactionNominalQuery?.tradingTransactionNominalList?.count || 0;
+      tradingTransactionNominalQuery?.tradingBankTransactions?.count || 0;
     const extendedProps = {
       ...this.props,
       transactions,
@@ -123,17 +126,20 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingTransactionNominalList), {
-      name: 'tradingTransactionNominalQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          startDate: queryParams.startDate,
-          endDate: queryParams.endDate,
-          status: queryParams.status ? Number(queryParams.status) : undefined,
-          ...generatePaginationParams(queryParams)
-        },
-        fetchPolicy: 'network-only'
-      })
-    })
+    graphql<Props>(
+      gql(queries.BankTransactionQueries.tradingBankTransactions),
+      {
+        name: 'tradingTransactionNominalQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            startDate: queryParams.startDate,
+            endDate: queryParams.endDate,
+            status: queryParams.status ? Number(queryParams.status) : undefined,
+            ...generatePaginationParams(queryParams)
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
   )(ListContainer)
 );

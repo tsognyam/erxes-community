@@ -355,3 +355,25 @@ export const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
     overflow: hidden;
   }
 `;
+export const BoxContentContainer = styled.div`
+  display: flex;
+  h3 {
+    margin-left: auto;
+    margin-right: auto;
+  }
+`;
+export const ChartContentContainer = styled.div`
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  h3 {
+    margin-left: auto;
+    margin-right: auto;
+  }
+`;
+export const BoxContent = styled.div`
+  flex: 1;
+  h3 {
+    margin-left: 25px;
+  }
+`;

@@ -27,7 +27,11 @@ class ListContainer extends React.Component<FinalProps> {
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.stockAdd : mutations.stockAdd}
+        mutation={
+          object
+            ? mutations.StockMutations.stockAdd
+            : mutations.StockMutations.stockAdd
+        }
         variables={values}
         callback={callback}
         refetchQueries={getRefetchQueries()}
@@ -85,13 +89,13 @@ const getRefetchQueries = () => {
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.TradingStocks), {
+    graphql<Props>(gql(queries.StockQueries.TradingStocks), {
       name: 'tradingStocksQuery',
       options: props => ({
         variables: { ...props }
       })
     }),
-    graphql<Props>(gql(mutations.stockAdd), {
+    graphql<Props>(gql(mutations.StockMutations.stockAdd), {
       name: 'tradingStockAddMutation',
       options: props => ({
         variables: {

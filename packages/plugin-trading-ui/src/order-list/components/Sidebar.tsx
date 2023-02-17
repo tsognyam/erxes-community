@@ -5,7 +5,7 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, router } from 'coreui/utils';
+import { __, Alert, router } from '@erxes/ui/src/utils';
 import {
   SEC_STATUS,
   STATUS_COUNTS,
@@ -249,4 +249,4 @@ class Sidebar extends React.Component<FinalProps> {
   }
 }
 
-export default withRouter<FinalProps>(Sidebar);
+export default Sidebar;

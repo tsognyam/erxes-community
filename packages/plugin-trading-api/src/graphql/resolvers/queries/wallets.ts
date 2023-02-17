@@ -47,6 +47,13 @@ const WalletQueries = {
     };
     let list = await stockWalletService.getStockWalletList(params);
     return list;
+  },
+  tradingNominalWallet: async (
+    _root: any,
+    params: any,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await walletService.getNominalWalletBalance(params);
   }
 };
 requireLogin(WalletQueries, 'tradingWallets');

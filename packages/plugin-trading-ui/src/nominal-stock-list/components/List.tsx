@@ -76,7 +76,6 @@ class List extends React.Component<IProps> {
             <Row
               index={index}
               stockWallet={stockWallet}
-              totalCount={total}
               isChecked={bulk.includes(stockWallet)}
               toggleBulk={toggleBulk}
               renderButton={renderButton}
