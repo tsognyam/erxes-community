@@ -10,6 +10,7 @@ import WithdrawMutations from './withdraw';
 import StockTransactionsMutations from './stock.transactions';
 import CustFeeMutations from './custFee';
 import TransactionMutations from './transaction';
+import AdminMutations from './admin';
 export {
   WalletMutations,
   SystemMutations,
@@ -22,5 +23,6 @@ export {
   WithdrawMutations,
   StockTransactionsMutations,
   CustFeeMutations,
-  TransactionMutations
+  TransactionMutations,
+  AdminMutations
 };

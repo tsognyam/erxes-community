@@ -58,6 +58,13 @@ module.exports = {
       location: 'settings',
       scope: 'trading',
       image: '/images/icons/erxes-18.svg',
+    },
+    {
+      text: 'Contract note list',
+      to: '/trading/contract-list',
+      location: 'settings',
+      scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
     }
   ]
 };

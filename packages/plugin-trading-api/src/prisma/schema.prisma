@@ -116,6 +116,7 @@ model Order {
   transactionOrder  TransactionOrder? @relation(fields: [tranOrderId], references: [id])
   user              UserMCSDAccount   @relation(fields: [userId], references: [userId])
   wallet            Wallet?           @relation(fields: [walletId], references: [id])
+  ContractNote      ContractNote[]
 
   @@index([settlementMSCCId], map: "Order_settlementMSCCId_fkey")
   @@index([stockOrderId], map: "Order_stockOrderId_fkey")
@@ -531,4 +532,23 @@ model Calendar {
   fullDate      DateTime
   createdDate   DateTime @default(now())
   createdUserId String
+}
+
+model ContractNote {
+  id           Int       @id @default(autoincrement())
+  tradeId      String
+  externalId   String
+  securityId   String
+  tradeDate    DateTime
+  buySell      String    @db.Char(1)
+  size         Int
+  price        Decimal   @db.Decimal(30, 6)
+  tradeValue   Decimal   @db.Decimal(30, 4)
+  accruedValue Decimal   @db.Decimal(30, 4)
+  totalValue   Decimal   @db.Decimal(30, 4)
+  createdAt    DateTime  @default(now())
+  downloadAt   DateTime?
+  settlementAt DateTime?
+  orderId      Int?
+  order        Order?    @relation(fields: [orderId], references: [txnid])
 }

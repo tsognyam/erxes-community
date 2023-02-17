@@ -11,6 +11,7 @@ import WithdrawQueries from './withdraw';
 import TransactionQueries from './transaction';
 import StockTransactionQueries from './stock.transaction';
 import CustFeeQueries from './custFee';
+import AdminQueries from './admin';
 export {
   WalletQueries,
   SystemQueries,
@@ -24,5 +25,6 @@ export {
   WithdrawQueries,
   TransactionQueries,
   StockTransactionQueries,
-  CustFeeQueries
+  CustFeeQueries,
+  AdminQueries
 };

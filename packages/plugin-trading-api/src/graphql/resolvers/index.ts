@@ -12,7 +12,8 @@ import {
   WithdrawMutations,
   StockTransactionsMutations,
   CustFeeMutations,
-  TransactionMutations
+  TransactionMutations,
+  AdminMutations
 } from './mutations';
 import {
   WalletQueries,
@@ -27,7 +28,8 @@ import {
   WithdrawQueries,
   TransactionQueries,
   StockTransactionQueries,
-  CustFeeQueries
+  CustFeeQueries,
+  AdminQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -44,7 +46,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...WithdrawMutations,
     ...StockTransactionsMutations,
     ...TransactionMutations,
-    ...CustFeeMutations
+    ...CustFeeMutations,
+    ...AdminMutations
   },
   Query: {
     ...WalletQueries,
@@ -59,7 +62,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...WithdrawQueries,
     ...TransactionQueries,
     ...StockTransactionQueries,
-    ...CustFeeQueries
+    ...CustFeeQueries,
+    ...AdminQueries
   }
 });
 

@@ -36,6 +36,7 @@ export class OrderType extends BaseConst {
 export class TxnSourceConst extends BaseConst {
   static Self = 1;
   static Broker = 2;
+  static ContractNote = 3;
 }
 
 export class OrderCondition extends BaseConst {
