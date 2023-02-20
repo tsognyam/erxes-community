@@ -5,7 +5,7 @@ type TradingOrder @key(fields:"txnid") {
     txntype:Int!
     walletId:Int
     wallet:JSON
-    orderno:String!
+    orderno:String
     stockcode:Int!
     stock:JSON
     txndate:Date!
