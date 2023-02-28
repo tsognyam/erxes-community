@@ -17,12 +17,13 @@
   "dependencies": {
     "@prisma/client": "^4.7.1",
     "axios": "^0.24.0",
-    "soap": "^0.43.0",
+    "cassandra-driver": "^4.6.4",
     "fast-xml-parser": "^4.0.11",
     "form-data": "^4.0.0",
     "joi": "^17.6.1",
     "moment": "^2.29.4",
     "prisma": "^4.7.1",
+    "soap": "^0.43.0",
     "winston": "^3.8.2",
     "xlsx": "^0.18.5"
   }

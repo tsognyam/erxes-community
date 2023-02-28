@@ -4,9 +4,11 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import StockRepository from '../../../repository/stock.repository';
+import MarketService from '../../../service/market.service';
 import StockService from '../../../service/stock.service';
 let stockRepository = new StockRepository();
 let stockService = new StockService();
+let marketService = new MarketService();
 const StockQueries = {
   tradingStocks: async (
     _root: any,
@@ -35,6 +37,20 @@ const StockQueries = {
     { models, subdomain, user }: IContext
   ) => {
     return await stockService.getPosition(subdomain, params);
+  },
+  tradingOrderBook: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await marketService.getOrderbook(params.stockcode);
+  },
+  tradingExecutedBook: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await marketService.getExecutedbook(params);
   }
 };
 export default StockQueries;

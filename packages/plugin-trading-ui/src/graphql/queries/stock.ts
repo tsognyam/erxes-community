@@ -1,6 +1,6 @@
 const stockList = `
-query TradingStocks {
-  tradingStocks {
+query TradingStocks($skip: Int, $symbol: JSON, $take: Int, $detail: Boolean) {
+  tradingStocks(skip: $skip, symbol: $symbol, take: $take, detail: $detail) {
     values {
       stockcode,
       stockname,
@@ -13,8 +13,8 @@ query TradingStocks {
 }
 `;
 const TradingStocks = `
-query TradingStocks($skip: Int, $symbol: JSON, $take: Int) {
-  tradingStocks(skip: $skip, symbol: $symbol, take: $take) {
+query TradingStocks($skip: Int, $symbol: JSON, $take: Int, $detail: Boolean) {
+  tradingStocks(skip: $skip, symbol: $symbol, take: $take, detail: $detail) {
     count
     total
     values {

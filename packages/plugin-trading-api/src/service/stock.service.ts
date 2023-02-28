@@ -8,6 +8,7 @@ import { CurrencyConst } from '../constants/wallet';
 import moment = require('moment');
 import CustFeeService from './custfee.service';
 import CalendarService from './calendar.service';
+import MarketService from './market.service';
 class StockService {
   private stockValidator: StockValidator;
   private stockRepository: StockRepository;
@@ -15,6 +16,7 @@ class StockService {
   private orderRepository: OrderRepository;
   private custFeeService: CustFeeService;
   private calendarService: CalendarService;
+  private marketService: MarketService;
   constructor() {
     this.stockValidator = new StockValidator();
     this.stockRepository = new StockRepository();
@@ -22,6 +24,7 @@ class StockService {
     this.orderRepository = new OrderRepository();
     this.custFeeService = new CustFeeService();
     this.calendarService = new CalendarService();
+    this.marketService = new MarketService();
   }
   getStockCode = async params => {
     var stock = await this.stockValidator.validateGetStockCode(params);
@@ -65,8 +68,11 @@ class StockService {
 
     let mse_market: any = [];
     if (detail != undefined && detail == true) {
-      //let marketdata = await getMarketByStock(listIds, new Date());
-      let marketdata: any = [];
+      let marketdata = await this.marketService.getMarketByStock(
+        listIds,
+        new Date()
+      );
+      // let marketdata: any = [];
 
       if (marketdata.length != 0 && stock.values != 0) {
         for (let i = 0; i < stock.count; i++) {
@@ -82,11 +88,10 @@ class StockService {
       } else {
         mse_market = stock.values;
       }
-
       return {
         total: stock.total,
         count: mse_market.length,
-        data: mse_market
+        values: mse_market
       };
     }
     return stock;

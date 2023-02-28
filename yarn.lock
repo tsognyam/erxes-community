@@ -4604,6 +4604,11 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-17.0.16.tgz"
   integrity sha512-ydLaGVfQOQ6hI1xK2A5nVh8bl0OGoIfYMxPWHqqYe9bTkWCfqiVvZoh2I/QF2sNSkZzZyROBoTefIEI+PB6iIA==
 
+"@types/node@>=8":
+  version "18.14.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.14.2.tgz#c076ed1d7b6095078ad3cf21dfeea951842778b1"
+  integrity sha512-1uEQxww3DaghA0RxqHx0O0ppVlo43pJhepY51OxuQIKHpjbnYLA7vcdwioNPzIqmC2u3I/dmylcqjlh0e7AyUA==
+
 "@types/node@^10.1.0", "@types/node@^10.12.18", "@types/node@^10.17.27", "@types/node@^10.17.60", "@types/node@^10.9.4":
   version "10.17.60"
   resolved "https://registry.npmjs.org/@types/node/-/node-10.17.60.tgz"
@@ -5251,6 +5256,11 @@ adler-32@~1.3.0:
   integrity sha512-f5nltvjl+PRUh6YNfUstRaXwJxtfnKEWhAWWlmKvh+Y3J2+98a0KKVYDEhz6NdKGqswLhjNGznxfSsZGOvOd9g==
   dependencies:
     printj "~1.2.2"
+
+adm-zip@^0.5.3:
+  version "0.5.10"
+  resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.10.tgz#4a51d5ab544b1f5ce51e1b9043139b639afff45b"
+  integrity sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==
 
 after-all-results@^2.0.0:
   version "2.0.0"
@@ -7793,6 +7803,16 @@ caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.npmjs.org/caseless/-/caseless-0.12.0.tgz"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
+
+cassandra-driver@^4.6.4:
+  version "4.6.4"
+  resolved "https://registry.yarnpkg.com/cassandra-driver/-/cassandra-driver-4.6.4.tgz#a916018d2dfee73d00e51cedac84c44aff07bcbd"
+  integrity sha512-SksbIK0cZ2QZRx8ti7w+PnLqldyY+6kU2gRWFChwXFTtrD/ce8cQICDEHxyPwx+DeILwRnMrPf9cjUGizYw9Vg==
+  dependencies:
+    "@types/long" "^4.0.0"
+    "@types/node" ">=8"
+    adm-zip "^0.5.3"
+    long "^2.2.0"
 
 center-align@^0.1.1:
   version "0.1.3"
@@ -16121,6 +16141,11 @@ long-timeout@0.1.1:
   version "0.1.1"
   resolved "https://registry.npmjs.org/long-timeout/-/long-timeout-0.1.1.tgz"
   integrity sha1-lyHXiLR+C8taJMLivuGg2lXatRQ=
+
+long@^2.2.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/long/-/long-2.4.0.tgz#9fa180bb1d9500cdc29c4156766a1995e1f4524f"
+  integrity sha512-ijUtjmO/n2A5PaosNG9ZGDsQ3vxJg7ZW8vsY8Kp0f2yIZWhSJvjmegV7t+9RPQKxKrvj8yKGehhS+po14hPLGQ==
 
 long@^4.0.0:
   version "4.0.0"

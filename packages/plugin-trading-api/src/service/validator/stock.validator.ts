@@ -34,14 +34,8 @@ class StockValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         stockcode: this._joi.number().required(),
-        beginDate: this._joi
-          .string()
-          .required()
-          .pattern(new RegExp(/20\d\d-(0|1)\d-(0|1|2|3)\d \d{2}:\d{2}:\d{2}/)),
-        endDate: this._joi
-          .string()
-          .required()
-          .pattern(new RegExp(/20\d\d-(0|1)\d-(0|1|2|3)\d \d{2}:\d{2}:\d{2}/))
+        beginDate: this._joi.date().required(),
+        endDate: this._joi.date().required()
       },
       params
     );

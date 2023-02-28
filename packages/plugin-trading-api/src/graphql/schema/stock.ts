@@ -1,5 +1,6 @@
 export const types = `
 "This Stock type has securities, bond, any stock."
+
 type TradingStock @key(fields:"id") {
     id: Int!
     "it's code of stock listed in mse"
@@ -13,7 +14,19 @@ type TradingStock @key(fields:"id") {
     maxprice:Float
     openprice:Float
     closeprice:Float
+    lastprice:Float
+    prevprice:Float
+    buyprice:Float
+    buyvol:Int
+    sellprice:Float
+    sellvol:Int
+    totalamount:Int
+    trades:Int
+    volume:Int
+    vwap:Float
+    txndate:Date
     startdate:Date
+    enddate:Date
     userId:String
     brchno:String
     regdate:Date!
@@ -56,6 +69,7 @@ type filterType {
 `;
 export const queries = `
 tradingStocks(
+    detail:Boolean,
     skip:Int,
     take:Int,
     stockcode:Int,
@@ -69,6 +83,10 @@ tradingGetPosition(
     beginDate:Date!,
     endDate:Date!
 ):JSON
+
+tradingOrderBook(stockcode: Int): JSON
+
+tradingExecutedBook(stockcode: Int, beginDate: Date, endDate: Date): JSON
 `;
 const createParams = `
 stockcode:Int!,

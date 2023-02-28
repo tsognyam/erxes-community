@@ -92,7 +92,10 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.StockQueries.TradingStocks), {
       name: 'tradingStocksQuery',
       options: props => ({
-        variables: { ...props }
+        variables: {
+          detail: true,
+          ...props
+        }
       })
     }),
     graphql<Props>(gql(mutations.StockMutations.stockAdd), {

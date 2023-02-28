@@ -21,6 +21,7 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
+  hasSubscriptions: true,
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

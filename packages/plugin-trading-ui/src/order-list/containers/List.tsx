@@ -240,9 +240,12 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props>(gql(queries.StockQueries.stockList), {
+    graphql<Props>(gql(queries.StockQueries.TradingStocks), {
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
+        variables: {
+          detail: true
+        },
         fetchPolicy: 'network-only'
       })
     })
