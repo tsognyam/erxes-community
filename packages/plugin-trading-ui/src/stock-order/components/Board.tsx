@@ -74,7 +74,6 @@ class BoardComp extends React.Component<Props, State> {
   }
   renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const afterMutate = () => {
-      this.fetchOrders();
       if (callback) {
         callback();
       }
@@ -111,9 +110,7 @@ class BoardComp extends React.Component<Props, State> {
     const value = !option ? '' : option.value.toString();
     const label = !option ? '' : option.label.toString();
     this.setState({ stockname: label });
-    this.setState({ stockcode: value }, () => {
-      this.fetchOrders();
-    });
+    this.setState({ stockcode: value });
     const stockList = this.props.stocks;
     const stock = stockList.find(x => x.stockcode == value);
     if (stock) {
@@ -125,33 +122,7 @@ class BoardComp extends React.Component<Props, State> {
     const value = !option ? '' : option.value.toString();
     const label = !option ? '' : option.label.toString();
     this.setState({ userPrefix: label });
-    this.setState({ userId: value }, () => {
-      this.fetchOrders();
-    });
-  };
-  fetchOrders = () => {
-    if (this.state.userId != '' && this.state.userId != undefined) {
-      let variables: any = {
-        userId: this.state.userId,
-        page: 1,
-        perPage: 10
-      };
-      if (this.state.stockcode != null && this.state.stockcode != '') {
-        variables.stockcode = Number(this.state.stockcode);
-      }
-      client
-        .query({
-          query: gql(queries.OrderQueries.orderList),
-          fetchPolicy: 'network-only',
-          variables: variables
-        })
-        .then(({ data }: any) => {
-          const orders = data?.tradingOrders?.values || [];
-          const total = data?.tradingOrders?.total || 0;
-          const count = data?.tradingOrders?.count || 0;
-          this.setState({ orders: orders, total: total, count: count });
-        });
-    } else this.setState({ orders: [], total: 0, count: 0 });
+    this.setState({ userId: value });
   };
   renderContent = () => {
     const {
@@ -232,19 +203,6 @@ class BoardComp extends React.Component<Props, State> {
           </ControlLabel>
         </Filter>
         <List {...extendedProps} />
-        <StockOrderLabel>
-          <ControlLabel>
-            <h5 style={{ color: '#5629B6' }}>
-              {this.state.userPrefix != ''
-                ? '“' + this.state.userPrefix + '” хэрэглэгчийн '
-                : ''}
-              {this.state.stockname != ''
-                ? '“' + this.state.stockname + '” хувьцааны '
-                : ''}
-              захиалгийн жагсаалт
-            </h5>
-          </ControlLabel>
-        </StockOrderLabel>
         <ListOrder {...orderListProps} />
       </>
     );

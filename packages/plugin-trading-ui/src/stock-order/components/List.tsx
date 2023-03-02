@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  ListContainer,
-  OrderBuyList,
-  OrderSellList,
-  OrderDoneList,
-  FormBox
-} from '../../styles';
+import { ListContainer, FormBox, OrderBookList } from '../../styles';
 import { ORDER_BUY_SELL } from '../../constants';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
@@ -16,6 +10,7 @@ import {
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { colors } from '@erxes/ui/src/styles';
 type Props = {
   queryParams: any;
   history: any;
@@ -45,7 +40,7 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
     return (
       <>
         <ListContainer>
-          <OrderBuyList>
+          <OrderBookList background={colors.colorCoreGreen}>
             <thead>
               <tr>
                 <th colSpan={2}>{__('Order to buy')}</th>
@@ -68,8 +63,8 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                 </tr>
               ))}
             </tbody>
-          </OrderBuyList>
-          <OrderSellList>
+          </OrderBookList>
+          <OrderBookList background={colors.colorCoreRed}>
             <thead>
               <tr>
                 <th colSpan={2}>{__('Order to sell')}</th>
@@ -92,8 +87,8 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                 </tr>
               ))}
             </tbody>
-          </OrderSellList>
-          <OrderDoneList>
+          </OrderBookList>
+          <OrderBookList background={colors.colorCoreBlack}>
             <thead>
               <tr>
                 <th colSpan={3}>{__('Successful deals')}</th>
@@ -105,20 +100,24 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               </tr>
             </thead>
             <tbody>
-              {ORDER_BUY_SELL.map(item => (
-                <tr>
-                  <td>{createdDate}</td>
-                  <td>
-                    {item.price.toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2
-                    })}
-                  </td>
-                  <td>{item.quantity}</td>
-                </tr>
-              ))}
+              {ORDER_BUY_SELL.map((item, index) =>
+                index < 10 ? (
+                  <tr>
+                    <td>{createdDate}</td>
+                    <td>
+                      {item.price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </td>
+                    <td>{item.quantity}</td>
+                  </tr>
+                ) : (
+                  ''
+                )
+              )}
             </tbody>
-          </OrderDoneList>
+          </OrderBookList>
           <FormBox>
             <Form {...extendedProps} />
           </FormBox>

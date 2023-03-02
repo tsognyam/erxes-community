@@ -4,13 +4,26 @@ module.exports = {
         description: 'Trading',
         actions: [
             {
-                name: 'All',
+                name: 'tradingAll',
                 description: 'All',
+                use: ['trading']
             },
             {
-                name: 'WalletManage',
-                description: 'wallet manage',
+                name: 'tradingRole',
+                description: 'Арилжаа хийх эрх',
             },
+            {
+                name: 'withdrawRole',
+                description: "Мөнгө хүсэх эрх"
+            },
+            {
+                name: 'customerManagementRole',
+                description: 'Харилцагчийн мэдээлэл'
+            },
+            {
+                name: 'securitiesManagement',
+                description: ''
+            }
         ]
     },
 }

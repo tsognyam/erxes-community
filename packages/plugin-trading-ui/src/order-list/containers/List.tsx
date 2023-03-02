@@ -244,7 +244,7 @@ export default withProps<Props>(
       name: 'tradingStockListQuery',
       options: ({ queryParams }) => ({
         variables: {
-          detail: true
+          detail: false
         },
         fetchPolicy: 'network-only'
       })

@@ -8,8 +8,11 @@ import OrderService from '../../../service/order.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
 import TransactionService from '../../../service/wallet/transaction.service';
 import { sendLogsMessage } from '../../../messageBroker';
+import { graphqlPubsub } from '../../../configs';
+import MarketService from '../../../service/market.service';
 let orderService = new OrderService();
 let transactionService = new TransactionService();
+let marketService = new MarketService();
 const OrderMutations = {
   tradingOrderAdd: async (
     _root: any,
