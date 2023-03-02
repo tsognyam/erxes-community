@@ -1,4 +1,4 @@
 import mutations from './mutations';
 import queries from './queries';
-
-export { queries, mutations };
+import subscriptions from './subscriptions';
+export { queries, mutations, subscriptions };

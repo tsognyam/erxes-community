@@ -39,9 +39,9 @@ client
                 PRIMARY KEY (symbol, regdate))
                 WITH CLUSTERING ORDER BY (regdate DESC)`
     ];
-    let p = Promise.resolve();
+    let p: any = Promise.resolve();
     // Create the schema executing the queries serially
-    // queries.forEach(query => p = p.then(() => client.execute(query)));
+    queries.forEach(query => (p = p.then(() => client.execute(query))));
     return p;
   })
   .catch(function(err) {

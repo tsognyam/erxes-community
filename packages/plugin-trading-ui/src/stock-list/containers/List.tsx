@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import List from '../components/List';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries, subscriptions } from '../../graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
@@ -18,6 +18,27 @@ type Props = {
 type FinalProps = {} & Props & IRouterProps;
 
 class ListContainer extends React.Component<FinalProps> {
+  private subscription;
+
+  componentWillReceiveProps(nextProps) {
+    const { conversation, tradingStocksQuery } = nextProps;
+    console.log('nextProps');
+    // It is first time or subsequent conversation change
+    if (!this.subscription) {
+      // Unsubscribe previous subscription ==========
+      if (this.subscription) {
+        this.subscription();
+      }
+
+      this.subscription = tradingStocksQuery.subscribeToMore({
+        document: gql(subscriptions.stockMarketChanged),
+        updateQuery: () => {
+          console.log('updateQuery');
+        }
+      });
+    }
+  }
+
   renderButton = ({
     passedName,
     values,

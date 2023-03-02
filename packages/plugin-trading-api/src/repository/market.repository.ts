@@ -6,11 +6,20 @@ export default class MarketRepository extends BaseRepository {
   constructor() {
     super('stock');
   }
-
+  executeQuery = async query => {
+    let states = db.getState();
+    let connections = states.getConnectedHosts();
+    if (connections.length == 0) {
+      console.log('Trying cassandra connection...');
+      let connection = await db.connect();
+      console.log('connection', connection);
+    }
+  };
   getOrderbookBuy = async symbol => {
     const query =
       'select type, price, volume, symbol from trading.mse_orderbook where symbol = ? and type = 0 order by price desc';
     const params = [symbol];
+    await this.executeQuery(query);
     let res = await db.execute(query, params, { prepare: true });
     return res.rows;
   };
