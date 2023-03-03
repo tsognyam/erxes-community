@@ -118,7 +118,6 @@ export const StockDataContainer = styled.div`
   overflow-x: auto;
   border-bottom: 1px solid #eee;
 `;
-
 export const StockData = styledTS<{ isIncreased?: boolean }>(styled.div)`
   min-width: 140px;
   color: ${colors.textPrimary};
@@ -163,13 +162,14 @@ export const StockOrderLabel = styled.div`
 export const ListContainer = styled.div`
   border-top: 1px solid #eee;
   padding: ${dimensions.unitSpacing}px;
+  display: flex;
+  align-items: baseline;
 `;
-export const OrderBuyList = styled.table`
-  width: 20%;
-  float: left;
+export const OrderBookList = styledTS<{ background: string }>(styled.table)`
   margin-right: 10px;
   border-collapse: collapse;
   border: 1px solid #eee;
+  flex-basis:20%;
   th,
   td {
     border: 1px solid #eee;
@@ -183,7 +183,7 @@ export const OrderBuyList = styled.table`
     tr {
       &:first-child {
         height: 35px;
-        background: ${colors.colorCoreGreen};
+        background: ${props => props.background};
       }
     }
     th {
@@ -191,68 +191,6 @@ export const OrderBuyList = styled.table`
     }
   }
 `;
-export const OrderSellList = styled.table`
-  width: 20%;
-  float: left;
-  margin-right: 10px;
-  border-collapse: collapse;
-  border: 1px solid #eee;
-  th,
-  td {
-    border: 1px solid #eee;
-  }
-  text-align: center;
-  &:last-child {
-    margin-right: 0px;
-  }
-  thead {
-    text-align: center;
-
-    tr {
-      &:first-child {
-        height: 35px;
-        background: ${colors.colorCoreRed};
-      }
-    }
-    th {
-      text-align: center;
-    }
-  }
-`;
-export const OrderDoneList = styled.table`
-  float: left;
-  width: 20%;
-  margin-right: 10px;
-  border-collapse: collapse;
-  border: 1px solid #eee;
-  th,
-  td {
-    border: 1px solid #eee;
-  }
-  text-align: center;
-  &:last-child {
-    margin-right: 0px;
-  }
-  thead {
-    text-align: center;
-    tr {
-      &:first-child {
-        height: 35px;
-        background: ${colors.colorCoreGray};
-      }
-    }
-    th {
-      text-align: center;
-    }
-  }
-  tbody {
-    tr {
-      &:nth-child(even) {
-      }
-    }
-  }
-`;
-
 export const FilterContainer = styledTS<{
   width?: number;
   noPadding?: boolean;

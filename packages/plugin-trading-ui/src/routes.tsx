@@ -8,6 +8,7 @@ import NominalStockRoutes from './nominal-stock-list/routes';
 import NominalStatementRoutes from './nominal-statement-list/routes';
 import ContractNoteRoutes from './contract-list/routes';
 import HomeRoutes from './home/routes';
+import MigrationRoutes from './migration/routes';
 const routes = () => {
   return (
     <React.Fragment>
@@ -20,6 +21,7 @@ const routes = () => {
       <NominalStockRoutes />
       <NominalStatementRoutes />
       <ContractNoteRoutes />
+      <MigrationRoutes />
     </React.Fragment>
   );
 };

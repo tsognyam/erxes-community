@@ -11,6 +11,7 @@ import StockTransactionsMutations from './stock.transactions';
 import CustFeeMutations from './custFee';
 import TransactionMutations from './transaction';
 import AdminMutations from './admin';
+import MigrationMutations from './migration';
 export {
   WalletMutations,
   SystemMutations,
@@ -24,5 +25,6 @@ export {
   StockTransactionsMutations,
   CustFeeMutations,
   TransactionMutations,
-  AdminMutations
+  AdminMutations,
+  MigrationMutations
 };

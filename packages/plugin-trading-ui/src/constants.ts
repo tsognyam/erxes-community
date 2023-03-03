@@ -217,6 +217,34 @@ export const ORDER_BUY_SELL = [
   {
     price: 100,
     quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
+  },
+  {
+    price: 100,
+    quantity: 5
   }
 ];
 
