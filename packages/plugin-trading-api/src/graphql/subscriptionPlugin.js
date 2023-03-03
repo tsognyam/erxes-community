@@ -6,6 +6,7 @@ module.exports = {
   name: "trading",
   typeDefs: `
     stockMarketChanged: JSON
+    orderBookChanged: JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -18,6 +19,12 @@ module.exports = {
         subscribe: () =>
           graphqlPubsub.asyncIterator(
             "stockMarketChanged"
+          ),
+      },
+      orderBookChanged: {
+        subscribe: () =>
+          graphqlPubsub.asyncIterator(
+            "orderBookChanged"
           ),
       }
 
