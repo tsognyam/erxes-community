@@ -123,9 +123,7 @@ class StockService {
       stock.order_begindate = new Date(stock.order_begindate);
       stock.order_enddate = new Date(stock.order_enddate);
     }
-    graphqlPubsub.publish('stockMarketChanged', {
-      stockMarketChanged: stock
-    });
+
     return await this.stockRepository.create(stock);
   };
   calculateBond = async params => {

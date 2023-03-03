@@ -5,6 +5,8 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import permissions = require('./permissions');
+import controllers from './controllers';
+import * as bodyParser from 'body-parser';
 export let mainDb;
 export let debug;
 export let graphqlPubsub;
@@ -31,6 +33,10 @@ export default {
   },
   onServerInit: async options => {
     mainDb = options.db;
+    const app = options.app;
+
+    app.use('/mse', controllers);
+
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;
