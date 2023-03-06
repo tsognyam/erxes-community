@@ -20,7 +20,7 @@ type TradingStock @key(fields:"id") {
     buyvol:Int
     sellprice:Float
     sellvol:Int
-    totalamount:Int
+    totalamount:Float
     trades:Int
     volume:Int
     vwap:Float
