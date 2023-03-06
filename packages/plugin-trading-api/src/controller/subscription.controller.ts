@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { graphqlPubsub } from './configs';
+import { graphqlPubsub } from '../configs';
 const router = Router();
 
 router.post('/market', async (req, res) => {
@@ -43,7 +43,7 @@ router.post('/order-book', async (req, res) => {
   const { status, symbol, data } = req.body;
   console.log('req.orderBookChanged', req.body);
   graphqlPubsub.publish('orderBookChanged', {
-    stockMarketChanged: {
+    orderBookChanged: {
       status,
       symbol,
       data

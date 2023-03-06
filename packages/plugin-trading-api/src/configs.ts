@@ -5,7 +5,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import permissions = require('./permissions');
-import controllers from './controllers';
+import controllers from './router.middleware';
 import * as bodyParser from 'body-parser';
 export let mainDb;
 export let debug;
@@ -34,8 +34,13 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
     const app = options.app;
-
-    app.use('/mse', controllers);
+    app.use(
+      bodyParser.urlencoded({
+        limit: '50mb',
+        extended: true
+      })
+    );
+    app.use(controllers);
 
     initBroker(options.messageBrokerClient);
 
