@@ -41,7 +41,6 @@ router.post('/market', async (req, res) => {
 
 router.post('/order-book', async (req, res) => {
   const { status, symbol, data } = req.body;
-  console.log('req.orderBookChanged', req.body);
   graphqlPubsub.publish('orderBookChanged', {
     orderBookChanged: {
       status,
@@ -53,5 +52,4 @@ router.post('/order-book', async (req, res) => {
     data: 'Success'
   });
 });
-
 export default router;

@@ -1,5 +1,5 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
 export const RightMenuContainer = styled.div`
@@ -107,41 +107,42 @@ export const MenuFooter = styled.footer`
   padding: 10px 20px;
 `;
 
-export const StockChange = styledTS<{ isIncreased: boolean }>(styled.td)`
+export const StockChange = styledTS<{ isIncreased: boolean }>(styled.div)`
   color: ${props =>
     props.isIncreased ? colors.colorCoreGreen : colors.colorCoreRed} !important;
 `;
+const rotate = keyframes`
+0% {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
 
+100% {
+  -webkit-transform: translate3d(-100%, 0, 0);
+  transform: translate3d(-100%, 0, 0);
+}
+`;
 export const StockDataContainer = styled.div`
-  display: flex;
-  overflow-y: hidden;
-  overflow-x: auto;
-  border-bottom: 1px solid #eee;
+  width: 100%;
+  overflow: hidden;
+  background-color: rgba(#000, 0.9);
+  padding-left: 100%;
 `;
 export const StockData = styledTS<{ isIncreased?: boolean }>(styled.div)`
-  min-width: 140px;
-  color: ${colors.textPrimary};
-  border-right: 1px solid #eee;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 15px;
-
-  h5 {
-    margin: 0;
-  }
-
-  *{
-    width: 50%;
-  }
-
-  &:last-child {
-    border-right: none;
-  }
+display: inline-block;
+white-space: nowrap;
+padding-right: 100%;
+animation-iteration-count: infinite;
+animation-timing-function: linear;
+animation-name: ${rotate};
+animation-duration: 60s;
+padding-right: 100%;
+padding-top:25px;
 `;
 
 export const Filter = styled.div`
-  width: 500px;
+  width: 700px;
   display: flex;
   align-items: center;
   margin: 0 auto;
@@ -314,4 +315,23 @@ export const BoxContent = styled.div`
   h3 {
     margin-left: 25px;
   }
+`;
+export const Content = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+`;
+export const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+export const MiddleContent = styled.div`
+  align-self: center;
 `;

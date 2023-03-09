@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from 'coreui/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import dayjs from 'dayjs';

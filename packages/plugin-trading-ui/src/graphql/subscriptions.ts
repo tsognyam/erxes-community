@@ -3,7 +3,13 @@ const stockMarketChanged = `
     stockMarketChanged
   }
 `;
+const orderBookChanged = `
+  subscription {
+    orderBookChanged
+  }
+`;
 
 export default {
-  stockMarketChanged
+  stockMarketChanged,
+  orderBookChanged
 };

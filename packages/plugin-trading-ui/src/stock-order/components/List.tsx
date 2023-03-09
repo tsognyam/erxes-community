@@ -26,17 +26,25 @@ type Props = {
   prefixChange: (option: { value: string; label: string }) => void;
   isCancel: boolean;
   stockcode?: string;
+  sellOrderBook: any[];
+  buyOrderBook: any[];
+  executedOrderBook: any[];
 } & ICommonFormProps;
 class ListComp extends React.Component<Props & ICommonFormProps> {
   constructor(props) {
     super(props);
   }
   render() {
-    const createdDate = dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss');
     const extendedProps = {
       ...this.props
     };
-    const { queryParams, history } = this.props;
+    const {
+      queryParams,
+      history,
+      sellOrderBook,
+      buyOrderBook,
+      executedOrderBook
+    } = this.props;
     return (
       <>
         <ListContainer>
@@ -51,7 +59,7 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               </tr>
             </thead>
             <tbody>
-              {ORDER_BUY_SELL.map(item => (
+              {sellOrderBook.map(item => (
                 <tr>
                   <td>
                     {item.price.toLocaleString(undefined, {
@@ -59,7 +67,7 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                       maximumFractionDigits: 2
                     })}
                   </td>
-                  <td>{item.quantity}</td>
+                  <td>{item.volume}</td>
                 </tr>
               ))}
             </tbody>
@@ -75,7 +83,7 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               </tr>
             </thead>
             <tbody>
-              {ORDER_BUY_SELL.map(item => (
+              {buyOrderBook.map(item => (
                 <tr>
                   <td>
                     {item.price.toLocaleString(undefined, {
@@ -83,12 +91,12 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                       maximumFractionDigits: 2
                     })}
                   </td>
-                  <td>{item.quantity}</td>
+                  <td>{item.volume}</td>
                 </tr>
               ))}
             </tbody>
           </OrderBookList>
-          <OrderBookList background={colors.colorCoreBlack}>
+          <OrderBookList background={colors.colorCoreBlue}>
             <thead>
               <tr>
                 <th colSpan={3}>{__('Successful deals')}</th>
@@ -100,22 +108,18 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
               </tr>
             </thead>
             <tbody>
-              {ORDER_BUY_SELL.map((item, index) =>
-                index < 10 ? (
-                  <tr>
-                    <td>{createdDate}</td>
-                    <td>
-                      {item.price.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })}
-                    </td>
-                    <td>{item.quantity}</td>
-                  </tr>
-                ) : (
-                  ''
-                )
-              )}
+              {executedOrderBook.map((item, index) => (
+                <tr>
+                  <td>{dayjs(item.regdate).format('YYYY-MM-DD HH:mm:ss')}</td>
+                  <td>
+                    {item.price.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}
+                  </td>
+                  <td>{item.volume}</td>
+                </tr>
+              ))}
             </tbody>
           </OrderBookList>
           <FormBox>

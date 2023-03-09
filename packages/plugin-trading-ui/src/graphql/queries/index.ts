@@ -7,6 +7,7 @@ import WithdrawQueries from './withdraw';
 import UserQueries from './user';
 import ReportQueries from './report';
 import BankTransactionQueries from './bank.transaction';
+import MarketQueries from './market';
 export default {
   OrderQueries,
   CustFeeQueries,
@@ -16,5 +17,6 @@ export default {
   WithdrawQueries,
   UserQueries,
   ReportQueries,
-  BankTransactionQueries
+  BankTransactionQueries,
+  MarketQueries
 };

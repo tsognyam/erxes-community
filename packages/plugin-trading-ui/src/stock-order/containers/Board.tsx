@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { graphql, useSubscription } from 'react-apollo';
 import Board from '../components/Board';
-import { mutations, queries } from '../../graphql';
+import { mutations, queries, subscriptions } from '../../graphql';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -18,11 +18,14 @@ type Props = {
   closeModal: () => void;
   isAllSelected: boolean;
   currentUser: IUser;
+  stockcode: string;
 };
 
 type FinalProps = {
   tradingUserByPrefixQuery: any;
   tradingStockListQuery: any;
+  tradingOrderBookQuery: any;
+  tradingExecutedBookQuery: any;
 } & Props &
   IRouterProps;
 
@@ -49,9 +52,13 @@ class ListContainer extends React.Component<FinalProps> {
 
     routerUtils.setParams(this.props.history, { search });
   };
-
   render() {
-    const { tradingUserByPrefixQuery, tradingStockListQuery } = this.props;
+    const {
+      tradingUserByPrefixQuery,
+      tradingStockListQuery,
+      tradingOrderBookQuery,
+      tradingExecutedBookQuery
+    } = this.props;
     const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const extendedProps = {
@@ -60,8 +67,7 @@ class ListContainer extends React.Component<FinalProps> {
       stocks,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
-      isCancel: false,
-      stockcode: ''
+      isCancel: false
     };
 
     return (
@@ -76,14 +82,35 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
-      options: ({ queryParams }) => ({
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     }),
     graphql<Props>(gql(queries.StockQueries.stockList), {
       name: 'tradingStockListQuery',
-      options: ({ queryParams }) => ({
+      options: () => ({
+        variables: {
+          detail: true
+        },
         fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.MarketQueries.tradingOrderBook), {
+      name: 'tradingOrderBookQuery',
+      options: () => ({
+        variables: {
+          stockcode: 0
+        }
+      })
+    }),
+    graphql<Props>(gql(queries.MarketQueries.tradingExecutedBook), {
+      name: 'tradingExecutedBookQuery',
+      options: () => ({
+        variables: {
+          stockcode: 0,
+          beginDate: new Date(),
+          endDate: new Date()
+        }
       })
     })
   )(ListContainer)

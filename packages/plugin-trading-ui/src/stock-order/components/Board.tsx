@@ -28,11 +28,12 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import ListOrder from '../../order-list/containers/List';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../../graphql';
-import client from '@erxes/ui/src/apolloClient';
+import { queries, mutations, subscriptions } from '../../graphql';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { useQuery, useSubscription } from 'react-apollo';
+import client from '@erxes/ui/src/apolloClient';
 type Props = {
   queryParams: any;
   history: any;
@@ -45,6 +46,8 @@ type Props = {
   isCancel: boolean;
   stockcode: string;
   currentUser: IUser;
+  tradingOrderBookQuery: any;
+  tradingExecutedBookQuery: any;
 };
 
 type State = {
@@ -60,6 +63,7 @@ type State = {
 };
 
 class BoardComp extends React.Component<Props, State> {
+  private subscription;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -71,6 +75,28 @@ class BoardComp extends React.Component<Props, State> {
       userPrefix: '',
       stockname: ''
     };
+  }
+  componentWillReceiveProps(nextProps) {
+    const { tradingOrderBookQuery, tradingExecutedBookQuery } = this.props;
+    if (!this.subscription) {
+      if (this.subscription) {
+        this.subscription();
+      }
+      this.subscription = tradingOrderBookQuery.subscribeToMore({
+        document: gql(subscriptions.orderBookChanged),
+        updateQuery: () => {
+          const { tradingOrderBookQuery } = this.props;
+          if (this.state.stockcode && this.state.stockcode != '') {
+            tradingOrderBookQuery.refetch({
+              stockcode: Number(this.state.stockcode)
+            });
+            tradingExecutedBookQuery.refetch({
+              stockcode: Number(this.state.stockcode)
+            });
+          }
+        }
+      });
+    }
   }
   renderButton = ({ values, isSubmitted, callback }: IButtonMutateProps) => {
     const afterMutate = () => {
@@ -114,6 +140,10 @@ class BoardComp extends React.Component<Props, State> {
     const stockList = this.props.stocks;
     const stock = stockList.find(x => x.stockcode == value);
     if (stock) {
+      const { tradingOrderBookQuery } = this.props;
+      tradingOrderBookQuery.refetch({
+        stockcode: stock.stockcode
+      });
       this.setState({ closeprice: stock.closeprice });
       this.setState({ closedate: new Date(stock.order_enddate) });
     }
@@ -131,11 +161,13 @@ class BoardComp extends React.Component<Props, State> {
       onSearch,
       isAllSelected,
       stocks,
-      prefix
+      prefix,
+      tradingExecutedBookQuery,
+      tradingOrderBookQuery
     } = this.props;
     let stockValues: any[] = [];
     let stockList: any[] = [];
-    stocks.map(x => {
+    stocks.map((x, index) => {
       stockValues.push({
         value: x.stockcode,
         label: x.symbol + ' - ' + x.stockname
@@ -144,21 +176,35 @@ class BoardComp extends React.Component<Props, State> {
       let diff = x.closeprice - x.openprice;
       if (x.openprice != 0)
         changePercent = Math.round((diff / x.openprice) * 100);
-      if (x.symbol != 'NULL')
-        stockList.push({
-          ...x,
-          changePercent
-        });
+      if (x.symbol != 'NULL') {
+        if (index < 50)
+          stockList.push({
+            ...x,
+            changePercent
+          });
+      }
     });
+    const buyOrderBook =
+      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 0)?.data ||
+      [];
+    const sellOrderBook =
+      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 1)?.data ||
+      [];
+    const executedOrderBook =
+      tradingExecutedBookQuery.tradingExecutedBook || [];
     const extendedProps = {
       ...this.props,
       renderButton: this.renderButton,
       stockChange: this.stockChange,
       stockcode: this.state.stockcode,
       prefixChange: this.prefixChange,
-      object: null
+      object: null,
+      sellOrderBook: sellOrderBook,
+      buyOrderBook: buyOrderBook,
+      executedOrderBook: executedOrderBook
     };
-    queryParams.userId = this.state.userId;
+    queryParams.userId =
+      this.state.userId == '' ? undefined : this.state.userId;
     queryParams.stockcode = this.state.stockcode;
     const orderListProps = {
       queryParams: queryParams,
@@ -169,20 +215,42 @@ class BoardComp extends React.Component<Props, State> {
     return (
       <>
         <StockDataContainer>
-          {stockList.map(stock => (
-            <StockData>
-              <h5>{stock.symbol}</h5>
-              <StockChange isIncreased={stock.changePercent > 0 ? true : false}>
-                {stock.changePercent > 0 ? '↑' : '↓'}&nbsp;
-                {stock.changePercent}%
-              </StockChange>
-              <h5>{stock.cnt}</h5>
-              <StockChange isIncreased={stock.changePercent > 0 ? true : false}>
-                {stock.changePercent > 0 ? '↑' : '↓'}&nbsp;
-                {stock.closeprice}
-              </StockChange>
-            </StockData>
-          ))}
+          <StockData>
+            {stockList.map(stock => (
+              <div style={{ display: 'inline-table', width: '150px' }}>
+                <div style={{ width: '50px;' }}>{stock.symbol}</div>
+                <div style={{ float: 'left', padding: '0px 15px 7px 0px' }}>
+                  <StockChange
+                    isIncreased={stock.changePercent > 0 ? true : false}
+                  >
+                    {stock.closeprice}
+                  </StockChange>
+                </div>
+                <div
+                  style={{
+                    color: '#23CF4B',
+                    float: 'left',
+                    width: '40px',
+                    padding: '0px 0px 7px 0px'
+                  }}
+                >
+                  <StockChange
+                    isIncreased={stock.changePercent > 0 ? true : false}
+                  >
+                    {stock.changePercent > 0 ? '↑' : '↓'}&nbsp;
+                    {stock.changePercent}%
+                  </StockChange>
+                </div>
+                <div
+                  style={{
+                    borderRight: '1px solid #ECE7E6',
+                    height: '50px',
+                    margin: '-25px 28px 0px 0px'
+                  }}
+                ></div>
+              </div>
+            ))}
+          </StockData>
         </StockDataContainer>
         <Filter>
           <Select

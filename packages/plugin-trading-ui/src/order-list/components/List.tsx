@@ -79,7 +79,7 @@ class List extends React.Component<IProps> {
       toggleAll(orders, 'orders');
     };
     return (
-      <Table>
+      <Table bordered>
         <thead>
           <tr>
             <th>
