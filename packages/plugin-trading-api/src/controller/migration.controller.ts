@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', upload.single('file'), async (req, res, next) => {
   migrationService
     .migration(req)
     .then(result => {
@@ -28,7 +28,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     })
     .catch(error => {
       console.log(error);
-      throw new Error('Error');
+      res.status(400).json(error.toString());
     });
 });
 

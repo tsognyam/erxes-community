@@ -334,4 +334,5 @@ export const LeftContent = styled.div`
 `;
 export const MiddleContent = styled.div`
   align-self: center;
+  width: 250px;
 `;
