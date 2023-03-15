@@ -5,14 +5,17 @@ import { TransactionConst } from '../../constants/wallet';
 import { UserConst } from '../../constants/user';
 import TransactionService from './transaction.service';
 import { Prisma } from '@prisma/client';
+import NotificationService from '../notification.service';
 class BankTransactionService {
   private bankTransactionRepository: BankTransactionRepository;
   private bankTransactionValidator: BankTransactionValidator;
   private transactionService: TransactionService;
+  private notificationService: NotificationService;
   constructor() {
     this.bankTransactionRepository = new BankTransactionRepository();
     this.bankTransactionValidator = new BankTransactionValidator();
     this.transactionService = new TransactionService();
+    this.notificationService = new NotificationService();
   }
   chargeV2 = async (params: any, subdomain: string) => {
     // if (process.env.NODE_ENV !== 'development') {
@@ -74,6 +77,21 @@ class BankTransactionService {
       message: 'test success',
       orderId: order.id
     });
+    let sendParams = {
+      subdomain: subdomain,
+      subject: 'Орлого',
+      content: 'Deposit',
+      action: 'deposit',
+      data:
+        'Таны данс ' +
+        data.amount +
+        ' ' +
+        (wallet.currencyCode == 'MNT' ? 'MNT' : 'USD') +
+        '  цэнэглэгдлээ.',
+      userId: wallet.userId,
+      createdUserId: '1'
+    };
+    this.notificationService.send(sendParams);
     return bankTransaction;
   };
   chargeRequest = async (params: any, subdomain: string) => {

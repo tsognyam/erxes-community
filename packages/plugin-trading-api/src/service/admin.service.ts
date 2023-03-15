@@ -11,6 +11,9 @@ import WalletService from "./wallet/wallet.service";
 import { CustomException, ErrorCode } from "../exception/error-code";
 import TransactionService from "./wallet/transaction.service";
 import StockTransactionService from "./wallet/stock.transaction.service";
+import UserService from "./user/user.service";
+import UserMCSDAccountRepository from "../repository/user/user.mcsd.repository";
+import { fetchSegment } from "../messageBroker";
 
 export default class AdminService {
     #userRepository: UserRepository;
@@ -21,7 +24,9 @@ export default class AdminService {
     #walletService: WalletService;
     #transactionService: TransactionService;
     #stockTransactionService: StockTransactionService;
-    constructor(){
+    #userService: UserService;
+    #userMcsdRepository: UserMCSDAccountRepository;
+    constructor() {
         this.#userRepository = new UserRepository();
         this.#contractNoteRepository = new ContractNoteRepository();
         this.#stockRepository = new StockRepository();
@@ -30,15 +35,17 @@ export default class AdminService {
         this.#walletService = new WalletService();
         this.#transactionService = new TransactionService();
         this.#stockTransactionService = new StockTransactionService();
+        this.#userService = new UserService();
+        this.#userMcsdRepository = new UserMCSDAccountRepository();
     }
-    getContractNote = async (params) => {
+    getContractNote = async (params = null) => {
         let contractNote = await this.#contractNoteRepository.findAll(params);
         return contractNote;
     }
     contractNote = async (params) => {
 
         let file = fs.readFileSync('./data/uploads/' + params.file.filename, "utf8");
-        let arr:any = file.split("\n");
+        let arr: any = file.split("\n");
         for (let i = 0; i < arr.length; i++) {
             arr[i] = arr[i].split(",");
         }
@@ -52,17 +59,26 @@ export default class AdminService {
         if (downloadAt == "Invalid date" && settlementAt == "Invalid date") {
             return "Please, fix date types.";
         }
-        let custTotal:any = row0[3];
+        let custTotal: any = row0[3];
         let obligationTotal = row0[4];
-        let orders:any = [];
+        let orders: any = [];
         let nextRow = 1;
         let error = "";
         for (let i = 0; i < custTotal; i++) {
             let rowi = arr[nextRow];
             let registerNumber = rowi[4];
             let rowCount = arr[nextRow + 1][1];
-
-            let user = await this.#userRepository.findByRegisterNumber(registerNumber);
+            let segmentData = {
+                contentType:"contacts:customer",
+                conditions: [{ "type": "property", "propertyType": "contacts:customer", "propertyName": "customFieldsData.4QsZuYM2FFBTPWQs2", "propertyOperator": "e", "propertyValue": registerNumber, "config": {} }]
+            }
+            console.log('registerNumber',registerNumber)
+            let userErxes = await fetchSegment('localhost', '', segmentData)
+            console.log('userErxes', userErxes)
+            // let user = await this.#userRepository.findByRegisterNumber(registerNumber);
+            let user = await this.#userMcsdRepository.findUnique({
+                userId: userErxes._id
+            })
             if (!user) {
                 error += "\n--! Харилцагчийн мэдээлэл олдсонгүй. РД:" + registerNumber
                 continue;
@@ -109,7 +125,7 @@ export default class AdminService {
                 stock = stock[0];
 
                 let findOrders = await this.#orderRepository.findAll({
-                    userId: user.id,
+                    userId: user.userId,
                     stockcode: stock.stockcode,
                     txntype: orderType,
                     donecnt: parseInt(jSize),
@@ -144,7 +160,7 @@ export default class AdminService {
                     jPrice = parseFloat(jPrice) * multiplier;
                 }
                 let order;
-                let data:any = {
+                let data: any = {
                     ordertype: OrderType.LIMIT,
                     txntype: orderType,
                     condid: OrderCondition.Day,
@@ -155,14 +171,14 @@ export default class AdminService {
                     stockcode: stock.stockcode,
                     price: parseFloat(jPrice),
                     cnt: parseInt(jSize),
-                    userId: user.id,
+                    userId: user.userId,
                     mseTradeId: jTradeId
                 }
                 data.fee = await this.#custFeeService.getFee(data.userId, data.stockcode);
                 try {
                     //live = false so cannot send order message to mse
                     // order = await this.#orderService.create(params, false);
-                    let params:any = {
+                    let params: any = {
                         userId: data.userId,
                         currencyCode: stock.currencyCode
                     };
@@ -174,7 +190,7 @@ export default class AdminService {
                     data.walletId = wallets[0].id;
 
                     let camount = data.price * data.cnt;
-                    let feeamount:any = camount * (data.fee / 100);
+                    let feeamount: any = camount * (data.fee / 100);
 
                     if (data.txntype == OrderTxnType.Buy) {
                         params = {

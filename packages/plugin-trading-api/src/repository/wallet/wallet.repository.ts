@@ -126,7 +126,7 @@ export default class WalletRepository extends BaseRepository {
     return wallet;
   };
 
-  findUserByWalletId = async (walletId: number, subdomain: string) => {
+  findUserByWalletId = async (walletId: number) => {
     let wallet = await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,

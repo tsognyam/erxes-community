@@ -15,7 +15,7 @@ type TradingContractNote @key(fields:"id") {
     gatewayCode:String!
 }`;
 export const queries = `
-tradingGetContractNote:[JSON]
+tradingGetContractNote:JSON
 `;
 const createParams = `
 file: Upload!

@@ -20,6 +20,11 @@ import StockTransactionService from './wallet/stock.transaction.service';
 import TransactionService from './wallet/transaction.service';
 import WalletService from './wallet/wallet.service';
 import { ErrorCode, CustomException } from '../exception/error-code';
+import { sendMITMessage } from '../messageBroker';
+import StockValidator from './validator/stock.validator';
+import NotificationService from './notification.service';
+import WalletRepository from '../repository/wallet/wallet.repository';
+import { graphqlPubsub } from '../configs';
 class OrderService {
   private orderValidator: OrderValidator;
   private orderRepository: OrderRepository;
@@ -32,6 +37,9 @@ class OrderService {
   private stockTranValidator: StockTransactionValidator;
   private userMCSDAccountRepository: UserMCSDAccountRepository;
   private stockWalletValidator: StockWalletValidator;
+  private stockValidator: StockValidator;
+  private notificationService: NotificationService;
+  private walletRepository: WalletRepository;
   constructor() {
     this.orderValidator = new OrderValidator();
     this.orderRepository = new OrderRepository();
@@ -44,6 +52,9 @@ class OrderService {
     this.stockTranValidator = new StockTransactionValidator();
     this.userMCSDAccountRepository = new UserMCSDAccountRepository();
     this.stockWalletValidator = new StockWalletValidator();
+    this.stockValidator = new StockValidator();
+    this.notificationService = new NotificationService();
+    this.walletRepository = new WalletRepository();
   }
   get = async data => {
     var order = await this.orderValidator.validateGet(data);
@@ -134,6 +145,12 @@ class OrderService {
           quantity: order.cnt.toString(),
           expiredate: Helper.dateToString(order.enddate)
         };
+        if (order.cnt < 5)
+          await sendMITMessage({
+            subdomain: 'localhost',
+            action: 'send',
+            data: edata
+          });
         // if (mseSocket.getSocket().isConnected()) {
         //     let socket = mseSocket.getSocket();
         //     socket.request(edata);
@@ -551,6 +568,430 @@ class OrderService {
     };
     let order = await this.orderRepository.findAll(data, select);
     return order;
+  };
+
+  receive = async received => {
+    let order = await this.orderRepository.findOne(
+      parseInt(received.data.orderid)
+    );
+    if (received.type == '8') {
+      if (received.data.status == 0) {
+        order.status = OrderStatus.STATUS_RECEIVE;
+        order.ostatus = OrderStatus.STATUS_NEW;
+        order.descr = 'Хүлээн авсан';
+        order.descr2 = 'Received';
+        order.mseExecutionId = received.data.mseexecutionid;
+        order.mseOrderId = received.data.mseorderid;
+        order.mseTradeId = received.data.msetradeid;
+        let uorder = await this.orderRepository.update(order);
+      }
+      if (received.data.status == 1) {
+        //edit
+
+        let morder = order;
+        morder.status = OrderStatus.STATUS_RECEIVE;
+        morder.ostatus = OrderStatus.STATUS_NEW;
+        morder.descr = 'Хүлээн авсан';
+        morder.descr2 = 'Received';
+        morder.cnt = parseInt(received.data.leavesQty);
+        await this.orderRepository.update(morder);
+
+        let calcPrice = parseFloat(received.data.doneprice);
+        let stockdata = await this.stockValidator.validateGetStockCode({
+          stockcode: order.stockcode
+        });
+        if (morder.txntype == OrderTxnType.Buy) {
+          let camount;
+          if (stockdata.stocktypeId == StockTypeConst.COMPANY_BOND) {
+            let bondPrice = await this.stockService.calculateBond({
+              stockcode: order.stockcode,
+              price: parseFloat(received.data.doneprice),
+              cnt: parseInt(received.data.donecnt),
+              orderEndDate: new Date(),
+              userId: order.userId
+            });
+            calcPrice = bondPrice.dirtyPrice;
+            camount = bondPrice.netAmount;
+          } else {
+            camount = calcPrice * parseInt(received.data.donecnt);
+          }
+          let feeamount = camount * (order.fee / 100);
+          let tranparam = {
+            orderId: morder.tranOrderId,
+            amount: parseFloat(camount.toFixed(4)),
+            feeAmount: parseFloat(feeamount.toFixed(4))
+          };
+          let newtran = await this.transactionService.participateTransaction(
+            tranparam
+          );
+          //update transaction order
+          order.tranOrderId = newtran.id;
+          let nominalWallet = await this.walletService.getNominalWallet({
+            currencyCode: stockdata.currencyCode
+          });
+          let stockOrder = await this.stockTransactionService.w2w({
+            senderWalletId: nominalWallet.id,
+            receiverWalletId: order.walletId,
+            stockCount: parseInt(received.data.donecnt),
+            stockCode: order.stockcode
+          });
+          order.stockOrderId = stockOrder.id;
+        } else {
+          let tranparam = {
+            orderId: morder.stockOrderId,
+            stockCount: parseInt(received.data.donecnt)
+          };
+          let newtran = await this.stockTransactionService.participateTransaction(
+            tranparam
+          );
+
+          //update transaction order
+          order.stockOrderId = newtran.id;
+        }
+        order.status = OrderStatus.STATUS_PARTIALLY_FILLED;
+        order.descr = 'Хэсэгчилэн биелсэн';
+        order.descr2 = 'Partially filled';
+        order.donedate = new Date();
+        order.cnt = parseInt(received.data.donecnt);
+        order.doneprice = calcPrice;
+        order.originalDonePrice = parseFloat(received.data.doneprice);
+        order.donecnt = parseInt(received.data.donecnt);
+
+        order.mseExecutionId = received.data.mseexecutionid;
+        order.mseOrderId = received.data.mseorderid;
+        order.mseTradeId = received.data.msetradeid;
+        order.regdate = new Date();
+        order.txnid = undefined;
+
+        let iorder = await this.orderRepository.create(order);
+        await this.stockTransactionService.confirmTransaction({
+          orderId: order.stockOrderId,
+          confirm: TransactionConst.STATUS_SUCCESS
+        });
+
+        let stockNotification = await this.stockValidator.checkStock(
+          order.stockcode
+        );
+        let userWallet = await this.walletRepository.findUserByWalletId(
+          order.walletId
+        );
+        // let params = {
+        //   key: "orderFilled",
+        //   uuid: userWallet.user.uuid,
+        //   subject: "Захиалга",
+        //   type: "success",
+        //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.donecnt + " ширхэг үнэт цаас амжилттай биелэгдлээ.",
+        //   data: order
+        // }
+        // this.notificationService.send(params);
+      }
+      if (received.data.status == 2) {
+        order.status = OrderStatus.STATUS_CALCULATED;
+        order.mseExecutionId = received.data.mseexecutionid;
+        order.mseOrderId = received.data.mseorderid;
+        order.mseTradeId = received.data.msetradeid;
+        await this.orderRepository.update(order);
+
+        let tranParams = {
+          orderId: parseInt(order.txnid),
+          donecnt: parseInt(received.data.donecnt),
+          doneprice: parseFloat(received.data.doneprice),
+          donedate: new Date()
+        };
+        order = await this.transactionService.reCreateTransaction(tranParams);
+        //push notification
+        let stockNotification = await this.stockValidator.checkStock(
+          order.stockcode
+        );
+        let userWallet = await this.walletRepository.findUserByWalletId(
+          order.walletId
+        );
+        // let params = {
+        //   key: "orderFilled",
+        //   uuid: userWallet.user.uuid,
+        //   subject: "Захиалга",
+        //   type: "success",
+        //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.donecnt + " ширхэг үнэт цаас амжилттай биелэгдлээ.",
+        //   data: order
+        // }
+        // this.notificationService.send(params);
+      }
+      if (received.data.status == 4) {
+        order.descr = 'Цуцлагдсан';
+        order.descr2 = 'Cancelled';
+        order.status = OrderStatus.STATUS_CANCEL;
+        order.updatedate = new Date();
+        order.updateUserId = order.oupdateUserId;
+        let uorder = await this.orderRepository.update(order);
+
+        if (order.txntype == OrderTxnType.Buy) {
+          let params = {
+            orderId: order.tranOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.transactionService.confirmTransaction(
+            params
+          );
+        } else {
+          let params = {
+            orderId: order.stockOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.stockTransactionService.confirmTransaction(
+            params
+          );
+        }
+        let stockNotification = await this.stockValidator.checkStock(
+          order.stockcode
+        );
+        let userWallet = await this.walletRepository.findUserByWalletId(
+          order.walletId
+        );
+        // let params = {
+        //   key: "orderCancelled",
+        //   uuid: userWallet.user.uuid,
+        //   subject: "Захиалга",
+        //   type: "info",
+        //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.cnt + " ширхэг үнэт цаас цуцлагдлаа.",
+        //   data: order
+        // }
+        // this.notificationService.send(params);
+      }
+      if (received.data.status == 8 || received.data.status == 9) {
+        order.descr = 'Түтгэлзсэн - ' + received.data.description;
+        order.descr2 = 'Rejected - ' + received.data.description;
+        order.status = OrderStatus.STATUS_REJECTED;
+        order.updatedate = new Date();
+        order.updateUserId = order.oupdateUserId;
+        let uorder = await this.orderRepository.update(order);
+
+        if (order.txntype == OrderTxnType.Buy) {
+          let params = {
+            orderId: order.tranOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.transactionService.confirmTransaction(
+            params
+          );
+        } else {
+          let params = {
+            orderId: order.stockOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.stockTransactionService.confirmTransaction(
+            params
+          );
+        }
+        let stockNotification = await this.stockValidator.checkStock(
+          order.stockcode
+        );
+        let userWallet = await this.walletRepository.findUserByWalletId(
+          order.walletId
+        );
+        // let params = {
+        //   key: "orderRejected",
+        //   uuid: userWallet.user.uuid,
+        //   subject: "Захиалга",
+        //   type: "warning",
+        //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.cnt + " ширхэг үнэт цаас цуцлагдлаа.",
+        //   data: order
+        // }
+        // this.notificationService.send(params);
+      }
+      if (received.data.status == 'C') {
+        order.descr = 'Хүчинтэй хугацаа дууссан';
+        order.descr2 = 'Expired';
+        order.status = OrderStatus.STATUS_EXPIRED;
+        order.updatedate = new Date();
+        order.updateUserId = order.oupdateUserId;
+        let uorder = await this.orderRepository.update(order);
+
+        if (order.txntype == OrderTxnType.Buy) {
+          let params = {
+            orderId: order.tranOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.transactionService.confirmTransaction(
+            params
+          );
+        } else {
+          let params = {
+            orderId: order.stockOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.stockTransactionService.confirmTransaction(
+            params
+          );
+        }
+        let stockNotification = await this.stockValidator.checkStock(
+          order.stockcode
+        );
+        let userWallet = await this.walletRepository.findUserByWalletId(
+          order.walletId
+        );
+        // let params = {
+        //   key: "orderExpired",
+        //   uuid: userWallet.user.uuid,
+        //   subject: "Захиалга",
+        //   type: "warning",
+        //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.cnt + " ширхэг үнэт цаасны хүчинтэй хугацаа дуусан цуцлагдлаа.",
+        //   data: order
+        // }
+        // this.notificationService.send(params);
+      }
+    }
+
+    if (received.type == '9') {
+      //update order
+      if (received.data.status == 8 || received.data.status == 9) {
+        order.descr = 'Түтгэлзсэн - ' + received.data.description;
+        order.descr2 = 'Rejected - ' + received.data.description;
+        order.status = OrderStatus.STATUS_REJECTED;
+        order.updatedate = new Date();
+        order.updateUserId = order.oupdateUserId;
+        let uorder = await this.orderRepository.update(order);
+
+        if (order.txntype == OrderTxnType.Buy) {
+          let params = {
+            orderId: order.tranOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.transactionService.confirmTransaction(
+            params
+          );
+        } else {
+          let params = {
+            orderId: order.stockOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.stockTransactionService.confirmTransaction(
+            params
+          );
+        }
+      }
+      if (received.data.status == 'C') {
+        order.descr = 'Хүчинтэй хугацаа дууссан';
+        order.descr2 = 'Expired';
+        order.status = OrderStatus.STATUS_EXPIRED;
+        order.updatedate = new Date();
+        order.updateUserId = order.oupdateUserId;
+        let uorder = await this.orderRepository.update(order);
+
+        if (order.txntype == OrderTxnType.Buy) {
+          let params = {
+            orderId: order.tranOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.transactionService.confirmTransaction(
+            params
+          );
+        } else {
+          let params = {
+            orderId: order.stockOrderId,
+            confirm: 0
+          };
+          const canceltran = await this.stockTransactionService.confirmTransaction(
+            params
+          );
+        }
+      }
+      let stockNotification = await this.stockValidator.checkStock(
+        order.stockcode
+      );
+      let userWallet = await this.walletRepository.findUserByWalletId(
+        order.walletId
+      );
+      // let params = {
+      //   key: "orderRejected",
+      //   uuid: userWallet.user.uuid,
+      //   type: "warning",
+      //   subject: "Захиалга",
+      //   content: "Таны захиалга өгсөн " + stockNotification.symbol + ", " + order.cnt + " ширхэг үнэт цаас цуцлагдлаа.",
+      //   data: order
+      // }
+      // this.notificationService.send(params);
+    }
+    graphqlPubsub.publish('orderReceived', {
+      orderReceived: order
+    });
+
+    // let userId = order.userId;
+    // const ws = this._webSocket.getClients().get(userId);
+    // if (ws)
+    //   ws.emit('data', JSON.stringify(order));
+  };
+  collect = async () => {
+    //new order
+    let order = await this.collectNew(
+      OrderStatus.STATUS_NEW,
+      OrderStatus.STATUS_NEW
+    );
+
+    for (let i = 0; i < order.values.length; i++) {
+      let orderRow = order.values[i];
+      let edata = {
+        otype: '1',
+        fullPrefix: orderRow.user.UserMCSDAccount[0].fullPrefix,
+        orderid: orderRow.txnid.toString(),
+        symbol: orderRow.stock.externalid,
+        type: orderRow.ordertype.toString(),
+        side: orderRow.txntype.toString(),
+        tif: orderRow.condid.toString(),
+        price: orderRow.price.toString(),
+        quantity: orderRow.cnt.toString(),
+        expiredate: Helper.dateToString(orderRow.enddate)
+      };
+      await sendMITMessage({
+        subdomain: 'localhost',
+        action: 'send',
+        data: edata
+      });
+    }
+    //update order
+    let uorder = await this.collectNew(
+      OrderStatus.STATUS_RECEIVE,
+      OrderStatus.STATUS_UPDATE
+    );
+    uorder.values.forEach(async order => {
+      let edata = {
+        otype: '2',
+        fullPrefix: order.user.UserMCSDAccount[0].fullPrefix,
+        orderid: order.txnid.toString(),
+        symbol: order.stock.externalid,
+        type: order.ordertype.toString(),
+        side: order.txntype.toString(),
+        tif: order.condid.toString(),
+        price: order.price.toString(),
+        quantity: order.cnt.toString(),
+        expiredate: Helper.dateToString(order.enddate),
+        ordersubid: order.mseOrderId.toString()
+      };
+      await sendMITMessage({
+        subdomain: 'localhost',
+        action: 'send',
+        data: edata
+      });
+    });
+    //cancel order
+    let corder = await this.collectNew(
+      OrderStatus.STATUS_RECEIVE,
+      OrderStatus.STATUS_CANCEL
+    );
+    corder.values.forEach(async order => {
+      let edata = {
+        otype: '3',
+        fullPrefix: order.user.UserMCSDAccount[0].fullPrefix,
+        orderid: order.txnid.toString(),
+        side: order.txntype.toString(),
+        symbol: order.stock.externalid,
+        ordersubid: order.mseOrderId.toString()
+      };
+      await sendMITMessage({
+        subdomain: 'localhost',
+        action: 'send',
+        data: edata
+      });
+    });
   };
 }
 export default OrderService;

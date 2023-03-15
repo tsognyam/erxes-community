@@ -106,6 +106,7 @@ model Order {
   filename          String?
   mseExecutionId    String?
   mseOrderId        String?
+  mseTradeId        String?
   tranOrderId       Int?
   stockOrderId      Int?
   andIpoOrderId     String?

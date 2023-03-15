@@ -136,9 +136,19 @@ export default class UserService {
       },
       isRPC: true
     })
-    // console.log('user',user)
+    console.log('user',user)
     return user;
   };
+
+  getUserByCustom = async (subdomain, params) => {
+    let user = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: params,
+      isRPC: true
+    })
+    return user;
+  }
 
 
   cooperateGW = async (params) => {
@@ -746,7 +756,7 @@ export default class UserService {
         content: "Таны үнэт цаасны данс нээгдсэн байна.",
         data: user[0]
       }
-      this._notificationService.send(params);
+      // this._notificationService.send(params);
     }
     return BaseConst.MSG_SUCCESS;
   };
