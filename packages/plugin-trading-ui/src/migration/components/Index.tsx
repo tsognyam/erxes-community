@@ -12,10 +12,14 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import migration from '../../graphql/mutations/migration';
 import { Content, LeftContent, MiddleContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import _ from 'lodash';
 type Props = {
   history?: any;
   queryParams: any;
   onSave: (type: string, file: any) => void;
+  isLoading: boolean;
+  file?: any;
 };
 type FinalProps = {} & Props & IRouterProps;
 type State = {
@@ -23,12 +27,22 @@ type State = {
   type: string;
 };
 class Index extends React.Component<FinalProps, State> {
+  private fileInputRef: any;
   constructor(props) {
     super(props);
     this.state = {
       type: 'walletBalance'
     };
+    this.fileInputRef = React.createRef();
   }
+  componentDidUpdate = (prevProps: Props) => {
+    if (prevProps.file != this.props.file) {
+      this.fileInputRef.current.value = null;
+      this.setState({
+        file: null
+      });
+    }
+  };
   onChangeFile = ev => {
     const file = ev.target.files[0];
     this.setState({
@@ -47,12 +61,13 @@ class Index extends React.Component<FinalProps, State> {
     } else onSave(type, file);
   };
   renderImportButton = () => {
+    const { isLoading } = this.props;
+    if (isLoading) return <Spinner />;
     return (
       <StepButton next={true} onClick={this.onSubmit}>
         Import
       </StepButton>
     );
-    return <></>;
   };
   render() {
     const { queryParams, history } = this.props;
@@ -80,25 +95,32 @@ class Index extends React.Component<FinalProps, State> {
             <Step title="Type">
               <FlexPad type="stepper" direction="column">
                 <MiddleContent>
-                  <FormControl
-                    name="migrationType"
-                    componentClass="select"
-                    options={migration_type}
-                    value={this.state.type}
-                    onChange={this.typeChange}
-                    required={true}
-                  />
+                  <FormGroup>
+                    <ControlLabel required={true}>Migration type</ControlLabel>
+                    <FormControl
+                      name="migrationType"
+                      componentClass="select"
+                      options={migration_type}
+                      value={this.state.type}
+                      onChange={this.typeChange}
+                      required={true}
+                    />
+                  </FormGroup>
                 </MiddleContent>
               </FlexPad>
             </Step>
             <Step title="Upload" additionalButton={this.renderImportButton()}>
               <FlexPad type="stepper" direction="column">
                 <MiddleContent>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={this.onChangeFile}
-                  />
+                  <FormGroup>
+                    <ControlLabel required={true}>Choose csv file</ControlLabel>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={this.onChangeFile}
+                      ref={this.fileInputRef}
+                    />
+                  </FormGroup>
                   {/* <Uploader
                     defaultFileList={[]}
                     text={`Choose a file to upload your csv file`}

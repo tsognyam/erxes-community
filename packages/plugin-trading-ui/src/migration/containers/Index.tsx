@@ -7,25 +7,30 @@ import * as compose from 'lodash.flowright';
 import { mutations, queries } from '../../graphql';
 import Index from '../components/Index';
 import { IAttachment } from '@erxes/ui/src/types';
-
 type Props = {
   queryParams: any;
   history: any;
 };
-type DataMigrateMutationResponse = {
-  tradingDataMigrateMutation: (params: {
-    variables: { type: string; attachment?: IAttachment };
-  }) => Promise<any>;
+type State = {
+  isLoading: boolean;
+  file?: any;
 };
-type FinalProps = {} & Props & IRouterProps & DataMigrateMutationResponse;
-class IndexContainer extends React.Component<FinalProps> {
+type FinalProps = {} & Props & IRouterProps;
+class IndexContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: false
+    };
+  }
   onSave = (type: string, file?: any) => {
-    console.log('attach=', file);
-    console.log('type=', type);
     const { REACT_APP_API_URL } = getEnv();
     const url = `${REACT_APP_API_URL}/pl:trading/migration`;
     confirm(`This action will be change database data.Are you sure?`)
       .then(() => {
+        this.setState({
+          isLoading: true
+        });
         const formData = new FormData();
         formData.append('file', file);
         formData.append('type', type);
@@ -39,10 +44,23 @@ class IndexContainer extends React.Component<FinalProps> {
                 console.log(json);
               });
               Alert.success('Амжилтай импорт хийлээ');
-            } else Alert.error('Error');
+              this.setState({
+                file: file
+              });
+            } else {
+              response.json().then(json => {
+                Alert.error(json);
+              });
+            }
+            this.setState({
+              isLoading: false
+            });
           })
           .catch(error => {
             Alert.error(error.message);
+            this.setState({
+              isLoading: false
+            });
           });
       })
       .catch(e => {
@@ -50,21 +68,14 @@ class IndexContainer extends React.Component<FinalProps> {
       });
   };
   render() {
+    const { isLoading, file } = this.state;
     const extendedProps = {
       ...this.props,
-      onSave: this.onSave
+      onSave: this.onSave,
+      isLoading: isLoading,
+      file: file
     };
     return <Index {...extendedProps} />;
   }
 }
-export default withProps<Props>(
-  compose(
-    graphql<
-      Props,
-      DataMigrateMutationResponse,
-      { type: string; attachment?: IAttachment }
-    >(gql(mutations.MigrationMutations.dataMigrate), {
-      name: 'tradingDataMigrateMutation'
-    })
-  )(IndexContainer)
-);
+export default withProps<Props>(IndexContainer);

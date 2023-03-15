@@ -139,7 +139,6 @@ class ListContainer extends React.Component<FinalProps> {
 
     routerUtils.removeParams(this.props.history, ...remainedParams);
   };
-
   render() {
     const {
       tradingOrdersQuery,
