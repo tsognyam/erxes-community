@@ -9,6 +9,8 @@ import StockRepository from '../../repository/stock.repository';
 import BaseValidator from './base.validator';
 import { getUser } from '../../models/utils';
 import { ErrorCode, CustomException } from '../../exception/error-code';
+import { Prisma } from '@prisma/client';
+import { copySync } from 'fs-extra';
 class OrderValidator extends BaseValidator {
   private stockRepository: StockRepository;
   private orderRepository: OrderRepository;
@@ -152,7 +154,73 @@ class OrderValidator extends BaseValidator {
     let order = await this.orderRepository.findAll(data, select, options);
     return order;
   };
-
+  validateGetSummary = async params => {
+    let { data } = this.validate(
+      {
+        ordertype: this._joi.array().items(this._joi.number()),
+        txntype: this._joi.array().items(this._joi.number()),
+        stockcode: this._joi.array().items(this._joi.number()),
+        status: this._joi.array().items(this._joi.number()),
+        prefix: this._joi.array().items(this._joi.string()),
+        userId: this._joi.number(),
+        startDate: this._joi.date(),
+        endDate: this._joi.date()
+      },
+      params
+    );
+    console.log('orderSummaryParams', data);
+    let order = await this.orderRepository._prisma.$queryRaw`
+    select @fee:=IFNULL((sum(o.cnt*price)/100),0) as fee,
+    IFNULL(sum(o.cnt * o.price)+@fee,0) as total 
+    from \`Order\` o 
+    left join \`UserMCSDAccount\` userMCSD on userMCSD.userId=o.userId
+    WHERE true 
+    ${
+      !!data && !!data.ordertype
+        ? Prisma.sql`AND o.ordertype IN (${Prisma.join(data.ordertype)})`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.txntype
+        ? Prisma.sql`AND o.txntype IN (${Prisma.join(data.txntype)})`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.stockcode
+        ? Prisma.sql`AND o.stockcode IN (${Prisma.join(data.stockcode)})`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.status
+        ? Prisma.sql`AND o.status IN (${Prisma.join(data.status)})`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.prefix
+        ? Prisma.sql`AND userMCSD.prefix IN (${Prisma.join(data.prefix)})`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.userId
+        ? Prisma.sql`AND o.userId=${data.userId}`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.startDate
+        ? Prisma.sql`AND o.txndate>=${data.startDate}`
+        : Prisma.empty
+    }
+    ${
+      !!data && !!data.endDate
+        ? Prisma.sql`AND o.txndate<=${data.endDate}`
+        : Prisma.empty
+    }`;
+    if (order.length > 0) return order[0];
+    return {
+      total: 0,
+      fee: 0
+    };
+  };
   validateCreatePackage = async params => {
     let { error, data } = this.validate(
       {

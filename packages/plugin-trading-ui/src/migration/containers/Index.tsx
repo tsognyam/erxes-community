@@ -14,6 +14,7 @@ type Props = {
 type State = {
   isLoading: boolean;
   file?: any;
+  secondFile?: any;
 };
 type FinalProps = {} & Props & IRouterProps;
 class IndexContainer extends React.Component<FinalProps, State> {
@@ -23,17 +24,25 @@ class IndexContainer extends React.Component<FinalProps, State> {
       isLoading: false
     };
   }
-  onSave = (type: string, file?: any) => {
+  onSave = (type: string, file?: any, secondFile?: any) => {
     const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/pl:trading/migration`;
+    let url = `${REACT_APP_API_URL}/pl:trading/migration/`;
     confirm(`This action will be change database data.Are you sure?`)
       .then(() => {
         this.setState({
           isLoading: true
         });
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', type);
+        if (type == '1') {
+          formData.append('orderFile', file);
+          formData.append('transactionFile', secondFile);
+          formData.append('type', type);
+          url += `orderTransaction`;
+        } else {
+          formData.append('file', file);
+          formData.append('type', type);
+          url += `userMCSD`;
+        }
         fetch(`${url}`, {
           method: 'post',
           body: formData
@@ -41,16 +50,26 @@ class IndexContainer extends React.Component<FinalProps, State> {
           .then(response => {
             if (response.ok) {
               response.json().then(json => {
-                console.log(json);
+                Alert.success(json.data);
               });
-              Alert.success('Амжилтай импорт хийлээ');
               this.setState({
                 file: file
               });
+              if (type == '1') {
+                this.setState({
+                  secondFile: secondFile
+                });
+              }
             } else {
-              response.json().then(json => {
-                Alert.error(json);
-              });
+              const contentType = response.headers.get('content-type');
+              if (
+                contentType &&
+                contentType.indexOf('application/json') !== -1
+              ) {
+                response.json().then(json => {
+                  Alert.error(json);
+                });
+              } else Alert.error(response.statusText);
             }
             this.setState({
               isLoading: false

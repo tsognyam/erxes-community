@@ -85,6 +85,15 @@ query tradingOrders(
   }
 }
 `;
+const orderSummary = `
+query TradingOrderSummary($prefix: [String], $ordertype: [Int], $startDate: Date, $endDate: Date, $status: [Int], $stockcode: [Int], $userId: String, $txntype: [Int]) {
+  tradingOrderSummary(prefix: $prefix, ordertype: $ordertype, startDate: $startDate, endDate: $endDate, status: $status, stockcode: $stockcode, userId: $userId, txntype: $txntype) {
+    total
+    fee
+  }
+}
+`;
 export default {
-  orderList
+  orderList,
+  orderSummary
 };

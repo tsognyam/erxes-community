@@ -19,7 +19,7 @@ import Row from './Row';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormExecute from './FormExecute';
 import { PageContent } from '@erxes/ui/src';
-import { Contents } from '../../styles';
+import { Contents, FinanceAmount } from '../../styles';
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
@@ -41,9 +41,20 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
   onCancelOrder: (txnid: number) => void;
+  orderSummary: any;
 }
 
 class List extends React.Component<IProps> {
+  displayValue(value: number) {
+    return (
+      <FinanceAmount>
+        {(value || 0).toLocaleString(undefined, {
+          minimumFractionDigits: 4,
+          maximumFractionDigits: 4
+        })}
+      </FinanceAmount>
+    );
+  }
   renderForm = props => {
     return (
       <Form
@@ -73,7 +84,8 @@ class List extends React.Component<IProps> {
       count,
       stocks,
       prefix,
-      onCancelOrder
+      onCancelOrder,
+      orderSummary
     } = this.props;
     const onChangeAll = () => {
       toggleAll(orders, 'orders');
@@ -144,6 +156,13 @@ class List extends React.Component<IProps> {
               />
             </th>
             <th>{__('')}</th>
+          </tr>
+          <tr>
+            <th colSpan={15}></th>
+            <th>
+              {this.displayValue(!!orderSummary ? orderSummary.total : 0)}
+            </th>
+            <th>{this.displayValue(!!orderSummary ? orderSummary.fee : 0)}</th>
           </tr>
         </thead>
         <tbody id="orders">

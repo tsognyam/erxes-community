@@ -24,14 +24,17 @@ type Props = {
 type FinalProps = {} & Props & IRouterProps;
 type State = {
   file?: any;
+  transactionFile?: any;
   type: string;
+  typeName: string;
 };
 class Index extends React.Component<FinalProps, State> {
   private fileInputRef: any;
   constructor(props) {
     super(props);
     this.state = {
-      type: 'walletBalance'
+      type: '1',
+      typeName: 'Order And Transaction'
     };
     this.fileInputRef = React.createRef();
   }
@@ -49,9 +52,17 @@ class Index extends React.Component<FinalProps, State> {
       file: file
     });
   };
+  onChangeTransactionFile = ev => {
+    const file = ev.target.files[0];
+    this.setState({
+      transactionFile: file
+    });
+  };
   typeChange = e => {
+    var index = e.nativeEvent.target.selectedIndex;
     const value = e.target.value;
     this.setState({ type: value });
+    this.setState({ typeName: e.nativeEvent.target[index].text });
   };
   onSubmit = () => {
     const { file, type } = this.state;
@@ -69,6 +80,48 @@ class Index extends React.Component<FinalProps, State> {
       </StepButton>
     );
   };
+  renderInputFiles = () => {
+    const { type } = this.state;
+    if (type == '1')
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel required={true}>Choose order csv file</ControlLabel>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={this.onChangeFile}
+              ref={this.fileInputRef}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel required={true}>
+              Choose transaction csv file
+            </ControlLabel>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={this.onChangeFile}
+              ref={this.fileInputRef}
+            />
+          </FormGroup>
+        </>
+      );
+    else
+      return (
+        <>
+          <FormGroup>
+            <ControlLabel required={true}>Choose csv file</ControlLabel>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={this.onChangeFile}
+              ref={this.fileInputRef}
+            />
+          </FormGroup>
+        </>
+      );
+  };
   render() {
     const { queryParams, history } = this.props;
     const breadcrumb = [
@@ -76,16 +129,12 @@ class Index extends React.Component<FinalProps, State> {
     ];
     const migration_type = [
       {
-        label: 'Wallet balance migration',
-        value: 'walletBalance'
+        label: 'Order And Transaction',
+        value: '1'
       },
       {
-        label: 'Order migration',
-        value: 'order'
-      },
-      {
-        label: 'Transaction migration',
-        value: 'transaction'
+        label: 'User MCSD Account',
+        value: '2'
       }
     ];
     const content = (
@@ -113,14 +162,12 @@ class Index extends React.Component<FinalProps, State> {
               <FlexPad type="stepper" direction="column">
                 <MiddleContent>
                   <FormGroup>
-                    <ControlLabel required={true}>Choose csv file</ControlLabel>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={this.onChangeFile}
-                      ref={this.fileInputRef}
-                    />
+                    <ControlLabel required={false}>
+                      Migration type:
+                    </ControlLabel>
+                    <span>{this.state.typeName}</span>
                   </FormGroup>
+                  {this.renderInputFiles()}
                   {/* <Uploader
                     defaultFileList={[]}
                     text={`Choose a file to upload your csv file`}

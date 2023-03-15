@@ -28,6 +28,7 @@ type FinalProps = {
   tradingOrdersQuery: any;
   tradingUserByPrefixQuery: any;
   tradingStockListQuery: any;
+  tradingOrderSummaryQuery: any;
 } & Props &
   IRouterProps &
   OrderCancelMutationResponse;
@@ -144,13 +145,15 @@ class ListContainer extends React.Component<FinalProps> {
       tradingOrdersQuery,
       tradingUserByPrefixQuery,
       queryParams,
-      tradingStockListQuery
+      tradingStockListQuery,
+      tradingOrderSummaryQuery
     } = this.props;
     const orders = tradingOrdersQuery?.tradingOrders?.values || [];
     const total = tradingOrdersQuery?.tradingOrders?.total || 0;
     const count = tradingOrdersQuery?.tradingOrders?.count || 0;
     const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const stocks = tradingStockListQuery?.tradingStocks?.values || [];
+    const orderSummary = tradingOrderSummaryQuery?.tradingOrderSummary;
     const extendedProps = {
       ...this.props,
       orders,
@@ -164,7 +167,8 @@ class ListContainer extends React.Component<FinalProps> {
       onSearch: this.onSearch,
       renderButton: this.renderButton,
       renderButtonExecute: this.renderButtonExecute,
-      onCancelOrder: this.onCancelOrder
+      onCancelOrder: this.onCancelOrder,
+      orderSummary
       // remove: this.remove,
       // removeOrders,
     };
@@ -188,12 +192,12 @@ const generateNumberArray = (value: any) => {
   }
   return values;
 };
-const generateParams = ({ queryParams }) => {
+const generateParams = ({ queryParams }, isPagination = true) => {
   let stockcode = generateNumberArray(queryParams.stockcode);
   let status = generateNumberArray(queryParams.orderstatus);
   let ordertype = generateNumberArray(queryParams.ordertype);
   let txntype = generateNumberArray(queryParams.txntype);
-  return {
+  let params = {
     stockcode: stockcode,
     txntype: txntype,
     status: status,
@@ -204,8 +208,9 @@ const generateParams = ({ queryParams }) => {
     endDate: queryParams.endDate,
     userId: queryParams.userId,
     ordertype: ordertype,
-    ...generatePaginationParams(queryParams)
+    ...(isPagination && generatePaginationParams(queryParams))
   };
+  return params;
 };
 const getRefetchQueries = (queryParams?: any) => {
   return [
@@ -221,6 +226,13 @@ export default withProps<Props>(
       name: 'tradingOrdersQuery',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.OrderQueries.orderSummary), {
+      name: 'tradingOrderSummaryQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }, false),
         fetchPolicy: 'network-only'
       })
     }),

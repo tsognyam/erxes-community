@@ -117,6 +117,33 @@ const OrderQueries = {
     { models, subdomain, user }: IContext
   ) => {
     return await orderRepository.findOne(id);
+  },
+  tradingOrderSummary: async (
+    _root: any,
+    {
+      status,
+      stockcode,
+      txntype,
+      startDate,
+      endDate,
+      userId,
+      prefix,
+      ordertype
+    },
+    { models, subdomain, user }: IContext
+  ) => {
+    let params = {
+      status,
+      stockcode,
+      txntype,
+      ordertype,
+      userId,
+      prefix,
+      startDate,
+      endDate
+    };
+    let orderList = await orderService.getSummary(params);
+    return orderList;
   }
 };
 requireLogin(OrderQueries, 'tradingOrders');
