@@ -56,6 +56,10 @@ type TradingOrderList {
     count:Int,
     values:[TradingOrder]
 }
+type TradingOrderSummary {
+    total:Float,
+    fee:Float
+}
 `;
 export const queries = `
 tradingOrders(
@@ -73,6 +77,18 @@ tradingOrders(
     prefix:[String]
 ):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
+tradingOrderSummary(
+    stockcode:[Int],
+    status:[Int],
+    txntype:[Int],
+    ordertype:[Int],
+    startDate:Date,
+    endDate:Date,
+    userId:String,
+    prefix:[String],
+    startDate:Date,
+    endDate:Date,
+):TradingOrderSummary
 `;
 const addParams = `
 ordertype:Int!,

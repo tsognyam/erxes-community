@@ -180,8 +180,8 @@ class Row extends React.Component<Props> {
             ? 'Day'
             : order.condid == 1
             ? 'GTC'
-            : order.conid == 6
-            ? 'GTD'
+            : order.condid == 6
+            ? dayjs(order.enddate).format('YYYY-MM-DD')
             : ''}
         </td>
         <td>{order.createdUserDetails?.email || 'System user'}</td>

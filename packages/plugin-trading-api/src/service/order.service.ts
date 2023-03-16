@@ -60,6 +60,10 @@ class OrderService {
     var order = await this.orderValidator.validateGet(data);
     return order;
   };
+  getSummary = async data => {
+    let order = await this.orderValidator.validateGetSummary(data);
+    return order;
+  };
   create = async (data, live = true) => {
     let stockdata = await this.stockService.getStockCode({
       stockcode: data.stockcode
