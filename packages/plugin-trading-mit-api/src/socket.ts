@@ -5,13 +5,12 @@ dotenv.config();
 export default class MSESocket {
   _client;
   _state = 5;
-  _host = 'localhost';
-  _port = 3001;
+  _host;
+  _port;
   constructor() {
     // console.log('_host',this._host)
-    // this._host = process.env.FIX_HOST;
-    // this._port = process.env.FIX_PORT;
-    // console.log('process.env.FIX_PORT',process.env.FIX_PORT)
+    this._host = process.env.FIX_HOST;
+    this._port = process.env.FIX_PORT;
     this._client = new Socket();
     this.init();
   }
@@ -54,7 +53,7 @@ export default class MSESocket {
     return this._state == 1 ? true : false;
   };
   connect = () => {
-    console.log('Called connection attempt to MIT');
+    console.log('Called connection attempt to MIT', this._host, this._port);
     this._client.connect({
       host: this._host,
       port: this._port

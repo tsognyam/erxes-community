@@ -27,21 +27,21 @@ export default class NotificationService {
       createdUser: params.createdUserId,
       title: params.subject,
       notifType: 'plugin',
-      action: params.action,
       content: params.content,
       link: `/erxes-plugin-trading`,
-      receivers: params.userId
+      receivers: params.userId,
+      isMobile: true
     });
 
-    sendCoreMessage({
-      subdomain: params.subdomain,
-      action: 'sendMobileNotification',
-      data: {
-        title: params.subject,
-        body: params.data,
-        receivers: params.userId
-      }
-    });
+    // sendCoreMessage({
+    //   subdomain: params.subdomain,
+    //   action: 'sendMobileNotification',
+    //   data: {
+    //     title: params.subject,
+    //     body: params.data,
+    //     receivers: params.userId
+    //   }
+    // });
 
     return 'Success';
   };

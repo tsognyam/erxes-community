@@ -30,6 +30,13 @@ export default {
 
     initBroker(options.messageBrokerClient);
     fixSocket = new MSESocket();
+    setInterval(() => {
+      if (fixSocket._state != 1) {
+        fixSocket.connect();
+      }
+
+      console.log('MSE connection alive', fixSocket._state);
+    }, 300000);
     graphqlPubsub = options.pubsubClient;
 
     debug = options.debug;
