@@ -14,7 +14,6 @@ type Props = {
 type State = {
   isLoading: boolean;
   file?: any;
-  secondFile?: any;
 };
 type FinalProps = {} & Props & IRouterProps;
 class IndexContainer extends React.Component<FinalProps, State> {
@@ -24,25 +23,17 @@ class IndexContainer extends React.Component<FinalProps, State> {
       isLoading: false
     };
   }
-  onSave = (type: string, file?: any, secondFile?: any) => {
+  onSave = (type: string, file?: any) => {
     const { REACT_APP_API_URL } = getEnv();
-    let url = `${REACT_APP_API_URL}/pl:trading/migration/`;
+    const url = `${REACT_APP_API_URL}/pl:trading/migration`;
     confirm(`This action will be change database data.Are you sure?`)
       .then(() => {
         this.setState({
           isLoading: true
         });
         const formData = new FormData();
-        if (type == '1') {
-          formData.append('orderFile', file);
-          formData.append('transactionFile', secondFile);
-          formData.append('type', type);
-          url += `orderTransaction`;
-        } else {
-          formData.append('file', file);
-          formData.append('type', type);
-          url += `userMCSD`;
-        }
+        formData.append('file', file);
+        formData.append('type', type);
         fetch(`${url}`, {
           method: 'post',
           body: formData
@@ -55,11 +46,6 @@ class IndexContainer extends React.Component<FinalProps, State> {
               this.setState({
                 file: file
               });
-              if (type == '1') {
-                this.setState({
-                  secondFile: secondFile
-                });
-              }
             } else {
               const contentType = response.headers.get('content-type');
               if (

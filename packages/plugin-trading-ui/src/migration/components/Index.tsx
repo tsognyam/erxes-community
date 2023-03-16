@@ -17,14 +17,13 @@ import _ from 'lodash';
 type Props = {
   history?: any;
   queryParams: any;
-  onSave: (type: string, file: any) => void;
+  onSave: (type: string, file?: any) => void;
   isLoading: boolean;
   file?: any;
 };
 type FinalProps = {} & Props & IRouterProps;
 type State = {
   file?: any;
-  transactionFile?: any;
   type: string;
   typeName: string;
 };
@@ -34,7 +33,7 @@ class Index extends React.Component<FinalProps, State> {
     super(props);
     this.state = {
       type: '1',
-      typeName: 'Order And Transaction'
+      typeName: 'User MCSD Account'
     };
     this.fileInputRef = React.createRef();
   }
@@ -46,16 +45,10 @@ class Index extends React.Component<FinalProps, State> {
       });
     }
   };
-  onChangeFile = ev => {
+  onChangeFile = (ev: any) => {
     const file = ev.target.files[0];
     this.setState({
       file: file
-    });
-  };
-  onChangeTransactionFile = ev => {
-    const file = ev.target.files[0];
-    this.setState({
-      transactionFile: file
     });
   };
   typeChange = e => {
@@ -81,46 +74,19 @@ class Index extends React.Component<FinalProps, State> {
     );
   };
   renderInputFiles = () => {
-    const { type } = this.state;
-    if (type == '1')
-      return (
-        <>
-          <FormGroup>
-            <ControlLabel required={true}>Choose order csv file</ControlLabel>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={this.onChangeFile}
-              ref={this.fileInputRef}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel required={true}>
-              Choose transaction csv file
-            </ControlLabel>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={this.onChangeFile}
-              ref={this.fileInputRef}
-            />
-          </FormGroup>
-        </>
-      );
-    else
-      return (
-        <>
-          <FormGroup>
-            <ControlLabel required={true}>Choose csv file</ControlLabel>
-            <input
-              type="file"
-              accept=".csv"
-              onChange={this.onChangeFile}
-              ref={this.fileInputRef}
-            />
-          </FormGroup>
-        </>
-      );
+    return (
+      <>
+        <FormGroup>
+          <ControlLabel required={true}>Choose csv file</ControlLabel>
+          <input
+            type="file"
+            accept=".csv"
+            onChange={this.onChangeFile}
+            ref={this.fileInputRef}
+          />
+        </FormGroup>
+      </>
+    );
   };
   render() {
     const { queryParams, history } = this.props;
@@ -129,12 +95,16 @@ class Index extends React.Component<FinalProps, State> {
     ];
     const migration_type = [
       {
-        label: 'Order And Transaction',
+        label: 'User MCSD Account',
         value: '1'
       },
       {
-        label: 'User MCSD Account',
+        label: 'Order',
         value: '2'
+      },
+      {
+        label: 'Transaction',
+        value: '3'
       }
     ];
     const content = (
