@@ -18,6 +18,7 @@ import { ErrorCode, CustomException } from '../exception/error-code';
 import { TransactionConst } from '../constants/wallet';
 import TransactionService from './wallet/transaction.service';
 import StockTransactionService from './wallet/stock.transaction.service';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -54,26 +55,32 @@ export default class MigrationService {
     });
   };
   migration = async params => {
-    let csvData = await this.getCsvData(params.file.filename);
     let count = 0,
       responseText = '';
-    if (params.body.type == 'order') {
-      count = await this.migrationOrder(csvData);
+    const subdomain = getSubdomain(params.req);
+    console.log(subdomain);
+    let data: any = await this.getCsvData(params.file.filename);
+    if (params.body.type == '1') {
+      count = await this.migrationUserMCSD(data);
+      responseText = '';
+    } else if (params.body.type == '2') {
+      let sortedOrderData = data.sort(
+        (a, b) =>
+          new Date(a.createddate).getTime() - new Date(b.createddate).getTime()
+      );
+      count = await this.migrationOrder(sortedOrderData);
       responseText =
         'Биелсэн төлөвтэй нийт ' + count + ' захиалга амжилттай импорт хийлээ';
-    } else if (params.body.type == 'transaction') {
-      count = await this.migrationTransaction(csvData);
+    } else if (params.body.type == '3') {
+      count = await this.migrationTransaction(data);
     }
     return responseText;
   };
   migrationTransaction = async data => {
-    let addedTransaction = 0,
-      i = 0;
-    for (i = 0; i < data.length; i++) {
-      if (data[i].asset_csd_code == '9995') {
-      }
-    }
-    return addedTransaction;
+    return 0;
+  };
+  migrationUserMCSD = async data => {
+    return 0;
   };
   migrationOrder = async data => {
     let i = 0,
@@ -120,6 +127,7 @@ export default class MigrationService {
     }
     return addedOrder;
   };
+  createTransaction = async data => {};
   createMigrationOrder = async (data, fee) => {
     let stockdata = await this.stockService.getStockCode({
       stockcode: data.stockcode
@@ -146,40 +154,39 @@ export default class MigrationService {
     if (!userMCSD) {
       CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
-    if (dataValid.txntype == OrderTxnType.Buy) {
-      let camount = dataValid.price * dataValid.cnt;
-      let feeamount = camount * (dataValid.fee / 100);
-      params = {
-        senderWalletId: wallets[0].id,
-        receiverWalletId: nominalWallet.id,
-        type: TransactionConst.TYPE_W2W,
-        amount: camount,
-        feeAmount: feeamount
-      };
-      const transaction = await this.transactionService.w2w(params);
-      dataValid.tranOrderId = transaction.id;
-    } else {
-      params = {
-        senderWalletId: wallets[0].id,
-        receiverWalletId: nominalWallet.id,
-        stockCount: data.cnt,
-        stockCode: stockdata.stockcode
-      };
-      const transaction = await this.stockTransactionService.w2w(params);
-      dataValid.stockOrderId = transaction.id;
-    }
+    // if (dataValid.txntype == OrderTxnType.Buy) {
+    //   let camount = dataValid.price * dataValid.cnt;
+    //   let feeamount = camount * (dataValid.fee / 100);
+    //   params = {
+    //     senderWalletId: wallets[0].id,
+    //     receiverWalletId: nominalWallet.id,
+    //     type: TransactionConst.TYPE_W2W,
+    //     amount: camount,
+    //     feeAmount: feeamount
+    //   };
+    //   const transaction = await this.transactionService.w2w(params);
+    //   dataValid.tranOrderId = transaction.id;
+    // } else {
+    //   params = {
+    //     senderWalletId: wallets[0].id,
+    //     receiverWalletId: nominalWallet.id,
+    //     stockCount: data.cnt,
+    //     stockCode: stockdata.stockcode
+    //   };
+    //   const transaction = await this.stockTransactionService.w2w(params);
+    //   dataValid.stockOrderId = transaction.id;
+    // }
     dataValid.originalCnt = dataValid.cnt;
     dataValid.descr = 'Шинэ';
     dataValid.descr2 = 'New';
     let order = await this.orderRepository.create(dataValid);
     order.orderno = order.txnid.toString();
+    order.donecnt = order.cnt;
+    order.doneprice = order.price;
+    order.donedate = order.txndate;
+    order.descr = 'Биелсэн';
+    order.descr2 = 'Filled';
+    order.status = OrderStatus.STATUS_FILLED;
     await this.orderRepository.update(order);
-    let transactionParams = {
-      orderId: order.txnid,
-      donedate: order.txndate,
-      donecnt: order.cnt,
-      doneprice: parseFloat(order.price)
-    };
-    await this.transactionService.reCreateTransaction(transactionParams);
   };
 }

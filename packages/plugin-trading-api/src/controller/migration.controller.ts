@@ -2,11 +2,14 @@ import { Router } from 'express';
 import MigrationService from '../service/migration.service';
 import multer = require('multer');
 import * as moment from 'moment';
+import * as fs from 'fs';
 const router = Router();
 const migrationService = new MigrationService();
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, './data/uploads/migration');
+    const path = './data/uploads/migration';
+    fs.mkdirSync(path, { recursive: true });
+    cb(null, path);
   },
   filename: function(req, file, cb) {
     const uniqueSuffix =
@@ -17,25 +20,7 @@ const storage = multer.diskStorage({
   }
 });
 const upload = multer({ storage: storage });
-router.post(
-  '/orderTransaction',
-  upload.fields([{ name: 'file' }, { name: 'file2' }]),
-  async (req, res, next) => {
-    migrationService
-      .migration(req)
-      .then(result => {
-        res.json({
-          status: 0,
-          data: result
-        });
-      })
-      .catch(error => {
-        console.log(error);
-        res.status(400).json(error.toString());
-      });
-  }
-);
-router.post('/userMCSD', upload.single('file'), async (req, res, next) => {
+router.post('/', upload.single('file'), async (req, res, next) => {
   migrationService
     .migration(req)
     .then(result => {
