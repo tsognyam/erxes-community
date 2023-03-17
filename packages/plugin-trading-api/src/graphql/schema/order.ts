@@ -29,7 +29,7 @@ type TradingOrder @key(fields:"txnid") {
     regdate:Date
     status:Int
     updatedate:Date
-    updateUserId:Int
+    updateUserId:String
     ostatus:Int
     oupdatedate:Date
     oupdateUserId:String
