@@ -416,7 +416,11 @@ class OrderService {
         expiredate: Helper.dateToString(order.enddate)
       };
     }
-
+    await sendMITMessage({
+      subdomain: 'localhost',
+      action: 'send',
+      data: edata
+    });
     // if (mseSocket.getSocket().isConnected()) {
     //     let socket = mseSocket.getSocket();
     //     socket.request(edata);
@@ -503,6 +507,11 @@ class OrderService {
         symbol: stockdata.externalid,
         ordersubid: order.mseOrderId.toString()
       };
+      await sendMITMessage({
+        subdomain: 'localhost',
+        action: 'send',
+        data: edata
+      });
       // if (mseSocket.getSocket().isConnected()) {
       //     let socket = mseSocket.getSocket();
       //     socket.request(edata);
