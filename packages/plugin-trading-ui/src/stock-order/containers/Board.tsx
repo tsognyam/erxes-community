@@ -12,6 +12,7 @@ import queryString from 'query-string';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import dayjs from 'dayjs';
 type Props = {
   queryParams: any;
   history: any;
@@ -32,7 +33,9 @@ type FinalProps = {
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
-
+const getDate = (subday: number) => {
+  return new Date(new Date().setDate(new Date().getDate() - subday));
+};
 const defaultParams = ['stock'];
 class ListContainer extends React.Component<FinalProps> {
   onSelect = (values: string[] | string, key: string) => {
@@ -61,13 +64,25 @@ class ListContainer extends React.Component<FinalProps> {
     } = this.props;
     const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const stocks = tradingStockListQuery?.tradingStocks?.values || [];
+    const buyOrderBook =
+      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 0)[0]
+        .data || [];
+    const sellOrderBook =
+      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 1)[0]
+        .data || [];
+    const executedOrderBook =
+      tradingExecutedBookQuery.tradingExecutedBook || [];
     const extendedProps = {
       ...this.props,
       prefix,
       stocks,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
-      isCancel: false
+      getDate,
+      isCancel: false,
+      buyOrderBook,
+      sellOrderBook,
+      executedOrderBook
     };
 
     return (
@@ -99,7 +114,7 @@ export default withProps<Props>(
       name: 'tradingOrderBookQuery',
       options: () => ({
         variables: {
-          stockcode: 0
+          stockcode: 90
         }
       })
     }),
@@ -107,9 +122,9 @@ export default withProps<Props>(
       name: 'tradingExecutedBookQuery',
       options: () => ({
         variables: {
-          stockcode: 0,
-          beginDate: new Date(),
-          endDate: new Date()
+          stockcode: 90,
+          beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
+          endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
         }
       })
     })

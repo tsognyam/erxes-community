@@ -34,6 +34,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { useQuery, useSubscription } from 'react-apollo';
 import client from '@erxes/ui/src/apolloClient';
+import stock from '../../graphql/queries/stock';
 type Props = {
   queryParams: any;
   history: any;
@@ -48,6 +49,10 @@ type Props = {
   currentUser: IUser;
   tradingOrderBookQuery: any;
   tradingExecutedBookQuery: any;
+  sellOrderBook: any[];
+  buyOrderBook: any[];
+  executedOrderBook: any[];
+  getDate: (subday: number) => Date;
 };
 
 type State = {
@@ -73,26 +78,31 @@ class BoardComp extends React.Component<Props, State> {
       total: 0,
       count: 0,
       userPrefix: '',
-      stockname: ''
+      stockname: '',
+      stockcode: '90'
     };
   }
   componentWillReceiveProps(nextProps) {
-    const { tradingOrderBookQuery, tradingExecutedBookQuery } = this.props;
+    const { tradingOrderBookQuery } = this.props;
     if (!this.subscription) {
       if (this.subscription) {
         this.subscription();
       }
       this.subscription = tradingOrderBookQuery.subscribeToMore({
         document: gql(subscriptions.orderBookChanged),
-        updateQuery: () => {
-          const { tradingOrderBookQuery } = this.props;
-          if (this.state.stockcode && this.state.stockcode != '') {
-            tradingOrderBookQuery.refetch({
-              stockcode: Number(this.state.stockcode)
-            });
-            tradingExecutedBookQuery.refetch({
-              stockcode: Number(this.state.stockcode)
-            });
+        updateQuery: (prev, { subscriptionData }) => {
+          const stockList = this.props.stocks;
+          const stock = stockList.find(
+            x => x.stockcode == this.state.stockcode
+          );
+          let changedOrderBook = subscriptionData.data.orderBookChanged;
+          if (
+            !!this.state.stockcode &&
+            !!stock &&
+            (changedOrderBook.symbol == stock.externalid ||
+              changedOrderBook.symbol == stock.symbol)
+          ) {
+            this.refetchQuery(this.state.stockcode);
           }
         }
       });
@@ -132,6 +142,21 @@ class BoardComp extends React.Component<Props, State> {
       this.props.onSearch(target.value);
     }
   };
+  refetchQuery = (stockcode: string) => {
+    const {
+      tradingOrderBookQuery,
+      tradingExecutedBookQuery,
+      getDate
+    } = this.props;
+    tradingOrderBookQuery.refetch({
+      stockcode: Number(stockcode)
+    });
+    tradingExecutedBookQuery.refetch({
+      stockcode: Number(stockcode),
+      beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
+      endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
+    });
+  };
   stockChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
     const label = !option ? '' : option.label.toString();
@@ -140,10 +165,7 @@ class BoardComp extends React.Component<Props, State> {
     const stockList = this.props.stocks;
     const stock = stockList.find(x => x.stockcode == value);
     if (stock) {
-      const { tradingOrderBookQuery } = this.props;
-      tradingOrderBookQuery.refetch({
-        stockcode: stock.stockcode
-      });
+      this.refetchQuery(stock.stockcode);
       this.setState({ closeprice: stock.closeprice });
       this.setState({ closedate: new Date(stock.order_enddate) });
     }
@@ -162,8 +184,9 @@ class BoardComp extends React.Component<Props, State> {
       isAllSelected,
       stocks,
       prefix,
-      tradingExecutedBookQuery,
-      tradingOrderBookQuery
+      sellOrderBook,
+      buyOrderBook,
+      executedOrderBook
     } = this.props;
     let stockValues: any[] = [];
     let stockList: any[] = [];
@@ -184,14 +207,7 @@ class BoardComp extends React.Component<Props, State> {
           });
       }
     });
-    const buyOrderBook =
-      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 0)?.data ||
-      [];
-    const sellOrderBook =
-      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 1)?.data ||
-      [];
-    const executedOrderBook =
-      tradingExecutedBookQuery.tradingExecutedBook || [];
+
     const extendedProps = {
       ...this.props,
       renderButton: this.renderButton,
@@ -199,9 +215,9 @@ class BoardComp extends React.Component<Props, State> {
       stockcode: this.state.stockcode,
       prefixChange: this.prefixChange,
       object: null,
-      sellOrderBook: sellOrderBook,
-      buyOrderBook: buyOrderBook,
-      executedOrderBook: executedOrderBook
+      sellOrderBook,
+      buyOrderBook,
+      executedOrderBook
     };
     queryParams.userId =
       this.state.userId == '' ? undefined : this.state.userId;
@@ -218,7 +234,7 @@ class BoardComp extends React.Component<Props, State> {
           <StockData>
             {stockList.map(stock => (
               <div style={{ display: 'inline-table', width: '150px' }}>
-                <div style={{ width: '50px;' }}>{stock.symbol}</div>
+                <div style={{ width: '50px' }}>{stock.symbol}</div>
                 <div style={{ float: 'left', padding: '0px 15px 7px 0px' }}>
                   <StockChange
                     isIncreased={stock.changePercent > 0 ? true : false}
