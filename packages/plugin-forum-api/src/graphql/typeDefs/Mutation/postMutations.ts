@@ -1,5 +1,4 @@
 import { translationAndPostCommonFields } from '../ForumPost';
-import { requiredIf } from '../utils';
 
 const commonPostParams = (isInsert = false) => {
   return `
@@ -9,16 +8,23 @@ const commonPostParams = (isInsert = false) => {
     state: ForumPostState
     customIndexed: JSON
     tagIds: [ID!]
+    pollOptions: [ForumPollOptionInput!]
+    isPollMultiChoice: Boolean
+    pollEndDate: Date
   `;
 };
 
 const postMutations = `
   forumCreatePost(
     ${commonPostParams(true)}
+    createdAt: Date
+    lastPublishedAt: Date
   ): ForumPost!
   forumPatchPost(
     _id: ID!
     ${commonPostParams()}
+    createdAt: Date
+    lastPublishedAt: Date
     ): ForumPost!
   forumDeletePost(_id: ID!): ForumPost!
   forumPostDraft(_id: ID!): ForumPost!
@@ -70,6 +76,9 @@ const postMutations = `
     _id: ID!
     lang: ID!
   ): Boolean
+
+  forumPostSetFeatured(_id: ID!, featured: Boolean!): Boolean
+  forumPostSetFeaturedCp(_id: ID!, featured: Boolean!): Boolean
 
 `;
 

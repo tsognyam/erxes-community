@@ -5,50 +5,123 @@ import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Select from 'react-select-plus';
-import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import {
-  FilterWrapper,
-  Row,
-  FilterItem,
-  CustomRangeContainer
-} from '../../styles';
-import { IBranch } from '@erxes/ui/src/team/types';
+import { FilterItem } from '../../styles';
 
 type Props = {
   queryParams: any;
   history: any;
-  branchesList: IBranch[];
   reports: IReport[];
   getActionBar: (actionBar: any) => void;
+  exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, branchesList, reports, getActionBar } = props;
-  const [selectedBranchId, setBranches] = useState(['']);
-  const [selectedDeptId, setDepartments] = useState('');
-  const [selectedType, setType] = useState('By Employee');
+  const { history, reports, queryParams, getActionBar, exportReport } = props;
+  const [selectedType, setType] = useState(queryParams.reportType);
+
+  const renderTableHead = () => {
+    switch (selectedType) {
+      case 'Урьдчилсан':
+        return (
+          <tr>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Scheduled days')}</th>
+            <th>{__('Worked days')}</th>
+            <th>{__('Explanation')}</th>
+          </tr>
+        );
+      case 'Сүүлд':
+        return (
+          <>
+            <tr>
+              <th rowSpan={2}>{__('Team member Id')}</th>
+              <th rowSpan={2}>{__('Last Name')}</th>
+              <th rowSpan={2}>{__('First Name')}</th>
+              <th rowSpan={2}>{__('Position')}</th>
+              <th colSpan={2}>{__('Scheduled time')}</th>
+              <th colSpan={6} style={{ textAlign: 'center' }}>
+                {__('Timeclock info')}
+              </th>
+              <th colSpan={3} style={{ textAlign: 'center' }}>
+                {__('Absence info')}
+              </th>
+            </tr>
+            <tr>
+              <td>{__('Days')}</td>
+              <td>{__('Hours')}</td>
+              <td>{__('Worked days')}</td>
+              <td>{__('Worked hours')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Total')}</td>
+              <td>{__('Mins Late')}</td>
+              <td>{__('-')}</td>
+              <td>{__('-')}</td>
+              <td>{__('-')}</td>
+            </tr>
+          </>
+        );
+      case 'Pivot':
+        return (
+          <>
+            <tr>
+              <th
+                colSpan={4}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('General Information')}
+              </th>
+              <th>{__('Time')}</th>
+              <th
+                colSpan={3}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Schedule')}
+              </th>
+              <th
+                colSpan={8}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Performance')}
+              </th>
+            </tr>
+            <tr>
+              <td>{__('Team member Id')}</td>
+              <td>{__('Last Name')}</td>
+              <td>{__('First Name')}</td>
+              <td>{__('Position')}</td>
+              <td>{__('Date')}</td>
+              <td>{__('Planned Check In')}</td>
+              <td>{__('Planned Check Out')}</td>
+              <td>{__('Planned Duration')}</td>
+              <td>{__('Device type')}</td>
+              <td>{__('Check In')}</td>
+              <td>{__('Check Out')}</td>
+              <td>{__('Location')}</td>
+              <td>{__('Duration')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Mins Late')}</td>
+            </tr>
+          </>
+        );
+    }
+  };
+
   const content = (
     <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift duration')}</th>
-          <th>{__('Mins late')}</th>
-          <th>{__('Shifts total')}</th>
-          <th>{__('Total mins late')}</th>
-          <th>{__('Total mins absent')}</th>
-        </tr>
-      </thead>
+      <thead>{renderTableHead()}</thead>
       {reports &&
         reports.map(reportt => (
           <ReportRow
             key={Math.random()}
-            displayType={selectedType}
+            reportType={selectedType}
             report={reportt}
           />
         ))}
@@ -57,10 +130,8 @@ function ReportList(props: Props) {
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
-      localStorage.setItem('displayType', JSON.stringify(type));
-      const selType = JSON.parse(localStorage.getItem('displayType') || '[]')
-        .value;
-      setType(selType);
+      router.setParams(history, { reportType: type.value });
+      setType(type.value);
     };
 
     return (
@@ -69,11 +140,11 @@ function ReportList(props: Props) {
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
             <Select
-              value={JSON.parse(localStorage.getItem('displayType') || '[]')}
+              value={selectedType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['By Employee', 'By Group'].map(ipt => ({
+              options={['Урьдчилсан', 'Сүүлд', 'Pivot'].map(ipt => ({
                 value: ipt,
                 label: __(ipt)
               }))}
@@ -86,7 +157,7 @@ function ReportList(props: Props) {
   const renderExportBtn = () => {
     return (
       <div>
-        <Button>Export</Button>
+        <Button onClick={exportReport}>Export</Button>
       </div>
     );
   };
@@ -100,7 +171,7 @@ function ReportList(props: Props) {
   );
 
   getActionBar(actionBar);
-  return <>{content}</>;
+  return content;
 }
 
 export default ReportList;

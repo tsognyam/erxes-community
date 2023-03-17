@@ -72,6 +72,13 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     return false;
   };
 
+  gotoBack = () => {
+    this.props.history.push(
+      `/processes/overallWorks?${queryString.stringify({
+        ...this.props.queryParams
+      })}`
+    );
+  };
   clearFilter = () => {
     const params = generateQueryParams(this.props.history);
     router.removeParams(this.props.history, ...Object.keys(params));
@@ -86,14 +93,17 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     const { filterParams } = this.state;
     const value = (e.currentTarget as HTMLInputElement).value;
 
+    const filters: IQueryParams = {
+      ...filterParams,
+      type: value
+    };
+
+    delete filters.jobReferId;
+    delete filters.productIds;
+    delete filters.productCategoryId;
+
     this.setState({
-      filterParams: {
-        ...filterParams,
-        jobReferId: '',
-        productIds: '',
-        productCategoryId: '',
-        type: value
-      }
+      filterParams: filters
     });
   };
 
@@ -139,7 +149,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <ControlLabel>Product Category</ControlLabel>
+          <ControlLabel>{__('Product Category')}</ControlLabel>
           <SelectProductCategory
             label="Choose product category"
             name="productCategoryId"
@@ -155,7 +165,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Product</ControlLabel>
+          <ControlLabel>{__('Product')}</ControlLabel>
           <SelectProducts
             label="Choose product"
             name="productIds"
@@ -181,6 +191,11 @@ class DetailLeftSidebar extends React.Component<Props, State> {
           <Section.Title>
             {__('Filters')}
             <Section.QuickButtons>
+              <a href="#gotoBack" tabIndex={0} onClick={this.gotoBack}>
+                <Tip text={__('GoTo overall works')} placement="bottom">
+                  <Icon icon="left-arrow-to-left" />
+                </Tip>
+              </a>
               {this.isFiltered() && (
                 <a href="#cancel" tabIndex={0} onClick={this.clearFilter}>
                   <Tip text={__('Clear filter')} placement="bottom">
@@ -211,7 +226,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
               </FormGroup>
               {this.renderSpec()}
               <FormGroup>
-                <ControlLabel>In Branch</ControlLabel>
+                <ControlLabel>{__('In Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="inBranchId"
@@ -225,7 +240,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>In Department</ControlLabel>
+                <ControlLabel>{__('In Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="inDepartmentId"
@@ -241,7 +256,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Out Branch</ControlLabel>
+                <ControlLabel>{__('Out Branch')}</ControlLabel>
                 <SelectBranches
                   label="Choose branch"
                   name="outBranchId"
@@ -255,7 +270,7 @@ class DetailLeftSidebar extends React.Component<Props, State> {
                 />
               </FormGroup>
               <FormGroup>
-                <ControlLabel>Out Department</ControlLabel>
+                <ControlLabel>{__('Out Department')}</ControlLabel>
                 <SelectDepartments
                   label="Choose department"
                   name="outDepartmentId"
