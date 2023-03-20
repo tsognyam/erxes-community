@@ -19,6 +19,7 @@ import { TransactionConst } from '../constants/wallet';
 import TransactionService from './wallet/transaction.service';
 import StockTransactionService from './wallet/stock.transaction.service';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { getUsers } from '../models/utils';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -57,11 +58,10 @@ export default class MigrationService {
   migration = async params => {
     let count = 0,
       responseText = '';
-    const subdomain = getSubdomain(params.req);
-    console.log(subdomain);
     let data: any = await this.getCsvData(params.file.filename);
     if (params.body.type == '1') {
-      count = await this.migrationUserMCSD(data);
+      const subdomain = getSubdomain(params);
+      count = await this.migrationUserMCSD(data, subdomain);
       responseText = '';
     } else if (params.body.type == '2') {
       let sortedOrderData = data.sort(
@@ -79,7 +79,18 @@ export default class MigrationService {
   migrationTransaction = async data => {
     return 0;
   };
-  migrationUserMCSD = async data => {
+  migrationUserMCSD = async (data: any, subdomain: string) => {
+    let userRegisters = data.map((obj: any) => {
+      return obj.register_number;
+    });
+    let uniqRegisters = [...new Set(userRegisters)];
+    console.log('uniqResister', uniqRegisters);
+    let query = {
+      'customFieldsDataByFieldCode.registerNumber.value': {
+        $in: uniqRegisters
+      }
+    };
+    let users = await getUsers(query, subdomain);
     return 0;
   };
   migrationOrder = async data => {
