@@ -52,4 +52,16 @@ router.post('/order-book', async (req, res) => {
     data: 'Success'
   });
 });
+
+//test subscription
+router.post('/order-received', async (req, res) => {
+  const order = req.body;
+  console.log('order', order);
+  graphqlPubsub.publish('orderReceived', {
+    orderReceived: order
+  });
+  return res.json({
+    data: 'Success'
+  });
+});
 export default router;

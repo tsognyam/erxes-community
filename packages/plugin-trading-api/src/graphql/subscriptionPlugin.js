@@ -7,7 +7,7 @@ module.exports = {
   typeDefs: `
     stockMarketChanged: JSON
     orderBookChanged: JSON
-    orderReceived: JSON
+    orderReceived(userId: String!): JSON
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {
@@ -29,10 +29,12 @@ module.exports = {
           ),
       },
       orderReceived: {
-        subscribe: () =>
-          graphqlPubsub.asyncIterator(
-            "orderReceived"
-          ),
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator("orderReceived"),
+          (payload, variables) => {
+            return payload.orderReceived.userId === variables.userId;
+          }
+        ),
       }
 
     };
