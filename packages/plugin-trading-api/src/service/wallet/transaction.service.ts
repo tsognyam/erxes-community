@@ -22,6 +22,7 @@ import {
 import WalletService from './wallet.service';
 import StockTransactionService from './stock.transaction.service';
 import * as moment from 'moment';
+import * as fs from 'fs';
 import StockOrderRepository from '../../repository/wallet/stock.transaction.order.repository';
 class TransactionService {
   private transactionValidator: TransactionValidator;
@@ -452,7 +453,7 @@ class TransactionService {
       throw new Error('Invalid param exception');
     }
     var transactions: any = [];
-
+    if (data.dater == undefined) data.dater = new Date();
     if (senderWallet != undefined) {
       let walletRealBalance =
         parseFloat(senderWallet.walletBalance.balance) -
@@ -464,7 +465,7 @@ class TransactionService {
           type: TransactionConst.OUTCOME,
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount * -1,
-          dater: new Date(),
+          dater: data.dater,
           beforeBalance: walletRealBalance,
           afterBalance: walletRealBalance + data.amount * -1,
           description: data.description,
@@ -497,7 +498,7 @@ class TransactionService {
           type: TransactionConst.INCOME,
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount,
-          dater: new Date(),
+          dater: data.dater,
           beforeBalance: walletRealBalance,
           afterBalance: walletRealBalance + parseFloat(data.amount),
           description: data.description,
@@ -540,7 +541,7 @@ class TransactionService {
         amount:
           data.feeAmount *
           (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
-        dater: new Date(),
+        dater: data.dater,
         beforeBalance: walletRealBalance,
         afterBalance:
           walletRealBalance +
@@ -587,7 +588,7 @@ class TransactionService {
             walletRealBalance -
             data.feeAmount *
               (data.feeType == TransactionConst.FEE_TYPE_SENDER ? 1 : -1),
-          dater: new Date(),
+          dater: data.dater,
           description: 'Арилжааны шимтгэл',
           createdAt: new Date()
         });
@@ -618,7 +619,7 @@ class TransactionService {
       feeAmount: data.feeAmount,
       type: data.type,
       status: TransactionConst.STATUS_PENDING,
-      dater: new Date(),
+      dater: data.dater,
       createdAt: new Date(),
       transactions: {
         create: transactions
@@ -790,6 +791,11 @@ class TransactionService {
  where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       walletFilter;
+    // fs.writeFile('Output.txt', sql, (err) => {
+
+    //   // In case of a error throw err.
+    //   if (err) throw err;
+    // })
     let statementList = await this.transactionRepository._prisma.$queryRaw(
       Prisma.raw(sql)
     );

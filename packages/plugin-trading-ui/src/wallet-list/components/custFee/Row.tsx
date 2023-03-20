@@ -14,7 +14,7 @@ type Props = {
   custFee: any;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-} & ICommonListProps;
+};
 
 class Row extends React.Component<Props> {
   displayValue(value, type = 'number') {
@@ -47,7 +47,7 @@ class Row extends React.Component<Props> {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
   renderEditAction = object => {
-    const { save } = this.props;
+    const {} = this.props;
 
     const editTrigger = (
       <Button btnStyle="link">
@@ -58,7 +58,7 @@ class Row extends React.Component<Props> {
     );
 
     const content = props => {
-      return this.renderForm({ ...props, object, save });
+      return this.renderForm({ ...props, object });
     };
     return (
       <ModalTrigger

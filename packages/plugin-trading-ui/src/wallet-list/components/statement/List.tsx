@@ -24,6 +24,8 @@ import { displayValue } from '../../../App';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
+import { PageContent } from '@erxes/ui/src';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 type Props = {
   queryParams: any;
   history: any;
@@ -69,7 +71,6 @@ class List extends React.Component<Props, State> {
 
     return (
       <>
-        {this.renderActionBar()}
         {/* <div style={{ float: 'right', paddingRight: '20px' }}>
           <div>Begin Balance: {displayValue(beginBalance)}</div>
           <div>End Balance: {displayValue(endBalance)}</div>
@@ -103,49 +104,48 @@ class List extends React.Component<Props, State> {
       </>
     );
   };
-  onChangeDate = (e, type = '') => {
-    if (type == 'startDate') {
-      this.setState({ startDate: e.target.value });
-    } else this.setState({ endDate: e.target.value });
+  onChangeDate = (kind: string, date) => {
+    const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
+    if (kind == 'startDate') {
+      this.setState({ startDate: formattedDate });
+    } else this.setState({ endDate: formattedDate });
   };
   renderActionBar() {
     const { renderButton } = this.props;
     const actionBarLeft = (
-      <>
-        <FormWrapper>
-          <FormColumn>
-            <ControlLabel>{__('Start Date')}</ControlLabel>
-            <FormControl
-              name="startDate"
-              defaultValue={this.state.startDate}
-              value={this.state.startDate}
-              type="date"
-              onChange={e => this.onChangeDate(e, 'startDate')}
-            />
-          </FormColumn>
-          <FormColumn>
-            <ControlLabel>{__('End Date')}</ControlLabel>
-            <FormControl
-              name="endDate"
-              defaultValue={this.state.endDate}
-              value={this.state.endDate}
-              type="date"
-              onChange={e => this.onChangeDate(e, 'endDate')}
-            />
-          </FormColumn>
-          <FormColumn>
-            {/* <Button onClick={this.props.renderButton} id="find-transactions" btnStyle="default" block>
+      <FormWrapper>
+        <FormColumn>
+          <DateControl
+            value={this.state.startDate}
+            required={false}
+            name="startDate"
+            onChange={date => this.onChangeDate('startDate', date)}
+            placeholder={'Start date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        </FormColumn>
+        <FormColumn>
+          <DateControl
+            value={this.state.endDate}
+            required={false}
+            name="endDate"
+            onChange={date => this.onChangeDate('endDate', date)}
+            placeholder={'End date'}
+            dateFormat={'YYYY-MM-DD'}
+          />
+        </FormColumn>
+        <FormColumn>
+          {/* <Button onClick={this.props.renderButton} id="find-transactions" btnStyle="default" block>
                             {__('Find')}
                         </Button> */}
-            {renderButton({
-              values: {
-                startDate: this.state.startDate,
-                endDate: this.state.endDate
-              }
-            })}
-          </FormColumn>
-        </FormWrapper>
-      </>
+          {renderButton({
+            values: {
+              startDate: this.state.startDate,
+              endDate: this.state.endDate
+            }
+          })}
+        </FormColumn>
+      </FormWrapper>
     );
 
     return <Wrapper.ActionBar left={actionBarLeft} wideSpacing />;
@@ -157,18 +157,33 @@ class List extends React.Component<Props, State> {
     const { queryParams, total, count } = this.props;
 
     return (
-      // <Contents hasBorder={true}>
-      //   {/* {leftSidebar} */}
-      //   {this.renderContent()}
-      //   {/* {rightSidebar} */}
-      // </Contents>
-      <DataWithLoader
-        data={this.renderContent()}
-        loading={false}
-        count={total}
-        emptyText="There is no statements."
-        emptyImage="/images/actions/20.svg"
-      />
+      <>
+        {this.renderActionBar()}
+        <Contents hasBorder={true}>
+          <PageContent
+            footer={
+              <Wrapper.ActionBar
+                left={<Pagination count={total} />}
+                right={
+                  <ControlLabel>
+                    {__('Total transaction=')}
+                    {total}
+                  </ControlLabel>
+                }
+              />
+            }
+            transparent={true}
+          >
+            <DataWithLoader
+              data={this.renderContent()}
+              loading={false}
+              count={total}
+              emptyText="There is no statements."
+              emptyImage="/images/actions/20.svg"
+            />
+          </PageContent>
+        </Contents>
+      </>
     );
   }
 }

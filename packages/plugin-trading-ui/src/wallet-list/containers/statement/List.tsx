@@ -14,18 +14,26 @@ type Props = {
   queryParams: any;
   history: any;
   tradingTransactionStatementQuery: any;
-  startDate: Date;
-  endDate: Date;
   walletId: number;
 };
 
 type FinalProps = {} & Props & IRouterProps;
-class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
+const date = new Date();
+class ListContainer extends React.Component<
+  FinalProps,
+  {
+    isLoading: boolean;
+    startDate: Date;
+    endDate: Date;
+  }
+> {
   constructor(props: FinalProps) {
     super(props);
 
     this.state = {
-      isLoading: false
+      isLoading: false,
+      startDate: new Date(date.getFullYear(), date.getMonth(), 1),
+      endDate: date
     };
   }
   renderButton = ({
@@ -44,6 +52,10 @@ class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
   };
   onSearchList = values => {
     const { tradingTransactionStatementQuery } = this.props;
+    this.setState({
+      startDate: values.startDate,
+      endDate: values.endDate
+    });
     tradingTransactionStatementQuery.refetch({
       startDate: values.startDate,
       endDate: values.endDate
@@ -54,8 +66,6 @@ class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
       history,
       queryParams,
       tradingTransactionStatementQuery,
-      startDate,
-      endDate,
       walletId
     } = this.props;
     const total =
@@ -72,6 +82,8 @@ class ListContainer extends React.Component<FinalProps, { isLoading: false }> {
       total,
       count,
       renderButton: this.renderButton,
+      startDate: this.state.startDate,
+      endDate: this.state.endDate,
       // searchValue,
       queryParams
     };
@@ -96,10 +108,10 @@ export default withProps<Props>(
       gql(queries.TransactionQueries.tradingTransactionStatement),
       {
         name: 'tradingTransactionStatementQuery',
-        options: ({ startDate, endDate, walletId }) => ({
+        options: ({ walletId }) => ({
           variables: {
-            startDate: startDate,
-            endDate: endDate,
+            startDate: new Date(date.getFullYear(), date.getMonth(), 1),
+            endDate: date,
             walletId: walletId
           },
           fetchPolicy: 'network-only',

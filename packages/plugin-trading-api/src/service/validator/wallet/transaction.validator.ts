@@ -21,7 +21,8 @@ export class TransactionValidator extends WalletValidator {
             TransactionConst.TYPE_ORDER
           )
           .required(),
-        description: this._joi.string().default('')
+        description: this._joi.string().default(''),
+        dater: this._joi.date().default(new Date())
       },
       params
     );

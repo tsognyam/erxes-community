@@ -17,7 +17,6 @@ import {
 import Button from '@erxes/ui/src/components/Button';
 import Form from '../Form';
 import { Contents } from '../../../styles';
-
 type Props = {
   queryParams: any;
   history: any;

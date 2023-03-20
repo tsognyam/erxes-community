@@ -168,7 +168,7 @@ class WalletService {
       let walletNumberNominal = await this.walletNumberService.generate();
       let walletNumberNominalFee = await this.walletNumberService.generate();
       let nominalWallet = {
-        name: 'Үндсэн номинал',
+        name: 'Үндсэн номинал ' + currencyCode,
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
@@ -185,7 +185,7 @@ class WalletService {
       };
       await this.walletRepository.create(nominalWallet);
       let nominalWalletFee = {
-        name: 'Шимтгэлийн номинал',
+        name: 'Шимтгэлийн номинал ' + currencyCode,
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
@@ -194,7 +194,7 @@ class WalletService {
           create: {
             balance: 0,
             holdBalance: 0,
-            tradeBalance: 0
+            incomingBalance: 0
           }
         },
         walletNumber: walletNumberNominalFee.number,

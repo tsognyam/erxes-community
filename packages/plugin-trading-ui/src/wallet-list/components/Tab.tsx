@@ -58,12 +58,9 @@ class Tab extends React.PureComponent<Props, State> {
     if (currentTab === 'wallet-statement') {
       let walletId = 0;
       if (object.Wallet?.length > 0) walletId = object.Wallet[0].id;
-      const date = new Date();
       const updatedProps = {
         userId: object.userId,
-        walletId: walletId,
-        startDate: new Date(date.getFullYear(), date.getMonth(), 1),
-        endDate: date
+        walletId: walletId
       };
       return <ListStatement {...updatedProps} {...object} />;
     }
