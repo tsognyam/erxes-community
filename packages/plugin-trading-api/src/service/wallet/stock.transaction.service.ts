@@ -228,7 +228,7 @@ export default class StockTransactionService {
       CustomException(ErrorCode.InvalidParamException);
     }
     var transactions: any = [];
-
+    if (!params.dater) params.dater = new Date();
     if (senderBalance != undefined) {
       transactions.push({
         walletId: senderBalance.walletId,
@@ -236,7 +236,10 @@ export default class StockTransactionService {
         status: TransactionConst.STATUS_PENDING,
         stockCount: params.stockCount,
         stockCode: params.stockCode,
-        dater: new Date()
+        dater: params.dater,
+        price: !params.price ? 0 : params.price,
+        fee: !params.fee ? 0 : params.fee,
+        description: params.description
       });
       var walletBalanceUpdate = {
         holdBalance: {
@@ -265,7 +268,10 @@ export default class StockTransactionService {
         status: TransactionConst.STATUS_PENDING,
         stockCount: params.stockCount,
         stockCode: params.stockCode,
-        dater: new Date()
+        dater: params.dater,
+        price: !params.price ? 0 : params.price,
+        fee: !params.fee ? 0 : params.fee,
+        description: params.description
       });
     }
 
@@ -278,7 +284,7 @@ export default class StockTransactionService {
       stockCode: params.stockCode,
       type: params.type,
       status: TransactionConst.STATUS_PENDING,
-      dater: new Date(),
+      dater: params.dater,
       stockTransactions: {
         create: transactions
       }

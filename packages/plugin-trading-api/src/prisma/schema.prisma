@@ -292,6 +292,9 @@ model StockTransaction {
   dater         DateTime   @db.Date
   stockCode     Int
   stockCount    Int
+  price         Decimal    @default(0) @db.Decimal(30, 4)
+  fee           Decimal    @default(0) @db.Decimal(30, 4)
+  description   String?
   createdAt     DateTime   @default(now())
   createUserId  String?
   updatedAt     DateTime?

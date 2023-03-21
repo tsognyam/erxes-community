@@ -24,6 +24,7 @@ import { getUsers } from '../models/utils';
 import CustFeeService from './custfee.service';
 import Helper from '../middleware/helper.service';
 import BaseRepository from '../repository/base.repository';
+import StockWalletValidator from './validator/wallet/stock.wallet.validator';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -35,6 +36,7 @@ export default class MigrationService {
   private transactionService: TransactionService;
   private stockTransactionService: StockTransactionService;
   private custFeeService: CustFeeService;
+  private stockWalletValidator: StockWalletValidator;
   constructor() {
     this.orderService = new OrderService();
     this.stockRepository = new StockRepository();
@@ -46,6 +48,7 @@ export default class MigrationService {
     this.transactionService = new TransactionService();
     this.stockTransactionService = new StockTransactionService();
     this.custFeeService = new CustFeeService();
+    this.stockWalletValidator = new StockWalletValidator();
   }
   getCsvData = async fileName => {
     return new Promise(function(resolve, reject) {
@@ -109,77 +112,90 @@ export default class MigrationService {
         !isNaN(sortedData[i].debit_amount) &&
         !isNaN(parseFloat(sortedData[i].debit_amount))
       ) {
-        debitAmount = sortedData[i].debit_amount;
+        debitAmount = parseFloat(sortedData[i].debit_amount);
       }
       if (
         !isNaN(sortedData[i].credit_amount) &&
         !isNaN(parseFloat(sortedData[i].credit_amount))
       ) {
-        creditAmount = sortedData[i].credit_amount;
+        creditAmount = parseFloat(sortedData[i].credit_amount);
       }
       if (sortedData[i].asset_symbol == '9995') {
+        let senderWallet: any = undefined,
+          receiverWallet: any = undefined,
+          transactionAmount = 0,
+          transactionType = 0;
         if (debitAmount > 0) {
-          let transaction = await this.transactionService.createTransactionOrder(
-            undefined,
-            wallets[0],
-            {
-              amount: debitAmount,
-              feeAmount: 0,
-              type: TransactionConst.TYPE_CHARGE,
-              description: sortedData.description,
-              dater: new Date(sortedData[i].transaction_date)
-            }
-          );
-          transaction = await this.transactionService.confirmTransaction({
-            orderId: transaction.id,
-            confirm: 1
-          });
-          addedTransaction++;
+          receiverWallet = wallets[0];
+          transactionAmount = debitAmount;
+          transactionType = TransactionConst.TYPE_CHARGE;
         } else if (creditAmount > 0) {
-          let transaction = await this.transactionService.w2w({
-            senderWalletId: wallets[0].id,
-            receiverWalletId: undefined,
-            amount: creditAmount,
-            feeAmount: 0,
-            type: TransactionConst.TYPE_WITHDRAW,
-            description: data.description,
-            dater: new Date(sortedData[i].transaction_date)
-          });
-          transaction = await this.transactionService.confirmTransaction({
-            orderId: transaction.id,
-            confirm: 1
-          });
-          addedTransaction++;
+          senderWallet = wallets[0];
+          transactionAmount = creditAmount;
+          transactionType = TransactionConst.TYPE_WITHDRAW;
         } else continue;
-      }
-      if (sortedData[i].transaction_type == 'Unet tsaasnii guilgee') {
+        let transaction = await this.transactionService.createTransactionOrder(
+          senderWallet,
+          receiverWallet,
+          {
+            amount: transactionAmount,
+            feeAmount: 0,
+            type: transactionType,
+            description: sortedData[i].description,
+            dater: new Date(sortedData[i].transaction_date)
+          }
+        );
+        transaction = await this.transactionService.confirmTransaction({
+          orderId: transaction.id,
+          confirm: 1
+        });
+        addedTransaction++;
+      } else if (sortedData[i].transaction_type == 'Unet tsaasnii guilgee') {
         let stock = await this.stockRepository.findFirst({
-          symbol: sortedData[i].asset_csd_code
+          symbol: sortedData[i].asset_symbol
         });
         if (!stock) continue;
+        let senderWallet: any = undefined,
+          receiverWallet: any = undefined,
+          transactionAmount = 0;
+        let senderWalletId: any = undefined,
+          receiverWalletId: any = undefined;
+        let stockWalletBalance =
+          wallets[0].id != undefined
+            ? await this.stockWalletValidator.validateBalanceWithWallet({
+                walletId: wallets[0].id,
+                stockCode: stock.stockcode
+              })
+            : undefined;
         if (debitAmount > 0) {
-          let transaction = await this.stockTransactionService.w2w({
-            senderWalletId: wallets[0].id,
-            receiverWalletId: nominalWallet.id,
-            stockCount: debitAmount,
-            stockCode: stock.stockcode
-          });
-          transaction = await this.stockTransactionService.confirmTransaction({
-            orderId: transaction.id,
-            confirm: 1
-          });
+          receiverWallet = stockWalletBalance;
+          receiverWalletId = wallets[0].id;
+          transactionAmount = debitAmount;
         } else if (creditAmount > 0) {
-          let transaction = await this.stockTransactionService.w2w({
-            senderWalletId: nominalWallet.id,
-            receiverWalletId: wallets[i].id,
-            stockCount: debitAmount,
-            stockCode: stock.stockcode
-          });
-          transaction = await this.stockTransactionService.confirmTransaction({
-            orderId: transaction.id,
-            confirm: 1
-          });
-        }
+          senderWallet = stockWalletBalance;
+          senderWalletId = wallets[0].id;
+          transactionAmount = creditAmount;
+        } else continue;
+        let transaction = await this.stockTransactionService.createTransactionOrder(
+          senderWallet,
+          receiverWallet,
+          {
+            senderWalletId: senderWalletId,
+            receiverWalletId: receiverWalletId,
+            stockCount: transactionAmount,
+            stockCode: stock.stockcode,
+            type: TransactionConst.TYPE_W2W,
+            price: parseFloat(sortedData[i].rate),
+            fee: parseFloat(sortedData[i].fee),
+            description: sortedData[i].description,
+            dater: new Date(sortedData[i].transaction_date)
+          }
+        );
+        transaction = await this.stockTransactionService.confirmTransaction({
+          orderId: transaction.id,
+          confirm: 1
+        });
+        addedTransaction++;
       }
     }
     return addedTransaction;

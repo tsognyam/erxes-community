@@ -28,7 +28,11 @@ export default class StockTransactionValidator extends BaseValidator {
         receiverWalletId: this._joi.number(),
         stockCount: this._joi.number().required(),
         stockCode: this._joi.number().required(),
-        type: this._joi.number().default(TransactionConst.TYPE_W2W)
+        type: this._joi.number().default(TransactionConst.TYPE_W2W),
+        price: this._joi.number(),
+        fee: this._joi.number(),
+        description: this._joi.string(),
+        dater: this._joi.date()
       },
       params
     );

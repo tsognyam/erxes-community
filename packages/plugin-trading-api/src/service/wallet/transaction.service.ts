@@ -453,7 +453,7 @@ class TransactionService {
       throw new Error('Invalid param exception');
     }
     var transactions: any = [];
-    if (data.dater == undefined) data.dater = new Date();
+    if (!data.dater) data.dater = new Date();
     if (senderWallet != undefined) {
       let walletRealBalance =
         parseFloat(senderWallet.walletBalance.balance) -
