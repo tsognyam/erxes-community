@@ -66,6 +66,9 @@ const addIntoSheet = async (
       sheet.column('I').width(15);
       sheet.column('J').width(15);
       sheet.column('K').width(15);
+      sheet.column('N').width(20);
+      sheet.column('O').width(20);
+      sheet.column('P').width(20);
     }
     if (reportType === 'Pivot') {
       sheet.column('E').width(50);
@@ -74,6 +77,7 @@ const addIntoSheet = async (
       sheet.column('F').width(15);
       sheet.column('J').width(15);
       sheet.column('M').width(15);
+      sheet.column('A').style({ horizontalAlignment: 'left' });
     }
   }
 
@@ -97,8 +101,11 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([final_headers[1][1]], 'F2', 'G2', sheet, reportType);
       addIntoSheet([final_headers[2][0]], 'H1', 'M1', sheet, reportType, true);
       addIntoSheet([final_headers[2][1]], 'H2', 'M2', sheet, reportType);
-      addIntoSheet([final_headers[3][0]], 'N1', 'P1', sheet, reportType, true);
-      addIntoSheet([final_headers[3][1]], 'N2', 'P2', sheet, reportType);
+      addIntoSheet([final_headers[3][0]], 'N1', 'N1', sheet, reportType, true);
+      addIntoSheet([final_headers[3][1]], 'N2', 'N2', sheet, reportType);
+      // absence info
+      addIntoSheet([final_headers[4][0]], 'O1', 'Q1', sheet, reportType, true);
+      addIntoSheet([final_headers[4][1]], 'O2', 'Q2', sheet, reportType);
       break;
 
     case 'Pivot':
@@ -113,8 +120,8 @@ const prepareHeader = async (sheet: any, reportType: string) => {
       addIntoSheet([pivot_headers[2][0]], 'G1', 'I1', sheet, reportType, true);
       addIntoSheet([pivot_headers[2][1]], 'G2', 'I2', sheet, reportType);
 
-      addIntoSheet([pivot_headers[3][0]], 'J1', 'Q1', sheet, reportType, true);
-      addIntoSheet([pivot_headers[3][1]], 'J2', 'Q2', sheet, reportType);
+      addIntoSheet([pivot_headers[3][0]], 'J1', 'R1', sheet, reportType, true);
+      addIntoSheet([pivot_headers[3][1]], 'J2', 'R2', sheet, reportType);
 
       break;
   }
@@ -154,6 +161,9 @@ const extractAndAddIntoSheet = (
     case 'Сүүлд' || 'Final':
       startRowIdx = 3;
       rowNum = 3;
+
+      console.log(empReports);
+
       for (const empReport of empReports) {
         extractValuesIntoArr.push([rowNum - 2, ...Object.values(empReport)]);
         rowNum += 1;
@@ -162,7 +172,7 @@ const extractAndAddIntoSheet = (
       addIntoSheet(
         extractValuesIntoArr,
         `A${startRowIdx}`,
-        `P${endRowIdx}`,
+        `Q${endRowIdx}`,
         sheet,
         reportType
       );
@@ -185,6 +195,21 @@ const extractAndAddIntoSheet = (
 
         if (empReport.scheduleReport.length) {
           empReport.scheduleReport.forEach(scheduleShift => {
+            let checkInDevice = '-';
+            let checkOutDevice = '-';
+
+            const getDeviceNames =
+              scheduleShift.deviceType && scheduleShift.deviceType.split('x');
+
+            if (getDeviceNames) {
+              if (getDeviceNames.length === 2) {
+                checkInDevice = getDeviceNames[0];
+                checkOutDevice = getDeviceNames[1];
+              } else {
+                checkInDevice = getDeviceNames[0];
+                checkOutDevice = getDeviceNames[0];
+              }
+            }
             const shiftInfo: any = [];
 
             const scheduledStart = scheduleShift.scheduledStart
@@ -202,13 +227,18 @@ const extractAndAddIntoSheet = (
               .split(' ')[0];
 
             shiftInfo.push(
+              empReport.employeeId,
+              empReport.lastName,
+              empReport.firstName,
+              empReport.position,
               scheduleShift.timeclockDate,
               scheduledStart,
               scheduledEnd,
               scheduleShift.scheduledDuration,
-              scheduleShift.deviceType,
               shiftStart,
+              checkInDevice,
               shiftEnd,
+              checkOutDevice,
               scheduleShift.deviceName,
               scheduleShift.timeclockDuration,
               scheduleShift.totalHoursOvertime,
@@ -218,7 +248,7 @@ const extractAndAddIntoSheet = (
 
             addIntoSheet(
               [shiftInfo],
-              `F${rowNum}`,
+              `B${rowNum}`,
               `Q${rowNum}`,
               sheet,
               reportType
@@ -277,9 +307,15 @@ export const buildFile = async (
     departmentIds
   );
 
-  const totalTeamMemberIds = teamMemberIdsFromFilter.length
-    ? teamMemberIdsFromFilter
-    : teamMemberIds;
+  let filterGiven = false;
+  if (userIds || branchIds || departmentIds) {
+    filterGiven = true;
+  }
+
+  const totalTeamMemberIds =
+    teamMemberIdsFromFilter.length || filterGiven
+      ? teamMemberIdsFromFilter
+      : teamMemberIds;
 
   let report;
 

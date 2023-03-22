@@ -63,7 +63,7 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;
@@ -76,14 +76,14 @@ export const initBroker = async cl => {
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseId, orderId } = data;
+      const { responseIds, orderId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }
       );
-      await models.PutResponses.updateOne(
-        { _id: responseId },
+      await models.PutResponses.updateMany(
+        { _id: { $in: responseIds } },
         { $set: { synced: true } }
       );
     }
@@ -160,7 +160,17 @@ export const initBroker = async cl => {
   );
 };
 
-const sendMessageWrapper = async (
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
+export const sendMessageWrapper = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {
@@ -249,6 +259,12 @@ export const sendSegmentsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessageWrapper('segments', args);
+};
+
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
 };
 
 export const fetchSegment = (

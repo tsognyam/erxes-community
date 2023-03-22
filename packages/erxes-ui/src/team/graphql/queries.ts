@@ -6,14 +6,16 @@ const nameFields = `
   lastName
 `;
 
-const commonStructureParamsDef = `
+export const commonStructureParamsDef = `
+    $ids:[String]
     $perPage: Int,
     $page: Int 
     $searchValue: String,
     $status:String,
 `;
 
-const commonStructureParamsValue = `
+export const commonStructureParamsValue = `
+    ids:$ids
     perPage: $perPage,
     page: $page 
     searchValue:$searchValue
@@ -161,7 +163,7 @@ const departmentsMain = `
   }
 `;
 
-const unitField = `
+export const unitField = `
   _id
   title
   description
@@ -440,6 +442,8 @@ const fieldsGroups = `
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
       ${genericFields}
+      isMultiple
+      parentId
       config
       logicAction
       logics {
@@ -476,6 +480,20 @@ const userMovements = `
   }
 `;
 
+const brands = `
+  query brands($page: Int, $perPage: Int, $searchValue: String) {
+    brands(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      _id
+      code
+      name
+      createdAt
+      description
+      emailConfig
+      memberIds
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -498,5 +516,6 @@ export default {
   channels: channelQueries.channels,
   skillTypes,
   fieldsGroups,
-  userMovements
+  userMovements,
+  brands
 };

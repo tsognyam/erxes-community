@@ -1,11 +1,11 @@
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import dayjs from 'dayjs';
-import { ISchedule } from './types';
+import { IScheduleForm } from './types';
 
 const timeFormat = 'HH:mm';
 
 export const compareStartAndEndTime = (
-  scheduleDates: ISchedule,
+  scheduleDates: IScheduleForm,
   day_key,
   newShiftStart?,
   newShiftEnd?,
@@ -61,3 +61,21 @@ export const generateParams = queryParams => ({
   departmentIds: queryParams.departmentIds,
   branchIds: queryParams.branchIds
 });
+
+export const returnDeviceTypes = deviceType => {
+  let checkInDevice;
+  let checkOutDevice;
+  const getDeviceNames = deviceType && deviceType.split('x');
+
+  if (getDeviceNames) {
+    if (getDeviceNames.length === 2) {
+      checkInDevice = getDeviceNames[0];
+      checkOutDevice = getDeviceNames[1];
+    } else {
+      checkInDevice = getDeviceNames[0];
+      checkOutDevice = getDeviceNames[0];
+    }
+  }
+
+  return [checkInDevice, checkOutDevice];
+};

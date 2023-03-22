@@ -1,17 +1,29 @@
 import Button from '@erxes/ui/src/components/Button';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useState } from 'react';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Table from '@erxes/ui/src/components/table';
-import { CustomRow } from '../../styles';
+import { CustomRow, Margin, RowField } from '../../styles';
 
 import { IBranch } from '@erxes/ui/src/team/types';
 import Tip from '@erxes/ui/src/components/Tip';
 import ScheduleForm from './ScheduleForm';
-import { IScheduleConfig } from '../../types';
+import { ISchedule, IScheduleConfig } from '../../types';
 import dayjs from 'dayjs';
-import { dateFormat } from '../../constants';
+import { dateFormat, timeFormat } from '../../constants';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import SortableList from '@erxes/ui/src/components/SortableList';
+import {
+  DropIcon,
+  PropertyListTable,
+  PropertyTableHeader,
+  PropertyTableRow
+} from '@erxes/ui-forms/src/settings/properties/styles';
+import Collapse from 'react-bootstrap/Collapse';
+import { CustomCollapseRow } from '../../styles';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   scheduleOfMembers: any;
@@ -19,7 +31,7 @@ type Props = {
   history: any;
   branchesList: IBranch[];
   scheduleConfigs: IScheduleConfig[];
-  getActionBar: (actionBar: any) => void;
+  totalCount: number;
   solveSchedule: (scheduleId: string, status: string) => void;
   solveShift: (shiftId: string, status: string) => void;
   submitRequest: (
@@ -35,15 +47,22 @@ type Props = {
     selectedScheduleConfigId?: string
   ) => void;
   removeScheduleShifts: (_id: string, type: string) => void;
+
+  getActionBar: (actionBar: any) => void;
+  showSideBar: (sideBar: boolean) => void;
+  getPagination: (pagination: any) => void;
 };
 
 function ScheduleList(props: Props) {
   const {
     scheduleOfMembers,
+    totalCount,
     solveSchedule,
     solveShift,
+    removeScheduleShifts,
     getActionBar,
-    removeScheduleShifts
+    showSideBar,
+    getPagination
   } = props;
 
   const trigger = (
@@ -120,163 +139,194 @@ function ScheduleList(props: Props) {
   };
 
   const ListShiftContent = shifts => {
-    return (
-      <>
-        <td>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toDateString().split(' ')[0] +
-                  '\t' +
-                  dayjs(shift.shiftStart).format(dateFormat)}
-              </CustomRow>
-            );
-          })}
-        </td>
-        <td>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftStart).toLocaleTimeString()}
-              </CustomRow>
-            );
-          })}
-        </td>
-        <td>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftEnd).toLocaleTimeString()}
-              </CustomRow>
-            );
-          })}
-        </td>
-        <td>
-          {shifts.map(shift => {
-            return (
-              <CustomRow key={shift.shiftEnd} marginNum={10}>
-                {new Date(shift.shiftEnd).toLocaleDateString() !==
-                new Date(shift.shiftStart).toLocaleDateString()
-                  ? 'O'
-                  : '-'}
-              </CustomRow>
-            );
-          })}
-        </td>
-        <td>
-          {shifts.map(shift => {
-            return shift.solved ? (
-              <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
-            ) : (
-              <CustomRow marginNum={3}>
-                <Button
-                  size="small"
-                  btnStyle="success"
-                  onClick={() => solveShift(shift._id, 'Approved')}
-                >
-                  Approve
-                </Button>
-                <Button
-                  size="small"
-                  btnStyle="danger"
-                  onClick={() => solveShift(shift._id, 'Rejected')}
-                >
-                  Reject
-                </Button>
-              </CustomRow>
-            );
-          })}
-        </td>
-        <td>
-          {shifts.map(shift => {
-            return (
-              <CustomRow marginNum={4} key={shift._id}>
-                <Button
-                  size="small"
-                  btnStyle="link"
-                  onClick={() => removeSchedule(shift._id, 'shift')}
-                  icon="times-circle"
-                />
-              </CustomRow>
-            );
-          })}
-        </td>
-      </>
-    );
-  };
-  const ListScheduleContent = schedule => {
-    return schedule.shifts.length ? (
-      <tr>
-        <td>
-          {schedule.user &&
-          schedule.user.details &&
-          schedule.user.details.fullName
-            ? schedule.user.details.fullName
-            : schedule.user.email}
-        </td>
-        <td>
-          {schedule.solved ? (
-            __(schedule.status)
+    return shifts.map(shift => (
+      <PropertyTableRow key="">
+        <RowField>
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {new Date(shift.shiftStart).toDateString().split(' ')[0] +
+              '\t' +
+              dayjs(shift.shiftStart).format(dateFormat)}
+          </CustomRow>
+        </RowField>
+        <RowField>
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {dayjs(shift.shiftStart).format(timeFormat)}
+          </CustomRow>
+        </RowField>
+        <RowField>
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {dayjs(shift.shiftEnd).format(timeFormat)}
+          </CustomRow>
+        </RowField>
+        <RowField>
+          <CustomRow key={shift.shiftEnd} marginNum={10}>
+            {new Date(shift.shiftEnd).toLocaleDateString() !==
+            new Date(shift.shiftStart).toLocaleDateString()
+              ? 'O'
+              : '-'}
+          </CustomRow>
+        </RowField>
+        <RowField>
+          {shift.solved ? (
+            <CustomRow marginNum={10}>{__(shift.status)}</CustomRow>
           ) : (
-            <>
+            <CustomRow marginNum={3}>
               <Button
-                disabled={schedule.solved}
+                size="small"
                 btnStyle="success"
-                onClick={() => solveSchedule(schedule._id, 'Approved')}
+                onClick={() => solveShift(shift._id, 'Approved')}
               >
                 Approve
               </Button>
               <Button
+                size="small"
                 btnStyle="danger"
-                onClick={() => solveSchedule(schedule._id, 'Rejected')}
+                onClick={() => solveShift(shift._id, 'Rejected')}
               >
                 Reject
               </Button>
-            </>
+            </CustomRow>
           )}
-        </td>
-        <td>
-          <Tip text={__('Delete')} placement="top">
+        </RowField>
+        <RowField>
+          <CustomRow marginNum={4} key={shift._id}>
             <Button
+              size="small"
               btnStyle="link"
-              onClick={() => removeSchedule(schedule._id, '')}
+              onClick={() => removeSchedule(shift._id, 'shift')}
               icon="times-circle"
             />
-          </Tip>
-        </td>
-        {ListShiftContent(schedule.shifts)}
-      </tr>
-    ) : (
-      <></>
-    );
+          </CustomRow>
+        </RowField>
+      </PropertyTableRow>
+    ));
   };
 
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Schedule status')}</th>
-          <th>&nbsp;</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift start')}</th>
-          <th>{__('Shift end')}</th>
-          <th>{__('Overnight')}</th>
-          <th>{__('Shift Status')}</th>
-          <th>{__('Action')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {scheduleOfMembers &&
-          scheduleOfMembers.map(memberSchedule => {
-            return ListScheduleContent(memberSchedule);
-          })}
-      </tbody>
-    </Table>
-  );
+  const content = (schedule: ISchedule) => {
+    const [collapse, setCollapse] = useState(false);
+    const { details, email } = schedule.user;
+
+    const handleCollapse = () => {
+      setCollapse(!collapse);
+    };
+
+    const name =
+      schedule.user && details && details.fullName ? details.fullName : email;
+
+    const scheduleChecked =
+      schedule.scheduleChecked || !schedule.submittedByAdmin ? (
+        <Icon icon="checked" color="green" />
+      ) : (
+        <Icon icon="times-circle" color="#F29339" />
+      );
+
+    const getScheduleEnd = new Date(schedule.shifts[0].shiftEnd);
+    const getScheduleStart = new Date(schedule.shifts.slice(-1)[0].shiftStart);
+
+    const scheduleStartDate = dayjs(getScheduleStart).format(dateFormat);
+    const scheduleEndDate = dayjs(getScheduleEnd).format(dateFormat);
+
+    const getTotalScheduledDays = Math.ceil(
+      (getScheduleEnd.getTime() - getScheduleStart.getTime()) /
+        (1000 * 3600 * 24)
+    );
+
+    let getTotalScheduledHours = 0;
+
+    schedule.shifts.forEach(shift => {
+      const shiftStart = new Date(shift.shiftStart);
+      const shiftEnd = new Date(shift.shiftEnd);
+
+      getTotalScheduledHours += Math.ceil(
+        (shiftEnd.getTime() - shiftStart.getTime()) / (1000 * 3600)
+      );
+    });
+
+    const status = schedule.solved ? (
+      __(schedule.status || '')
+    ) : (
+      <>
+        <Button
+          disabled={schedule.solved}
+          btnStyle="success"
+          onClick={() => solveSchedule(schedule._id, 'Approved')}
+        >
+          Approve
+        </Button>
+        <Button
+          btnStyle="danger"
+          onClick={() => solveSchedule(schedule._id, 'Rejected')}
+        >
+          Reject
+        </Button>
+      </>
+    );
+
+    if (schedule.shifts.length > 0) {
+      const showScheduleChecked = !isEnabled('bichil') ? scheduleChecked : '';
+      return (
+        <div key={schedule._id} style={{ flex: 1 }}>
+          <CustomCollapseRow isChild={false}>
+            <div onClick={handleCollapse}>
+              <DropIcon isOpen={collapse} />
+              {name}
+            </div>
+
+            <div> {showScheduleChecked}</div>
+            <div>{scheduleStartDate}</div>
+            <div>{scheduleEndDate}</div>
+
+            <div>{`Total ${getTotalScheduledDays} days / ${getTotalScheduledHours} hours`}</div>
+
+            {status}
+
+            <Tip text={__('Delete')} placement="top">
+              <Button
+                btnStyle="link"
+                onClick={() => removeSchedule(schedule._id, '')}
+                icon="times-circle"
+              />
+            </Tip>
+          </CustomCollapseRow>
+          <Collapse in={collapse}>
+            <Margin>
+              <PropertyListTable>
+                <PropertyTableHeader>
+                  <ControlLabel>
+                    <b>{__('Shift date')}</b>
+                  </ControlLabel>
+                  <ControlLabel>{__('Shift start')}</ControlLabel>
+                  <ControlLabel>{__('Shift end')}</ControlLabel>
+                  <ControlLabel>{__('Overnight')}</ControlLabel>
+                  <ControlLabel>{__('Shift Status')}</ControlLabel>
+                  <ControlLabel>{__('Actions')}</ControlLabel>
+                </PropertyTableHeader>
+                {ListShiftContent(schedule.shifts)}
+              </PropertyListTable>
+            </Margin>
+          </Collapse>
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   getActionBar(actionBar);
-  return content;
+  showSideBar(true);
+  getPagination(<Pagination count={totalCount} />);
+
+  return (
+    <SortableList
+      fields={scheduleOfMembers}
+      child={schedule => content(schedule)}
+      onChangeFields={() => ''}
+      isModal={true}
+      showDragHandler={false}
+      droppableId="schedule"
+      isDragDisabled={true}
+    />
+  );
 }
 
 export default ScheduleList;

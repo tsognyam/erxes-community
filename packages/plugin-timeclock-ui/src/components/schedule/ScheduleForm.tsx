@@ -4,10 +4,10 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import DateRange from '../datepicker/DateRange';
 import dayjs from 'dayjs';
 import DatePicker from '../datepicker/DateTimePicker';
-import { ISchedule, IScheduleConfig } from '../../types';
+import { IScheduleForm, IScheduleConfig } from '../../types';
 import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
-import { FlexCenter } from '../../styles';
+import { CustomLabel, FlexCenter, FlexColumn } from '../../styles';
 
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -52,14 +52,12 @@ function ScheduleForm(props: Props) {
   } = props;
 
   const [selectedScheduleConfig, setScheduleConfig] = useState('');
-  const [dateKeyCounter, setKeyCounter] = useState('');
 
-  const timeFormat = 'HH:mm';
   const [defaultStartTime, setDefaultStartTime] = useState('08:30:00');
   const [defaultEndTime, setDefaultEndTime] = useState('17:00:00');
   const [dateRangeStart, setDateStart] = useState(new Date());
   const [dateRangeEnd, setDateEnd] = useState(new Date());
-  const [scheduleDates, setScheduleDates] = useState<ISchedule>({});
+  const [scheduleDates, setScheduleDates] = useState<IScheduleForm>({});
   const [contentType, setContentType] = useState('By Date Range');
   const [userIds, setUserIds] = useState([]);
   const [selectedDeptIds, setDepartments] = useState([]);
@@ -134,32 +132,38 @@ function ScheduleForm(props: Props) {
     setScheduleDates({
       ...scheduleDates
     });
-    setKeyCounter(Object.keys(scheduleDates).at(-1) || '');
   };
 
   const onDateChange = (day_key, selectedDate) => {
-    const newShift = scheduleDates[day_key];
-
-    const oldShiftEnd = newShift.shiftEnd;
-    const oldShiftStart = newShift.shiftStart;
-
     const newDateKey = selectedDate.toLocaleDateString();
 
-    const newShiftStart = dayjs(
-      newDateKey + ' ' + dayjs(oldShiftStart).format(timeFormat)
-    ).toDate();
-    const newShiftEnd = dayjs(
-      newDateKey + ' ' + dayjs(oldShiftEnd).format(timeFormat)
-    ).toDate();
+    if (newDateKey in scheduleDates) {
+      Alert.error('Schedule for a selected date already exists');
+      return;
+    }
 
-    newShift.shiftDate = selectedDate;
-    newShift.shiftStart = newShiftStart;
-    newShift.shiftEnd = newShiftEnd;
+    const oldShift = scheduleDates[day_key];
+    const oldShiftStart = oldShift.shiftStart;
+    const oldShiftEnd = oldShift.shiftEnd;
+
+    const [getShiftStart, getShiftEnd, overnight] = compareStartAndEndTime(
+      scheduleDates,
+      day_key,
+      oldShiftStart,
+      oldShiftEnd,
+      newDateKey
+    );
+
+    const newShift = {
+      shiftDate: selectedDate,
+      shiftStart: getShiftStart,
+      shiftEnd: getShiftEnd,
+      overnightShift: overnight
+    };
 
     delete scheduleDates[day_key];
-    const newScheduleDates = { ...scheduleDates, [newDateKey]: newShift };
 
-    setScheduleDates(newScheduleDates);
+    setScheduleDates({ ...scheduleDates, [newDateKey]: newShift });
   };
 
   const onStartTimeChange = (day_key, time) => {
@@ -198,6 +202,18 @@ function ScheduleForm(props: Props) {
     return { shiftStart: shift.shiftStart, shiftEnd: shift.shiftEnd };
   });
 
+  const calculateScheduledDaysAndHours = () => {
+    const totalDays = Object.keys(scheduleDates).length;
+    let totalHours = 0;
+
+    pickSubset.forEach(shift => {
+      totalHours +=
+        (shift.shiftEnd.getTime() - shift.shiftStart.getTime()) / (1000 * 3600);
+    });
+
+    return [totalDays, totalHours.toFixed(1)];
+  };
+
   const checkInput = (selectedUsers, shifts, branchIds?, departmentIds?) => {
     if (
       (!branchIds || !branchIds.length) &&
@@ -223,6 +239,7 @@ function ScheduleForm(props: Props) {
       closeModal();
     }
   };
+
   const onAdminSubmitClick = () => {
     const validInput = checkInput(
       userIds,
@@ -252,7 +269,9 @@ function ScheduleForm(props: Props) {
   const addDay = () => {
     // sort array of dates, in order to get the latest day
     let dates_arr = Object.values(scheduleDates).map(shift => shift.shiftDate);
-    dates_arr = dates_arr.sort((a, b) => b.getTime() - a.getTime());
+    dates_arr = dates_arr.sort(
+      (a, b) => (b?.getTime() || 0) - (a?.getTime() || 0)
+    );
 
     const dates = scheduleDates;
     const getLatestDayKey = dates_arr.length
@@ -272,6 +291,7 @@ function ScheduleForm(props: Props) {
       new Date(getLatestDayKey + ' ' + defaultStartTime),
       new Date(getLatestDayKey + ' ' + defaultEndTime)
     );
+
     dates[getLatestDayKey] = {
       shiftDate: new Date(getLatestDayKey),
       shiftStart: getCorrectShiftStart,
@@ -282,7 +302,6 @@ function ScheduleForm(props: Props) {
     setScheduleDates({
       ...dates
     });
-    setKeyCounter(getLatestDayKey);
   };
 
   const renderWeekDays = () => {
@@ -331,7 +350,7 @@ function ScheduleForm(props: Props) {
   };
 
   const modalContent = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <FlexColumn marginNum={10}>
       <SelectTeamMembers
         queryParams={queryParams}
         label={'Team member'}
@@ -346,9 +365,16 @@ function ScheduleForm(props: Props) {
         multi={false}
         options={renderScheduleConfigOptions()}
       />
+      <FlexCenter>
+        <CustomLabel>
+          {`Total ${calculateScheduledDaysAndHours()[0]} days / ${
+            calculateScheduledDaysAndHours()[1]
+          } hours `}
+        </CustomLabel>
+      </FlexCenter>
       {renderWeekDays()}
       {actionButtons('employee')}
-    </div>
+    </FlexColumn>
   );
 
   const adminModalContent = () => {
@@ -367,6 +393,13 @@ function ScheduleForm(props: Props) {
           multi={false}
           options={renderScheduleConfigOptions()}
         />
+        <FlexCenter>
+          <CustomLabel>
+            {`Total ${calculateScheduledDaysAndHours()[0]} days / ${
+              calculateScheduledDaysAndHours()[1]
+            } hours `}
+          </CustomLabel>
+        </FlexCenter>
         {renderWeekDays()}
         {actionButtons('admin')}
       </div>
@@ -375,7 +408,12 @@ function ScheduleForm(props: Props) {
 
   const adminConfigDefaultContent = () => {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <FlexColumn marginNum={15}>
+        <SelectDepartments
+          isRequired={false}
+          defaultValue={selectedDeptIds}
+          onChange={onDepartmentSelect}
+        />
         <FormGroup>
           <ControlLabel>Branches</ControlLabel>
           <Row>
@@ -388,11 +426,7 @@ function ScheduleForm(props: Props) {
             />
           </Row>
         </FormGroup>
-        <SelectDepartments
-          isRequired={false}
-          defaultValue={selectedDeptIds}
-          onChange={onDepartmentSelect}
-        />
+
         <SelectTeamMembers
           queryParams={queryParams}
           label={'Team member'}
@@ -415,9 +449,16 @@ function ScheduleForm(props: Props) {
             label: __(day)
           }))}
         />
+        <FlexCenter>
+          <CustomLabel>
+            {`Total ${calculateScheduledDaysAndHours()[0]} days / ${
+              calculateScheduledDaysAndHours()[1]
+            } hours `}
+          </CustomLabel>
+        </FlexCenter>
         {renderAdminConfigSwitchContent()}
         {actionButtons('admin')}
-      </div>
+      </FlexColumn>
     );
   };
 
@@ -430,10 +471,6 @@ function ScheduleForm(props: Props) {
   };
 
   const onSaveDateRange = () => {
-    const format = 'YYYY-MM-DD HH:mm';
-    const formattedStartDate = dayjs(dateRangeStart).format(format);
-    const formattedEndDate = dayjs(dateRangeEnd).format(format);
-
     const totalDatesArray: string[] = [];
 
     let temp = dayjs(dateRangeStart);
@@ -445,7 +482,7 @@ function ScheduleForm(props: Props) {
       temp = temp.add(1, 'day');
     }
 
-    const newDatesByRange: ISchedule = scheduleDates;
+    const newDatesByRange: IScheduleForm = scheduleDates;
 
     for (const eachDay of totalDatesArray) {
       const [
@@ -466,8 +503,6 @@ function ScheduleForm(props: Props) {
         shiftEnd: correctShiftEnd,
         overnightShift: isOvernightShift
       };
-
-      setKeyCounter(eachDay);
     }
 
     const difference = Object.keys(newDatesByRange).filter(
@@ -478,12 +513,12 @@ function ScheduleForm(props: Props) {
       delete newDatesByRange[removeKey];
     }
 
-    setScheduleDates(newDatesByRange);
+    setScheduleDates({ ...newDatesByRange });
   };
 
   const adminConfigByDateRange = () => {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <FlexColumn marginNum={20}>
         <DateRange
           showTime={false}
           startDate={dateRangeStart}
@@ -493,7 +528,7 @@ function ScheduleForm(props: Props) {
           onSaveButton={onSaveDateRange}
         />
         {renderWeekDays()}
-      </div>
+      </FlexColumn>
     );
   };
 
@@ -522,8 +557,7 @@ function ScheduleForm(props: Props) {
         overnightShift: isOvernightShift
       };
 
-      setScheduleDates(newDates);
-      setKeyCounter(getDate);
+      setScheduleDates({ ...newDates });
     }
   };
 
