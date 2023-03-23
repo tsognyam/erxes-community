@@ -40,6 +40,18 @@ query TradingUserByPrefix($userId: String, $prefix: String) {
   }
 }
 `;
+
+const tradingUsersTotalCount = `
+query tradingUsersTotalCount {
+  tradingUsersTotalCount
+}`;
+const tradingUsersCountByYear = `
+query Query($endYear: Int!, $startYear: Int!) {
+  tradingUsersCountByYear(endYear: $endYear, startYear: $startYear)
+}
+`;
 export default {
-  tradingUserByPrefix
+  tradingUserByPrefix,
+  tradingUsersTotalCount,
+  tradingUsersCountByYear
 };

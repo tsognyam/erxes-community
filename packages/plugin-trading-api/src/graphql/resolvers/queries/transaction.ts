@@ -5,7 +5,9 @@ import {
 import { IContext } from '../../../connectionResolver';
 import TransactionService from '../../../service/wallet/transaction.service';
 import { getUsers } from '../../../models/utils';
+import TransactionRepository from '../../../repository/wallet/transaction.repository';
 let service = new TransactionService();
+let repository = new TransactionRepository();
 const TransactionQueries = {
   tradingTransactionGet: async (
     _root: any,
@@ -47,7 +49,7 @@ const TransactionQueries = {
       endDate: params.endDate,
       walletId: params.walletId
     };
-    let statementList = await service.transactionStatement(updatedParams);
+    let statementList = await repository.transactionStatement(updatedParams);
     return statementList;
   }
 };

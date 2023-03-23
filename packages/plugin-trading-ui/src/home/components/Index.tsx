@@ -1,101 +1,54 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { __, Alert } from '@erxes/ui/src/utils';
+import { __, Alert, router } from '@erxes/ui/src/utils';
+import { colors } from '@erxes/ui/src/styles';
 import {
   Box,
   CollapseContent,
   Table,
   Pagination,
-  Info
+  Info,
+  Icon
 } from '@erxes/ui/src/components';
 import _ from 'lodash';
 import {
   BoxContent,
   BoxContentContainer,
-  ChartContentContainer
+  ChartContentContainer,
+  Widget,
+  WidgetItem,
+  Widgets,
+  WidgetContainer
 } from '../../styles';
 import Chart from './Chart';
 import { displayValue } from '../../App';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import {
+  FilterItem,
+  FilterWrapper
+} from '@erxes/ui-settings/src/permissions/styles';
+import dayjs from 'dayjs';
+import Button from '@erxes/ui/src/components/Button';
 type Props = {
   history?: any;
   queryParams: any;
 };
-const COLORS = ['#004c6d', '#346888', '#5886a5'];
-const userCountByYearData = [
-  {
-    name: '1-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '2-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '3-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '4-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '5-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '6-р сар',
-    2023: 100,
-    2022: 200,
-    2021: 500
-  },
-  {
-    name: '7-р сар',
-    2023: 200,
-    2022: 300,
-    2021: 100
-  },
-  {
-    name: '8-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '9-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '10-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '11-р сар',
-    2023: 1000,
-    2022: 2000,
-    2021: 3000
-  },
-  {
-    name: '12-р сар',
-    2023: 1,
-    2022: 4,
-    2021: 5
-  }
+type State = {
+  startYear?: string;
+  endYear: string;
+  years: [];
+};
+const COLORS = [
+  '#004c6d',
+  '#346888',
+  '#004c6d',
+  '#004c6d',
+  '#004c6d',
+  '#004c6d'
 ];
 const PIE_COLORS = [
   '#ea5545',
@@ -108,107 +61,238 @@ const PIE_COLORS = [
   '#27aeef',
   '#b33dc6'
 ];
-// const stockByAmountData = [
-//   {
-//     symbol: 'LendMN',
-//     amount: 10000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: 'Other',
-//     amount: 9000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: '1',
-//     amount: 8000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: '2',
-//     amount: 7000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: '3',
-//     amount: 6000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: '4',
-//     amount: 5500,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: 'UID',
-//     amount: 5000,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: 'TUM',
-//     amount: 4500,
-//     cnt: 10,
-//     price: 1000
-//   },
-//   {
-//     symbol: 'APU',
-//     amount: 220,
-//     cnt: 10,
-//     price: 1000
-//   }
-// ];
 type FinalProps = {
   tradingNominalWalletQuery: any;
   tradingNominalStockBalanceQuery: any;
+  tradingUsersTotalCountQuery: any;
+  tradingUsersCountByYearQuery: any;
 } & Props &
   IRouterProps;
-class Index extends React.Component<FinalProps> {
+class Index extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+    const qp = props.queryParams || {
+      startYear: '',
+      endYear: ''
+    };
+    this.state = {
+      startYear: qp.startYear,
+      endYear: qp.endYear,
+      years: this.generateYears(qp.startYear, qp.endYear)
+    };
+  }
+  generateYears(start, end) {
+    let years: any = [];
+    if (start != '' || end != '') {
+      const diff = parseInt(end) - parseInt(start);
+      if (diff >= 0) {
+        for (let i = 0; i <= diff; i++) {
+          years.push(parseInt(start) + i);
+        }
+      }
+    }
+    this.setState({
+      years: years
+    });
+    return years;
+  }
+  onDateChange(type: string, date) {
+    const filter = { ...this.state };
+    if (date) {
+      filter[type] = dayjs(date).format('YYYY');
+    } else {
+      filter.startYear = '';
+      filter.endYear = '';
+    }
+    this.setState(filter);
+  }
+  onClick = () => {
+    const { history, tradingUsersCountByYearQuery } = this.props;
+    const { startYear, endYear } = this.state;
+    this.generateYears(startYear, endYear);
+    router.setParams(history, {
+      startYear,
+      endYear
+    });
+  };
+  renderDateFilter = (name: string) => {
+    return (
+      <FilterItem>
+        <DateControl
+          value={this.state[name]}
+          required={false}
+          name={name}
+          onChange={date => this.onDateChange(name, date)}
+          placeholder={'Choose ' + name}
+          dateFormat={'YYYY'}
+        />
+      </FilterItem>
+    );
+  };
+  renderFilter() {
+    return (
+      <FilterWrapper style={{ padding: '10px 0px' }}>
+        <strong>{__('Filters')}:</strong>
+        {this.renderDateFilter('startYear')}
+        {this.renderDateFilter('endYear')}
+        <Button
+          btnStyle="primary"
+          icon="filter-1"
+          onClick={this.onClick}
+          size="small"
+        >
+          {__('Filter')}
+        </Button>
+      </FilterWrapper>
+    );
+  }
   renderContent = () => {
     const {
       tradingNominalWalletQuery,
-      tradingNominalStockBalanceQuery
+      tradingNominalStockBalanceQuery,
+      tradingUsersTotalCountQuery,
+      tradingUsersCountByYearQuery
     } = this.props;
     const nominalWallet = tradingNominalWalletQuery?.tradingNominalWallet || [];
     const stockByAmountData =
       tradingNominalStockBalanceQuery?.tradingNominalStockBalancesWithAmount ||
       [];
+    const totalUsersCount =
+      tradingUsersTotalCountQuery?.tradingUsersTotalCount || 0;
+    const userCountByYearData =
+      tradingUsersCountByYearQuery?.tradingUsersCountByYear || [];
     return (
       <>
-        <BoxContentContainer>
-          <BoxContent>
-            <Box
-              title="Дансан дахь үнэт цаас /мөнгөн дүнгээр/"
-              name="stockByAmount"
-              isOpen={true}
-            >
-              <Chart
-                chartType="stockByAmount"
-                data={stockByAmountData}
-                colors={COLORS}
-              />
-            </Box>
-          </BoxContent>
-          <BoxContent>
-            <Box
-              title="Дансан дахь үнэт цаас /мөнгөн дүнд эзлэх хувь/"
-              name="stockByPercentage"
-              isOpen={true}
-            >
-              <Chart
-                chartType="stockByPercentage"
-                data={stockByAmountData}
-                colors={PIE_COLORS}
-              />
-            </Box>
-          </BoxContent>
-        </BoxContentContainer>
+        <WidgetContainer>
+          <Widgets>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="users-alt"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Нийт харилцагч</span>
+                <span className="counter">{totalUsersCount}</span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Нийт хөрөнгө</span>
+                <span className="counter">
+                  {' '}
+                  {displayValue(0, 'noDiv') + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Ногдол ашиг</span>
+                <span className="counter">
+                  {displayValue(0, 'noDiv') + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Нийт татвар</span>
+                <span className="counter">
+                  {displayValue(0, 'noDiv') + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+          </Widgets>
+        </WidgetContainer>
+        <WidgetContainer>
+          <Widgets>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Дотоод номинал данс</span>
+                <span className="counter">
+                  {displayValue(
+                    nominalWallet?.walletBalance.availableBalance,
+                    'noDiv'
+                  ) + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Гадаад номинал данс</span>
+                <span className="counter">
+                  {displayValue(0, 'noDiv') + '$'}
+                </span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">ҮЦТХТ данс</span>
+                <span className="counter">
+                  {displayValue(0, 'noDiv') + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+            <Widget>
+              <WidgetItem>
+                <Icon
+                  icon="money-bill"
+                  style={{ fontSize: '60px' }}
+                  color={colors.colorCoreBlue}
+                />
+              </WidgetItem>
+              <WidgetItem>
+                <span className="title">Клиринг данс</span>
+                <span className="counter">
+                  {displayValue(0, 'noDiv') + '₮'}
+                </span>
+              </WidgetItem>
+            </Widget>
+          </Widgets>
+        </WidgetContainer>
         <BoxContentContainer>
           <BoxContent>
             <Box
@@ -241,65 +325,27 @@ class Index extends React.Component<FinalProps> {
           </BoxContent>
           <BoxContent>
             <Box
-              title="Ногдол ашгийн мөнгө (ҮЦТХТ)"
-              name="mcsdAmount"
+              title="Дотоод арилжааны үнэт цаас"
+              name="stockByPercentage"
               isOpen={true}
             >
-              <BoxContent>
-                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
-                  {' '}
-                </Info>
-              </BoxContent>
-            </Box>
-            <Box
-              title="Арилжааны төлбөр тооцоо ХХК дахь мөнгө (бонд, IPO)"
-              name="tradingBondIpoAmount"
-              isOpen={true}
-            >
-              <BoxContent>
-                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
-                  {' '}
-                </Info>
-              </BoxContent>
-            </Box>
-            <Box
-              title="Номинал дансан дахь мөнгө"
-              name="nominalAmount"
-              isOpen={true}
-            >
-              <BoxContent>
-                <Info
-                  type="info"
-                  title={
-                    displayValue(
-                      nominalWallet?.walletBalance.availableBalance,
-                      'noDiv'
-                    ) + '₮'
-                  }
-                >
-                  {' '}
-                </Info>
-              </BoxContent>
-            </Box>
-            <Box
-              title="Клиринг банкин дахь мөнгө"
-              name="msccAmount"
-              isOpen={true}
-            >
-              <BoxContent>
-                <Info type="info" title={displayValue(0, 'noDiv') + '₮'}>
-                  {' '}
-                </Info>
-              </BoxContent>
+              <Chart
+                chartType="stockByPercentage"
+                data={stockByAmountData}
+                colors={PIE_COLORS}
+                years={this.state.years}
+              />
             </Box>
           </BoxContent>
         </BoxContentContainer>
         <ChartContentContainer>
           <h3>Данс нээлгэсэн харилцагч </h3>
+          {this.renderFilter()}
           <Chart
             chartType="userCountByYear"
             data={userCountByYearData}
             colors={COLORS}
+            years={this.state.years}
           />
         </ChartContentContainer>
       </>

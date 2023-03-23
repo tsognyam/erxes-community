@@ -29,6 +29,11 @@ prefix:String
 `;
 export const queries = `
 tradingUserByPrefix(${inputParams}):TradingUserMcsdList
+tradingUsersTotalCount:Int
+tradingUsersCountByYear(
+startYear:Int!,
+endYear:Int!
+):JSON
 `;
 export const mutations = `
 `;

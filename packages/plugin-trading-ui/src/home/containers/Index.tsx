@@ -14,14 +14,18 @@ type Props = {
 type FinalProps = {
   tradingNominalWalletQuery: any;
   tradingNominalStockBalanceQuery: any;
+  tradingUsersTotalCountQuery: any;
+  tradingUsersCountByYearQuery: any;
 } & Props &
   IRouterProps;
 class IndexContainer extends React.Component<FinalProps> {
   render() {
     const {
       tradingNominalWalletQuery,
-      tradingNominalStockBalanceQuery
+      tradingNominalStockBalanceQuery,
+      queryParams
     } = this.props;
+    console.log(queryParams);
     if (
       tradingNominalStockBalanceQuery.loading ||
       tradingNominalWalletQuery.loading
@@ -51,6 +55,22 @@ export default withProps<Props>(
           }
         })
       }
-    )
+    ),
+    graphql<Props>(gql(queries.UserQueries.tradingUsersTotalCount), {
+      name: 'tradingUsersTotalCountQuery',
+      options: () => ({
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(queries.UserQueries.tradingUsersCountByYear), {
+      name: 'tradingUsersCountByYearQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          startYear: Number(queryParams.startYear | 0),
+          endYear: Number(queryParams.endYear | 0)
+        },
+        fetchPolicy: 'network-only'
+      })
+    })
   )(IndexContainer)
 );

@@ -71,10 +71,11 @@ class WalletService {
           stock: true
         }
       },
-      stockTransactions: true,
+      //stockTransactions: true,
       user: true
     };
     let wallets = await this.walletRepository.findMany(where, include);
+    console.log(wallets);
     let userIds = wallets.map(function(obj: any) {
       return obj.userId;
     });

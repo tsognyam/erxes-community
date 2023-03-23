@@ -22,7 +22,7 @@ export default class ReportRepository extends BaseRepository {
         inner join Stock st on st.stockcode=sb.stockCode
         where sb.walletId!=${nominalWalletId}
         group by sb.stockcode
-        having cnt>0
+        having cnt!=0
         order by amount desc
         `;
   };
