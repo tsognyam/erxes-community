@@ -29,46 +29,53 @@ import BaseConst from '../../constants/base';
 import * as moment from 'moment';
 import { CustomException, ErrorCode } from '../../exception/error-code';
 import ErrorException from '../../exception/error-exception';
-import { fetchSegment, sendContactsMessage, sendCoreMessage, sendCPMessage, sendFormsMessage, sendLogsMessage } from '../../messageBroker';
+import {
+  fetchSegment,
+  sendContactsMessage,
+  sendCoreMessage,
+  sendCPMessage,
+  sendFormsMessage,
+  sendLogsMessage
+} from '../../messageBroker';
 import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repository';
 import { any } from 'joi';
 import { getUsers } from '../../models/utils';
 
 export default class UserService {
-  #validator: UserValidator;
-  #mcsdService: MCSDService;
-  #walletService: WalletService;
-  #custFeeService: CustFeeService;
-  #userRepository: UserRepository;
-  #userMcsdRepository: UserMCSDAccountRepository;
-  #userBankAccountRepository: UserBankAccountRepository;
+  _validator: UserValidator;
+  _mcsdService: MCSDService;
+  _walletService: WalletService;
+  _custFeeService: CustFeeService;
+  _userRepository: UserRepository;
+  _userMcsdRepository: UserMCSDAccountRepository;
+  _userBankAccountRepository: UserBankAccountRepository;
   _notificationService = new NotificationService();
   constructor() {
-    this.#validator = new UserValidator();
-    this.#mcsdService = new MCSDService();
-    // #fileService = new FileService();
-    this.#walletService = new WalletService();
-    this.#custFeeService = new CustFeeService();
-    this.#userRepository = new UserRepository();
-    // #userFilesRepository = new UserFilesRepository();
-    this.#userBankAccountRepository = UserBankAccountRepository.get();
+    this._validator = new UserValidator();
+    this._mcsdService = new MCSDService();
+    // _fileService = new FileService();
+    this._walletService = new WalletService();
+    this._custFeeService = new CustFeeService();
+    this._userRepository = new UserRepository();
+    // _userFilesRepository = new UserFilesRepository();
+    this._userBankAccountRepository = UserBankAccountRepository.get();
     this._notificationService = new NotificationService();
-    this.#userMcsdRepository = new UserMCSDAccountRepository();
+    this._userMcsdRepository = new UserMCSDAccountRepository();
   }
-  // getFullInfo = (user) => this.#userRepository.findById(+user.id, true);
-  getFullInfo = async (params) => {
+  // getFullInfo = (user) => this._userRepository.findById(+user.id, true);
+  getFullInfo = async params => {
     let where: any = {};
 
     if (params.prefix != undefined) {
       where.prefix = {
         startsWith: params.prefix
-      }
+      };
     }
     if (params.userId != undefined) {
       where.userId = params.userId;
     }
 
-    let account = await this.#userMcsdRepository.findAll(where, {
+    let account = await this._userMcsdRepository.findAll(where, {
       Wallet: {
         select: {
           id: true,
@@ -81,8 +88,8 @@ export default class UserService {
           stockBalances: true
         }
       }
-    })
-    let userIds = account.values.map(function (obj: any) {
+    });
+    let userIds = account.values.map(function(obj: any) {
       return obj.userId;
     });
     let query = {
@@ -98,15 +105,14 @@ export default class UserService {
       }
     });
     return account;
-
-  }
+  };
 
   changeStep = async (user, step = UserStepConst.STEP_1) =>
-    // await this.#userRepository.update({ id: +user.id }, { externalId: step });
-    console.log('user step completed:', step)
+    // await this._userRepository.update({ id: +user.id }, { externalId: step });
+    console.log('user step completed:', step);
 
-  getUserInfoById = async (userId) => {
-    const user = await this.#userRepository.findById(+userId, true);
+  getUserInfoById = async userId => {
+    const user = await this._userRepository.findById(+userId, true);
 
     if (!user) {
       throw new Error('User not found');
@@ -114,19 +120,21 @@ export default class UserService {
 
     return user;
   };
-  getUserByRegisterNumber = async (registerNumber: string, subdomain: string) => {
-
+  getUserByRegisterNumber = async (
+    registerNumber: string,
+    subdomain: string
+  ) => {
     let fieldId = await sendFormsMessage({
       action: 'fields.findOne',
       subdomain: subdomain,
       data: {
         query: {
-          code: "registerNumber"
+          code: 'registerNumber'
         }
       },
       isRPC: true,
       defaultValue: []
-    })
+    });
     let query = {
       'customFieldsData.field': fieldId._id,
       'customFieldsData.value': registerNumber
@@ -134,10 +142,10 @@ export default class UserService {
     const user = await getUsers(query, subdomain);
     // console.log('user',user)
     return user[0];
-  }
+  };
   getUser = async (subdomain, userUuid) => {
-    // let user = this.#userRepository.findByUuid(userUuid);
-    console.log('userUuid', userUuid)
+    // let user = this._userRepository.findByUuid(userUuid);
+    console.log('userUuid', userUuid);
     let cpUser = await sendCPMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
@@ -145,9 +153,9 @@ export default class UserService {
         _id: userUuid
       },
       isRPC: true
-    })
-    console.log('cpUser', cpUser)
-    if (cpUser.type == "customer") {
+    });
+    console.log('cpUser', cpUser);
+    if (cpUser.type == 'customer') {
       let user = await sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
@@ -155,23 +163,21 @@ export default class UserService {
           _id: userUuid
         },
         isRPC: true
-      })
-      console.log('user', user)
+      });
+      console.log('user', user);
       return user;
-    } else
-      if (cpUser.type == "company") {
-        let user = await sendContactsMessage({
-          subdomain,
-          action: 'company.findOne',
-          data: {
-            _id: userUuid
-          },
-          isRPC: true
-        })
-        console.log('user', user)
-        return user;
-      }
-
+    } else if (cpUser.type == 'company') {
+      let user = await sendContactsMessage({
+        subdomain,
+        action: 'company.findOne',
+        data: {
+          _id: userUuid
+        },
+        isRPC: true
+      });
+      console.log('user', user);
+      return user;
+    }
   };
 
   getUserByCustom = async (subdomain, params) => {
@@ -180,18 +186,16 @@ export default class UserService {
       action: 'customers.findOne',
       data: params,
       isRPC: true
-    })
+    });
     return user;
-  }
+  };
 
+  cooperateGW = async params => {
+    const { data, user } = await this._validator.validateMCSDAccount(params);
 
-  cooperateGW = async (params) => {
-    const { data, user } = await this.#validator.validateMCSDAccount(params);
-
-
-    let userMcsdAccount = await this.#userMcsdRepository.findUnique({
+    let userMcsdAccount = await this._userMcsdRepository.findUnique({
       userId: user._id
-    })
+    });
 
     // if (userMcsdAccount.status == UserConst.STATUS_ACTIVE || userMcsdAccount.status == UserConst.STATUS_MCSD_PENDING) {
     //   throw new Error('User created');
@@ -204,57 +208,60 @@ export default class UserService {
     //Хувьцааны шимтгэл
     const feeEquity = await Helper.getValue('FeeEquity');
 
-    console.log('feeCorpDebt', feeCorpDebt)
+    console.log('feeCorpDebt', feeCorpDebt);
     if (!userMcsdAccount) {
       try {
         //change status on customer erxes
-        await this.#userMcsdRepository.create(
-          {
-            userId: data.userId,
-            createdAt: new Date(),
-          }
-        );
-        await this.#custFeeService.create({
-          name: "Хувьцааны шимтгэл",
-          name2: "Securities fee",
+        await this._userMcsdRepository.create({
+          userId: data.userId,
+          createdAt: new Date()
+        });
+        await this._custFeeService.create({
+          name: 'Хувьцааны шимтгэл',
+          name2: 'Securities fee',
           userId: user._id,
           stocktypeId: StockTypeConst.SEC,
           value: parseFloat(feeEquity)
         });
-        await this.#custFeeService.create({
-          name: "Компанийн бондын шимтгэл",
-          name2: "Company bond fee",
+        await this._custFeeService.create({
+          name: 'Компанийн бондын шимтгэл',
+          name2: 'Company bond fee',
           userId: user._id,
           stocktypeId: StockTypeConst.COMPANY_BOND,
           value: parseFloat(feeCorpDebt)
         });
-        await this.#custFeeService.create({
-          name: "ЗГ-ын бондын шимтгэл",
-          name2: "Government bond fee",
+        await this._custFeeService.create({
+          name: 'ЗГ-ын бондын шимтгэл',
+          name2: 'Government bond fee',
           userId: user._id,
           stocktypeId: StockTypeConst.GOV_BOND,
           value: parseFloat(feeDebt)
         });
-      }
-      catch (ex) {
-        logger.info("Already created fee on " + user.id);
+      } catch (ex) {
+        logger.info('Already created fee on ' + user.id);
       }
 
-      await this.#walletService.createWallet({
-        name: user.firstName,
-        userId: user._id,
-        type: WalletConst.TYPE_USER,
-        status: WalletConst.STATUS_ACTIVE,
-        currencyCode: 'MNT'
-      }, 'MNT');
+      await this._walletService.createWallet(
+        {
+          name: user.firstName,
+          userId: user._id,
+          type: WalletConst.TYPE_USER,
+          status: WalletConst.STATUS_ACTIVE,
+          currencyCode: 'MNT'
+        },
+        'MNT'
+      );
 
-      await this.#walletService.createWallet({
-        name: user.firstName,
-        userId: user.id,
-        type: WalletConst.TYPE_USER,
-        status: WalletConst.STATUS_ACTIVE,
-        currencyCode: CurrencyConst.USD,
-      }, 'USD');
+      await this._walletService.createWallet(
+        {
+          name: user.firstName,
+          userId: user.id,
+          type: WalletConst.TYPE_USER,
+          status: WalletConst.STATUS_ACTIVE,
+          currencyCode: CurrencyConst.USD
+        },
+        'USD'
+      );
 
       await this.changeStep(user, UserStepConst.STEP_5);
     } else {
@@ -263,17 +270,13 @@ export default class UserService {
       }
     }
 
-
-
-
-
     await this.mcsdAccountOne({ userId: data.userId });
     return BaseConst.MSG_SUCCESS;
   };
 
-  mcsdAccountOne = async (params) => {
+  mcsdAccountOne = async params => {
     let userId = params.userId;
-    // const rawUsers = await this.#userRepository.findAll(
+    // const rawUsers = await this._userRepository.findAll(
     //   {
     //     id: userId,
     //     status: UserConst.STATUS_PAID
@@ -287,13 +290,13 @@ export default class UserService {
     //   }
     // );
     // let user = rawUsers.values[0];
-    let user = await this.getUser('localhost', userId)
+    let user = await this.getUser('localhost', userId);
     if (user == undefined) {
       throw new Error('User not found');
     }
-    let userMcsdAccount = await this.#userMcsdRepository.findUnique({
+    let userMcsdAccount = await this._userMcsdRepository.findUnique({
       userId: user._id
-    })
+    });
     const feeCorpDebt = await Helper.getValue('FeeCorpDebt');
     //ЗГ бондын шимтгэл
     const feeDebt = await Helper.getValue('FeeDebt');
@@ -302,7 +305,6 @@ export default class UserService {
 
     let accounts: any = [];
 
-
     // const wallet = user.wallets.find(
     //   (wallet) => CurrencyConst.DEFAULT === wallet.currencyCode && BaseConst.STATUS_ACTIVE === wallet.status
     // );
@@ -310,58 +312,51 @@ export default class UserService {
     // if (bankAccount == undefined) {
     //   CustomException(ErrorCode.UserBankNotFoundException);
     // }
-    if (user.customFieldsDataByFieldCode.userBank == undefined || user.customFieldsDataByFieldCode.userBankAccountNo == undefined) {
-      await this.#userMcsdRepository.update(
-        userMcsdAccount.id,
-        {
-          description: ErrorCode.UserBankNotFoundException.message,
-        }
-      );
-      CustomException(ErrorCode.UserBankNotFoundException)
+    if (
+      user.customFieldsDataByFieldCode.userBank == undefined ||
+      user.customFieldsDataByFieldCode.userBankAccountNo == undefined
+    ) {
+      await this._userMcsdRepository.update(userMcsdAccount.id, {
+        description: ErrorCode.UserBankNotFoundException.message
+      });
+      CustomException(ErrorCode.UserBankNotFoundException);
     }
     let bankAccount = {
       bank: user.customFieldsDataByFieldCode.userBank.value,
       accountNo: user.customFieldsDataByFieldCode.userBankAccountNo.value
-    }
+    };
     // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
-    const birthdate = moment(new Date(user.birthDate), 'YYYY-MM-DD').format().slice(0, 10);
+    const birthdate = moment(new Date(user.birthDate), 'YYYY-MM-DD')
+      .format()
+      .slice(0, 10);
     if (user.customFieldsDataByFieldCode.address == undefined) {
-      await this.#userMcsdRepository.update(
-        userMcsdAccount.id,
-        {
-          description: ErrorCode.CityNotFoundException.message,
-        }
-      );
-      CustomException(ErrorCode.CityNotFoundException)
+      await this._userMcsdRepository.update(userMcsdAccount.id, {
+        description: ErrorCode.CityNotFoundException.message
+      });
+      CustomException(ErrorCode.CityNotFoundException);
     }
-    let address = user.customFieldsDataByFieldCode.address.value
+    let address = user.customFieldsDataByFieldCode.address.value;
     if (user.customFieldsDataByFieldCode.registerNumber == undefined) {
-      await this.#userMcsdRepository.update(
-        userMcsdAccount.id,
-        {
-          description: ErrorCode.RegisterNumberMismatchException.message,
-        }
-      );
-      CustomException(ErrorCode.RegisterNumberMismatchException)
+      await this._userMcsdRepository.update(userMcsdAccount.id, {
+        description: ErrorCode.RegisterNumberMismatchException.message
+      });
+      CustomException(ErrorCode.RegisterNumberMismatchException);
     }
     let registerNumber = user.customFieldsDataByFieldCode.registerNumber.value;
     if (user.customFieldsDataByFieldCode.profession == undefined) {
-      await this.#userMcsdRepository.update(
-        userMcsdAccount.id,
-        {
-          description: ErrorCode.UserInfoProNotFoundException.message,
-        }
-      );
-      CustomException(ErrorCode.UserInfoProNotFoundException)
+      await this._userMcsdRepository.update(userMcsdAccount.id, {
+        description: ErrorCode.UserInfoProNotFoundException.message
+      });
+      CustomException(ErrorCode.UserInfoProNotFoundException);
     }
     let profession = user.customFieldsDataByFieldCode.profession.value;
     if (user.primaryPhone == null) {
-      CustomException(ErrorCode.UserInfoPhoneNotFoundException)
+      CustomException(ErrorCode.UserInfoPhoneNotFoundException);
     }
     let phone = user.primaryPhone;
 
     if (user.sex == null) {
-      CustomException(ErrorCode.UserInfoGenderNotFoundException)
+      CustomException(ErrorCode.UserInfoGenderNotFoundException);
     }
     let sex = user.sex;
     // const address = user.UserAddress.find((address) => BaseConst.STATUS_ACTIVE === address.status);
@@ -375,25 +370,25 @@ export default class UserService {
       BankCode: McsdConst.getTypesByName(bankAccount.bank),
       BankName: bankAccount.bank,
       BirthDate: birthdate,
-      Country: '976',//?
-      CustomerType: user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
+      Country: '976', //?
+      CustomerType:
+        user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
       FeeCorpDebt: feeCorpDebt,
       FeeDebt: feeDebt,
       FeeEquity: feeEquity,
       FirstName: user.firstName,
-      Gender: user.sex,//?
+      Gender: user.sex, //?
       HomeAddress: address,
       HomePhone: phone,
       LastName: user.lastName,
       MobilePhone: phone,
       Occupation: profession,
-      RegistryNumber: registerNumber,
-    }
-    loggerMCSD.info('info', MCSDaccount)
+      RegistryNumber: registerNumber
+    };
+    loggerMCSD.info('info', MCSDaccount);
     accounts.push(MCSDaccount);
 
-
-    const res = await this.#mcsdService.SetAccounts(accounts);
+    const res = await this._mcsdService.SetAccounts(accounts);
 
     if (!Object.prototype.hasOwnProperty.call(res, 'SetAccountsResult')) {
       throw new ErrorException({
@@ -403,44 +398,48 @@ export default class UserService {
     }
 
     if (
-      !Object.prototype.hasOwnProperty.call(res.SetAccountsResult, 'ResponseCode') ||
+      !Object.prototype.hasOwnProperty.call(
+        res.SetAccountsResult,
+        'ResponseCode'
+      ) ||
       McsdConst.RESPONSE_CODE_SUCCESS !== res.SetAccountsResult.ResponseCode
     ) {
-      await this.#userMcsdRepository.update(
-        userMcsdAccount.id,
-        {
-          description: res.SetAccountsResult.ResponseMessage,
-        }
-      );
+      await this._userMcsdRepository.update(userMcsdAccount.id, {
+        description: res.SetAccountsResult.ResponseMessage
+      });
       throw new ErrorException({
         code: 500,
-        message: res.SetAccountsResult.ResponseMessage || 'Error while SetAccounts'
+        message:
+          res.SetAccountsResult.ResponseMessage || 'Error while SetAccounts'
       });
-
     }
-    await this.#userMcsdRepository.update(
-      userMcsdAccount.id,
-      {
-        status: UserConst.STATUS_MCSD_PENDING,
-        description: "ҮЦТХТ данс нээх хүсэлт илгээгдсэн"
-      }
-    );
+    await this._userMcsdRepository.update(userMcsdAccount.id, {
+      status: UserConst.STATUS_MCSD_PENDING,
+      description: 'ҮЦТХТ данс нээх хүсэлт илгээгдсэн'
+    });
 
     return BaseConst.MSG_SUCCESS;
-  }
-  updateMCSDAccount = async (params) => {
+  };
+  updateMCSDAccount = async params => {
     let userId = params.userId;
-    const rawUsers = await this.#userRepository.findAll(
+    const rawUsers = await this._userRepository.findAll(
       {
-        id: userId,
+        id: userId
         // status: UserConst.STATUS_MCSD_ERROR
       },
       {
         UserMCSDAccount: true,
         UserBankAccounts: true,
         UserAddress: {
-          select: { district: true, country: true, city: true, address: true, subDistrict: true, status: true },
-        },
+          select: {
+            district: true,
+            country: true,
+            city: true,
+            address: true,
+            subDistrict: true,
+            status: true
+          }
+        }
       }
     );
     let user = rawUsers.values[0];
@@ -454,33 +453,47 @@ export default class UserService {
     let feeCorpDebt = await Helper.getValue('FeeCorpDebt');
     let feeEquity = await Helper.getValue('FeeEquity');
     let feeDebt = await Helper.getValue('FeeDebt');
-    const feeCorp = await this.#custFeeService.getbyUserIdWithType(user.id, StockTypeConst.COMPANY_BOND);
+    const feeCorp = await this._custFeeService.getbyUserIdWithType(
+      user.id,
+      StockTypeConst.COMPANY_BOND
+    );
     if (feeCorp.length != 0) {
       feeCorpDebt = parseFloat(feeCorp[0].value);
     }
     //ЗГ бондын шимтгэл
 
-    const feeGov = await this.#custFeeService.getbyUserIdWithType(user.id, StockTypeConst.GOV_BOND);
+    const feeGov = await this._custFeeService.getbyUserIdWithType(
+      user.id,
+      StockTypeConst.GOV_BOND
+    );
     if (feeGov.length != 0) {
       feeDebt = parseFloat(feeGov[0].value);
     }
     //Хувьцааны шимтгэл
 
-    const feeSec = await this.#custFeeService.getbyUserIdWithType(user.id, StockTypeConst.SEC);
+    const feeSec = await this._custFeeService.getbyUserIdWithType(
+      user.id,
+      StockTypeConst.SEC
+    );
     if (feeSec.legnth != 0) {
       feeEquity = parseFloat(feeSec[0].value);
     }
 
     let accounts: any = [];
 
-
     // const wallet = user.wallets.find(
     //   (wallet) => CurrencyConst.DEFAULT === wallet.currencyCode && BaseConst.STATUS_ACTIVE === wallet.status
     // );
-    const bankAccount = user.UserBankAccounts.find((account) => BaseConst.STATUS_ACTIVE === account.status);
+    const bankAccount = user.UserBankAccounts.find(
+      account => BaseConst.STATUS_ACTIVE === account.status
+    );
     // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
-    const birthdate = moment(new Date(user.birthday), 'YYYY-MM-DD').format().slice(0, 10);
-    const address = user.UserAddress.find((address) => BaseConst.STATUS_ACTIVE === address.status);
+    const birthdate = moment(new Date(user.birthday), 'YYYY-MM-DD')
+      .format()
+      .slice(0, 10);
+    const address = user.UserAddress.find(
+      address => BaseConst.STATUS_ACTIVE === address.status
+    );
 
     // * BDCAccountNumber: 8 тэмдэгтээс бага эсвэл тэнцүү байх ёстой!
     let MCSDaccount = {
@@ -491,7 +504,8 @@ export default class UserService {
       BankName: McsdConst.getTypes(bankAccount.bankCode),
       BirthDate: birthdate,
       Country: address.country.code,
-      CustomerType: user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
+      CustomerType:
+        user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
       FeeCorpDebt: feeCorpDebt,
       FeeDebt: feeDebt,
       FeeEquity: feeEquity,
@@ -502,51 +516,52 @@ export default class UserService {
       LastName: user.lastName,
       MobilePhone: user.handPhone,
       Occupation: user.profession,
-      RegistryNumber: user.registerNumber,
-    }
-    loggerMCSD.info('info', MCSDaccount)
+      RegistryNumber: user.registerNumber
+    };
+    loggerMCSD.info('info', MCSDaccount);
     accounts.push(MCSDaccount);
 
-
-    const res = await this.#mcsdService.UpdateAccounts(accounts);
+    const res = await this._mcsdService.UpdateAccounts(accounts);
 
     if (!Object.prototype.hasOwnProperty.call(res, 'UpdateAccountsResult')) {
       throw new ErrorException({
         code: 500,
         message: 'Error at MCSD UpdateAccountsResult method'
       });
-
     }
 
     if (
-      !Object.prototype.hasOwnProperty.call(res.UpdateAccountsResult, 'ResponseCode') ||
+      !Object.prototype.hasOwnProperty.call(
+        res.UpdateAccountsResult,
+        'ResponseCode'
+      ) ||
       McsdConst.RESPONSE_CODE_SUCCESS !== res.UpdateAccountsResult.ResponseCode
     ) {
-      await this.#userRepository.update(
+      await this._userRepository.update(
         { id: +user.id },
         {
-          description: res.UpdateAccountsResult.ResponseMessage,
+          description: res.UpdateAccountsResult.ResponseMessage
         }
       );
       throw new ErrorException({
         code: 500,
-        message: res.UpdateAccountsResult.ResponseMessage || 'Error while UpdateAccountsResult'
+        message:
+          res.UpdateAccountsResult.ResponseMessage ||
+          'Error while UpdateAccountsResult'
       });
-
-
     }
-    await this.#userRepository.update(
+    await this._userRepository.update(
       { id: +user.id },
       {
         status: UserConst.STATUS_MCSD_PENDING,
-        description: "ҮЦТХТ данс засварлах хүсэлт илгээгдсэн"
+        description: 'ҮЦТХТ данс засварлах хүсэлт илгээгдсэн'
       }
     );
 
     return BaseConst.MSG_SUCCESS;
-  }
+  };
   mcsdAccount = async () => {
-    const rawUsers = await this.#userRepository.findAll(
+    const rawUsers = await this._userRepository.findAll(
       {
         status: UserConst.STATUS_PAID
       },
@@ -554,8 +569,15 @@ export default class UserService {
         UserMCSDAccount: true,
         UserBankAccounts: true,
         UserAddress: {
-          select: { district: true, country: true, city: true, address: true, subDistrict: true, status: true },
-        },
+          select: {
+            district: true,
+            country: true,
+            city: true,
+            address: true,
+            subDistrict: true,
+            status: true
+          }
+        }
       }
     );
 
@@ -573,14 +595,20 @@ export default class UserService {
 
     let accounts: any = [];
 
-    users.forEach((user) => {
+    users.forEach(user => {
       // const wallet = user.wallets.find(
       //   (wallet) => CurrencyConst.DEFAULT === wallet.currencyCode && BaseConst.STATUS_ACTIVE === wallet.status
       // );
-      const bankAccount = user.UserBankAccounts.find((account) => BaseConst.STATUS_ACTIVE === account.status);
+      const bankAccount = user.UserBankAccounts.find(
+        account => BaseConst.STATUS_ACTIVE === account.status
+      );
       // const birthdate = new Date(user.birthday).toISOString().slice(0, 10);
-      const birthdate = moment(new Date(user.birthday), 'YYYY-MM-DD').format().slice(0, 10);
-      const address = user.UserAddress.find((address) => BaseConst.STATUS_ACTIVE === address.status);
+      const birthdate = moment(new Date(user.birthday), 'YYYY-MM-DD')
+        .format()
+        .slice(0, 10);
+      const address = user.UserAddress.find(
+        address => BaseConst.STATUS_ACTIVE === address.status
+      );
 
       // * BDCAccountNumber: 8 тэмдэгтээс бага эсвэл тэнцүү байх ёстой!
       let MCSDaccount = {
@@ -591,7 +619,8 @@ export default class UserService {
         BankName: McsdConst.getTypes(bankAccount.bankCode),
         BirthDate: birthdate,
         Country: address.country.code,
-        CustomerType: user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
+        CustomerType:
+          user.custType == UserConst.TYPE_ORGINIZATION_CUSTOMER ? 1 : 0,
         FeeCorpDebt: feeCorpDebt,
         FeeDebt: feeDebt,
         FeeEquity: feeEquity,
@@ -602,13 +631,13 @@ export default class UserService {
         LastName: user.lastName,
         MobilePhone: user.handPhone,
         Occupation: user.profession,
-        RegistryNumber: user.registerNumber,
-      }
-      loggerMCSD.info('info', MCSDaccount)
+        RegistryNumber: user.registerNumber
+      };
+      loggerMCSD.info('info', MCSDaccount);
       accounts.push(MCSDaccount);
     });
 
-    const res = await this.#mcsdService.SetAccounts(accounts);
+    const res = await this._mcsdService.SetAccounts(accounts);
 
     if (!Object.prototype.hasOwnProperty.call(res, 'SetAccountsResult')) {
       throw new ErrorException({
@@ -618,23 +647,26 @@ export default class UserService {
     }
 
     if (
-      !Object.prototype.hasOwnProperty.call(res.SetAccountsResult, 'ResponseCode') ||
+      !Object.prototype.hasOwnProperty.call(
+        res.SetAccountsResult,
+        'ResponseCode'
+      ) ||
       McsdConst.RESPONSE_CODE_SUCCESS !== res.SetAccountsResult.ResponseCode
     ) {
       throw new ErrorException({
         code: 500,
-        message: res.SetAccountsResult.ResponseMessage || 'Error while SetAccounts'
+        message:
+          res.SetAccountsResult.ResponseMessage || 'Error while SetAccounts'
       });
-
     }
 
     await Promise.all(
-      users.map(async (user) => {
-        await this.#userRepository.update(
+      users.map(async user => {
+        await this._userRepository.update(
           { id: +user.id },
           {
             status: UserConst.STATUS_MCSD_PENDING,
-            description: "ҮЦТХТ данс нээх хүсэлт илгээгдсэн"
+            description: 'ҮЦТХТ данс нээх хүсэлт илгээгдсэн'
           }
         );
       })
@@ -643,18 +675,21 @@ export default class UserService {
     return BaseConst.MSG_SUCCESS;
   };
 
-  mcsdAccountStatus = async (params) => {
-    // const rawUsers = await this.#userRepository.findAll({ status: UserConst.STATUS_MCSD_PENDING }, { wallets: true });
-    let data = await this.#validator.validateGetAccountStatus(params);
-    const rawUsers = await this.#userRepository.findAll({
-      status: UserConst.STATUS_MCSD_PENDING
-    }, { UserMCSDAccount: true });
+  mcsdAccountStatus = async params => {
+    // const rawUsers = await this._userRepository.findAll({ status: UserConst.STATUS_MCSD_PENDING }, { wallets: true });
+    let data = await this._validator.validateGetAccountStatus(params);
+    const rawUsers = await this._userRepository.findAll(
+      {
+        status: UserConst.STATUS_MCSD_PENDING
+      },
+      { UserMCSDAccount: true }
+    );
 
     const users = rawUsers.values;
 
     let accountIds: any = [];
 
-    users.forEach((user) => {
+    users.forEach(user => {
       // const wallet = user.wallets.find(
       //   (wallet) => CurrencyConst.DEFAULT === wallet.currencyCode && BaseConst.STATUS_ACTIVE === wallet.status
       // );
@@ -662,7 +697,9 @@ export default class UserService {
       accountIds.push(user.UserMCSDAccount[0].id.toString());
     });
 
-    const res = await this.#mcsdService.GetAccountStatus({ BDCAccountIds: accountIds });
+    const res = await this._mcsdService.GetAccountStatus({
+      BDCAccountIds: accountIds
+    });
 
     if (!Object.prototype.hasOwnProperty.call(res, 'GetAccountStatusResult')) {
       throw new ErrorException({
@@ -672,12 +709,18 @@ export default class UserService {
     }
 
     if (
-      !Object.prototype.hasOwnProperty.call(res.GetAccountStatusResult, 'ResponseCode') ||
-      McsdConst.RESPONSE_CODE_SUCCESS !== res.GetAccountStatusResult.ResponseCode
+      !Object.prototype.hasOwnProperty.call(
+        res.GetAccountStatusResult,
+        'ResponseCode'
+      ) ||
+      McsdConst.RESPONSE_CODE_SUCCESS !==
+        res.GetAccountStatusResult.ResponseCode
     ) {
       throw new ErrorException({
         code: 500,
-        message: res.GetAccountStatusResult.ResponseMessage || 'Error while GetAccountsStatus'
+        message:
+          res.GetAccountStatusResult.ResponseMessage ||
+          'Error while GetAccountsStatus'
       });
     }
 
@@ -688,10 +731,10 @@ export default class UserService {
     }
 
     await Promise.all(
-      accounts.map(async (account) => {
+      accounts.map(async account => {
         let data: any = {
           description: account.ErrorMessage,
-          updatedAt: new Date(),
+          updatedAt: new Date()
         };
 
         if (McsdAccountConst.STATUS_ERROR == account.Status) {
@@ -699,8 +742,10 @@ export default class UserService {
         }
         loggerMCSD.log('info', account);
 
-        const user = await this.#userRepository.findByMCSDId(parseInt(account.BDCAccountId));
-        await this.#userRepository.update({ id: user[0].id }, data);
+        const user = await this._userRepository.findByMCSDId(
+          parseInt(account.BDCAccountId)
+        );
+        await this._userRepository.update({ id: user[0].id }, data);
       })
     );
 
@@ -709,11 +754,13 @@ export default class UserService {
     return BaseConst.MSG_SUCCESS;
   };
 
-  mcsdOpenedAccounts = async (params) => {
-    let data = await this.#validator.validateGetAccountStatus(params);
-    let companySymbol = await Helper.getValueR("CompanySymbol");
-    let companyParticipantType = await Helper.getValueR("CompanyParticipantType");
-    const res = await this.#mcsdService.GetAccounts({
+  mcsdOpenedAccounts = async params => {
+    let data = await this._validator.validateGetAccountStatus(params);
+    let companySymbol = await Helper.getValueR('CompanySymbol');
+    let companyParticipantType = await Helper.getValueR(
+      'CompanyParticipantType'
+    );
+    const res = await this._mcsdService.GetAccounts({
       BeginDate: Helper.dateToString(data.BeginDate, true),
       EndDate: Helper.dateToString(data.EndDate, true)
     });
@@ -726,12 +773,16 @@ export default class UserService {
     }
 
     if (
-      !Object.prototype.hasOwnProperty.call(res.GetAccountsResult, 'ResponseCode') ||
+      !Object.prototype.hasOwnProperty.call(
+        res.GetAccountsResult,
+        'ResponseCode'
+      ) ||
       McsdConst.RESPONSE_CODE_SUCCESS !== res.GetAccountsResult.ResponseCode
     ) {
       throw new ErrorException({
         code: 500,
-        message: res.GetAccountsResult.ResponseMessage || 'Error while GetAccounts'
+        message:
+          res.GetAccountsResult.ResponseMessage || 'Error while GetAccounts'
       });
     }
 
@@ -742,16 +793,26 @@ export default class UserService {
     }
     for (let i = 0; i < openedAccounts.length; i++) {
       let account = openedAccounts[i];
-      const user = await this.#userRepository.findByMCSDId(parseInt(account.AccountNumber));
+      const user = await this._userRepository.findByMCSDId(
+        parseInt(account.AccountNumber)
+      );
       if (user.length == 0 || user[0].status == BaseConst.STATUS_ACTIVE) {
         continue;
       }
-      let fullPrefix = companySymbol + "-" + companyParticipantType + "/" + account.MITPrefix + "-" + account.ClientSuffix + "/0";
-      await this.#userRepository.update(
+      let fullPrefix =
+        companySymbol +
+        '-' +
+        companyParticipantType +
+        '/' +
+        account.MITPrefix +
+        '-' +
+        account.ClientSuffix +
+        '/0';
+      await this._userRepository.update(
         { id: user[0].id },
         {
           status: UserConst.STATUS_ACTIVE,
-          description: "ҮЦТХТ-д данс нээгдсэн.",
+          description: 'ҮЦТХТ-д данс нээгдсэн.',
           updatedAt: new Date(),
           UserMCSDAccount: {
             updateMany: {
@@ -762,10 +823,12 @@ export default class UserService {
                 prefix: account.MITPrefix,
                 clientSuffix: account.ClientSuffix,
                 fullPrefix: fullPrefix,
-                bdcAccountId: account.BDCId.toString() + account.AccountNumber.toString().padStart(8, 0)
+                bdcAccountId:
+                  account.BDCId.toString() +
+                  account.AccountNumber.toString().padStart(8, 0)
               }
             }
-          },
+          }
           // UserGroup: {
           //   updateMany: {
           //     where: {
@@ -783,27 +846,29 @@ export default class UserService {
       );
 
       let params = {
-        key: "account-open",
+        key: 'account-open',
         uuid: user[0].uuid,
-        subject: "Данс",
-        type: "success",
-        content: "Таны үнэт цаасны данс нээгдсэн байна.",
+        subject: 'Данс',
+        type: 'success',
+        content: 'Таны үнэт цаасны данс нээгдсэн байна.',
         data: user[0]
-      }
+      };
       // this._notificationService.send(params);
     }
     return BaseConst.MSG_SUCCESS;
   };
 
   addBankAccount = async (user, params) => {
-    const { data, sUser } = await this.#validator.validateUserBankAccount(params);
+    const { data, sUser } = await this._validator.validateUserBankAccount(
+      params
+    );
 
-    const userBankAccount = await this.#userBankAccountRepository.create({
+    const userBankAccount = await this._userBankAccountRepository.create({
       userId: sUser ? sUser.id : user._id,
       bankCode: data.bankCode,
       accountNo: data.accountNo,
       accountName: data.accountName,
-      createdUserId: user._id,
+      createdUserId: user._id
     });
 
     await this.changeStep(sUser || user, UserStepConst.STEP_3);
@@ -811,34 +876,45 @@ export default class UserService {
     return userBankAccount;
   };
 
-  getBank = async (params) => {
-
-    const userBankAccount = await this.#userBankAccountRepository.findAll(params);
+  getBank = async params => {
+    const userBankAccount = await this._userBankAccountRepository.findAll(
+      params
+    );
 
     return userBankAccount.values;
   };
 
   removeBankAccount = async (user, params) => {
-    const { data } = await this.#validator.validateRemoveBankAccount(user, params);
+    const { data } = await this._validator.validateRemoveBankAccount(
+      user,
+      params
+    );
 
-    const userBankAccount = await this.#userBankAccountRepository.update(data.id, {
-      status: BaseConst.STATUS_INACTIVE,
-      updatedUserId: +user.id,
-      updatedAt: new Date(),
-    });
+    const userBankAccount = await this._userBankAccountRepository.update(
+      data.id,
+      {
+        status: BaseConst.STATUS_INACTIVE,
+        updatedUserId: +user.id,
+        updatedAt: new Date()
+      }
+    );
 
     return userBankAccount;
   };
 
-
-  MCSDTransactions = async (params) => {
-    let { user, data } = await this.#validator.validateMCSDTransactions(params);
-    let result = await this.#mcsdService.GetTransactions({ BeginDate: params.BeginDate, EndDate: params.EndDate });
-    // let result = await this.#msccService.CustStatement({prefix: user.UserMCSDAccount[0].prefix, startdate: data.BeginDate, enddate: data.EndDate});
+  MCSDTransactions = async params => {
+    let { user, data } = await this._validator.validateMCSDTransactions(params);
+    let result = await this._mcsdService.GetTransactions({
+      BeginDate: params.BeginDate,
+      EndDate: params.EndDate
+    });
+    // let result = await this._msccService.CustStatement({prefix: user.UserMCSDAccount[0].prefix, startdate: data.BeginDate, enddate: data.EndDate});
     let userTransactions: any = [];
-    console.log(user, data)
+    console.log(user, data);
     loggerMCSD.info({ params: data, result: result });
-    if (!Object.prototype.hasOwnProperty.call(result, 'GetTransactionsResult')) {
+    if (
+      !Object.prototype.hasOwnProperty.call(result, 'GetTransactionsResult')
+    ) {
       throw new ErrorException({
         code: 500,
         message: 'Error at MCSD GetTransactionsResult method'
@@ -850,22 +926,32 @@ export default class UserService {
         message: result.GetTransactionsResult.Response.Message
       });
     }
-    result.GetTransactionsResult.Transactions.Transaction.forEach(transaction => {
-      if (transaction.MITPrefix == user.UserMCSDAccount[0].prefix) {
-        if (transaction.TransactionTypeId == 10 || transaction.TransactionTypeId == 20 || transaction.TransactionTypeId == 11 || transaction.TransactionTypeId == 30) {
-          let tran = {
-            code: transaction.SecuritiesCode,
-            amount: transaction.SecuritiesQuantity,
-            date: transaction.TransactionDate,
-            description: transaction.Description,
-            type: (transaction.TransactionTypeId == 11 || transaction.TransactionTypeId == 30) ? 1 : 2
+    result.GetTransactionsResult.Transactions.Transaction.forEach(
+      transaction => {
+        if (transaction.MITPrefix == user.UserMCSDAccount[0].prefix) {
+          if (
+            transaction.TransactionTypeId == 10 ||
+            transaction.TransactionTypeId == 20 ||
+            transaction.TransactionTypeId == 11 ||
+            transaction.TransactionTypeId == 30
+          ) {
+            let tran = {
+              code: transaction.SecuritiesCode,
+              amount: transaction.SecuritiesQuantity,
+              date: transaction.TransactionDate,
+              description: transaction.Description,
+              type:
+                transaction.TransactionTypeId == 11 ||
+                transaction.TransactionTypeId == 30
+                  ? 1
+                  : 2
+            };
+            userTransactions.push(tran);
           }
-          userTransactions.push(tran);
         }
       }
-    });
+    );
     loggerMCSD.info({ userTransactions: userTransactions });
     return userTransactions;
-  }
-
+  };
 }
