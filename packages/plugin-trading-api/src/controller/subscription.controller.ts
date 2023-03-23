@@ -69,10 +69,11 @@ router.post('/order-received', async (req, res) => {
 
 router.post('/test', async (req, res) => {
   const order = req.body;
-  let field = userService.getUserByRegisterNumber(
-    'УЮ97050519',
+  let field = await userService.getUserByRegisterNumber(
+    ['УЮ97050519', 'УЮ97050500'],
     getSubdomain(req)
   );
+  console.log('field', field);
   return res.json({
     data: 'Success'
   });

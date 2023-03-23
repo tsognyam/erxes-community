@@ -121,7 +121,7 @@ export default class UserService {
     return user;
   };
   getUserByRegisterNumber = async (
-    registerNumber: string,
+    registerNumber: string[],
     subdomain: string
   ) => {
     let fieldId = await sendFormsMessage({
@@ -137,11 +137,13 @@ export default class UserService {
     });
     let query = {
       'customFieldsData.field': fieldId._id,
-      'customFieldsData.value': registerNumber
+      'customFieldsData.value': {
+        $in: registerNumber
+      }
     };
     const user = await getUsers(query, subdomain);
     // console.log('user',user)
-    return user[0];
+    return user;
   };
   getUser = async (subdomain, userUuid) => {
     // let user = this._userRepository.findByUuid(userUuid);
