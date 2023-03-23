@@ -42,7 +42,7 @@ export default class AdminService {
         let contractNote = await this.#contractNoteRepository.findAll(params);
         return contractNote;
     }
-    contractNote = async (params) => {
+    contractNote = async (params, subdomain: string) => {
 
         let file = fs.readFileSync('./data/uploads/' + params.file.filename, "utf8");
         let arr: any = file.split("\n");
@@ -68,17 +68,9 @@ export default class AdminService {
             let rowi = arr[nextRow];
             let registerNumber = rowi[4];
             let rowCount = arr[nextRow + 1][1];
-            let segmentData = {
-                contentType:"contacts:customer",
-                conditions: [{ "type": "property", "propertyType": "contacts:customer", "propertyName": "customFieldsData.4QsZuYM2FFBTPWQs2", "propertyOperator": "e", "propertyValue": registerNumber, "config": {} }]
-            }
-            console.log('registerNumber',registerNumber)
-            let userErxes = await fetchSegment('localhost', '', segmentData)
-            console.log('userErxes', userErxes)
+            
             // let user = await this.#userRepository.findByRegisterNumber(registerNumber);
-            let user = await this.#userMcsdRepository.findUnique({
-                userId: userErxes._id
-            })
+            let user = await this.#userService.getUserByRegisterNumber(registerNumber, subdomain);
             if (!user) {
                 error += "\n--! Харилцагчийн мэдээлэл олдсонгүй. РД:" + registerNumber
                 continue;

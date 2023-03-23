@@ -73,6 +73,17 @@ export const sendSegmentsMessage = async (
   });
 };
 
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'forms',
+    ...args
+  });
+};
+
 export const sendNotificationsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

@@ -29,7 +29,7 @@ import BaseConst from '../../constants/base';
 import * as moment from 'moment';
 import { CustomException, ErrorCode } from '../../exception/error-code';
 import ErrorException from '../../exception/error-exception';
-import { sendContactsMessage, sendCoreMessage, sendCPMessage, sendLogsMessage } from '../../messageBroker';
+import { fetchSegment, sendContactsMessage, sendCoreMessage, sendCPMessage, sendFormsMessage, sendLogsMessage } from '../../messageBroker';
 import UserMCSDAccountRepository from '../../repository/user/user.mcsd.repository';
 import { any } from 'joi';
 import { getUsers } from '../../models/utils';
@@ -114,30 +114,64 @@ export default class UserService {
 
     return user;
   };
+  getUserByRegisterNumber = async (registerNumber: string, subdomain: string) => {
 
+    let fieldId = await sendFormsMessage({
+      action: 'fields.findOne',
+      subdomain: subdomain,
+      data: {
+        query: {
+          code: "registerNumber"
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    })
+    let query = {
+      'customFieldsData.field': fieldId._id,
+      'customFieldsData.value': registerNumber
+    };
+    const user = await getUsers(query, subdomain);
+    // console.log('user',user)
+    return user[0];
+  }
   getUser = async (subdomain, userUuid) => {
     // let user = this.#userRepository.findByUuid(userUuid);
     console.log('userUuid', userUuid)
     let cpUser = await sendCPMessage({
       subdomain,
-      action: 'clientPortals.findOne',
+      action: 'clientPortalUsers.findOne',
       data: {
         _id: userUuid
       },
       isRPC: true
     })
     console.log('cpUser', cpUser)
+    if (cpUser.type == "customer") {
+      let user = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          _id: userUuid
+        },
+        isRPC: true
+      })
+      console.log('user', user)
+      return user;
+    } else
+      if (cpUser.type == "company") {
+        let user = await sendContactsMessage({
+          subdomain,
+          action: 'company.findOne',
+          data: {
+            _id: userUuid
+          },
+          isRPC: true
+        })
+        console.log('user', user)
+        return user;
+      }
 
-    let user = await sendContactsMessage({
-      subdomain,
-      action: 'customers.findOne',
-      data: {
-        _id: userUuid
-      },
-      isRPC: true
-    })
-    console.log('user',user)
-    return user;
   };
 
   getUserByCustom = async (subdomain, params) => {

@@ -13,7 +13,7 @@ const AdminMutations = {
     params,
     { user, models, subdomain }: IContext
   ) => {
-    return await adminService.contractNote(params);
+    return await adminService.contractNote(params, subdomain);
   }
 };
 export default AdminMutations;

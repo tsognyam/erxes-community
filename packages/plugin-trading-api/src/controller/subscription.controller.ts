@@ -1,7 +1,9 @@
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
 import { graphqlPubsub } from '../configs';
+import UserService from '../service/user/user.service';
 const router = Router();
-
+let userService = new UserService();
 router.post('/market', async (req, res) => {
   const {
     cnt,
@@ -60,6 +62,17 @@ router.post('/order-received', async (req, res) => {
   graphqlPubsub.publish('orderReceived', {
     orderReceived: order
   });
+  return res.json({
+    data: 'Success'
+  });
+});
+
+router.post('/test', async (req, res) => {
+  const order = req.body;
+  let field = userService.getUserByRegisterNumber(
+    'УЮ97050519',
+    getSubdomain(req)
+  );
   return res.json({
     data: 'Success'
   });
