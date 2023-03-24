@@ -162,7 +162,7 @@ class OrderValidator extends BaseValidator {
         stockcode: this._joi.array().items(this._joi.number()),
         status: this._joi.array().items(this._joi.number()),
         prefix: this._joi.array().items(this._joi.string()),
-        userId: this._joi.number(),
+        userId: this._joi.string(),
         startDate: this._joi.date(),
         endDate: this._joi.date()
       },

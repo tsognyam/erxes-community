@@ -25,6 +25,7 @@ import CustFeeService from './custfee.service';
 import Helper from '../middleware/helper.service';
 import BaseRepository from '../repository/base.repository';
 import StockWalletValidator from './validator/wallet/stock.wallet.validator';
+import UserService from './user/user.service';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -37,6 +38,7 @@ export default class MigrationService {
   private stockTransactionService: StockTransactionService;
   private custFeeService: CustFeeService;
   private stockWalletValidator: StockWalletValidator;
+  private userService: UserService;
   constructor() {
     this.orderService = new OrderService();
     this.stockRepository = new StockRepository();
@@ -49,6 +51,7 @@ export default class MigrationService {
     this.stockTransactionService = new StockTransactionService();
     this.custFeeService = new CustFeeService();
     this.stockWalletValidator = new StockWalletValidator();
+    this.userService = new UserService();
   }
   getCsvData = async fileName => {
     return new Promise(function(resolve, reject) {
@@ -85,8 +88,11 @@ export default class MigrationService {
   };
   migrationTransaction = async (data: any) => {
     let sortedData = data.sort(
-      (a, b) =>
-        new Date(a.createddate).getTime() - new Date(b.createddate).getTime()
+      (a, b) => (
+        new Date(a.createddate).getTime() - new Date(b.createddate).getTime(),
+        new Date(a.transaction_date).getTime() -
+          new Date(b.transaction_date).getTime()
+      )
     );
     let i = 0,
       addedTransaction = 0;
@@ -204,13 +210,11 @@ export default class MigrationService {
     let userRegisters = data.map((obj: any) => {
       return obj.register_number;
     });
-    let uniqRegisters = [...new Set(userRegisters)];
-    let query = {
-      'customFieldsDataByFieldCode.registerNumber.value': {
-        $in: uniqRegisters
-      }
-    };
-    const users = await getUsers(query, subdomain);
+    const users = await this.userService.getUserByRegisterNumber(
+      userRegisters,
+      subdomain
+    );
+    console.log(users);
     let i = 0;
     //Компанийн бондын шимтгэл
     let feeCorpDebt = await Helper.getValue('FeeCorpDebt');

@@ -62,7 +62,7 @@ class WalletRow extends React.Component<Props> {
     return (
       <StyledTr key={index}>
         <td>{index + 1}</td>
-        <td>{wallet.stock.symbol}</td>
+        <td>{wallet.stock?.symbol}</td>
         <td>{wallet.balance}</td>
         <td>{wallet.holdBalance}</td>
         <td>

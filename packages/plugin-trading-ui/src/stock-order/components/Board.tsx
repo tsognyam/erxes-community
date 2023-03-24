@@ -234,7 +234,11 @@ class BoardComp extends React.Component<Props, State> {
           <StockData>
             {stockList.map(stock => (
               <div style={{ display: 'inline-table', width: '150px' }}>
-                <div style={{ width: '50px' }}>{stock.symbol}</div>
+                <div
+                  style={{ width: '50px', fontSize: '14px', fontWeight: 700 }}
+                >
+                  {stock.symbol}
+                </div>
                 <div style={{ float: 'left', padding: '0px 15px 7px 0px' }}>
                   <StockChange
                     isIncreased={stock.changePercent > 0 ? true : false}

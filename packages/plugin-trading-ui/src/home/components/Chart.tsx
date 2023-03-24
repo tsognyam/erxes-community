@@ -18,9 +18,8 @@ type Props = {
   chartType: string;
   data: any;
   colors: any;
+  years: [];
 };
-const year = new Date().getFullYear();
-const years = Array.from(new Array(3), (v, idx) => year - idx);
 const RADIAN = Math.PI / 180;
 
 export default class Chart extends PureComponent<Props> {
@@ -94,7 +93,7 @@ export default class Chart extends PureComponent<Props> {
     );
   };
   render() {
-    const { data, chartType, colors } = this.props;
+    const { data, chartType, colors, years } = this.props;
     switch (chartType) {
       case 'stockByAmount': {
         return (

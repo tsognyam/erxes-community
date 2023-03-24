@@ -300,6 +300,7 @@ export const BoxContentContainer = styled.div`
     margin-left: auto;
     margin-right: auto;
   }
+  padding-top: 30px;
 `;
 export const ChartContentContainer = styled.div`
   height: 50vh;
@@ -335,4 +336,42 @@ export const LeftContent = styled.div`
 export const MiddleContent = styled.div`
   align-self: center;
   width: 250px;
+`;
+export const Widget = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex: 1;
+  padding: 10px;
+  --webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+  box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+  border-radius: 10px;
+  height: 100px;
+`;
+export const WidgetItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: end;
+  > .title {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  > .counter {
+    font-size: 28px;
+    font-weight: 300;
+  }
+
+  > .link {
+    width: max-content;
+    font-size: 12px;
+    border-bottom: 1px solid gray;
+  }
+`;
+export const WidgetContainer = styled.div`
+  flex: 6;
+`;
+export const Widgets = styled.div`
+display:flex;
+padding:30px 30px 0 30px
+gap:20px;
 `;
