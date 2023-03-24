@@ -63,33 +63,30 @@ export default class TransactionRepository extends BaseRepository {
     }
     let walletFilter = '';
     if (params.walletId) {
-      walletFilter = `and (tr.walletId=${params.walletId}`;
+      walletFilter = ` and tr.walletId=${params.walletId} `;
     }
     let sql =
       `
-    SELECT 1 as type,tr.dater,tr.createdAt,
-    case when tr.type=${TransactionConst.INCOME} then "3"
-    when tr.type=${TransactionConst.OUTCOME} then "4"
-    when tr.type=${TransactionConst.FEE_INCOME} then "3"
-    when tr.type=${TransactionConst.FEE_OUTCOME} then "4" else "0" end as classfication,
+    SELECT tr.dater,tr.createdAt,tr.description,
 	case 
     when (tr.type=1 and tr.status=1) then tr.amount
     when (tr.type=3 and tr.status=1) then tr.amount
     else 0 end as income,
-    case when (tr.type=2  and tr.status=1) then tr.amount
-    when (tr.type=4 and tr.status=1) then tr.amount
+    case when (tr.type=2  and tr.status=1) then tr.amount*-1
+    when (tr.type=4 and tr.status=1) then tr.amount*-1
 	else 0 end as outcome,
 	case  
     when (tr.type=1 and tr.status=2) then tr.amount
     when (tr.type=3 and tr.status=2) then tr.amount
     else 0 end as expectedIncome,
     case 
-    when (tr.type=2 and tr.status=2) then tr.amount 
-    when (tr.type=4 and tr.status=2) then tr.amount 
+    when (tr.type=2 and tr.status=2) then tr.amount*-1 
+    when (tr.type=4 and tr.status=2) then tr.amount*-1 
     else 0 end as expectedOutcome
     FROM \`Transaction\` tr where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
-      walletFilter;
+      walletFilter +
+      ' order by tr.dater,tr.createdAt';
     //     let sql =
     //       `SELECT
     //     tr.type,tr.dater,tr.createdAt,stock.stockname,
@@ -123,6 +120,7 @@ export default class TransactionRepository extends BaseRepository {
     //   if (err) throw err;
     // })
     let statementList = await this._prisma.$queryRaw(Prisma.raw(sql));
+    console.log(statementList);
     let dataList = {
       total: statementList.length,
       count: statementList.length,

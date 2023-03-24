@@ -26,20 +26,13 @@ type tradingTransactionList {
     values:[tradingTransaction]
 }
 type tradingTransactionStatement {
-    type:Int,
     dater:Date,
     createdAt:Date,
-    stockname:String,
-    stockcode:String,
-    symbol:String,
     income:Float,
     outcome:Float,
     expectedIncome:Float,
     expectedOutcome:Float,
-    totalAmount:Float,
-    feeAmount:Float,
-    price:Float,
-    classfication:Int
+    description:String
 }
 type tradingTransactionStatementList {
     total:Int,
