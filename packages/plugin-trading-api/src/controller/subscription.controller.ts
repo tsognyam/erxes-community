@@ -70,14 +70,14 @@ router.post('/order-received', async (req, res) => {
 });
 
 router.post('/test', async (req, res) => {
-  const order = req.body;
+  const body = req.body;
   notificationService.send({
     subdomain: getSubdomain(req),
-    createdUserId: 'uPutASFdKQLR7g8LQ',
+    createdUserId: body.createdUserId,
     subject: 'test subject',
     content: 'testing notification',
     action: 'asd',
-    userId: ['uPutASFdKQLR7g8LQ'],
+    userId: [body.userId],
     data: 'asd'
   });
   return res.json({
