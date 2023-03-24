@@ -19,7 +19,7 @@ router.post('/market', async (req, res) => {
     vwap,
     trades
   } = req.body;
-  console.log('req.stockMarketChanged', req.body);
+
   graphqlPubsub.publish('stockMarketChanged', {
     stockMarketChanged: {
       cnt,
