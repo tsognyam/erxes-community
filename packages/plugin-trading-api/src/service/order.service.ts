@@ -25,6 +25,9 @@ import StockValidator from './validator/stock.validator';
 import NotificationService from './notification.service';
 import WalletRepository from '../repository/wallet/wallet.repository';
 import { graphqlPubsub } from '../configs';
+import * as moment from 'moment';
+let MIT_BEGINTIME = process.env.MIT_BEGINTIME || '';
+let MIT_ENDTIME = process.env.MIT_ENDTIME || '';
 class OrderService {
   private orderValidator: OrderValidator;
   private orderRepository: OrderRepository;
@@ -40,6 +43,7 @@ class OrderService {
   private stockValidator: StockValidator;
   private notificationService: NotificationService;
   private walletRepository: WalletRepository;
+
   constructor() {
     this.orderValidator = new OrderValidator();
     this.orderRepository = new OrderRepository();
@@ -136,7 +140,8 @@ class OrderService {
     let order = await this.orderRepository.create(dataValid);
 
     if (stockdata.stocktypeId == StockTypeConst.SEC) {
-      if (live) {
+      let now = moment().format('HH:mm');
+      if (live && MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
         let edata = {
           otype: '1',
           fullPrefix: userMCSD.fullPrefix,
@@ -416,11 +421,14 @@ class OrderService {
         expiredate: Helper.dateToString(order.enddate)
       };
     }
-    await sendMITMessage({
-      subdomain: 'localhost',
-      action: 'send',
-      data: edata
-    });
+    let now = moment().format('HH:mm');
+    if (MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
+      await sendMITMessage({
+        subdomain: 'localhost',
+        action: 'send',
+        data: edata
+      });
+    }
     // if (mseSocket.getSocket().isConnected()) {
     //     let socket = mseSocket.getSocket();
     //     socket.request(edata);
@@ -507,11 +515,14 @@ class OrderService {
         symbol: stockdata.externalid,
         ordersubid: order.mseOrderId.toString()
       };
-      await sendMITMessage({
-        subdomain: 'localhost',
-        action: 'send',
-        data: edata
-      });
+      let now = moment().format('HH:mm');
+      if (MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
+        await sendMITMessage({
+          subdomain: 'localhost',
+          action: 'send',
+          data: edata
+        });
+      }
       // if (mseSocket.getSocket().isConnected()) {
       //     let socket = mseSocket.getSocket();
       //     socket.request(edata);

@@ -1,9 +1,11 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
 import { graphqlPubsub } from '../configs';
+import NotificationService from '../service/notification.service';
 import UserService from '../service/user/user.service';
 const router = Router();
 let userService = new UserService();
+let notificationService = new NotificationService();
 router.post('/market', async (req, res) => {
   const {
     cnt,
@@ -69,11 +71,15 @@ router.post('/order-received', async (req, res) => {
 
 router.post('/test', async (req, res) => {
   const order = req.body;
-  let field = await userService.getUserByRegisterNumber(
-    ['УЮ97050519', 'УЮ97050500'],
-    getSubdomain(req)
-  );
-  console.log('field', field);
+  notificationService.send({
+    subdomain: getSubdomain(req),
+    createdUserId: 'uPutASFdKQLR7g8LQ',
+    subject: 'test subject',
+    content: 'testing notification',
+    action: 'asd',
+    userId: ['uPutASFdKQLR7g8LQ'],
+    data: 'asd'
+  });
   return res.json({
     data: 'Success'
   });
