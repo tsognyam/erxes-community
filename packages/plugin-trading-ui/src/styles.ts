@@ -136,7 +136,7 @@ padding-right: 100%;
 animation-iteration-count: infinite;
 animation-timing-function: linear;
 animation-name: ${rotate};
-animation-duration: 60s;
+animation-duration: 100s;
 padding-right: 100%;
 padding-top:25px;
 `;
@@ -166,11 +166,16 @@ export const ListContainer = styled.div`
   display: flex;
   align-items: baseline;
 `;
-export const OrderBookList = styledTS<{ background: string }>(styled.table)`
+export const OrderBookListDiv = styled.div`
+  overflow-y: auto;
+  height: 550px;
+  flex-basis: 20%;
   margin-right: 10px;
+`;
+export const OrderBookList = styledTS<{ background: string }>(styled.table)`
   border-collapse: collapse;
   border: 1px solid #eee;
-  flex-basis:20%;
+  width:100%;
   th,
   td {
     border: 1px solid #eee;
@@ -181,6 +186,8 @@ export const OrderBookList = styledTS<{ background: string }>(styled.table)`
   text-align: center;
   thead {
     text-align: center;
+    position: sticky; /* make the table heads sticky */
+    top: 0px;
     tr {
       &:first-child {
         height: 35px;

@@ -65,13 +65,13 @@ class ListContainer extends React.Component<FinalProps> {
     const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const buyOrderBook =
-      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 0)[0]
+      tradingOrderBookQuery?.tradingOrderBook?.filter(x => x.type == 0)[0]
         .data || [];
     const sellOrderBook =
-      tradingOrderBookQuery.tradingOrderBook?.filter(x => x.type == 1)[0]
+      tradingOrderBookQuery?.tradingOrderBook?.filter(x => x.type == 1)[0]
         .data || [];
     const executedOrderBook =
-      tradingExecutedBookQuery.tradingExecutedBook || [];
+      tradingExecutedBookQuery?.tradingExecutedBook || [];
     const extendedProps = {
       ...this.props,
       prefix,
@@ -112,21 +112,23 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(queries.MarketQueries.tradingOrderBook), {
       name: 'tradingOrderBookQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
         variables: {
-          stockcode: 90
+          stockcode: Number(queryParams.stockcode)
         }
-      })
+      }),
+      skip: props => !props.queryParams.stockcode
     }),
     graphql<Props>(gql(queries.MarketQueries.tradingExecutedBook), {
       name: 'tradingExecutedBookQuery',
-      options: () => ({
+      options: ({ queryParams }) => ({
         variables: {
-          stockcode: 90,
+          stockcode: Number(queryParams.stockcode),
           beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
           endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
         }
-      })
+      }),
+      skip: props => !props.queryParams.stockcode
     })
   )(ListContainer)
 );

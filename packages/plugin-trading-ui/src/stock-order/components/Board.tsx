@@ -79,7 +79,7 @@ class BoardComp extends React.Component<Props, State> {
       count: 0,
       userPrefix: '',
       stockname: '',
-      stockcode: '90'
+      stockcode: ''
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -88,7 +88,7 @@ class BoardComp extends React.Component<Props, State> {
       if (this.subscription) {
         this.subscription();
       }
-      this.subscription = tradingOrderBookQuery.subscribeToMore({
+      this.subscription = tradingOrderBookQuery?.subscribeToMore({
         document: gql(subscriptions.orderBookChanged),
         updateQuery: (prev, { subscriptionData }) => {
           const stockList = this.props.stocks;
@@ -96,12 +96,14 @@ class BoardComp extends React.Component<Props, State> {
             x => x.stockcode == this.state.stockcode
           );
           let changedOrderBook = subscriptionData.data.orderBookChanged;
+          console.log(changedOrderBook);
           if (
             !!this.state.stockcode &&
             !!stock &&
             (changedOrderBook.symbol == stock.externalid ||
               changedOrderBook.symbol == stock.symbol)
           ) {
+            console.log('changedOrderBook', changedOrderBook);
             this.refetchQuery(this.state.stockcode);
           }
         }
@@ -146,16 +148,17 @@ class BoardComp extends React.Component<Props, State> {
     const {
       tradingOrderBookQuery,
       tradingExecutedBookQuery,
-      getDate
+      getDate,
+      onSelect
     } = this.props;
-    tradingOrderBookQuery.refetch({
-      stockcode: Number(stockcode)
-    });
-    tradingExecutedBookQuery.refetch({
-      stockcode: Number(stockcode),
-      beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
-      endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
-    });
+    // tradingOrderBookQuery.refetch({
+    //   stockcode: Number(stockcode)
+    // });
+    // tradingExecutedBookQuery.refetch({
+    //   stockcode: Number(stockcode),
+    //   beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
+    //   endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
+    // });
   };
   stockChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
@@ -164,6 +167,7 @@ class BoardComp extends React.Component<Props, State> {
     this.setState({ stockcode: value });
     const stockList = this.props.stocks;
     const stock = stockList.find(x => x.stockcode == value);
+    this.props.onSelect(value, 'stockcode');
     if (stock) {
       this.refetchQuery(stock.stockcode);
       this.setState({ closeprice: stock.closeprice });
@@ -195,15 +199,22 @@ class BoardComp extends React.Component<Props, State> {
         value: x.stockcode,
         label: x.symbol + ' - ' + x.stockname
       });
-      let changePercent = 0;
-      let diff = x.closeprice - x.openprice;
+      let changePercent = 0,
+        diff = 0,
+        closeprice = 0;
+      if (!!x.closeprice) closeprice = x.closeprice;
+      else closeprice = x.openprice;
+      diff = closeprice - x.openprice;
       if (x.openprice != 0)
         changePercent = Math.round((diff / x.openprice) * 100);
       if (x.symbol != 'NULL') {
         if (index < 50)
           stockList.push({
             ...x,
-            changePercent
+            changePercent,
+            changedData: {
+              closeprice: closeprice
+            }
           });
       }
     });
@@ -239,12 +250,15 @@ class BoardComp extends React.Component<Props, State> {
                 >
                   {stock.symbol}
                 </div>
-                <div style={{ float: 'left', padding: '0px 15px 7px 0px' }}>
-                  <StockChange
-                    isIncreased={stock.changePercent > 0 ? true : false}
-                  >
-                    {stock.closeprice}
-                  </StockChange>
+                <div
+                  style={{
+                    float: 'left',
+                    padding: '0px 15px 7px 0px',
+                    fontSize: '14px',
+                    fontWeight: 700
+                  }}
+                >
+                  {stock.changedData.closeprice}
                 </div>
                 <div
                   style={{
