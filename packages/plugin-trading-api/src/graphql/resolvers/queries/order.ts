@@ -1,6 +1,7 @@
 import {
   checkPermission,
-  requireLogin
+  requireLogin,
+  moduleCheckPermission
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import OrderRepository from '../../../repository/order.repository';
@@ -146,6 +147,5 @@ const OrderQueries = {
     return orderList;
   }
 };
-requireLogin(OrderQueries, 'tradingOrders');
-requireLogin(OrderQueries, 'tradingOrderDetail');
+moduleCheckPermission(OrderQueries, 'tradingOrderShow');
 export default OrderQueries;

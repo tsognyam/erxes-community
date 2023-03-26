@@ -19,38 +19,20 @@ class Row extends React.Component<Props> {
         <td>{index + 1}</td>
         <td>{dayjs(transaction.dater).format('YYYY-MM-DD')}</td>
         <td>
-          {transaction.type == 1
-            ? 'Үнэт цаас'
-            : transaction.type == 2
-            ? 'Бэлэн мөнгө'
-            : transaction.type == 3
-            ? 'Бэлэн мөнгө'
-            : transaction.type == 4
-            ? 'Бэлэн мөнгө'
-            : ''}
-        </td>
-        <td>
-          {transaction.classfication == 1
-            ? 'Авах'
-            : transaction.classfication == 2
-            ? 'Зарах'
-            : transaction.classfication == 3
+          {transaction.type == 1 || transaction.type == 3
             ? 'Орлого'
-            : transaction.classfication == 4
+            : transaction.type == 2 || transaction.type == 4
             ? 'Зарлага'
             : ''}
         </td>
-        <td>{transaction.stockname}</td>
-        <td>{transaction.symbol}</td>
-        <td>{transaction.stockcode}</td>
+        <td>{displayValue(transaction.beforeBalance)}</td>
         <td>{displayValue(transaction.income)}</td>
         <td>{displayValue(transaction.outcome)}</td>
         <td>{displayValue(transaction.expectedIncome)}</td>
         <td>{displayValue(transaction.expectedOutcome)}</td>
-        <td>{displayValue(transaction.price || 0)}</td>
-        <td>{displayValue(transaction.totalAmount)}</td>
-        <td>{displayValue(transaction.feeAmount)}</td>
-        <td></td>
+        <td>{displayValue(transaction.afterBalance)}</td>
+        <td>{transaction.description}</td>
+        <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
       </StyledTr>
     );
   }

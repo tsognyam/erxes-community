@@ -32,7 +32,11 @@ type tradingTransactionStatement {
     outcome:Float,
     expectedIncome:Float,
     expectedOutcome:Float,
-    description:String
+    description:String,
+    walletId:Int,
+    beforeBalance:Float,
+    afterBalance:Float,
+    type:Int
 }
 type tradingTransactionStatementList {
     total:Int,
@@ -64,8 +68,8 @@ status:Int
 tradingTransactionStatement(
     startDate:Date,
     endDate:Date,
-    page:Int,
-    perPage:Int,
+    page:Int!,
+    perPage:Int!,
     walletId:Int
 ):tradingTransactionStatementList
 `;

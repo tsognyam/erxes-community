@@ -31,9 +31,9 @@ import {
   StockTransactionQueries,
   CustFeeQueries,
   AdminQueries,
-  ReportQueries
+  ReportQueries,
+  SettlementQueries
 } from './queries';
-
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   Mutation: {
@@ -67,7 +67,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...StockTransactionQueries,
     ...CustFeeQueries,
     ...AdminQueries,
-    ...ReportQueries
+    ...ReportQueries,
+    ...SettlementQueries
   }
 });
 

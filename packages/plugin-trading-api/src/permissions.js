@@ -6,24 +6,60 @@ module.exports = {
             {
                 name: 'tradingAll',
                 description: 'All',
-                use: ['trading']
+                use: ['tradingOrderManagement', 'tradingStockManagement',
+                    'tradingWithdrawManagement', 'tradingCustomerFeeManagement',
+                    'tradingWalletManagement', 'tradingStatementShow'
+                ]
             },
             {
-                name: 'tradingRole',
-                description: 'Арилжаа хийх эрх',
+                name: 'tradingOrderManagement',
+                description: 'Manage orders',
+                use: ['tradingOrderShow']
             },
             {
-                name: 'withdrawRole',
-                description: "Мөнгө хүсэх эрх"
+                name: 'tradingOrderShow',
+                description: 'Show orders'
             },
             {
-                name: 'customerManagementRole',
-                description: 'Харилцагчийн мэдээлэл'
+                name: 'tradingStockManagement',
+                description: 'Manage stocks',
+                use: ['tradingStockShow']
             },
             {
-                name: 'securitiesManagement',
-                description: ''
-            }
+                name: 'tradingStockShow',
+                description: 'Show stocks'
+            },
+            {
+                name: 'tradingWithdrawManagement',
+                description: 'Manage withdraws',
+                use: ['tradingWithdrawShow']
+            },
+            {
+                name: 'tradingWithdrawShow',
+                description: 'Show withdraw'
+            },
+            {
+                name: 'tradingCustomerFeeManagement',
+                description: 'Manage customer fee',
+                use: ['tradingCustomerFeeShow']
+            },
+            {
+                name: 'tradingCustomerFeeShow',
+                description: 'Show customer fee'
+            },
+            {
+                name: 'tradingWalletManagement',
+                description: 'Manage wallets',
+                use: ['tradingWalletShow']
+            },
+            {
+                name: 'tradingWalletShow',
+                description: 'Show wallets'
+            },
+            {
+                name: 'tradingStatementShow',
+                description: "Show statements"
+            },
         ]
     },
 }

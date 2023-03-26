@@ -452,56 +452,68 @@ class TransactionService {
     }
     var transactions: any = [];
     if (!data.dater) data.dater = new Date();
-    if (senderWallet != undefined) {
-      let walletRealBalance =
+    let senderWalletRealBalance = 0,
+      receiverWalletRealBalance = 0;
+    if (!!senderWallet)
+      senderWalletRealBalance =
         parseFloat(senderWallet.walletBalance.balance) -
         parseFloat(senderWallet.walletBalance.holdBalance) +
         parseFloat(senderWallet.walletBalance.incomingBalance);
-      if (data.amount != 0)
-        transactions.push({
+    if (!!receiverWallet)
+      receiverWalletRealBalance =
+        parseFloat(receiverWallet.walletBalance.balance) -
+        parseFloat(receiverWallet.walletBalance.holdBalance) +
+        parseFloat(receiverWallet.walletBalance.incomingBalance);
+    if (senderWallet != undefined) {
+      if (data.amount != 0) {
+        let transaction = {
           walletId: senderWallet.id,
           type: TransactionConst.OUTCOME,
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount * -1,
           dater: data.dater,
-          beforeBalance: walletRealBalance,
-          afterBalance: walletRealBalance + data.amount * -1,
+          beforeBalance: senderWalletRealBalance,
+          afterBalance: senderWalletRealBalance + data.amount * -1,
           description: data.description,
           createdAt: new Date()
-        });
-      let walletBalanceUpdate = {
-        walletBalance: {
-          update: {
-            holdBalance: {
-              increment:
-                data.amount +
-                (data.feeType == TransactionConst.FEE_TYPE_SENDER
-                  ? data.feeAmount
-                  : 0)
-            },
-            updatedAt: new Date()
+        };
+        senderWalletRealBalance = transaction.afterBalance;
+        transactions.push(transaction);
+        let walletBalanceUpdate = {
+          walletBalance: {
+            update: {
+              holdBalance: {
+                increment:
+                  data.amount +
+                  (data.feeType == TransactionConst.FEE_TYPE_SENDER
+                    ? data.feeAmount
+                    : 0)
+              },
+              updatedAt: new Date()
+            }
           }
-        }
-      };
-      await this.walletRepository.update(senderWallet.id, walletBalanceUpdate);
+        };
+        await this.walletRepository.update(
+          senderWallet.id,
+          walletBalanceUpdate
+        );
+      }
     }
     if (receiverWallet != undefined) {
-      let walletRealBalance =
-        parseFloat(receiverWallet.walletBalance.balance) -
-        parseFloat(receiverWallet.walletBalance.holdBalance) +
-        parseFloat(receiverWallet.walletBalance.incomingBalance);
       if (data.amount != 0) {
-        transactions.push({
+        let transaction = {
           walletId: receiverWallet.id,
           type: TransactionConst.INCOME,
           status: TransactionConst.STATUS_PENDING,
           amount: data.amount,
           dater: data.dater,
-          beforeBalance: walletRealBalance,
-          afterBalance: walletRealBalance + parseFloat(data.amount),
+          beforeBalance: receiverWalletRealBalance,
+          afterBalance: receiverWalletRealBalance + parseFloat(data.amount),
           description: data.description,
           createdAt: new Date()
-        });
+        };
+        receiverWalletRealBalance = transaction.afterBalance;
+        transactions.push(transaction);
         let walletBalanceUpdate = {
           walletBalance: {
             update: {
@@ -525,11 +537,7 @@ class TransactionService {
       }
     }
     if (data.feeAmount > 0) {
-      let walletRealBalance =
-        parseFloat(senderWallet.walletBalance.balance) -
-        parseFloat(senderWallet.walletBalance.holdBalance) +
-        parseFloat(senderWallet.walletBalance.incomingBalance);
-      transactions.push({
+      let transaction = {
         walletId: senderWallet.id,
         type:
           data.feeType == TransactionConst.FEE_TYPE_SENDER
@@ -540,9 +548,9 @@ class TransactionService {
           data.feeAmount *
           (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         dater: data.dater,
-        beforeBalance: walletRealBalance,
+        beforeBalance: senderWalletRealBalance,
         afterBalance:
-          walletRealBalance +
+          senderWalletRealBalance +
           data.feeAmount *
             (data.feeType == TransactionConst.FEE_TYPE_SENDER ? -1 : 1),
         description:
@@ -550,7 +558,9 @@ class TransactionService {
             ? 'Зарлагын шимтгэл'
             : 'Арилжааны шимтгэл',
         createdAt: new Date()
-      });
+      };
+      senderWalletRealBalance = transaction.afterBalance;
+      transactions.push(transaction);
       let nominalWallet = await this.walletValidator.validateGetNominalWallet({
         currencyCode: senderWallet.currencyCode
       });

@@ -55,23 +55,20 @@ query TradingTransactionNominalList($endDate: Date, $startDate: Date,$status:Int
 }
 `;
 const tradingTransactionStatement = `
-query TradingTransactionStatement($endDate: Date, $page: Int, $perPage: Int, $startDate: Date) {
-  tradingTransactionStatement(endDate: $endDate, page: $page, perPage: $perPage, startDate: $startDate) {
+query TradingTransactionStatement($endDate: Date, $page: Int!, $perPage: Int!, $startDate: Date, $walletId: Int) {
+  tradingTransactionStatement(endDate: $endDate, page: $page, perPage: $perPage, startDate: $startDate, walletId:$walletId) {
     values {
       createdAt
       dater
       expectedIncome
       expectedOutcome
-      feeAmount
       income
       outcome
-      price
-      stockcode
-      stockname
-      symbol
+      walletId
+      afterBalance
+      beforeBalance
       type
-      totalAmount
-      classfication
+      description
     }
     total
     count

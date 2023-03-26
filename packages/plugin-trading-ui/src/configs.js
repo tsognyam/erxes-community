@@ -24,6 +24,7 @@ module.exports = {
       scope: 'trading',
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
+      permission: 'tradingStockShow'
     },
     {
       text: 'Stock Order',
@@ -31,6 +32,7 @@ module.exports = {
       scope: 'trading',
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
+      permission: 'tradingOrderShow'
     },
     {
       text: 'Order List',
@@ -38,6 +40,7 @@ module.exports = {
       scope: 'trading',
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
+      permission: 'tradingOrderShow'
     },
     {
       text: 'Wallet List',
@@ -45,6 +48,7 @@ module.exports = {
       scope: 'trading',
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
+      permission: 'tradingWalletShow'
     },
     {
       text: 'Withdraw List',
@@ -52,6 +56,7 @@ module.exports = {
       scope: 'trading',
       location: 'settings',
       image: '/images/icons/erxes-18.svg',
+      permission: 'tradingWithdrawShow'
     },
     {
       text: 'Nominal statement list',

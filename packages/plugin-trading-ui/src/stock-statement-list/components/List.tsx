@@ -4,7 +4,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { STOCK_LIST } from '../../../constants';
+import { STOCK_LIST } from '../../constants';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -15,12 +15,11 @@ import {
   HeightedWrapper
 } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import Form from '../Form';
-import { Contents } from '../../../styles';
+import { Contents } from '../../styles';
 import { FormGroup } from '@erxes/ui/src';
 import { FormWrapper, FormColumn } from '@erxes/ui/src/styles/main';
 import { ControlLabel, FormControl } from '@erxes/ui/src';
-import { displayValue } from '../../../App';
+import { displayValue } from '../../App';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
@@ -81,14 +80,18 @@ class List extends React.Component<Props, State> {
               <th>{__('Index')}</th>
               <th>{__('Огноо')}</th>
               <th>{__('Төрөл')}</th>
-              <th>{__('Эхний үлдэгдэл')}</th>
+              <th>{__('Ангилал')}</th>
+              <th>{__('Үнэт цаасны нэр')}</th>
+              <th>{__('Симбол')}</th>
+              <th>{__('Код')}</th>
               <th>{__('Орлого')}</th>
               <th>{__('Зарлага')}</th>
               <th>{__('ХБО')}</th>
               <th>{__('ХБЗ')}</th>
-              <th>{__('Эцсийн үлдэгдэл')}</th>
-              <th>{__('Гүйлгээний утга')}</th>
-              <th>Үүсгэсэн огноо</th>
+              <th>{__('Үнэ')}</th>
+              <th>{__('Нийт дүн')}</th>
+              <th>{__('Шимтгэл')}</th>
+              <th>{__('Тайлбар')}</th>
             </tr>
           </thead>
           <tbody id="transactions">
@@ -146,9 +149,6 @@ class List extends React.Component<Props, State> {
 
     return <Wrapper.ActionBar left={actionBarLeft} wideSpacing />;
   }
-  renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
-  };
   render() {
     const { queryParams, total, count } = this.props;
 

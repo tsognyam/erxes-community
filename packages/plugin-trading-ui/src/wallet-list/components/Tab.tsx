@@ -60,7 +60,8 @@ class Tab extends React.PureComponent<Props, State> {
       if (object.Wallet?.length > 0) walletId = object.Wallet[0].id;
       const updatedProps = {
         userId: object.userId,
-        walletId: walletId
+        walletId: walletId,
+        queryParams: queryParams
       };
       return <ListStatement {...updatedProps} {...object} />;
     }

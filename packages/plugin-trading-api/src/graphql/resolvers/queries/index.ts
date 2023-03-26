@@ -13,6 +13,7 @@ import StockTransactionQueries from './stock.transaction';
 import CustFeeQueries from './custFee';
 import AdminQueries from './admin';
 import ReportQueries from './report';
+import SettlementQueries from './settlement';
 export {
   WalletQueries,
   SystemQueries,
@@ -28,5 +29,6 @@ export {
   StockTransactionQueries,
   CustFeeQueries,
   AdminQueries,
-  ReportQueries
+  ReportQueries,
+  SettlementQueries
 };

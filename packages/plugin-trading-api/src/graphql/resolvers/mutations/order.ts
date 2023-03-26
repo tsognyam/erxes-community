@@ -1,9 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { Prisma } from '@prisma/client';
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import OrderService from '../../../service/order.service';
 import { CustomException, ErrorCode } from '../../../exception/error-code';
 import TransactionService from '../../../service/wallet/transaction.service';
@@ -51,8 +48,5 @@ const OrderMutations = {
     return await transactionService.reCreateTransaction(params);
   }
 };
-requireLogin(OrderMutations, 'tradingOrderAdd');
-requireLogin(OrderMutations, 'tradingOrderEdit');
-requireLogin(OrderMutations, 'tradingOrderCancel');
-requireLogin(OrderMutations, 'tradingOrderConfirm');
+moduleCheckPermission(OrderMutations, 'tradingOrderManagement');
 export default OrderMutations;

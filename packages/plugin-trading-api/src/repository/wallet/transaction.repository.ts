@@ -1,5 +1,5 @@
 import BaseRepository from '../base.repository';
-import { TransactionConst } from '../../constants/wallet';
+import { TransactionConst, WalletConst } from '../../constants/wallet';
 import * as moment from 'moment';
 import { Prisma } from '@prisma/client';
 import { OrderTxnType } from '../../constants/stock';
@@ -65,9 +65,10 @@ export default class TransactionRepository extends BaseRepository {
     if (params.walletId) {
       walletFilter = ` and tr.walletId=${params.walletId} `;
     }
+    let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
     let sql =
       `
-    SELECT tr.dater,tr.createdAt,tr.description,
+    SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,tr.description,
 	case 
     when (tr.type=1 and tr.status=1) then tr.amount
     when (tr.type=3 and tr.status=1) then tr.amount
@@ -83,10 +84,13 @@ export default class TransactionRepository extends BaseRepository {
     when (tr.type=2 and tr.status=2) then tr.amount*-1 
     when (tr.type=4 and tr.status=2) then tr.amount*-1 
     else 0 end as expectedOutcome
-    FROM \`Transaction\` tr where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
+    FROM \`Transaction\` tr 
+    inner join \`Wallet\` wl on wl.id=tr.walletId 
+    where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       walletFilter +
-      ' order by tr.dater,tr.createdAt';
+      ' order by tr.createdAt,tr.dater' +
+      paginationFilter;
     //     let sql =
     //       `SELECT
     //     tr.type,tr.dater,tr.createdAt,stock.stockname,

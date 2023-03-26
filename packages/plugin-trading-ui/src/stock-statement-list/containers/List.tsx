@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import List from '../../components/statement/List';
-import { mutations, queries } from '../../../graphql';
+import List from '../components/List';
+import { mutations, queries } from '../../graphql';
 import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
@@ -10,7 +10,6 @@ import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import Button from '@erxes/ui/src/components/Button';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   history: any;
@@ -109,12 +108,11 @@ export default withProps<Props>(
       gql(queries.TransactionQueries.tradingTransactionStatement),
       {
         name: 'tradingTransactionStatementQuery',
-        options: ({ walletId, queryParams }) => ({
+        options: ({ walletId }) => ({
           variables: {
             startDate: new Date(date.getFullYear(), date.getMonth(), 1),
             endDate: date,
-            walletId: walletId,
-            ...generatePaginationParams(queryParams)
+            walletId: walletId
           },
           fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true
