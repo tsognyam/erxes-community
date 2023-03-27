@@ -14,7 +14,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'trading',
-  // permissions,
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 
