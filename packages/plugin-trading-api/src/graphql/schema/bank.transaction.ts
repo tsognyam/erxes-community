@@ -47,5 +47,6 @@ walletId:Int!,
 amount:Float!
 `;
 export const mutations = `
-tradingWalletCharge(${params}):TradingBankTransaction
+tradingWalletCharge(${params}):TradingBankTransaction,
+tradingEditBankTransactionWalletId(userId:String!,id:Int!):TradingBankTransaction
 `;

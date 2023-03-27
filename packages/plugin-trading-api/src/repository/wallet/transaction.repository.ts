@@ -68,7 +68,7 @@ export default class TransactionRepository extends BaseRepository {
     let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
     let sql =
       `
-    SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,tr.description,
+    SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,
 	case 
     when (tr.type=1 and tr.status=1) then tr.amount
     when (tr.type=3 and tr.status=1) then tr.amount

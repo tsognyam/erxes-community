@@ -38,6 +38,7 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
   onCancelOrder: () => void;
+  prefix: any;
 }
 type State = {
   startDate?: string;
@@ -101,7 +102,8 @@ class List extends React.Component<IProps, State> {
       transactions,
       total,
       count,
-      queryParams
+      queryParams,
+      prefix
     } = this.props;
     const onChangeAll = () => {
       toggleAll(transactions, 'transactions');
@@ -113,6 +115,7 @@ class List extends React.Component<IProps, State> {
       page = queryParams.page;
     if (queryParams && queryParams.perPage) perPage = queryParams.perPage;
     indexCounter = (page - 1) * perPage;
+    console.log(prefix);
     return (
       <>
         <Table>
@@ -136,7 +139,9 @@ class List extends React.Component<IProps, State> {
               <th>Данс эзэмшигчийн нэр</th>
               <th>Үүсгэсэн огноо</th>
               <th>Номинал дансны дугаар</th>
+              <th>Тайлбар</th>
               <th>Төлөв</th>
+              <th></th>
             </tr>
           </thead>
           <tbody id="transactions">
@@ -147,6 +152,7 @@ class List extends React.Component<IProps, State> {
                 isChecked={bulk.includes(transaction)}
                 toggleBulk={toggleBulk}
                 renderButton={renderButton}
+                prefix={prefix}
               />
             ))}
           </tbody>
@@ -176,7 +182,6 @@ class List extends React.Component<IProps, State> {
     );
   };
   renderFilter() {
-    const { renderButton } = this.props;
     const transactionStatusOptions = TRANSACTION_STATUS.map(x => {
       return {
         value: x.status,

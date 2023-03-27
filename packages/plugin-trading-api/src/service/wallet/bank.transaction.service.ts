@@ -6,16 +6,20 @@ import { UserConst } from '../../constants/user';
 import TransactionService from './transaction.service';
 import { Prisma } from '@prisma/client';
 import NotificationService from '../notification.service';
+import WalletService from './wallet.service';
+import { CustomException, ErrorCode } from '../../exception/error-code';
 class BankTransactionService {
   private bankTransactionRepository: BankTransactionRepository;
   private bankTransactionValidator: BankTransactionValidator;
   private transactionService: TransactionService;
   private notificationService: NotificationService;
+  private walletService: WalletService;
   constructor() {
     this.bankTransactionRepository = new BankTransactionRepository();
     this.bankTransactionValidator = new BankTransactionValidator();
     this.transactionService = new TransactionService();
     this.notificationService = new NotificationService();
+    this.walletService = new WalletService();
   }
   chargeV2 = async (params: any, subdomain: string) => {
     // if (process.env.NODE_ENV !== 'development') {
@@ -190,16 +194,6 @@ class BankTransactionService {
           description: bankTransaction.description
         }
       );
-      let nominalOrder = await this.transactionService.createTransactionOrder(
-        undefined,
-        nominalWallet,
-        {
-          amount: bankTransaction.amount,
-          feeAmount: 0,
-          type: TransactionConst.TYPE_CHARGE,
-          description: bankTransaction.description
-        }
-      );
       await this.bankTransactionRepository.update(bankTransaction.id, {
         orderId: order.id,
         status: TransactionConst.STATUS_BLOCKED,
@@ -208,10 +202,6 @@ class BankTransactionService {
 
       order = await this.transactionService.confirmTransaction({
         orderId: order.id,
-        confirm: 1
-      });
-      nominalOrder = await this.transactionService.confirmTransaction({
-        orderId: nominalOrder.id,
         confirm: 1
       });
       if (
@@ -315,6 +305,79 @@ class BankTransactionService {
       include
     );
     return wallets;
+  };
+  editBankTransactionWallet = async (params: any) => {
+    let bankTransaction = await this.bankTransactionRepository.findById(
+      params.id
+    );
+    if (!bankTransaction) throw new Error('Bank transaction cannot find');
+    if (
+      bankTransaction.status == TransactionConst.STATUS_PENDING &&
+      bankTransaction.walletId == undefined &&
+      bankTransaction.orderId == undefined
+    ) {
+      let wallet = await this.walletService.getWalletWithUser({
+        userId: params.userId,
+        currencyCode: bankTransaction.currencyCode
+      });
+      if (wallet.length == 0)
+        CustomException(ErrorCode.WalletNotFoundException);
+      var order = await this.transactionService.createTransactionOrder(
+        undefined,
+        wallet[0],
+        {
+          amount: bankTransaction.amount,
+          feeAmount: 0,
+          type: TransactionConst.TYPE_CHARGE,
+          description: bankTransaction.description
+        }
+      );
+      bankTransaction = await this.bankTransactionRepository.update(
+        bankTransaction.id,
+        {
+          orderId: order.id,
+          walletId: wallet[0].id,
+          status: TransactionConst.STATUS_BLOCKED,
+          message: 'create transaction error'
+        },
+        {
+          order: true,
+          withdraw: true,
+          wallet: {
+            include: {
+              user: true
+            }
+          }
+        }
+      );
+
+      order = await this.transactionService.confirmTransaction({
+        orderId: order.id,
+        confirm: 1
+      });
+      if (
+        order != undefined &&
+        order.status === TransactionConst.STATUS_SUCCESS
+      ) {
+        bankTransaction = await this.bankTransactionRepository.update(
+          bankTransaction.id,
+          {
+            status: TransactionConst.STATUS_SUCCESS,
+            message: 'Хэрэглэгчийг гараар тохируулав'
+          },
+          {
+            order: true,
+            withdraw: true,
+            wallet: {
+              include: {
+                user: true
+              }
+            }
+          }
+        );
+      }
+      return bankTransaction;
+    } else throw new Error('Cannot edit bank transaction');
   };
 }
 export default BankTransactionService;

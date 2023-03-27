@@ -13,6 +13,13 @@ const BankTransactionMutations = {
     { user, models, subdomain }: IContext
   ) => {
     return await bankTransactionService.chargeV2(params, subdomain);
+  },
+  tradingEditBankTransactionWalletId: async (
+    _root: any,
+    params,
+    { user, models, subdomain }: IContext
+  ) => {
+    return await bankTransactionService.editBankTransactionWallet(params);
   }
 };
 requireLogin(BankTransactionMutations, 'tradingWalletCharge');
