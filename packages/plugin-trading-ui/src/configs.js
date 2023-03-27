@@ -13,10 +13,10 @@ module.exports = {
   menus: [
     {
       text: 'Trading',
-      to: '/trading/home',
-      scope: 'trading',
-      location: 'settings',
-      image: '/images/icons/erxes-18.svg',
+      url: '/trading/home',
+      // scope: 'trading',
+      location: 'mainNavigation',
+      icon: 'icon-piggy-bank',
     },
     {
       text: 'Stock List',
