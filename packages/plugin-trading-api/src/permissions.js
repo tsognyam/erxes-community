@@ -59,7 +59,7 @@ module.exports = {
             {
                 name: 'tradingStatementShow',
                 description: "Show statements"
-            },
+            }
         ]
     },
 }
