@@ -593,11 +593,7 @@ class OrderService {
           externalid: true
         }
       },
-      user: {
-        select: {
-          UserMCSDAccount: true
-        }
-      }
+      user: true
     };
     let order = await this.orderRepository.findAll(data, select);
     return order;
@@ -959,12 +955,13 @@ class OrderService {
       OrderStatus.STATUS_NEW,
       OrderStatus.STATUS_NEW
     );
+    console.log('order', order);
 
     for (let i = 0; i < order.values.length; i++) {
       let orderRow = order.values[i];
       let edata = {
         otype: '1',
-        fullPrefix: orderRow.user.UserMCSDAccount[0].fullPrefix,
+        fullPrefix: orderRow.user.fullPrefix,
         orderid: orderRow.txnid.toString(),
         symbol: orderRow.stock.externalid,
         type: orderRow.ordertype.toString(),
@@ -988,7 +985,7 @@ class OrderService {
     uorder.values.forEach(async order => {
       let edata = {
         otype: '2',
-        fullPrefix: order.user.UserMCSDAccount[0].fullPrefix,
+        fullPrefix: order.user.fullPrefix,
         orderid: order.txnid.toString(),
         symbol: order.stock.externalid,
         type: order.ordertype.toString(),
@@ -1013,7 +1010,7 @@ class OrderService {
     corder.values.forEach(async order => {
       let edata = {
         otype: '3',
-        fullPrefix: order.user.UserMCSDAccount[0].fullPrefix,
+        fullPrefix: order.user.fullPrefix,
         orderid: order.txnid.toString(),
         side: order.txntype.toString(),
         symbol: order.stock.externalid,

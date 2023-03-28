@@ -2,6 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
 import { graphqlPubsub } from '../configs';
 import NotificationService from '../service/notification.service';
+import OrderService from '../service/order.service';
 import UserService from '../service/user/user.service';
 const router = Router();
 let userService = new UserService();
@@ -71,15 +72,17 @@ router.post('/order-received', async (req, res) => {
 
 router.post('/test', async (req, res) => {
   const body = req.body;
-  notificationService.send({
-    subdomain: getSubdomain(req),
-    createdUserId: body.createdUserId,
-    subject: 'test subject',
-    content: 'testing notification',
-    action: 'asd',
-    userId: [body.userId],
-    data: 'asd'
-  });
+  // notificationService.send({
+  //   subdomain: getSubdomain(req),
+  //   createdUserId: body.createdUserId,
+  //   subject: 'test subject',
+  //   content: 'testing notification',
+  //   action: 'asd',
+  //   userId: [body.userId],
+  //   data: 'asd'
+  // });
+  let orderService = new OrderService();
+  await orderService.collect();
   return res.json({
     data: 'Success'
   });
