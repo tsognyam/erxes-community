@@ -66,7 +66,8 @@ export default class StockTransactionService {
         GROUP BY tr.walletId, tr.stockCode
         `;
     let endBalance = await this.stockTransactionRepository._prisma
-      .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} AND tr.status=1 Group BY tr.walletId, tr.stockCode UNION all SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId, tr.stockCode ) ss group by ss.walletId, ss.stockCode;`;
+      .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM 
+      (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} AND tr.status=1 Group BY tr.walletId, tr.stockCode UNION all SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId, tr.stockCode ) ss group by ss.walletId, ss.stockCode;`;
     res.beginBalance = beginBalance;
     res.endBalance = endBalance;
 

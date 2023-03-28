@@ -24,6 +24,7 @@ type Props = {
 
 type FinalProps = {
   tradingTransactionNominalQuery: any;
+  tradingUserByPrefixQuery: any;
 } & Props &
   IRouterProps;
 
@@ -44,22 +45,17 @@ class ListContainer extends React.Component<FinalProps> {
     return (
       <ButtonMutate
         mutation={
-          object
-            ? mutations.OrderMutations.orderEdit
-            : mutations.OrderMutations.orderAdd
+          mutations.BankTransactionuMutations.tradingEditBankTransactionWalletId
         }
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries}
+        refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
+        successMessage={`You successfully updated`}
       />
     );
   };
-
   onSearch = (search: string, type: string) => {
     if (!search) {
       return routerUtils.removeParams(this.props.history, type);
@@ -91,13 +87,18 @@ class ListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { tradingTransactionNominalQuery, queryParams } = this.props;
+    const {
+      tradingTransactionNominalQuery,
+      queryParams,
+      tradingUserByPrefixQuery
+    } = this.props;
     const transactions =
       tradingTransactionNominalQuery?.tradingBankTransactions?.values || [];
     const total =
       tradingTransactionNominalQuery?.tradingBankTransactions?.total || 0;
     const count =
       tradingTransactionNominalQuery?.tradingBankTransactions?.count || 0;
+    const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const extendedProps = {
       ...this.props,
       transactions,
@@ -107,7 +108,8 @@ class ListContainer extends React.Component<FinalProps> {
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
       onSearch: this.onSearch,
-      renderButton: this.renderButton
+      renderButton: this.renderButton,
+      prefix
       // remove: this.remove,
       // removeOrders,
     };
@@ -140,6 +142,12 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
+      name: 'tradingUserByPrefixQuery',
+      options: ({ queryParams }) => ({
+        fetchPolicy: 'network-only'
+      })
+    })
   )(ListContainer)
 );

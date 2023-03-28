@@ -14,12 +14,14 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import { FinanceAmount } from '../../styles';
 import { TRANSACTION_STATUS } from '../../constants';
+import Form from './Form';
 type Props = {
   toggleBulk: (target: any, toAdd: boolean) => void;
   transaction: any;
   isChecked: boolean;
   index: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  prefix: any;
 };
 
 class Row extends React.Component<Props> {
@@ -34,6 +36,31 @@ class Row extends React.Component<Props> {
       </FinanceAmount>
     );
   }
+  renderForm = props => {
+    return <Form {...props} />;
+  };
+  renderEditAction = object => {
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+    const { prefix, renderButton } = this.props;
+    const content = props => {
+      return this.renderForm({ ...props, object, prefix, renderButton });
+    };
+
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
+    );
+  };
   render() {
     const { isChecked, index, transaction, toggleBulk } = this.props;
     const onChange = e => {
@@ -44,6 +71,8 @@ class Row extends React.Component<Props> {
     const onClick = e => {
       e.stopPropagation();
     };
+
+    let isEdit = transaction.status == 2 ? true : false;
     return (
       <StyledTr key={index}>
         <td id="ordersCheckBox" onClick={onClick}>
@@ -73,7 +102,8 @@ class Row extends React.Component<Props> {
         <td>{transaction.recAccountNo}</td>
         <td>{transaction.accountName}</td>
         <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
-        <td>{transaction.wallet.walletNumber}</td>
+        <td>{transaction.wallet?.walletNumber}</td>
+        <td>{transaction.message}</td>
         <td>
           {
             <Label
@@ -88,6 +118,11 @@ class Row extends React.Component<Props> {
               }
             </Label>
           }
+        </td>
+        <td>
+          <ActionButtons>
+            {isEdit && this.renderEditAction(transaction)}
+          </ActionButtons>
         </td>
       </StyledTr>
     );
