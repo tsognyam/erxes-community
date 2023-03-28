@@ -154,6 +154,7 @@ class OrderService {
           quantity: order.cnt.toString(),
           expiredate: Helper.dateToString(order.enddate)
         };
+        console.log('Sending message to MIT:::');
         if (order.cnt < 5)
           await sendMITMessage({
             subdomain: 'localhost',
@@ -423,6 +424,7 @@ class OrderService {
     }
     let now = moment().format('HH:mm');
     if (MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
+      console.log('Sending message to MIT:::');
       await sendMITMessage({
         subdomain: 'localhost',
         action: 'send',
