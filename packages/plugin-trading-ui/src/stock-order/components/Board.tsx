@@ -98,6 +98,7 @@ class BoardComp extends React.Component<Props, State> {
           let changedOrderBook = subscriptionData.data.orderBookChanged;
           console.log(changedOrderBook);
           console.log('this.state.stockcode', this.state.stockcode);
+          console.log(stock);
           if (
             // !!this.state.stockcode &&
             // !!stock &&
