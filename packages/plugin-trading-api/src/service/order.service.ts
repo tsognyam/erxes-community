@@ -141,6 +141,8 @@ class OrderService {
 
     if (stockdata.stocktypeId == StockTypeConst.SEC) {
       let now = moment().format('HH:mm');
+      MIT_BEGINTIME = await Helper.getValue('MIT_BEGINTIME');
+      MIT_ENDTIME = await Helper.getValue('MIT_ENDTIME');
       if (live && MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
         let edata = {
           otype: '1',
@@ -423,6 +425,8 @@ class OrderService {
       };
     }
     let now = moment().format('HH:mm');
+    MIT_BEGINTIME = await Helper.getValue('MIT_BEGINTIME');
+    MIT_ENDTIME = await Helper.getValue('MIT_ENDTIME');
     if (MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
       console.log('Sending message to MIT:::');
       await sendMITMessage({
@@ -518,6 +522,8 @@ class OrderService {
         ordersubid: order.mseOrderId.toString()
       };
       let now = moment().format('HH:mm');
+      MIT_BEGINTIME = await Helper.getValue('MIT_BEGINTIME');
+      MIT_ENDTIME = await Helper.getValue('MIT_ENDTIME');
       if (MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
         await sendMITMessage({
           subdomain: 'localhost',
