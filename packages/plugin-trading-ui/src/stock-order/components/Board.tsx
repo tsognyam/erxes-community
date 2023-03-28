@@ -98,13 +98,14 @@ class BoardComp extends React.Component<Props, State> {
           let changedOrderBook = subscriptionData.data.orderBookChanged;
           console.log(changedOrderBook);
           if (
-            !!this.state.stockcode &&
-            !!stock &&
-            (changedOrderBook.symbol == stock.externalid ||
-              changedOrderBook.symbol == stock.symbol)
+            // !!this.state.stockcode &&
+            // !!stock &&
+            changedOrderBook.symbol == stock.externalid ||
+            changedOrderBook.symbol == stock.symbol
           ) {
+            console.log('this.state.stockcode', this.state.stockcode);
             console.log('changedOrderBook', changedOrderBook);
-            this.refetchQuery(this.state.stockcode);
+            this.refetchQuery(this.state.stockcode || '');
           }
         }
       });

@@ -143,6 +143,7 @@ class OrderService {
       let now = moment().format('HH:mm');
       MIT_BEGINTIME = await Helper.getValue('MIT_BEGINTIME');
       MIT_ENDTIME = await Helper.getValue('MIT_ENDTIME');
+      console.log('Time:::', now, MIT_BEGINTIME, MIT_ENDTIME);
       if (live && MIT_BEGINTIME <= now && now <= MIT_ENDTIME) {
         let edata = {
           otype: '1',
