@@ -2,6 +2,7 @@ const stockList = `
 query TradingStocks($skip: Int, $symbol: JSON, $take: Int, $detail: Boolean) {
   tradingStocks(skip: $skip, symbol: $symbol, take: $take, detail: $detail) {
     values {
+      externalid
       stockcode,
       stockname,
       symbol,
