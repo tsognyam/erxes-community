@@ -75,7 +75,6 @@ class WalletService {
       user: true
     };
     let wallets = await this.walletRepository.findMany(where, include);
-    console.log(wallets);
     let userIds = wallets.map(function(obj: any) {
       return obj.userId;
     });
@@ -89,7 +88,6 @@ class WalletService {
       if (user != undefined) {
         wallets[index].firstName = user.firstName;
         wallets[index].lastName = user.lastName;
-        console.log('wallets[index]', wallets[index]);
       }
     });
     return wallets;
@@ -115,7 +113,6 @@ class WalletService {
           parseFloat(userWallet[i].walletBalance.incomingBalance);
       }
     }
-    console.log(userWallet);
     return userWallet;
   };
   getNominalWallet = async params => {
