@@ -8,6 +8,8 @@ import UserQueries from './user';
 import ReportQueries from './report';
 import BankTransactionQueries from './bank.transaction';
 import MarketQueries from './market';
+import SettlementQueries from './settlement';
+import StockTransactionQueries from './stock.transaction';
 export default {
   OrderQueries,
   CustFeeQueries,
@@ -18,5 +20,7 @@ export default {
   UserQueries,
   ReportQueries,
   BankTransactionQueries,
-  MarketQueries
+  MarketQueries,
+  SettlementQueries,
+  StockTransactionQueries
 };

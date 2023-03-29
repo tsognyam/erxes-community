@@ -23,6 +23,36 @@ type tradingStockTransactionList {
     endBalance: JSON
     values:[tradingStockTransaction]
 }
+type tradingStockTransactionStatement {
+    dater:Date,
+    createdAt:Date,
+    income:Float,
+    outcome:Float,
+    expectedIncome:Float,
+    expectedOutcome:Float,
+    description:String,
+    walletId:Int,
+    type:Int,
+    prefix:String,
+    stockcode:Int,
+    stockname:String,
+    symbol:String,
+    fee:Float,
+    price:Float
+}
+type tradingStockTransactionStatementSummary {
+    income:Float,
+    outcome:Float,
+    expectedIncome:Float,
+    expectedOutcome:Float,
+    beginBalance:Float,
+    endBalance:Float
+}
+type tradingStockTransactionStatementList {
+    total:Int,
+    count:Int,
+    values:[tradingStockTransactionStatement]
+}
 `;
 
 const inputParams = `
@@ -37,7 +67,23 @@ orderId: Int
 confirm: Int
 `;
 export const queries = `
-tradingStockTransactionGet(${inputParams}):tradingStockTransactionList
+tradingStockTransactionGet(${inputParams}):tradingStockTransactionList,
+tradingStockTransactionStatement(
+    startDate:Date,
+    endDate:Date,
+    page:Int!,
+    perPage:Int!,
+    walletId:Int,
+    userId:String,
+    stockcode:Int
+):tradingStockTransactionStatementList,
+tradingStockTransactionStatementSummary(
+    startDate:Date,
+    endDate:Date,
+    walletId:Int,
+    userId:String,
+    stockcode:Int
+):tradingStockTransactionStatementSummary
 `;
 
 export const mutations = `

@@ -11,70 +11,159 @@ export default class StockTransactionRepository extends BaseRepository {
     let dateFilter = '';
     if (params.startDate != undefined && params.endDate != undefined) {
       dateFilter =
-        " and tr.dater between '" +
+        " and str.dater between '" +
         moment(params.startDate).format('YYYY-MM-DD') +
         "' and '" +
         moment(params.endDate).format('YYYY-MM-DD') +
         "'";
     }
-    let walletFilter = '';
-    if (params.walletId) {
-      walletFilter = ` and tr.walletId=${params.walletId} `;
+    let filter = '';
+    if (!!params.walletId) {
+      filter = ` and str.walletId=${params.walletId} `;
+    }
+    if (!!params.userId) {
+      filter = ` and wl.userId='${params.userId}'`;
+    }
+    if (!!params.stockcode) {
+      filter = ` and st.stockcode=${params.stockcode}`;
     }
     let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
     let sql =
       `
-      SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,
-      case 
+      SELECT str.dater,str.createdAt,str.description,str.walletId,str.type,mcsd.prefix,
+      CAST((case
       when (str.type=1 and str.status=1) then str.stockCount
       when (str.type=3 and str.status=1) then str.stockCount
-      else 0 end as income,
-      case when (str.type=2  and str.status=1) then str.stockCount
+      else 0 end) AS DECIMAL(30,0))  as income,
+      CAST((case
+      when (str.type=2  and str.status=1) then str.stockCount
       when (str.type=4 and str.status=1) then str.stockCount
-    else 0 end as outcome,
-    case  
+      else 0 end) AS DECIMAL(30,0)) as outcome,
+      CAST((case
       when (str.type=1 and str.status=2) then str.stockCount
       when (str.type=3 and str.status=2) then str.stockCount
-      else 0 end as expectedIncome,
-      case 
+      else 0 end) AS DECIMAL(30,0)) as expectedIncome,
+      CAST((case 
       when (str.type=2 and str.status=2) then str.stockCount 
       when (str.type=4 and str.status=2) then str.stockCount 
-      else 0 end as expectedOutcome,
+      else 0 end) AS DECIMAL(30,0)) as expectedOutcome,
       st.stockcode,st.stockname,st.symbol,str.fee,str.price
-      FROM \`Transaction\` tr 
-      inner join \`Wallet\` wl on wl.id=tr.walletId 
-      where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
+      FROM \`StockTransaction\` str 
+      inner join \`Wallet\` wl on wl.id=str.walletId
+      inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+      inner join \`Stock\` st on st.stockcode = str.stockCode
+      where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (str.status=${TransactionConst.STATUS_ACTIVE} or str.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
-      walletFilter +
-      ' order by tr.createdAt,tr.dater' +
+      filter +
+      ' order by str.createdAt,str.dater' +
       paginationFilter;
     let statementList = await this._prisma.$queryRaw(Prisma.raw(sql));
-    let beginBalanceSql =
-      `
-      SELECT SUM(tr.stockCount) AS stockCount,tr.stockCode,tr.walletId
-      FROM \`StockTransaction\` tr
-      WHERE tr.dater<${params.startDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} ` +
-      walletFilter +
-      `
-      GROUP BY tr.walletId, tr.stockCode
-      `;
-    let beginBalance = await this._prisma.$queryRaw(
-      Prisma.raw(beginBalanceSql)
-    );
-    let endBalance = await this._prisma
-      .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM 
-        (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr 
-        WHERE tr.walletId=${params.walletId} AND tr.dater<${params.startDate} AND tr.status=1 Group BY tr.walletId, tr.stockCode 
-        UNION all 
-        SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr 
-        WHERE tr.walletId=${params.walletId} AND tr.dater BETWEEN ${params.startDate} AND ${params.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId, tr.stockCode ) ss group by ss.walletId, ss.stockCode;`;
+    console.log(statementList);
     let dataList = {
       total: statementList.length,
       count: statementList.length,
-      values: statementList,
-      beginBalance,
-      endBalance
+      values: statementList
     };
     return dataList;
+  };
+  stockTransactionStatementSummary = async (params: any) => {
+    let dateFilter = '',
+      filter = '';
+    if (params.startDate != undefined && params.endDate != undefined) {
+      dateFilter =
+        " and str.dater between '" +
+        moment(params.startDate).format('YYYY-MM-DD') +
+        "' and '" +
+        moment(params.endDate).format('YYYY-MM-DD') +
+        "'";
+    }
+    if (params.walletId) {
+      filter += ` and str.walletId=${params.walletId} `;
+    }
+    if (params.userId) {
+      filter += ` and wl.userId='${params.userId}'`;
+    }
+    let sql =
+      `SELECT SUM(case 
+    when (str.type=1 and str.status=1) then str.stockCount
+    when (str.type=3 and str.status=1) then str.stockCount
+    else 0 end) as income,
+    SUM(case when (str.type=2  and str.status=1) then str.stockCount
+    when (str.type=4 and str.status=1) then str.stockCount
+  else 0 end) as outcome,
+  SUM(case  
+    when (str.type=1 and str.status=2) then str.stockCount
+    when (str.type=3 and str.status=2) then str.stockCount
+    else 0 end) as expectedIncome,
+    SUM(case 
+    when (str.type=2 and str.status=2) then str.stockCount 
+    when (str.type=4 and str.status=2) then str.stockCount 
+    else 0 end) as expectedOutcome
+    FROM \`StockTransaction\` str 
+      inner join \`Wallet\` wl on wl.id=str.walletId
+      inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+      inner join \`Stock\` st on st.stockcode = str.stockCode
+      where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (str.status=${TransactionConst.STATUS_ACTIVE} or str.status=${TransactionConst.STATUS_PENDING})` +
+      dateFilter +
+      filter;
+    let resultList = await this._prisma.$queryRaw(Prisma.raw(sql));
+    console.log(resultList);
+    let beginBalanceSql =
+      `SELECT IFNULL(SUM(str.stockCount),0) AS beginBalance
+    FROM \`StockTransaction\` str 
+    inner join \`Wallet\` wl on wl.id=str.walletId
+    inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+    inner join \`Stock\` st on st.stockcode = st.stockcode
+    WHERE str.dater<${moment(params.startDate).format(
+      'YYYY-MM-DD'
+    )} AND str.status=${TransactionConst.STATUS_ACTIVE} ` + filter;
+    let beginBalance = [
+      {
+        beginBalance: 0
+      }
+    ];
+    if (!!params.startDate)
+      beginBalance = await this._prisma.$queryRaw(Prisma.raw(beginBalanceSql));
+    let endBalanceSql =
+      `
+  SELECT IFNULL(SUM(str.stockCount),0) AS endBalance
+  FROM \`StockTransaction\` str
+  inner join \`Wallet\` wl on wl.id=str.walletId
+  inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+  inner join \`Stock\` st on st.stockcode = st.stockcode
+  WHERE str.dater<=${moment(params.endDate).format(
+    'YYYY-MM-DD'
+  )} AND str.status=${TransactionConst.STATUS_ACTIVE} ` + filter;
+    let endBalance;
+    if (!!params.endDate)
+      endBalance = await this._prisma.$queryRaw(Prisma.raw(endBalanceSql));
+    else
+      endBalance = [
+        {
+          endBalance:
+            resultList.length > 0
+              ? resultList[0].income -
+                resultList[0].outcome +
+                resultList[0].expectedIncome -
+                resultList[0].expectedOutcome
+              : 0
+        }
+      ];
+    if (resultList.length > 0) {
+      return {
+        ...resultList[0],
+        ...beginBalance[0],
+        ...endBalance[0],
+        ...beginBalance[0]
+      };
+    }
+    return {
+      income: 0,
+      outcome: 0,
+      expectedIncome: 0,
+      expectedOutcome: 0,
+      beginBalance: 0,
+      endBalance: 0
+    };
   };
 }

@@ -17,9 +17,10 @@ type Props = {
   walletId: number;
   full: boolean;
 };
+
 type FinalProps = {
-  tradingStockTransactionStatementQuery: any;
-  tradingStockTransactionStatementSumQuery: any;
+  tradingTransactionStatementQuery: any;
+  tradingTransactionStatementSumQuery: any;
   tradingUserByPrefixQuery: any;
 } & Props &
   IRouterProps;
@@ -56,20 +57,20 @@ class ListContainer extends React.Component<
   };
   onSearchList = values => {
     const {
-      tradingStockTransactionStatementQuery,
-      tradingStockTransactionStatementSumQuery
+      tradingTransactionStatementQuery,
+      tradingTransactionStatementSumQuery
     } = this.props;
     this.setState({
       startDate: values.startDate,
       endDate: values.endDate,
       userId: values.userId
     });
-    tradingStockTransactionStatementQuery.refetch({
+    tradingTransactionStatementQuery.refetch({
       startDate: values.startDate,
       endDate: values.endDate,
       userId: values.userId
     });
-    tradingStockTransactionStatementSumQuery.refetch({
+    tradingTransactionStatementSumQuery.refetch({
       startDate: values.startDate,
       endDate: values.endDate,
       userId: values.userId
@@ -79,27 +80,25 @@ class ListContainer extends React.Component<
     const {
       history,
       queryParams,
-      tradingStockTransactionStatementQuery,
-      tradingStockTransactionStatementSumQuery,
-      tradingUserByPrefixQuery,
-      walletId
+      tradingTransactionStatementQuery,
+      tradingTransactionStatementSumQuery,
+      walletId,
+      tradingUserByPrefixQuery
     } = this.props;
     const total =
-      tradingStockTransactionStatementQuery?.tradingStockTransactionStatement
-        ?.total || 0;
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.total || 0;
     const count =
-      tradingStockTransactionStatementQuery?.tradingStockTransactionStatement
-        ?.count || 0;
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.count || 0;
     let tradingStatements =
-      tradingStockTransactionStatementQuery?.tradingStockTransactionStatement
-        ?.values || [];
+      tradingTransactionStatementQuery?.tradingTransactionStatement?.values ||
+      [];
     let tradingStatementSum =
-      tradingStockTransactionStatementSumQuery?.tradingStockTransactionStatementSummary;
+      tradingTransactionStatementSumQuery?.tradingTransactionStatementSummary;
     let prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const updatedProps = {
       ...this.props,
       tradingStatements,
-      loading: tradingStockTransactionStatementQuery.loading,
+      loading: tradingTransactionStatementQuery.loading,
       total,
       count,
       renderButton: this.renderButton,
@@ -110,22 +109,27 @@ class ListContainer extends React.Component<
       tradingStatementSum,
       prefix
     };
-    if (tradingStockTransactionStatementQuery.loading) {
+    if (tradingTransactionStatementQuery.loading) {
       return <Spinner />;
     }
     const content = props => {
       return <List {...updatedProps} {...props} />;
     };
 
-    return <Bulk content={content} />;
+    return (
+      <Bulk
+        content={content}
+        // refetch={this.props.List.refetch}
+      />
+    );
   }
 }
 export default withProps<Props>(
   compose(
     graphql<Props>(
-      gql(queries.StockTransactionQueries.tradingStockTransactionStatement),
+      gql(queries.TransactionQueries.tradingTransactionStatement),
       {
-        name: 'tradingStockTransactionStatementQuery',
+        name: 'tradingTransactionStatementQuery',
         options: ({ walletId, queryParams }) => ({
           variables: {
             walletId: walletId,
@@ -137,11 +141,9 @@ export default withProps<Props>(
       }
     ),
     graphql<Props>(
-      gql(
-        queries.StockTransactionQueries.tradingStockTransactionStatementSummary
-      ),
+      gql(queries.TransactionQueries.tradingTransactionStatementSummary),
       {
-        name: 'tradingStockTransactionStatementSumQuery',
+        name: 'tradingTransactionStatementSumQuery',
         options: ({ walletId }) => ({
           variables: {
             walletId: walletId

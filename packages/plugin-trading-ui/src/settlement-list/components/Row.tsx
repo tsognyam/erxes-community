@@ -1,191 +1,59 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
-import { StyledTr } from '../../styles';
-import Label from '@erxes/ui/src/components/Label';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import Form from './Form';
-import { ModalTrigger, confirm } from '@erxes/ui/src';
+import { FinanceAmount, StyledTr } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
-import _ from 'lodash';
-import { FinanceAmount } from '../../styles';
-import { STATE_LIST } from '../../constants';
+import { ActionButtons, Tip } from '@erxes/ui';
+import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
+import { displayValue } from '../../App';
+import Label from '@erxes/ui/src/components/Label';
 type Props = {
-  toggleBulk: (target: any, toAdd: boolean) => void;
-  order: any;
-  isChecked: boolean;
+  settlement: any;
   index: number;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
-  onCancelOrder: (txnid: number) => void;
-  stocks: any[];
-  prefix: any[];
-  totalCount: number;
 };
-
 class Row extends React.Component<Props> {
-  displayValue(order, name, defaultValue = 0) {
-    let value = 0;
-    if (name == 'total' || name == 'fee') value = defaultValue;
-    else value = _.get(order, name);
-    return (
-      <FinanceAmount>
-        {(value || 0).toLocaleString(undefined, {
-          minimumFractionDigits: 4,
-          maximumFractionDigits: 4
-        })}
-      </FinanceAmount>
-    );
-  }
-  renderForm = props => {
-    return <Form {...props} renderButton={this.props.renderButton} />;
-  };
-  cancelOrder = () => {
-    const { order, onCancelOrder } = this.props;
-    onCancelOrder(order);
-  };
-  renderEditAction = object => {
-    const { stocks, prefix } = this.props;
-
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="bottom">
-          <Icon icon="edit" />
-        </Tip>
-      </Button>
-    );
-
-    const content = props => {
-      return this.renderForm({ ...props, object, stocks, prefix });
-    };
-    return (
-      <ModalTrigger
-        size="lg"
-        title="Edit"
-        trigger={editTrigger}
-        content={content}
-      />
-    );
-  };
-
-  renderActions = object => {
-    if (object.status !== 1 && object.status !== 2) {
-      return null;
-    }
-
-    return (
-      <ActionButtons>
-        {this.renderEditAction(object)}
-        <Tip text={__('Цуцлах')} placement="bottom">
-          <Button
-            size="small"
-            btnStyle="link"
-            onClick={this.cancelOrder}
-            icon="cancel-1"
-          />
-        </Tip>
-      </ActionButtons>
-    );
-  };
-
   render() {
-    const { isChecked, index, order, toggleBulk } = this.props;
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(order, e.target.checked);
-      }
-    };
-
-    const onClick = e => {
-      e.stopPropagation();
-    };
-    const left =
-      order.cnt - parseFloat(order.donecnt === null ? 0 : order.donecnt);
-    let total = order.cnt * order.price;
-    const fee = (total * order.fee) / 100;
-    total += fee;
-    const userDetails = order.user?.details;
-    let userName = '';
-    let registerNumber = '';
-    if (userDetails) {
-      userName = userDetails.lastName + ' ' + userDetails.firstName;
-    }
-    if (
-      userDetails &&
-      userDetails.customFieldsDataByFieldCode?.registerNumber != undefined
-    ) {
-      registerNumber =
-        userDetails.customFieldsDataByFieldCode?.registerNumber.value;
-    }
+    const { index, settlement } = this.props;
     return (
       <StyledTr key={index}>
-        <td id="ordersCheckBox" onClick={onClick}>
-          {order.status !== 1 && order.status !== 2 ? (
-            ''
-          ) : (
-            <FormControl
-              checked={isChecked}
-              componentClass="checkbox"
-              onChange={onChange}
-            />
-          )}
-          {/* <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          /> */}
-        </td>
         <td>{index + 1}</td>
-        <td>{order.user?.prefix}</td>
-        <td>{registerNumber}</td>
-        <td>{userName}</td>
-        <td>{order.stock.symbol}</td>
+        <td>{settlement.clientPrefix}</td>
+        <td>{settlement.clientSuffix}</td>
+        <td>{dayjs(settlement.tradeDate).format('YYYY-MM-DD')}</td>
+        <td>{dayjs(settlement.settlementDate).format('YYYY-MM-DD')}</td>
+        <td>{settlement.buyQuantity}</td>
+        <td>{settlement.buyObligation}</td>
+        <td>{settlement.sellQuantity}</td>
+        <td>{settlement.sellObligation}</td>
+        <td>{settlement.quantity}</td>
+        <td>{settlement.obligation}</td>
+        <td>{settlement.mseFee}</td>
+        <td>{settlement.msccFee}</td>
+        <td>{settlement.frcFee}</td>
         <td>
-          <Label lblStyle={order.txntype === 1 ? 'success' : 'danger'}>
-            {order.txntype === 1 ? 'Авах' : 'Зарах'}
-          </Label>
+          {
+            <Label
+              lblStyle={
+                settlement.status === 1
+                  ? 'warning'
+                  : settlement.status === 3
+                  ? 'success'
+                  : settlement.status === 4
+                  ? 'danger'
+                  : 'default'
+              }
+            >
+              {settlement.status === 1
+                ? 'Active'
+                : settlement.status === 3
+                ? 'Done'
+                : settlement.status === 4
+                ? 'Failed'
+                : 'Inactive'}
+            </Label>
+          }
         </td>
-        <td>
-          {order.ordertype == 1
-            ? 'Зах зээл'
-            : order.ordertype == 2
-            ? 'Нөхцөлт'
-            : ''}
-        </td>
-        <td>{this.displayValue(order, 'price')}</td>
-        <td>{order.cnt}</td>
-        <td>{order.donecnt === null ? 0 : order.donecnt}</td>
-        <td>{left}</td>
-        <td>
-          <Label
-            lblStyle={STATE_LIST.find(x => x.status == order.status)?.styleName}
-          >
-            {STATE_LIST.find(x => x.status == order.status)?.statusName}
-          </Label>
-        </td>
-        <td>{dayjs(order.txndate).format('YYYY-MM-DD HH:mm:ss')}</td>
-        <td>
-          {order.donedate != undefined
-            ? dayjs(order.donedate).format('YYYY-MM-DD HH:mm:ss')
-            : '  '}
-        </td>
-        <td>{this.displayValue(order, 'total', total)}</td>
-        <td>{this.displayValue(order, 'fee', fee)}</td>
-        <td>
-          {order.condid == 0
-            ? 'Day'
-            : order.condid == 1
-            ? 'GTC'
-            : order.condid == 6
-            ? dayjs(order.enddate).format('YYYY-MM-DD')
-            : ''}
-        </td>
-        <td>{order.createdUserDetails?.email || 'System user'}</td>
-        <td>{this.renderActions(order)}</td>
+        <td>{settlement.statusDescription}</td>
+        <td>{dayjs(settlement.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
       </StyledTr>
     );
   }

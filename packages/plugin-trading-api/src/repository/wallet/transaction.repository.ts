@@ -2,7 +2,7 @@ import BaseRepository from '../base.repository';
 import { TransactionConst, WalletConst } from '../../constants/wallet';
 import * as moment from 'moment';
 import { Prisma } from '@prisma/client';
-import { OrderTxnType } from '../../constants/stock';
+import * as fs from 'fs';
 export default class TransactionRepository extends BaseRepository {
   constructor() {
     super('transaction');
@@ -52,7 +52,8 @@ export default class TransactionRepository extends BaseRepository {
     });
   };
   transactionStatement = async (params: any) => {
-    let dateFilter = '';
+    let dateFilter = '',
+      filter = '';
     if (params.startDate != undefined && params.endDate != undefined) {
       dateFilter =
         " and tr.dater between '" +
@@ -61,14 +62,17 @@ export default class TransactionRepository extends BaseRepository {
         moment(params.endDate).format('YYYY-MM-DD') +
         "'";
     }
-    let walletFilter = '';
     if (params.walletId) {
-      walletFilter = ` and tr.walletId=${params.walletId} `;
+      filter += ` and tr.walletId=${params.walletId} `;
+    }
+    if (params.userId) {
+      filter += ` and wl.userId='${params.userId}'`;
     }
     let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
     let sql =
       `
     SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,
+    mcsd.prefix,
 	case 
     when (tr.type=1 and tr.status=1) then tr.amount
     when (tr.type=3 and tr.status=1) then tr.amount
@@ -86,50 +90,122 @@ export default class TransactionRepository extends BaseRepository {
     else 0 end as expectedOutcome
     FROM \`Transaction\` tr 
     inner join \`Wallet\` wl on wl.id=tr.walletId 
+    inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
     where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
-      walletFilter +
-      ' order by tr.createdAt,tr.dater' +
+      filter +
+      ' order by tr.dater,tr.createdAt' +
       paginationFilter;
-    //     let sql =
-    //       `SELECT
-    //     tr.type,tr.dater,tr.createdAt,stock.stockname,
-    //     stock.stockcode,stock.symbol,tr.amount+tr.feeAmount as totalAmount,
-    //     case when o.txntype=${OrderTxnType.Buy} then "1"
-    //     when o.txntype=${OrderTxnType.Sell} then "2"
-    //     when tr.type=${TransactionConst.TYPE_CHARGE} then "3"
-    //     when tr.type=${TransactionConst.TYPE_WITHDRAW} then "4" else "0" end as classfication,
-    //     case
-    //     when (tr.type=${TransactionConst.TYPE_CHARGE} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount
-    //     when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount
-    //     else 0 end as income,
-    //     case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_ACTIVE}) then tr.amount+tr.feeAmount else 0 end as outcome,
-    //     case
-    //     when (tr.type=${TransactionConst.TYPE_WITHDRAW} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount
-    //     when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Sell} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount
-    //     else 0 end as expectedIncome,
-    //     case when (tr.type=${TransactionConst.TYPE_W2W} and o.txntype=${OrderTxnType.Buy} and tr.status=${TransactionConst.STATUS_PENDING}) then tr.amount+tr.feeAmount else 0 end as expectedOutcome,
-    //     tr.feeAmount,o.price
-    //  FROM
-    //      \`TransactionOrder\` tr
-    //  left join \`Order\` o on o.tranOrderId=tr.id
-    //  left join \`Stock\` stock on stock.stockcode=o.stockcode
-    //  left join \`StockOrder\` stOrder on stOrder.id=o.stockOrderId
-    //  where (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
-    //       dateFilter +
-    //       walletFilter;
-    // fs.writeFile('Output.txt', sql, (err) => {
-
-    //   // In case of a error throw err.
-    //   if (err) throw err;
-    // })
     let statementList = await this._prisma.$queryRaw(Prisma.raw(sql));
-    console.log(statementList);
     let dataList = {
       total: statementList.length,
       count: statementList.length,
       values: statementList
     };
     return dataList;
+  };
+  transactionStatementSummary = async (params: any) => {
+    let dateFilter = '',
+      filter = '';
+    if (params.startDate != undefined && params.endDate != undefined) {
+      dateFilter =
+        " and tr.dater between '" +
+        moment(params.startDate).format('YYYY-MM-DD') +
+        "' and '" +
+        moment(params.endDate).format('YYYY-MM-DD') +
+        "'";
+    }
+    if (params.walletId) {
+      filter += ` and tr.walletId=${params.walletId} `;
+    }
+    if (params.userId) {
+      filter += ` and wl.userId='${params.userId}'`;
+    }
+    let sql =
+      `SELECT SUM(case 
+    when (tr.type=1 and tr.status=1) then tr.amount
+    when (tr.type=3 and tr.status=1) then tr.amount
+    else 0 end) as income,
+    SUM(case when (tr.type=2  and tr.status=1) then tr.amount*-1
+    when (tr.type=4 and tr.status=1) then tr.amount*-1
+	else 0 end) as outcome,
+	SUM(case  
+    when (tr.type=1 and tr.status=2) then tr.amount
+    when (tr.type=3 and tr.status=2) then tr.amount
+    else 0 end) as expectedIncome,
+    SUM(case 
+    when (tr.type=2 and tr.status=2) then tr.amount*-1 
+    when (tr.type=4 and tr.status=2) then tr.amount*-1 
+    else 0 end) as expectedOutcome
+    FROM \`Transaction\` tr 
+    inner join \`Wallet\` wl on wl.id=tr.walletId 
+    inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+    where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
+      dateFilter +
+      filter;
+    let resultList = await this._prisma.$queryRaw(Prisma.raw(sql));
+    let beginBalanceSql =
+      `SELECT IFNULL(sum(tr.amount),0) as beginBalance
+      FROM \`Transaction\` tr 
+      inner join \`Wallet\` wl on wl.id=tr.walletId 
+      inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+      where wl.type!=${WalletConst.NOMINAL} and wl.type!=${
+        WalletConst.NOMINAL_FEE
+      } and 
+      (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${
+        TransactionConst.STATUS_PENDING
+      }) and 
+      tr.dater<'${moment(params.startDate).format('YYYY-MM-DD')}'` + filter;
+    let beginBalance;
+    if (!!params.startDate)
+      beginBalance = await this._prisma.$queryRaw(Prisma.raw(beginBalanceSql));
+    else
+      beginBalance = [
+        {
+          beginBalance: 0
+        }
+      ];
+    let endBalanceSql =
+      `SELECT IFNULL(sum(tr.amount),0) as endBalance
+    FROM \`Transaction\` tr 
+    inner join \`Wallet\` wl on wl.id=tr.walletId 
+    inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
+    where wl.type!=${WalletConst.NOMINAL} and wl.type!=${
+        WalletConst.NOMINAL_FEE
+      } and 
+    (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${
+        TransactionConst.STATUS_PENDING
+      }) and 
+    tr.dater<='${moment(params.endDate).format('YYYY-MM-DD')}'` + filter;
+    let endBalance;
+    if (!!params.endDate)
+      endBalance = await this._prisma.$queryRaw(Prisma.raw(endBalanceSql));
+    else
+      endBalance = [
+        {
+          endBalance:
+            resultList.length > 0
+              ? resultList[0].income -
+                resultList[0].outcome +
+                resultList[0].expectedIncome -
+                resultList[0].expectedOutcome
+              : 0
+        }
+      ];
+    if (resultList.length > 0) {
+      return {
+        ...resultList[0],
+        ...beginBalance[0],
+        ...endBalance[0]
+      };
+    }
+    return {
+      income: 0,
+      outcome: 0,
+      expectedIncome: 0,
+      expectedOutcome: 0,
+      beginBalance: 0,
+      endBalance: 0
+    };
   };
 }

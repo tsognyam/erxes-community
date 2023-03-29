@@ -9,7 +9,7 @@ const SettlementQueries = {
   tradingSettlements: async (
     _root: any,
 
-    { startDate, endDate, page, perPage },
+    { startDate, endDate, page, perPage, userId },
     { models, subdomain, user }: IContext
   ) => {
     let dateFilter = {};
@@ -32,12 +32,26 @@ const SettlementQueries = {
           lte: endDate
         }
       };
+    let params: any = undefined;
+    if (!!userId) {
+      params = {
+        userId: userId
+      };
+    }
     let updatedParams = {
-      skip: (page - 1) * perPage,
-      take: perPage,
-      ...dateFilter
+      ...dateFilter,
+      ...params
     };
-    let data = await settlementMSCCRepository.findAll(updatedParams);
+    let options = {
+      skip: (page - 1) * perPage,
+      take: perPage
+    };
+    let data = await settlementMSCCRepository.findAll(
+      updatedParams,
+      undefined,
+      options
+    );
+    console.log(data);
     return data;
   }
 };

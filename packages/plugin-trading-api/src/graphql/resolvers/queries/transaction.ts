@@ -47,9 +47,26 @@ const TransactionQueries = {
       take: params.perPage,
       startDate: params.startDate,
       endDate: params.endDate,
-      walletId: params.walletId
+      walletId: params.walletId,
+      userId: params.userId
     };
     let statementList = await repository.transactionStatement(updatedParams);
+    return statementList;
+  },
+  tradingTransactionStatementSummary: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    let updatedParams = {
+      startDate: params.startDate,
+      endDate: params.endDate,
+      walletId: params.walletId,
+      userId: params.userId
+    };
+    let statementList = await repository.transactionStatementSummary(
+      updatedParams
+    );
     return statementList;
   }
 };

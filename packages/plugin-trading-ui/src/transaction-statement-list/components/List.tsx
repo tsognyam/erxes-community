@@ -1,4 +1,5 @@
 import { __ } from '@erxes/ui/src/utils';
+import Select from 'react-select-plus';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -26,12 +27,13 @@ import dayjs from 'dayjs';
 import { PageContent } from '@erxes/ui/src';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
-import Select from 'react-select-plus';
 import _ from 'lodash';
 type Props = {
   queryParams: any;
   history: any;
-  items: any[];
+  tradingStatements: any[];
+  beginBalance: number;
+  endBalance: number;
   total: number;
   count: number;
   loading: boolean;
@@ -40,6 +42,7 @@ type Props = {
   startDate: string;
   endDate: string;
   full: boolean;
+  tradingStatementSum: any;
   prefix: any;
   userId?: string;
 };
@@ -52,8 +55,8 @@ class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      startDate: dayjs(this.props.startDate).format('YYYY-MM-DD'),
-      endDate: dayjs(this.props.endDate).format('YYYY-MM-DD'),
+      startDate: this.props.startDate,
+      endDate: this.props.endDate,
       userId: this.props.userId
     };
   }
@@ -62,35 +65,44 @@ class List extends React.Component<Props, State> {
     this.setState({ userId: value });
   };
   renderContent = () => {
-    const { items } = this.props;
+    const { tradingStatements, tradingStatementSum } = this.props;
 
     return (
       <>
+        {/* <div style={{ float: 'right', paddingRight: '20px' }}>
+          <div>Begin Balance: {displayValue(beginBalance)}</div>
+          <div>End Balance: {displayValue(endBalance)}</div>
+        </div> */}
         <Table>
           <thead>
             <tr>
-              <th></th>
-              <th>{__('Client prefix')}</th>
-              <th>{__('Client suffix')}</th>
-              <th>{__('Trade date')}</th>
-              <th>{__('Settlement date')}</th>
-              <th>{__('Buy quantity')}</th>
-              <th>{__('Buy obligation')}</th>
-              <th>{__('Sell quantity')}</th>
-              <th>{__('Sell obligation')}</th>
-              <th>{__('Quantity')}</th>
-              <th>{__('Obligation')}</th>
-              <th>{__('MSE fee')}</th>
-              <th>{__('MSCC fee')}</th>
-              <th>{__('FRC fee')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Status description')}</th>
-              <th>{__('CreatedAt')}</th>
+              <th>{__('Index')}</th>
+              <th>{__('Prefix')}</th>
+              <th>{__('Огноо')}</th>
+              <th>{__('Төрөл')}</th>
+              <th>{__('Эхний үлдэгдэл')}</th>
+              <th>{__('Орлого')}</th>
+              <th>{__('Зарлага')}</th>
+              <th>{__('ХБО')}</th>
+              <th>{__('ХБЗ')}</th>
+              <th>{__('Эцсийн үлдэгдэл')}</th>
+              <th>{__('Гүйлгээний утга')}</th>
+              <th>Үүсгэсэн огноо</th>
+            </tr>
+            <tr>
+              <th colSpan={4}></th>
+              <th>{displayValue(tradingStatementSum?.beginBalance)}</th>
+              <th>{displayValue(tradingStatementSum?.income)}</th>
+              <th>{displayValue(tradingStatementSum?.outcome)}</th>
+              <th>{displayValue(tradingStatementSum?.expectedIncome)}</th>
+              <th>{displayValue(tradingStatementSum?.expectedOutcome)}</th>
+              <th>{displayValue(tradingStatementSum?.endBalance)}</th>
+              <th colSpan={3}></th>
             </tr>
           </thead>
           <tbody id="transactions">
-            {(items || []).map((settlement, index) => (
-              <Row index={index} settlement={settlement} />
+            {(tradingStatements || []).map((transaction, index) => (
+              <Row index={index} transaction={transaction} />
             ))}
           </tbody>
         </Table>
@@ -119,7 +131,7 @@ class List extends React.Component<Props, State> {
             required={false}
             name="startDate"
             onChange={date => this.onChangeDate('startDate', date)}
-            placeholder={'Start date'}
+            placeholder={'Choose startDate'}
             dateFormat={'YYYY-MM-DD'}
           />
         </FormColumn>
@@ -129,7 +141,7 @@ class List extends React.Component<Props, State> {
             required={false}
             name="endDate"
             onChange={date => this.onChangeDate('endDate', date)}
-            placeholder={'End date'}
+            placeholder={'Choose endDate'}
             dateFormat={'YYYY-MM-DD'}
           />
         </FormColumn>
@@ -158,17 +170,16 @@ class List extends React.Component<Props, State> {
   }
   render() {
     const { queryParams, total, count, full } = this.props;
-    const breadcrumb = [
-      { title: __('Settlement list'), link: '/trading/order-list' }
-    ];
+    console.log('full', full);
+    let actionBarLeft: React.ReactNode;
     if (full) {
       return (
         <Wrapper
           header={
             <Wrapper.Header
-              title={__('Settlement list')}
+              title={__('Transaction Statement')}
               queryParams={queryParams}
-              breadcrumb={breadcrumb}
+              submenu={nominalStatementMenus}
             />
           }
           actionBar={<Wrapper.ActionBar left={this.renderActionBar()} />}
@@ -177,7 +188,7 @@ class List extends React.Component<Props, State> {
               data={this.renderContent()}
               loading={false}
               count={total}
-              emptyText="There is no settlement."
+              emptyText="There is no transaction."
               emptyImage="/images/actions/20.svg"
             />
           }
@@ -186,7 +197,7 @@ class List extends React.Component<Props, State> {
               left={<Pagination count={total} />}
               right={
                 <ControlLabel>
-                  {__('Total settlements=')}
+                  {__('Total transaction=')}
                   {total}
                 </ControlLabel>
               }
@@ -197,33 +208,35 @@ class List extends React.Component<Props, State> {
         />
       );
     } else {
-      <>
-        <Contents hasBorder={true}>
-          {this.renderActionBar()}
-          <PageContent
-            footer={
-              <Wrapper.ActionBar
-                left={<Pagination count={total} />}
-                right={
-                  <ControlLabel>
-                    {__('Total settlements=')}
-                    {total}
-                  </ControlLabel>
-                }
+      return (
+        <>
+          <Contents hasBorder={true}>
+            {this.renderActionBar()}
+            <PageContent
+              footer={
+                <Wrapper.ActionBar
+                  left={<Pagination count={total} />}
+                  right={
+                    <ControlLabel>
+                      {__('Total transaction=')}
+                      {total}
+                    </ControlLabel>
+                  }
+                />
+              }
+              transparent={true}
+            >
+              <DataWithLoader
+                data={this.renderContent()}
+                loading={false}
+                count={total}
+                emptyText="There is no transaction."
+                emptyImage="/images/actions/20.svg"
               />
-            }
-            transparent={true}
-          >
-            <DataWithLoader
-              data={this.renderContent()}
-              loading={false}
-              count={total}
-              emptyText="There is no settlement."
-              emptyImage="/images/actions/20.svg"
-            />
-          </PageContent>
-        </Contents>
-      </>;
+            </PageContent>
+          </Contents>
+        </>
+      );
     }
   }
 }

@@ -89,6 +89,10 @@ import {
   types as MigrationTypes,
   mutations as MigrationMutations
 } from './schema/migration';
+import {
+  types as SettlementTypes,
+  queries as SettlementQueries
+} from './schema/settlement';
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -110,6 +114,7 @@ const typeDefs = async _serviceDiscovery => {
     ${AdminTypes}
     ${MigrationTypes}
     ${ReportTypes}
+    ${SettlementTypes}
     extend type Query {
       ${WalletQueries}
       ${SystemQueries}
@@ -126,6 +131,7 @@ const typeDefs = async _serviceDiscovery => {
       ${CustFeeQueries}
       ${AdminQueries}
       ${ReportQueries}
+      ${SettlementQueries}
     }
     
     extend type Mutation {
