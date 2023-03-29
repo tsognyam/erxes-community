@@ -8,7 +8,10 @@ import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
+import { router as routerUtils } from '@erxes/ui/src/utils';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import queryString from 'query-string';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   history: any;
@@ -16,7 +19,10 @@ type Props = {
 };
 
 type FinalProps = {} & Props & IRouterProps;
-
+const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
+const defaultParams = ['id'];
 class ListContainer extends React.Component<FinalProps> {
   private subscription;
 
@@ -50,7 +56,7 @@ class ListContainer extends React.Component<FinalProps> {
       <ButtonMutate
         mutation={
           object
-            ? mutations.StockMutations.stockAdd
+            ? mutations.StockMutations.stockEdit
             : mutations.StockMutations.stockAdd
         }
         variables={values}
@@ -58,13 +64,34 @@ class ListContainer extends React.Component<FinalProps> {
         refetchQueries={getRefetchQueries()}
         isSubmitted={isSubmitted}
         type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
+        successMessage={`You successfully ${object ? 'updated' : 'added'} `}
       />
     );
   };
+  onSelect = (values: string[] | string, key: string) => {
+    const params = generateQueryParams(this.props.history);
+    if (params[key] === values) {
+      return routerUtils.removeParams(this.props.history, key);
+    }
 
+    return routerUtils.setParams(this.props.history, { [key]: values });
+  };
+  clearFilter = () => {
+    const params = generateQueryParams(this.props.history);
+    const remainedParams = Object.keys(params).filter(
+      key => !defaultParams.includes(key)
+    );
+
+    routerUtils.removeParams(this.props.history, ...remainedParams);
+  };
+  onSearch = (search: string, type: string) => {
+    if (!search) {
+      return routerUtils.removeParams(this.props.history, type);
+    }
+
+    routerUtils.setParams(this.props.history, search);
+    //getRefetchQueries();
+  };
   render() {
     const { history, queryParams, tradingStocksQuery } = this.props;
     const total = tradingStocksQuery?.tradingStocks?.total || 0;
@@ -87,6 +114,9 @@ class ListContainer extends React.Component<FinalProps> {
       total,
       count,
       renderButton: this.renderButton,
+      clearFilter: this.clearFilter,
+      onSearch: this.onSearch,
+      onSelect: this.onSelect,
       // searchValue,
       queryParams
     };
@@ -105,6 +135,25 @@ class ListContainer extends React.Component<FinalProps> {
     );
   }
 }
+const generateNumberArray = (value: any) => {
+  let values: number[] | undefined = undefined;
+  if (value) {
+    if (typeof value == 'string') {
+      values = [];
+      values.push(parseInt(value));
+    } else values = value.map(Number);
+  }
+  return values;
+};
+const generateParams = ({ queryParams }, isPagination = true) => {
+  let symbol = queryParams.symbol;
+  let params = {
+    detail: true,
+    symbol: symbol,
+    ...(isPagination && generatePaginationParams(queryParams))
+  };
+  return params;
+};
 const getRefetchQueries = () => {
   return ['tradingStocks'];
 };
@@ -112,15 +161,20 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.StockQueries.TradingStocks), {
       name: 'tradingStocksQuery',
-      options: props => ({
-        variables: {
-          detail: true,
-          ...props
-        }
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams })
       })
     }),
     graphql<Props>(gql(mutations.StockMutations.stockAdd), {
       name: 'tradingStockAddMutation',
+      options: props => ({
+        variables: {
+          ...props
+        }
+      })
+    }),
+    graphql<Props>(gql(mutations.StockMutations.stockEdit), {
+      name: 'tradingStockEditMutation',
       options: props => ({
         variables: {
           ...props

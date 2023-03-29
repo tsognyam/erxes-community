@@ -83,7 +83,8 @@ export default class AdminService {
         [registerNumber],
         subdomain
       );
-      if (!user) {
+
+      if (user.length == 0) {
         error += '\n--! Харилцагчийн мэдээлэл олдсонгүй. РД:' + registerNumber;
         continue;
       }
@@ -131,7 +132,7 @@ export default class AdminService {
         stock = stock[0];
 
         let findOrders = await this._orderRepository.findAll({
-          userId: user._id,
+          userId: user[0]._id,
           stockcode: stock.stockcode,
           txntype: orderType,
           donecnt: parseInt(jSize),
@@ -180,9 +181,10 @@ export default class AdminService {
           stockcode: stock.stockcode,
           price: parseFloat(jPrice),
           cnt: parseInt(jSize),
-          userId: user._id,
+          userId: user[0]._id,
           mseTradeId: jTradeId
         };
+        console.log('contract note data:', data);
         data.fee = await this._custFeeService.getFee(
           data.userId,
           data.stockcode

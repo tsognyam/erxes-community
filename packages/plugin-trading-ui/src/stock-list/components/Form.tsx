@@ -60,6 +60,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
   prefixChange = val => {};
   renderContent = (formProps: IFormProps) => {
     const object = this.props.object || ({} as any);
+    console.log('object', object);
     // const prefixList = this.props.prefix.map(x => {
     //   return {
     //     value: x.prefix,
@@ -145,8 +146,17 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             {...formProps}
             name="cnt"
-            defaultValue={object.quantity}
+            defaultValue={object.cnt}
             type="number"
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Exchange stockcode')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="externalid"
+            defaultValue={object.externalid}
+            type="string"
           />
         </FormGroup>
         <FormGroup>
@@ -160,7 +170,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
             )}
             options={IPO}
             // onChange={this.prefixChange}
-            value={object.ipo}
+            defaultValue={object.ipo}
           />
         </FormGroup>
         <FormGroup>
@@ -168,7 +178,7 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             {...formProps}
             type="date"
-            defaultValue={dayjs(object.endDate || new Date()).format(
+            defaultValue={dayjs(object.startdate ?? new Date()).format(
               'YYYY-MM-DD'
             )}
             required={true}
@@ -181,12 +191,21 @@ class Forms extends React.Component<Props & ICommonFormProps> {
           <FormControl
             {...formProps}
             type="date"
-            defaultValue={dayjs(object.endDate || new Date()).format(
+            defaultValue={dayjs(object.enddate ?? new Date()).format(
               'YYYY-MM-DD'
             )}
             required={true}
             name="enddate"
             placeholder={'Дуусах өдөр'}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('IPO execution %')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="ipoexecution"
+            defaultValue={object.ipoexecution}
+            type="number"
           />
         </FormGroup>
       </>

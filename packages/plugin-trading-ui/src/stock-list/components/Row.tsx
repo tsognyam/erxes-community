@@ -2,10 +2,14 @@ import React from 'react';
 import { StyledTr } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import { StockChange } from '../../styles';
+import { ActionButtons, Button, Icon, ModalTrigger, Tip } from '@erxes/ui/src';
+import Forms from './Form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   stock: any;
   index: number;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 class Row extends React.Component<Props> {
@@ -25,6 +29,7 @@ class Row extends React.Component<Props> {
         <td>{stock.exchangeid == 1 ? 'MSE' : 'Бусад'}</td>
         <td>{stock.openprice}</td>
         <td>{stock.closeprice}</td>
+        <td>{this.renderActions(stock)}</td>
         {/* <td>
           {stock.yesterdaysLastPrice.toLocaleString(undefined, {
             maximumFractionDigits: 2
@@ -74,6 +79,47 @@ class Row extends React.Component<Props> {
       </StyledTr>
     );
   }
+  renderActions = object => {
+    return (
+      <ActionButtons>
+        {this.renderEditAction(object)}
+        {/* <Tip text={__('Цуцлах')} placement="bottom">
+          <Button
+            size="small"
+            btnStyle="link"
+            onClick={this.cancelOrder}
+            icon="cancel-1"
+          />
+        </Tip> */}
+      </ActionButtons>
+    );
+  };
+  renderForm = props => {
+    return <Forms {...props} renderButton={this.props.renderButton} />;
+  };
+  renderEditAction = object => {
+    const { stock } = this.props;
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
+        </Tip>
+      </Button>
+    );
+
+    const content = props => {
+      return this.renderForm({ ...props, object, stock });
+    };
+    return (
+      <ModalTrigger
+        size="lg"
+        title="Edit"
+        trigger={editTrigger}
+        content={content}
+      />
+    );
+  };
 }
 
 export default Row;

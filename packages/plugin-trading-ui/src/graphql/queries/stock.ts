@@ -46,6 +46,7 @@ query TradingStocks($skip: Int, $symbol: JSON, $take: Int, $detail: Boolean) {
       paytype
       regdate
       startdate
+      enddate
       status
       stockcode
       stockfee

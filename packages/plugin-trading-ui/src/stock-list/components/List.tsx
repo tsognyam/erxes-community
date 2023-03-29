@@ -10,6 +10,8 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import Form from './Form';
+import RightMenu from './RightMenu';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   queryParams: any;
@@ -18,11 +20,14 @@ type Props = {
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  clearFilter: () => void;
+  onSearch: (search: string, key?: string) => void;
+  onSelect: (values: string[] | string, key: string) => void;
 };
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingStocks } = this.props;
+    const { tradingStocks, renderButton } = this.props;
     return (
       <Table>
         <thead>
@@ -38,21 +43,41 @@ class ListComp extends React.Component<Props> {
             <th>{__('Exchange')}</th>
             <th>{__('Open price')}</th>
             <th>{__('Close price')}</th>
+            <th>{__('Actions')}</th>
           </tr>
         </thead>
         <tbody id="orders">
           {(tradingStocks || []).map((stock, index) => (
-            <Row index={index} stock={stock} />
+            <Row renderButton={renderButton} index={index} stock={stock} />
           ))}
         </tbody>
       </Table>
     );
   };
+  renderFilter() {
+    const {
+      queryParams,
+      onSearch,
+      onSelect,
+      clearFilter,
+      tradingStocks
+    } = this.props;
+
+    const rightMenuProps = {
+      queryParams,
+      onSearch,
+      onSelect,
+      clearFilter,
+      tradingStocks
+    };
+
+    return <RightMenu {...rightMenuProps} />;
+  }
   renderActionBar() {
     // const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
     // console.log("fefefefefe", this.CountDownTimer(1,35,6))
     const actionBarRight = (
-      <>
+      <Flex>
         <ModalTrigger
           title="Add stock"
           size={'lg'}
@@ -63,7 +88,8 @@ class ListComp extends React.Component<Props> {
           }
           content={this.renderForm}
         />
-      </>
+        {this.renderFilter()}
+      </Flex>
     );
 
     return <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
