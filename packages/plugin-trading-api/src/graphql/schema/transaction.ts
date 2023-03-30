@@ -36,7 +36,16 @@ type tradingTransactionStatement {
     walletId:Int,
     beforeBalance:Float,
     afterBalance:Float,
-    type:Int
+    type:Int,
+    prefix:String
+}
+type tradingTransactionStatementSummary {
+    income:Float,
+    outcome:Float,
+    expectedIncome:Float,
+    expectedOutcome:Float,
+    beginBalance:Float,
+    endBalance:Float
 }
 type tradingTransactionStatementList {
     total:Int,
@@ -57,21 +66,28 @@ orderId:Int!,
 confirm:Int!
 `;
 export const queries = `
-tradingTransactionGet(${inputParams}):tradingTransactionList
+tradingTransactionGet(${inputParams}):tradingTransactionList,
 tradingTransactionNominalList(
 startDate:Date,
 endDate:Date,
 page:Int,
 perPage:Int,
 status:Int
-):tradingTransactionList
+):tradingTransactionList,
 tradingTransactionStatement(
     startDate:Date,
     endDate:Date,
     page:Int!,
     perPage:Int!,
-    walletId:Int
-):tradingTransactionStatementList
+    walletId:Int,
+    userId:String
+):tradingTransactionStatementList,
+tradingTransactionStatementSummary(
+    startDate:Date,
+    endDate:Date,
+    walletId:Int,
+    userId:String
+):tradingTransactionStatementSummary
 `;
 export const mutations = `
 tradingTransactionConfirm(${confirmParams}):JSON

@@ -21,7 +21,36 @@ const StockTransactionQueries = {
     params,
     { models, subdomain, user }: IContext
   ) => {
-    return await repository.stockTransactionStatement(params);
+    let updatedParams = {
+      skip:
+        params.page != undefined
+          ? (params.page - 1) * params.perPage
+          : undefined,
+      take: params.perPage,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      walletId: params.walletId,
+      userId: params.userId,
+      stockcode: params.stockcode
+    };
+    return await repository.stockTransactionStatement(updatedParams);
+  },
+  tradingStockTransactionStatementSummary: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    let updatedParams = {
+      startDate: params.startDate,
+      endDate: params.endDate,
+      walletId: params.walletId,
+      userId: params.userId,
+      stockcode: params.stockcode
+    };
+    let statementList = await repository.stockTransactionStatementSummary(
+      updatedParams
+    );
+    return statementList;
   }
 };
 //   requireLogin(TransactionQueries, 'tradingTransactionGet');

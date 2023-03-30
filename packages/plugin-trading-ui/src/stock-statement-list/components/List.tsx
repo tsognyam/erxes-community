@@ -25,6 +25,9 @@ import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import dayjs from 'dayjs';
 import { PageContent } from '@erxes/ui/src';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
+import _ from 'lodash';
+import Select from 'react-select-plus';
 type Props = {
   queryParams: any;
   history: any;
@@ -38,49 +41,36 @@ type Props = {
   closeModal: () => void;
   startDate: string;
   endDate: string;
+  userId?: string;
+  tradingStatementSum: any;
+  prefix: any;
+  full: boolean;
 };
 type State = {
   startDate: string;
   endDate: string;
+  userId?: string;
 };
 class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.state = {
-      startDate: dayjs(this.props.startDate).format('YYYY-MM-DD'),
-      endDate: dayjs(this.props.endDate).format('YYYY-MM-DD')
+      startDate: this.props.startDate,
+      endDate: this.props.endDate,
+      userId: this.props.userId
     };
   }
-  generateDoc = (values: {
-    walletId?: number;
-    startDate: Date;
-    endDate: Date;
-  }) => {
-    const finalValues = values;
-
-    return {
-      walletId: finalValues.walletId,
-      startDate: finalValues.startDate,
-      endDate: finalValues.endDate
-    };
-  };
-
   renderContent = () => {
-    const { tradingStatements, beginBalance, endBalance } = this.props;
+    const { tradingStatements, tradingStatementSum } = this.props;
 
     return (
       <>
-        {/* <div style={{ float: 'right', paddingRight: '20px' }}>
-          <div>Begin Balance: {displayValue(beginBalance)}</div>
-          <div>End Balance: {displayValue(endBalance)}</div>
-        </div> */}
         <Table>
           <thead>
             <tr>
               <th>{__('Index')}</th>
               <th>{__('Огноо')}</th>
               <th>{__('Төрөл')}</th>
-              <th>{__('Ангилал')}</th>
               <th>{__('Үнэт цаасны нэр')}</th>
               <th>{__('Симбол')}</th>
               <th>{__('Код')}</th>
@@ -89,9 +79,24 @@ class List extends React.Component<Props, State> {
               <th>{__('ХБО')}</th>
               <th>{__('ХБЗ')}</th>
               <th>{__('Үнэ')}</th>
-              <th>{__('Нийт дүн')}</th>
               <th>{__('Шимтгэл')}</th>
               <th>{__('Тайлбар')}</th>
+            </tr>
+          </thead>
+          <thead>
+            <tr>
+              <th colSpan={4}></th>
+              <th colSpan={2}>
+                Эхний үлдэгдэл:{displayValue(tradingStatementSum?.beginBalance)}
+              </th>
+              <th>{displayValue(tradingStatementSum?.income)}</th>
+              <th>{displayValue(tradingStatementSum?.outcome)}</th>
+              <th>{displayValue(tradingStatementSum?.expectedIncome)}</th>
+              <th>{displayValue(tradingStatementSum?.expectedOutcome)}</th>
+              <th colSpan={2}>
+                Эцсийн үлдэгдэл:{displayValue(tradingStatementSum?.endBalance)}
+              </th>
+              <th colSpan={3}></th>
             </tr>
           </thead>
           <tbody id="transactions">
@@ -103,6 +108,10 @@ class List extends React.Component<Props, State> {
       </>
     );
   };
+  prefixChange = (option: { value: string; label: string }) => {
+    const value = !option ? '' : option.value;
+    this.setState({ userId: value });
+  };
   onChangeDate = (kind: string, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
     if (kind == 'startDate') {
@@ -111,6 +120,12 @@ class List extends React.Component<Props, State> {
   };
   renderActionBar() {
     const { renderButton } = this.props;
+    const prefixList = this.props.prefix.map(x => {
+      return {
+        value: x.userId,
+        label: x.prefix
+      };
+    });
     const actionBarLeft = (
       <FormWrapper>
         <FormColumn>
@@ -119,7 +134,7 @@ class List extends React.Component<Props, State> {
             required={false}
             name="startDate"
             onChange={date => this.onChangeDate('startDate', date)}
-            placeholder={'Start date'}
+            placeholder={'Choose startDate'}
             dateFormat={'YYYY-MM-DD'}
           />
         </FormColumn>
@@ -129,18 +144,25 @@ class List extends React.Component<Props, State> {
             required={false}
             name="endDate"
             onChange={date => this.onChangeDate('endDate', date)}
-            placeholder={'End date'}
+            placeholder={'Choose endDate'}
             dateFormat={'YYYY-MM-DD'}
           />
         </FormColumn>
         <FormColumn>
-          {/* <Button onClick={this.props.renderButton} id="find-transactions" btnStyle="default" block>
-                            {__('Find')}
-                        </Button> */}
+          <Select
+            placeholder={__('Prefix')}
+            value={this.state.userId}
+            options={_.sortBy(prefixList, ['label'])}
+            onChange={this.prefixChange}
+            name="userId"
+          />
+        </FormColumn>
+        <FormColumn>
           {renderButton({
             values: {
               startDate: this.state.startDate,
-              endDate: this.state.endDate
+              endDate: this.state.endDate,
+              userId: this.state.userId
             }
           })}
         </FormColumn>
@@ -150,37 +172,74 @@ class List extends React.Component<Props, State> {
     return <Wrapper.ActionBar left={actionBarLeft} wideSpacing />;
   }
   render() {
-    const { queryParams, total, count } = this.props;
-
-    return (
-      <>
-        {this.renderActionBar()}
-        <Contents hasBorder={true}>
-          <PageContent
-            footer={
-              <Wrapper.ActionBar
-                left={<Pagination count={total} />}
-                right={
-                  <ControlLabel>
-                    {__('Total transaction=')}
-                    {total}
-                  </ControlLabel>
-                }
-              />
-            }
-            transparent={true}
-          >
+    const { queryParams, total, count, full } = this.props;
+    console.log('full', full);
+    if (full) {
+      return (
+        <Wrapper
+          header={
+            <Wrapper.Header
+              title={__('Stock transaction Statement')}
+              queryParams={queryParams}
+              submenu={nominalStatementMenus}
+            />
+          }
+          actionBar={<Wrapper.ActionBar left={this.renderActionBar()} />}
+          content={
             <DataWithLoader
               data={this.renderContent()}
               loading={false}
               count={total}
-              emptyText="There is no statements."
+              emptyText="There is no stock transaction."
               emptyImage="/images/actions/20.svg"
             />
-          </PageContent>
-        </Contents>
-      </>
-    );
+          }
+          footer={
+            <Wrapper.ActionBar
+              left={<Pagination count={total} />}
+              right={
+                <ControlLabel>
+                  {__('Total stock transaction=')}
+                  {total}
+                </ControlLabel>
+              }
+            />
+          }
+          transparent={true}
+          hasBorder
+        />
+      );
+    } else {
+      return (
+        <>
+          <Contents hasBorder={true}>
+            {this.renderActionBar()}
+            <PageContent
+              footer={
+                <Wrapper.ActionBar
+                  left={<Pagination count={total} />}
+                  right={
+                    <ControlLabel>
+                      {__('Total stock transaction=')}
+                      {total}
+                    </ControlLabel>
+                  }
+                />
+              }
+              transparent={true}
+            >
+              <DataWithLoader
+                data={this.renderContent()}
+                loading={false}
+                count={total}
+                emptyText="There is no stock transaction."
+                emptyImage="/images/actions/20.svg"
+              />
+            </PageContent>
+          </Contents>
+        </>
+      );
+    }
   }
 }
 

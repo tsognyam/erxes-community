@@ -7,6 +7,8 @@ type TradingSettlement {
     clientSuffix:String,
     buyQuantity:Int,
     buyObligation:Float,
+    sellQuantity:Int,
+    sellObligation:Float,
     quantity:Int,
     obligation:Float,
     mseFee:Float,
@@ -26,7 +28,8 @@ const inputParams = `
 page:Int!,
 perPage:Int!,
 startDate:Date,
-endDate:Date`;
+endDate:Date,
+userId:String`;
 export const queries = `
-tradingSettlements(${inputParams}):[TradingSettlementList]
+tradingSettlements(${inputParams}):TradingSettlementList
 `;

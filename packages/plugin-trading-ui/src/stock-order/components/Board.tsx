@@ -52,7 +52,6 @@ type Props = {
   sellOrderBook: any[];
   buyOrderBook: any[];
   executedOrderBook: any[];
-  getDate: (subday: number) => Date;
 };
 
 type State = {
@@ -65,6 +64,7 @@ type State = {
   count: number;
   userPrefix: string;
   stockname: string;
+  animationDuration: string;
 };
 
 class BoardComp extends React.Component<Props, State> {
@@ -79,7 +79,12 @@ class BoardComp extends React.Component<Props, State> {
       count: 0,
       userPrefix: '',
       stockname: '',
-      stockcode: ''
+      stockcode: props?.queryParams?.stockcode,
+      animationDuration:
+        props?.queryParams?.stockcode != undefined &&
+        props?.queryParams?.stockcode != ''
+          ? '10s'
+          : '100s'
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -96,17 +101,12 @@ class BoardComp extends React.Component<Props, State> {
             x => x.stockcode == this.state.stockcode
           );
           let changedOrderBook = subscriptionData.data.orderBookChanged;
-          // console.log(changedOrderBook);
-          // console.log('this.state.stockcode', this.state.stockcode);
-          // console.log(stock);
+          console.log(changedOrderBook);
           if (
-            // !!this.state.stockcode &&
-            // !!stock &&
             changedOrderBook.symbol == stock.externalid ||
             changedOrderBook.symbol == stock.symbol
           ) {
-            console.log('changedOrderBook', changedOrderBook);
-            this.refetchQuery(this.state.stockcode || '');
+            this.refetchQuery();
           }
         }
       });
@@ -146,21 +146,10 @@ class BoardComp extends React.Component<Props, State> {
       this.props.onSearch(target.value);
     }
   };
-  refetchQuery = (stockcode: string) => {
-    const {
-      tradingOrderBookQuery,
-      tradingExecutedBookQuery,
-      getDate,
-      onSelect
-    } = this.props;
-    // tradingOrderBookQuery.refetch({
-    //   stockcode: Number(stockcode)
-    // });
-    // tradingExecutedBookQuery.refetch({
-    //   stockcode: Number(stockcode),
-    //   beginDate: dayjs(getDate(1)).format('YYYY-MM-DD'),
-    //   endDate: dayjs(getDate(-1)).format('YYYY-MM-DD')
-    // });
+  refetchQuery = () => {
+    const { tradingOrderBookQuery, tradingExecutedBookQuery } = this.props;
+    tradingOrderBookQuery.refetch();
+    tradingExecutedBookQuery.refetch();
   };
   stockChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value.toString();
@@ -171,7 +160,6 @@ class BoardComp extends React.Component<Props, State> {
     const stock = stockList.find(x => x.stockcode == value);
     this.props.onSelect(value, 'stockcode');
     if (stock) {
-      this.refetchQuery(stock.stockcode);
       this.setState({ closeprice: stock.closeprice });
       this.setState({ closedate: new Date(stock.order_enddate) });
     }
@@ -201,6 +189,18 @@ class BoardComp extends React.Component<Props, State> {
         value: x.stockcode,
         label: x.symbol + ' - ' + x.stockname
       });
+    });
+    let filteredStocks: any = [];
+    if (!!queryParams.stockcode) {
+      filteredStocks = stocks.filter(x => {
+        return x.stockcode == queryParams.stockcode;
+      });
+    } else {
+      filteredStocks = stocks.filter((x, index) => {
+        return index < 30;
+      });
+    }
+    filteredStocks.map((x, index) => {
       let changePercent = 0,
         diff = 0,
         closeprice = 0;
@@ -210,17 +210,15 @@ class BoardComp extends React.Component<Props, State> {
       if (x.openprice != 0)
         changePercent = Math.round((diff / x.openprice) * 100);
       if (x.symbol != 'NULL') {
-        if (index < 50)
-          stockList.push({
-            ...x,
-            changePercent,
-            changedData: {
-              closeprice: closeprice
-            }
-          });
+        stockList.push({
+          ...x,
+          changePercent,
+          changedData: {
+            closeprice: closeprice
+          }
+        });
       }
     });
-
     const extendedProps = {
       ...this.props,
       renderButton: this.renderButton,
@@ -244,7 +242,7 @@ class BoardComp extends React.Component<Props, State> {
     return (
       <>
         <StockDataContainer>
-          <StockData>
+          <StockData animationDuration={this.state.animationDuration}>
             {stockList.map(stock => (
               <div style={{ display: 'inline-table', width: '150px' }}>
                 <div

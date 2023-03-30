@@ -55,8 +55,8 @@ query TradingTransactionNominalList($endDate: Date, $startDate: Date,$status:Int
 }
 `;
 const tradingTransactionStatement = `
-query TradingTransactionStatement($endDate: Date, $page: Int!, $perPage: Int!, $startDate: Date, $walletId: Int) {
-  tradingTransactionStatement(endDate: $endDate, page: $page, perPage: $perPage, startDate: $startDate, walletId:$walletId) {
+query TradingTransactionStatement($endDate: Date, $page: Int!, $perPage: Int!, $startDate: Date, $walletId: Int,$userId:String) {
+  tradingTransactionStatement(endDate: $endDate, page: $page, perPage: $perPage, startDate: $startDate, walletId:$walletId,userId:$userId) {
     values {
       createdAt
       dater
@@ -69,14 +69,28 @@ query TradingTransactionStatement($endDate: Date, $page: Int!, $perPage: Int!, $
       beforeBalance
       type
       description
+      prefix
     }
     total
     count
   }
 }
 `;
+const tradingTransactionStatementSummary = `
+query TradingTransactionStatementSummary($endDate: Date, $startDate: Date, $walletId: Int,$userId:String) {
+  tradingTransactionStatementSummary(endDate: $endDate, startDate: $startDate, walletId:$walletId,userId:$userId) {
+      expectedIncome
+      expectedOutcome
+      income
+      outcome
+      beginBalance
+      endBalance
+  }
+}
+`;
 export default {
   tradingTransactionGet,
   tradingTransactionNominalList,
-  tradingTransactionStatement
+  tradingTransactionStatement,
+  tradingTransactionStatementSummary
 };

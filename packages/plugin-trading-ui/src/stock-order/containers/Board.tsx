@@ -60,10 +60,11 @@ class ListContainer extends React.Component<FinalProps> {
       tradingUserByPrefixQuery,
       tradingStockListQuery,
       tradingOrderBookQuery,
-      tradingExecutedBookQuery
+      tradingExecutedBookQuery,
+      queryParams
     } = this.props;
     const prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
-    const stocks = tradingStockListQuery?.tradingStocks?.values || [];
+    let stocks = tradingStockListQuery?.tradingStocks?.values || [];
     const buyOrderBook =
       tradingOrderBookQuery?.tradingOrderBook?.filter(x => x.type == 0)[0]
         .data || [];
@@ -78,7 +79,6 @@ class ListContainer extends React.Component<FinalProps> {
       stocks,
       onSelect: this.onSelect,
       onSearch: this.onSearch,
-      getDate,
       isCancel: false,
       buyOrderBook,
       sellOrderBook,

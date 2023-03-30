@@ -71,6 +71,13 @@ module.exports = {
       location: 'settings',
       scope: 'trading',
       image: '/images/icons/erxes-18.svg',
-    }
+    },
+    {
+      text: 'Settlement list',
+      to: '/trading/settlement-list',
+      location: 'settings',
+      scope: 'trading',
+      image: '/images/icons/erxes-18.svg',
+    },
   ]
 };

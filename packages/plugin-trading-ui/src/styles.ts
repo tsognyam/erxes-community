@@ -129,14 +129,15 @@ export const StockDataContainer = styled.div`
   background-color: rgba(#000, 0.9);
   padding-left: 100%;
 `;
-export const StockData = styledTS<{ isIncreased?: boolean }>(styled.div)`
+export const StockData = styledTS<{ animationDuration: string }>(styled.div)`
 display: inline-block;
 white-space: nowrap;
 padding-right: 100%;
 animation-iteration-count: infinite;
 animation-timing-function: linear;
 animation-name: ${rotate};
-animation-duration: 100s;
+animation-duration: ${props =>
+  props.animationDuration ? props.animationDuration : '100s'};
 padding-right: 100%;
 padding-top:25px;
 `;
