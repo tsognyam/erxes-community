@@ -75,7 +75,7 @@ class ListComp extends React.Component<Props> {
   }
   renderActionBar() {
     // const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
-    // console.log("fefefefefe", this.CountDownTimer(1,35,6))
+    // console.log("fe123fefefefe", this.CountDownTimer(1,35,6))
     const actionBarRight = (
       <Flex>
         <ModalTrigger
