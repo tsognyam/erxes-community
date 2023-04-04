@@ -110,9 +110,9 @@ class OrderService {
     if (!userMCSD) {
       CustomException(ErrorCode.NotFoundMCSDAccountException);
     }
+    let camount = dataValid.price * dataValid.cnt;
+    let feeamount = camount * (dataValid.fee / 100);
     if (dataValid.txntype == OrderTxnType.Buy) {
-      let camount = dataValid.price * dataValid.cnt;
-      let feeamount = camount * (dataValid.fee / 100);
       params = {
         senderWalletId: wallets[0].id,
         receiverWalletId: nominalWallet.id,
@@ -127,10 +127,12 @@ class OrderService {
         senderWalletId: wallets[0].id,
         receiverWalletId: nominalWallet.id,
         stockCount: data.cnt,
-        stockCode: stockdata.stockcode
+        stockCode: stockdata.stockcode,
+        fee: feeamount,
+        price: dataValid.price,
+        description: stockdata.symbol + ' ҮЦ худалдав'
       };
       const transaction = await this.stockTransactionService.w2w(params);
-
       dataValid.stockOrderId = transaction.id;
     }
 

@@ -12,7 +12,7 @@ import _ from 'lodash';
 import gql from 'graphql-tag';
 import queries from '../../graphql/queries';
 import client from '@erxes/ui/src/apolloClient';
-import { Button, Icon, Label } from '@erxes/ui/src/components';
+import { Button, Icon, Label, TextInfo, Tip } from '@erxes/ui/src/components';
 //import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
@@ -92,6 +92,7 @@ class Forms extends React.Component<Props, State> {
     if (object) {
       finalValues.txnid = object.txnid;
     }
+    console.log('finalValues', finalValues);
     return {
       txnid: finalValues.txnid,
       enddate: finalValues.enddate,
@@ -103,7 +104,7 @@ class Forms extends React.Component<Props, State> {
         ? undefined
         : Number(this.state.stockcode),
       userId: this.state.userId,
-      condid: Number(this.state.condid)
+      condid: this.state.ordertype == 1 ? undefined : Number(this.state.condid)
     };
   };
   prefixChange = (option: { value: string; label: string }) => {
@@ -284,6 +285,7 @@ class Forms extends React.Component<Props, State> {
       isCancel
     } = this.props;
     const { values, isSubmitted } = formProps;
+    console.log(values);
     const prefixList = this.props.prefix.map(x => {
       return {
         value: x.userId,
@@ -299,17 +301,14 @@ class Forms extends React.Component<Props, State> {
     return (
       <>
         <FormGroup>
-          <div style={{ textAlign: 'right' }}>
-            Дансны үлдэгдэл{' '}
-            <label
-              style={
-                this.state.tradeBalance > 0
-                  ? { color: 'green' }
-                  : { color: 'red' }
-              }
-            >
-              {this.numberFormat(this.state.tradeBalance)}
-            </label>
+          Дансны үлдэгдэл:
+          <TextInfo
+            textStyle={this.state.tradeBalance > 0 ? 'success' : 'danger'}
+            hugeness="big"
+          >
+            {this.numberFormat(this.state.tradeBalance)}
+          </TextInfo>
+          <Tip text="Үлдэгдэл шинэчлэх">
             <Button
               onClick={this.tradeBalanceRefresh}
               size="small"
@@ -317,7 +316,7 @@ class Forms extends React.Component<Props, State> {
               iconColor=""
               icon="refresh"
             ></Button>
-          </div>
+          </Tip>
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__('Prefix')}</ControlLabel>
@@ -352,7 +351,6 @@ class Forms extends React.Component<Props, State> {
             name="txntype"
             componentClass="select"
             options={TYPE}
-            defaultValue={order.txntype}
             value={this.state.txntype}
             onChange={this.txntypeChange}
             required={true}
@@ -366,7 +364,6 @@ class Forms extends React.Component<Props, State> {
             name="ordertype"
             componentClass="select"
             options={ORDER_TYPE}
-            defaultValue={order?.ordertype}
             value={this.state.ordertype}
             onChange={this.ordertypeChange}
             required={true}
@@ -375,15 +372,16 @@ class Forms extends React.Component<Props, State> {
         </FormGroup>
         {this.state.isHide == false ? (
           <FormGroup>
-            <ControlLabel required={true}>{__('Үнэ')}</ControlLabel>
+            <ControlLabel required={this.state.isHide ? false : true}>
+              {__('Үнэ')}
+            </ControlLabel>
             <FormControl
               {...formProps}
               name="price"
-              defaultValue={order?.price || 0}
               disabled={this.state.isHide}
               value={this.state.price}
               min={0}
-              required={true}
+              //required={true}
               onChange={this.priceChange}
             />
           </FormGroup>
@@ -424,7 +422,7 @@ class Forms extends React.Component<Props, State> {
               options={TIME_FRAME}
               value={this.state.condid}
               onChange={this.orderConditionChange}
-              required={this.state.isHide ? false : true}
+              //required={this.state.isHide ? false : true}
               disabled={
                 this.state.isHide ? true : this.state.isEditable ? false : true
               }
@@ -440,14 +438,12 @@ class Forms extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 type="date"
-                defaultValue={dayjs(order.endDate || new Date()).format(
-                  'YYYY-MM-DD'
-                )}
-                required={
-                  this.state.isHide == false && this.state.condid == 6
-                    ? true
-                    : false
-                }
+                value={dayjs(order.endDate || new Date()).format('YYYY-MM-DD')}
+                // required={
+                //   this.state.isHide == false && this.state.condid == 6
+                //     ? true
+                //     : false
+                // }
                 name="enddate"
                 placeholder={'Дуусах өдөр'}
                 disabled={
@@ -488,15 +484,13 @@ class Forms extends React.Component<Props, State> {
               Cancel
             </Button>
           )}
-          {renderButton &&
-            renderButton({
-              name: 'save',
-              values: this.generateDoc(values),
-              isSubmitted,
-              callback: closeModal,
-              object,
-              confirmationUpdate: false
-            })}
+          {renderButton({
+            name: 'save',
+            values: this.generateDoc(values),
+            isSubmitted,
+            callback: closeModal,
+            object
+          })}
         </ModalFooter>
       </>
     );

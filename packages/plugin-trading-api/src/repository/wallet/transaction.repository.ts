@@ -185,10 +185,10 @@ export default class TransactionRepository extends BaseRepository {
         {
           endBalance:
             resultList.length > 0
-              ? resultList[0].income -
-                resultList[0].outcome +
-                resultList[0].expectedIncome -
-                resultList[0].expectedOutcome
+              ? parseFloat(resultList[0].income) -
+                parseFloat(resultList[0].outcome) +
+                parseFloat(resultList[0].expectedIncome) -
+                parseFloat(resultList[0].expectedOutcome)
               : 0
         }
       ];
@@ -207,5 +207,45 @@ export default class TransactionRepository extends BaseRepository {
       beginBalance: 0,
       endBalance: 0
     };
+  };
+  transactionBalancesByYear = async (params: any) => {
+    let i = 0,
+      data: any = [];
+    let beginBalanceSql = `SELECT IFNULL(sum(tr.amount),0) as beginBalance
+    FROM \`Transaction\` tr 
+    inner join \`Wallet\` wl on wl.id=tr.walletId 
+    where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and 
+    (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING}) and 
+    YEAR(tr.dater)<${params.year} and wl.userId='${params.userId}'`;
+    let beginBalance = await this._prisma.$queryRaw(
+      Prisma.raw(beginBalanceSql)
+    );
+    let sql = `select YEAR(tr.dater) as \`year\`,
+    MONTH(tr.dater) as \`month\`,
+    sum(tr.amount) as amount
+      from \`Transaction\` tr 
+      inner join \`Wallet\` wl on wl.id=tr.walletId 
+      where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and 
+      (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING}) and 
+       YEAR(tr.dater)=${params.year} and wl.userId='${params.userId}' group by year,month;`;
+    let resultList = await this._prisma.$queryRaw(Prisma.raw(sql));
+    for (i = 1; i <= 12; i++) {
+      let result = resultList.find(x => x.month == i);
+      let item = {
+        name: moment.months(i - 1),
+        month: i,
+        nominalBalance: 0,
+        mcsdBalance: 0
+      };
+      item.nominalBalance = parseFloat(beginBalance[0].beginBalance);
+      if (!!result) {
+        item.nominalBalance += parseFloat(result.amount);
+        beginBalance[0].beginBalance =
+          parseFloat(beginBalance[0].beginBalance) + parseFloat(result.amount);
+        console.log(beginBalance[0].beginBalance);
+      }
+      data.push(item);
+    }
+    return data;
   };
 }
