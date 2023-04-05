@@ -1,15 +1,13 @@
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __, Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import Form from './Form';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Button from '@erxes/ui/src/components/Button';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Sidebar from '../containers/Sidebar';
-import RightMenu from './RightMenu';
+// import RightMenu from './RightMenu';
 import { Flex } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
@@ -17,39 +15,27 @@ import { IOrder, IOrderList } from '../../types/orderTypes';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Row from './Row';
 import { ControlLabel } from '@erxes/ui/src';
+import Forms from './Form';
 
 interface IProps extends IRouterProps {
   queryParams: any;
   history: any;
-  renderButton: (props: IButtonMutateProps) => JSX.Element;
   toggleAll: (targets: any[], containerId: string) => void;
   list: any[]; //list
-  prefixList: any[];
   total: number;
   count: number;
   isAllSelected: boolean;
   bulk: any[];
   // emptyBulk: () => void;
   // remove: (tradeId: string) => void;
-  clearFilter: () => void;
-  onSearch: (search: string, key?: string) => void;
-  onSelect: (values: string[] | string, key: string) => void;
+  // clearFilter: () => void;
   toggleBulk: (target: any, toAdd: boolean) => void;
-  onCancel: (id, userId) => void;
-  onConfirm: (id) => void;
+  onSave: (file?: any) => void;
+  file?: any;
+  isLoading: boolean;
+  message?: any;
 }
-
 class List extends React.Component<IProps> {
-  renderForm = props => {
-    return (
-      <Form
-        {...props}
-        prefixList={this.props.prefixList}
-        renderButton={this.props.renderButton}
-      />
-    );
-  };
-
   // remove = (order) => {
   //   const { remove } = this.props;
 
@@ -62,10 +48,6 @@ class List extends React.Component<IProps> {
       isAllSelected,
       bulk,
       toggleBulk,
-      renderButton,
-      onCancel,
-      onConfirm,
-      prefixList,
       list,
       total,
       count
@@ -85,74 +67,69 @@ class List extends React.Component<IProps> {
               />
             </th>
             <th>№</th>
-            <th>Prefix</th>
-            <th>LastName</th>
-            <th>FirstName</th>
+            <th>TradeId</th>
+            <th>ExternalId</th>
+            <th>SecurityId</th>
             <th>
-              <SortHandler sortField={'Type'} label={__('Type')} />
+              <SortHandler sortField={'Buy/Sell'} label={__('Buy/Sell')} />
             </th>
             <th>
-              <SortHandler sortField={'Currency'} label={__('Currency')} />
+              <SortHandler sortField={'Price'} label={__('Price')} />
             </th>
             <th>
-              <SortHandler sortField={'Amount'} label={__('Amount')} />
+              <SortHandler sortField={'Size'} label={__('Size')} />
             </th>
             <th>
-              <SortHandler sortField={'FeeAmount'} label={__('Fee amount')} />
+              <SortHandler sortField={'TradeValue'} label={__('TradeValue')} />
             </th>
             <th>
               <SortHandler
-                sortField={'Description'}
-                label={__('Description')}
+                sortField={'AccruedValue'}
+                label={__('AccruedValue')}
               />
             </th>
             <th>
-              <SortHandler sortField={'Status'} label={__('Status')} />
+              <SortHandler sortField={'TotalValue'} label={__('TotalValue')} />
             </th>
             <th>
-              <SortHandler sortField={'CreatedAt'} label={__('Created date')} />
+              <SortHandler sortField={'TradeDate'} label={__('TradeDate')} />
             </th>
             <th>
               <SortHandler
-                sortField={'CreatedUser'}
-                label={__('Created user')}
+                sortField={'DownloadDate'}
+                label={__('DownloadDate')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'SettlementDate'}
+                label={__('SettlementDate')}
+              />
+            </th>
+            <th>
+              <SortHandler
+                sortField={'CreatedDate'}
+                label={__('CreatedDate')}
               />
             </th>
 
             <th>{__('')}</th>
           </tr>
         </thead>
-        <tbody id="withdraws">
-          {(list || []).map((withdraw, index) => (
+        <tbody id="contract-list">
+          {(list || []).map((data, index) => (
             <Row
               index={index}
-              withdraw={withdraw}
+              row={data}
               // totalCount={total}
-              isChecked={bulk.includes(withdraw)}
+              isChecked={bulk.includes(data)}
               toggleBulk={toggleBulk}
-              renderButton={renderButton}
-              onCancel={onCancel}
-              onConfirm={onConfirm}
-              prefixList={prefixList}
             />
           ))}
         </tbody>
       </Table>
     );
   };
-
-  renderFilter() {
-    const { queryParams, onSearch, onSelect, clearFilter } = this.props;
-
-    const rightMenuProps = {
-      queryParams,
-      onSearch,
-      onSelect,
-      clearFilter
-    };
-
-    return <RightMenu {...rightMenuProps} />;
-  }
 
   // removeOrders = orders => {
   //   const orderIds: string[] = [];
@@ -165,11 +142,41 @@ class List extends React.Component<IProps> {
 
   //   removeOrders({ orderIds }, emptyBulk);
   // };
+  renderActionBar() {
+    // const title = <ControlLabel>{__('Stock Order')}</ControlLabel>;
+    // console.log("fe123fefefefe", this.CountDownTimer(1,35,6))
+    const actionBarRight = (
+      <Flex>
+        <ModalTrigger
+          title="Upload Contract Note"
+          size={'lg'}
+          trigger={
+            <Button id="add-contract" btnStyle="success" icon="plus-circle">
+              {__('Upload Contract Note')}
+            </Button>
+          }
+          content={this.renderForm}
+        />
+        {/* {this.renderFilter()} */}
+      </Flex>
+    );
 
+    return <Wrapper.ActionBar right={actionBarRight} wideSpacing />;
+  }
+  renderForm = props => {
+    return (
+      <Forms
+        {...props}
+        onSave={this.props.onSave}
+        message={this.props.message}
+        isLoading={this.props.isLoading}
+      />
+    );
+  };
   render() {
-    const { queryParams, bulk, list, total, count, prefixList } = this.props;
+    const { queryParams, bulk, list, total, count } = this.props;
     const breadcrumb = [
-      { title: __('Мөнгө хүсэх өргөдөл'), link: '/trading/withdraw-list' }
+      { title: __('Contract Note list'), link: '/trading/contract-list' }
     ];
     let actionBarLeft: React.ReactNode;
 
@@ -206,26 +213,7 @@ class List extends React.Component<IProps> {
         actionBar={
           <Wrapper.ActionBar
             left={actionBarLeft}
-            right={
-              <Flex>
-                <ModalTrigger
-                  title="New withdraw"
-                  size={'lg'}
-                  trigger={
-                    <Button
-                      id={'NewWithdraw'}
-                      btnStyle="success"
-                      block={true}
-                      icon="plus-circle"
-                    >
-                      New withdraw
-                    </Button>
-                  }
-                  content={this.renderForm}
-                />
-                {this.renderFilter()}
-              </Flex>
-            }
+            right={this.renderActionBar()}
           />
         }
         content={

@@ -148,11 +148,17 @@ const generateNumberArray = (value: any) => {
 const generateParams = ({ queryParams }, isPagination = true) => {
   let symbol = queryParams.symbol;
   let params = {
-    detail: true,
     symbol: symbol,
-    ...(isPagination && generatePaginationParams(queryParams))
+    ...(isPagination && returnPagination(queryParams))
   };
   return params;
+};
+const returnPagination = queryParams => {
+  let defaultPage = generatePaginationParams(queryParams);
+  return {
+    skip: (defaultPage.page - 1) * defaultPage.perPage,
+    take: defaultPage.perPage
+  };
 };
 const getRefetchQueries = () => {
   return ['tradingStocks'];

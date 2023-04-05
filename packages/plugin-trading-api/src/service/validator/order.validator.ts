@@ -11,13 +11,16 @@ import { getUser } from '../../models/utils';
 import { ErrorCode, CustomException } from '../../exception/error-code';
 import { Prisma } from '@prisma/client';
 import { copySync } from 'fs-extra';
+import MarketService from '../market.service';
 class OrderValidator extends BaseValidator {
   private stockRepository: StockRepository;
   private orderRepository: OrderRepository;
+  private marketService: MarketService;
   constructor() {
     super();
     this.stockRepository = new StockRepository();
     this.orderRepository = new OrderRepository();
+    this.marketService = new MarketService();
   }
   validateGet = async params => {
     let { data } = this.validate(
@@ -356,16 +359,21 @@ class OrderValidator extends BaseValidator {
     if (!stockdata) CustomException(ErrorCode.StockNotFoundException);
 
     if (data.ordertype == 1) {
-      //let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
-      // if (marketStock.length == 0)
-      //     CustomException(ErrorCode.CannotOrderMarketException);
-      // //if market order then price is openprice + 15%
-      // let marketPrice = marketStock[0].openprice;
-      // if (marketStock[0].openprice == null) {
-      //     marketPrice = marketStock[0].prevprice;
-      // }
-      // let calcPrice = parseFloat(marketPrice) + parseFloat((marketPrice * 15 / 100).toFixed(2));
-      let calcPrice = 1000;
+      let marketStock = await this.marketService.getMarketByStock(
+        `'${stockdata.externalid}'`,
+        new Date()
+      );
+      if (marketStock.length == 0)
+        CustomException(ErrorCode.CannotOrderMarketException);
+      //if market order then price is openprice + 15%
+      let marketPrice = marketStock[0].openprice;
+      if (marketStock[0].openprice == null) {
+        marketPrice = marketStock[0].prevprice;
+      }
+      let calcPrice =
+        parseFloat(marketPrice) +
+        parseFloat(((marketPrice * 15) / 100).toFixed(2));
+      // let calcPrice = 1000;
       data.price = calcPrice;
     }
     return data;
@@ -378,6 +386,7 @@ class OrderValidator extends BaseValidator {
       fee: this._joi.number().required(),
       userId: this._joi.string().required()
     };
+
     if (params.ordertype == 2) {
       schema.price = this._joi
         .number()
@@ -392,14 +401,27 @@ class OrderValidator extends BaseValidator {
       schema.enddate = this._joi.date().default(new Date());
     }
     let { data } = this.validate(schema, params);
-    //await this.checkUser(data.userId);
+    let order = await this.orderRepository.find(
+      {
+        txnid: data.txnid
+      },
+      {
+        stock: true
+      }
+    );
+    let stockdata = order[0].stock;
     if (data.ordertype == 1) {
-      // let marketStock = await getMarketByStock(`'${stockdata.externalid}'`, new Date());
-      // if (marketStock.length == 0)
-      //     CustomException(ErrorCode.CannotOrderMarketException);
-      // //if market order then price is openprice + 15%
-      // let calcPrice = parseFloat(marketStock[0].openprice) + parseFloat((marketStock[0].openprice * 15 / 100).toFixed(2));
-      let calcPrice = 100;
+      let marketStock = await this.marketService.getMarketByStock(
+        `'${stockdata.externalid}'`,
+        new Date()
+      );
+      if (marketStock.length == 0)
+        CustomException(ErrorCode.CannotOrderMarketException);
+      //if market order then price is openprice + 15%
+      let calcPrice =
+        parseFloat(marketStock[0].openprice) +
+        parseFloat(((marketStock[0].openprice * 15) / 100).toFixed(2));
+      // let calcPrice = 100;
       data.price = calcPrice;
     }
 

@@ -10,6 +10,7 @@ import BankTransactionQueries from './bank.transaction';
 import MarketQueries from './market';
 import SettlementQueries from './settlement';
 import StockTransactionQueries from './stock.transaction';
+import ContractNoteQueries from './contractNote';
 export default {
   OrderQueries,
   CustFeeQueries,
@@ -22,5 +23,6 @@ export default {
   BankTransactionQueries,
   MarketQueries,
   SettlementQueries,
-  StockTransactionQueries
+  StockTransactionQueries,
+  ContractNoteQueries
 };

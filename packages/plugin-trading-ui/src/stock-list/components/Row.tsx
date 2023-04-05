@@ -27,8 +27,10 @@ class Row extends React.Component<Props> {
         <td>{stock.currencyCode}</td>
         <td>{stock.regdate}</td>
         <td>{stock.exchangeid == 1 ? 'MSE' : 'Бусад'}</td>
-        <td>{stock.openprice}</td>
-        <td>{stock.closeprice}</td>
+        <td></td>
+        <td></td>
+        {/* <td>{stock.openprice}</td>
+        <td>{stock.closeprice}</td> */}
         <td>{this.renderActions(stock)}</td>
         {/* <td>
           {stock.yesterdaysLastPrice.toLocaleString(undefined, {

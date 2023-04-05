@@ -5,7 +5,12 @@ import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import queryString from 'query-string';
-import { Alert, router as routerUtils } from '@erxes/ui/src/utils';
+import {
+  Alert,
+  confirm,
+  getEnv,
+  router as routerUtils
+} from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -22,143 +27,54 @@ type Props = {
 };
 
 type FinalProps = {
-  tradingWithdrawGetQuery: any;
-  tradingUserByPrefixQuery: any;
-  tradingWithdrawConfirmMutation: (params: {
-    variables: { requestId: number; confirm: number };
-  }) => Promise<any>;
-  tradingWithdrawCancelMutation: (params: {
-    variables: { requestId: number; userId: string };
-  }) => Promise<any>;
+  tradingGetContractNoteQuery: any;
 } & Props &
   IRouterProps;
-
+type State = {
+  isLoading: boolean;
+  file?: any;
+  message?: any;
+};
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
 
 const defaultParams = ['id'];
 
-class ListContainer extends React.Component<FinalProps> {
-  renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    return (
-      <ButtonMutate
-        mutation={object ? '' : mutations.tradingWithdrawCreate}
-        variables={values}
-        callback={callback}
-        refetchQueries={getRefetchQueries}
-        isSubmitted={isSubmitted}
-        type="submit"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a ${passedName}`}
-      />
-    );
-  };
-
-  onSearch = (search: string, type: string) => {
-    if (!search) {
-      return routerUtils.removeParams(this.props.history, type);
-    }
-
-    routerUtils.setParams(this.props.history, search);
-  };
-  onCancel = (id, userId) => {
-    const {
-      tradingWithdrawCancelMutation,
-      tradingWithdrawGetQuery
-    } = this.props;
-    let variables: any = {
-      requestId: id,
-      userId: userId
+class ListContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: false
     };
-    tradingWithdrawCancelMutation({
-      variables
-    })
-      .then(() => {
-        Alert.success('You successfully cancelled');
-        // tradingWithdrawGetQuery.refetch();
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-  onConfirm = id => {
-    const {
-      tradingWithdrawConfirmMutation,
-      tradingWithdrawGetQuery
-    } = this.props;
-
-    tradingWithdrawConfirmMutation({
-      variables: {
-        requestId: id,
-        confirm: 1
-      }
-    })
-      .then(() => {
-        Alert.success('You successfully confirmed');
-        // tradingWithdrawGetQuery.refetch();
-        // getRefetchQueries(this.props.queryParams)
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-  onSelect = (values: string[] | string, key: string) => {
-    const params = generateQueryParams(this.props.history);
-
-    if (params[key] === values) {
-      console.log('params[key] === value', params[key], values);
-      return routerUtils.removeParams(this.props.history, key);
-    }
-
-    return routerUtils.setParams(this.props.history, { [key]: values });
-  };
-
-  clearFilter = () => {
-    const params = generateQueryParams(this.props.history);
-    const remainedParams = Object.keys(params).filter(
-      key => !defaultParams.includes(key)
-    );
-
-    routerUtils.removeParams(this.props.history, ...remainedParams);
-  };
+  }
 
   render() {
-    const {
-      tradingWithdrawGetQuery,
-      tradingUserByPrefixQuery,
-      queryParams
-    } = this.props;
-    const list = tradingWithdrawGetQuery?.tradingWithdrawGet?.values || [];
-    const total = tradingWithdrawGetQuery?.tradingWithdrawGet?.total || 0;
-    const count = tradingWithdrawGetQuery?.tradingWithdrawGet?.count || 0;
+    const { isLoading, file, message } = this.state;
+    const { tradingGetContractNoteQuery, queryParams } = this.props;
+    console.log('render*');
+    const list =
+      tradingGetContractNoteQuery?.tradingGetContractNote?.values || [];
+    const total =
+      tradingGetContractNoteQuery?.tradingGetContractNote?.total || 0;
+    const count =
+      tradingGetContractNoteQuery?.tradingGetContractNote?.count || 0;
     console.log('rendering', list ?? undefined);
-    const prefixList =
-      tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
+
     const extendedProps = {
       ...this.props,
       list,
-      prefixList,
-      loading: tradingWithdrawGetQuery.loading,
+      loading: tradingGetContractNoteQuery.loading,
       total,
       count,
-      onSelect: this.onSelect,
-      clearFilter: this.clearFilter,
-      onSearch: this.onSearch,
-      renderButton: this.renderButton,
-      onCancel: this.onCancel,
-      onConfirm: this.onConfirm
+      onSave: this.onSave,
+      isLoading: isLoading,
+      message: message,
+      file: file
       // remove: this.remove,
       // removeOrders,
     };
-    if (tradingWithdrawGetQuery.loading) {
+    if (tradingGetContractNoteQuery.loading) {
       return <Spinner />;
     }
     const content = props => {
@@ -167,51 +83,69 @@ class ListContainer extends React.Component<FinalProps> {
 
     return <Bulk content={content} />;
   }
+  onSave = (file?: any) => {
+    const { REACT_APP_API_URL } = getEnv();
+    const url = `${REACT_APP_API_URL}/pl:trading/admin/upload/contract-note`;
+    confirm(`This action will be change database data.Are you sure?`)
+      .then(() => {
+        this.setState({
+          isLoading: true
+        });
+        const formData = new FormData();
+        formData.append('contract-note', file);
+        fetch(`${url}`, {
+          method: 'post',
+          body: formData
+        })
+          .then(async response => {
+            if (response.ok) {
+              let json = await response.json();
+              Alert.success(json.data.error);
+              this.setState({
+                file: file,
+                message: json.data.error
+              });
+            } else {
+              const contentType = response.headers.get('content-type');
+              if (
+                contentType &&
+                contentType.indexOf('application/json') !== -1
+              ) {
+                response.json().then(json => {
+                  Alert.error(json);
+                });
+              } else Alert.error(response.statusText);
+            }
+            this.setState({
+              isLoading: false
+            });
+          })
+          .catch(error => {
+            Alert.error(error.message);
+            this.setState({
+              isLoading: false
+            });
+          });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 }
 
 const getRefetchQueries = (queryParams?: any) => {
   return [
     {
-      query: gql(queries.tradingWithdrawGet),
-      variables: {
-        type: queryParams.type,
-        walletId: queryParams.walletId,
-        status: queryParams.status,
-        ...generatePaginationParams(queryParams)
-      }
+      query: gql(queries.ContractNoteQueries)
     }
   ];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
+    graphql<Props>(gql(queries.ContractNoteQueries.tradingGetContractNote), {
+      name: 'tradingGetContractNoteQuery',
       options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
-      })
-    }),
-    graphql<Props>(gql(queries.tradingWithdrawGet), {
-      name: 'tradingWithdrawGetQuery',
-      options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
-      })
-    }),
-    graphql<Props>(gql(mutations.tradingWithdrawCancel), {
-      name: 'tradingWithdrawCancelMutation',
-      options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
-      })
-    }),
-    graphql<Props>(gql(mutations.tradingWithdrawConfirm), {
-      name: 'tradingWithdrawConfirmMutation',
-      options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
-      })
-    }),
-    graphql<Props>(gql(mutations.tradingWithdrawCreate), {
-      name: 'tradingWithdrawCreateMutation',
-      options: ({ queryParams }) => ({
-        refetchQueries: getRefetchQueries(queryParams)
+        // refetchQueries: getRefetchQueries(queryParams)
       })
     })
   )(ListContainer)

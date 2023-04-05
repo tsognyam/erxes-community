@@ -25,7 +25,7 @@ export default class BaseRepository {
     this._model = model;
     this._prisma = prisma;
   }
-  find = async (where: any, select = undefined) =>
+  find = async (where: any, select: any = undefined) =>
     await this._prisma[this._model].findMany({
       where,
       include: select
