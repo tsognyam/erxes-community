@@ -28,26 +28,26 @@ export default class StockTransactionRepository extends BaseRepository {
       filter = ` and st.stockcode=${params.stockcode}`;
     }
     let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
+    let selectSql = ` SELECT str.dater,str.createdAt,str.description,str.walletId,str.type,mcsd.prefix,
+    CAST((case
+    when (str.type=1 and str.status=1) then str.stockCount
+    when (str.type=3 and str.status=1) then str.stockCount
+    else 0 end) AS DECIMAL(30,0))  as income,
+    CAST((case
+    when (str.type=2  and str.status=1) then str.stockCount*-1
+    when (str.type=4 and str.status=1) then str.stockCount*-1
+    else 0 end) AS DECIMAL(30,0)) as outcome,
+    CAST((case
+    when (str.type=1 and str.status=2) then str.stockCount
+    when (str.type=3 and str.status=2) then str.stockCount
+    else 0 end) AS DECIMAL(30,0)) as expectedIncome,
+    CAST((case 
+    when (str.type=2 and str.status=2) then str.stockCount*-1 
+    when (str.type=4 and str.status=2) then str.stockCount*-1 
+    else 0 end) AS DECIMAL(30,0)) as expectedOutcome,
+    st.stockcode,st.stockname,st.symbol,str.fee,str.price `;
     let sql =
       `
-      SELECT str.dater,str.createdAt,str.description,str.walletId,str.type,mcsd.prefix,
-      CAST((case
-      when (str.type=1 and str.status=1) then str.stockCount
-      when (str.type=3 and str.status=1) then str.stockCount
-      else 0 end) AS DECIMAL(30,0))  as income,
-      CAST((case
-      when (str.type=2  and str.status=1) then str.stockCount
-      when (str.type=4 and str.status=1) then str.stockCount
-      else 0 end) AS DECIMAL(30,0)) as outcome,
-      CAST((case
-      when (str.type=1 and str.status=2) then str.stockCount
-      when (str.type=3 and str.status=2) then str.stockCount
-      else 0 end) AS DECIMAL(30,0)) as expectedIncome,
-      CAST((case 
-      when (str.type=2 and str.status=2) then str.stockCount 
-      when (str.type=4 and str.status=2) then str.stockCount 
-      else 0 end) AS DECIMAL(30,0)) as expectedOutcome,
-      st.stockcode,st.stockname,st.symbol,str.fee,str.price
       FROM \`StockTransaction\` str 
       inner join \`Wallet\` wl on wl.id=str.walletId
       inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
@@ -55,12 +55,17 @@ export default class StockTransactionRepository extends BaseRepository {
       where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (str.status=${TransactionConst.STATUS_ACTIVE} or str.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       filter +
-      ' order by str.createdAt,str.dater' +
-      paginationFilter;
-    let statementList = await this._prisma.$queryRaw(Prisma.raw(sql));
-    console.log(statementList);
+      ' order by str.createdAt,str.dater';
+    let statementList = await this._prisma.$queryRaw(
+      Prisma.raw(selectSql + sql + paginationFilter)
+    );
+    let totalCount = await this._prisma.$queryRaw(
+      Prisma.raw(
+        'select CAST(count(str.walletId) as DECIMAL(30,0)) as count ' + sql
+      )
+    );
     let dataList = {
-      total: statementList.length,
+      total: totalCount[0].count,
       count: statementList.length,
       values: statementList
     };
@@ -142,10 +147,10 @@ export default class StockTransactionRepository extends BaseRepository {
         {
           endBalance:
             resultList.length > 0
-              ? resultList[0].income -
-                resultList[0].outcome +
-                resultList[0].expectedIncome -
-                resultList[0].expectedOutcome
+              ? parseFloat(resultList[0].income) -
+                parseFloat(resultList[0].outcome) +
+                parseFloat(resultList[0].expectedIncome) -
+                parseFloat(resultList[0].expectedOutcome)
               : 0
         }
       ];

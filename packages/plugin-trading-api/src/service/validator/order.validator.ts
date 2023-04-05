@@ -173,8 +173,8 @@ class OrderValidator extends BaseValidator {
     );
     console.log('orderSummaryParams', data);
     let order = await this.orderRepository._prisma.$queryRaw`
-    select @fee:=IFNULL((sum(o.cnt*price)/100),0) as fee,
-    IFNULL(sum(o.cnt * o.price)+@fee,0) as total 
+    select IFNULL(sum(((o.cnt*o.price)*fee)/100)) as fee,
+    (IFNULL(sum(o.cnt * o.price),0)+IFNULL(sum(((o.cnt*o.price)*fee)/100))) as total 
     from \`Order\` o 
     left join \`UserMCSDAccount\` userMCSD on userMCSD.userId=o.userId
     WHERE true 
@@ -218,6 +218,7 @@ class OrderValidator extends BaseValidator {
         ? Prisma.sql`AND o.txndate<=${data.endDate}`
         : Prisma.empty
     }`;
+    console.log('orderData', order);
     if (order.length > 0) return order[0];
     return {
       total: 0,

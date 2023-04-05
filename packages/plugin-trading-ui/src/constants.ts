@@ -369,7 +369,8 @@ export const STATE_LIST = [
   { status: 4, statusName: 'Хэсэгчилж биелсэн', styleName: 'success' },
   { status: 5, statusName: 'Биелсэн', styleName: 'success' },
   { status: 6, statusName: 'Түтгэлзсэн', styleName: 'danger' },
-  { status: 7, statusName: 'Хугацаа нь дууссан', styleName: 'danger' },
+  { status: 7, statusName: 'CALCULATED', styleName: 'warning' },
+  { status: 8, statusName: 'Хугацаа дууссан', styleName: 'danger' },
   { status: 9, statusName: 'Шинэчлэгдсэн', styleName: 'default' }
 ];
 

@@ -69,9 +69,7 @@ export default class TransactionRepository extends BaseRepository {
       filter += ` and wl.userId='${params.userId}'`;
     }
     let paginationFilter = ` limit ` + params.take + ` offset ` + params.skip;
-    let sql =
-      `
-    SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,
+    let selectSql = `SELECT tr.dater,tr.createdAt,tr.description,tr.walletId,tr.type,tr.beforeBalance,tr.afterBalance,
     mcsd.prefix,
 	case 
     when (tr.type=1 and tr.status=1) then tr.amount
@@ -88,17 +86,26 @@ export default class TransactionRepository extends BaseRepository {
     when (tr.type=2 and tr.status=2) then tr.amount*-1 
     when (tr.type=4 and tr.status=2) then tr.amount*-1 
     else 0 end as expectedOutcome
-    FROM \`Transaction\` tr 
+    `;
+    let sql =
+      ` FROM \`Transaction\` tr 
     inner join \`Wallet\` wl on wl.id=tr.walletId 
     inner join \`UserMCSDAccount\` mcsd on mcsd.userId=wl.userId
     where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (tr.status=${TransactionConst.STATUS_ACTIVE} or tr.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       filter +
-      ' order by tr.dater,tr.createdAt' +
-      paginationFilter;
-    let statementList = await this._prisma.$queryRaw(Prisma.raw(sql));
+      ' order by tr.dater,tr.createdAt';
+    let statementList = await this._prisma.$queryRaw(
+      Prisma.raw(selectSql + sql + paginationFilter)
+    );
+    let totalCount = await this._prisma.$queryRaw(
+      Prisma.raw(
+        'select CAST(count(tr.walletId) as DECIMAL(30,0)) as count ' + sql
+      )
+    );
+    console.log(totalCount);
     let dataList = {
-      total: statementList.length,
+      total: totalCount[0].count,
       count: statementList.length,
       values: statementList
     };

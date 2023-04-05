@@ -130,7 +130,7 @@ class OrderService {
         stockCode: stockdata.stockcode,
         fee: feeamount,
         price: dataValid.price,
-        description: stockdata.symbol + ' ҮЦ худалдав'
+        description: stockdata.symbol + ' ҮЦ худалдсан'
       };
       const transaction = await this.stockTransactionService.w2w(params);
       dataValid.stockOrderId = transaction.id;
@@ -203,9 +203,9 @@ class OrderService {
     let nominalWallet = await this.walletService.getNominalWallet({
       currencyCode: stockdata.currencyCode
     });
+    let camount = dataValid.price * dataValid.cnt;
+    let feeamount = camount * (dataValid.fee / 100);
     if (dataValid.txntype == OrderTxnType.Buy) {
-      let camount = dataValid.price * dataValid.cnt;
-      let feeamount = camount * (dataValid.fee / 100);
       params = {
         senderWalletId: wallets[0].id,
         receiverWalletId: nominalWallet.id,
@@ -220,7 +220,10 @@ class OrderService {
         senderWalletId: wallets[0].id,
         receiverWalletId: nominalWallet.id,
         stockCount: dataValid.cnt,
-        stockCode: stockdata.stockcode
+        stockCode: stockdata.stockcode,
+        fee: feeamount,
+        price: dataValid.price,
+        description: stockdata.symbol + ' ҮЦ худалдсан'
       };
       const transaction = await this.stockTransactionService.w2w(params);
 
@@ -323,9 +326,9 @@ class OrderService {
     let nominalWallet = await this.walletService.getNominalWallet({
       currencyCode: stockdata.currencyCode
     });
+    let camount = dataValid.price * dataValid.cnt;
+    let feeamount = camount * (dataValid.fee / 100);
     if (order.txntype == OrderTxnType.Buy) {
-      let camount = dataValid.price * dataValid.cnt;
-      let feeamount = camount * (dataValid.fee / 100);
       let oldcamount = order.price * order.cnt;
       let oldfeeamount = oldcamount * (order.fee / 100);
       this.tranValidator.checkBalance(
@@ -372,7 +375,10 @@ class OrderService {
         senderWalletId: wallets[0].id,
         receiverWalletId: nominalWallet.id,
         stockCount: data.cnt,
-        stockCode: stockdata.stockcode
+        stockCode: stockdata.stockcode,
+        fee: feeamount,
+        price: dataValid.price,
+        description: stockdata.symbol + ' ҮЦ худалдан авсан'
       };
       const transaction = await this.stockTransactionService.w2w(params);
 
@@ -664,13 +670,21 @@ class OrderService {
             senderWalletId: nominalWallet.id,
             receiverWalletId: order.walletId,
             stockCount: parseInt(received.data.donecnt),
-            stockCode: order.stockcode
+            stockCode: order.stockcode,
+            fee: feeamount,
+            price: calcPrice,
+            description: stockdata.symbol + ' ҮЦ худалдан авсан'
           });
           order.stockOrderId = stockOrder.id;
         } else {
+          let camount = calcPrice * parseInt(received.data.donecnt);
+          let feeamount = camount * (order.fee / 100);
           let tranparam = {
             orderId: morder.stockOrderId,
-            stockCount: parseInt(received.data.donecnt)
+            stockCount: parseInt(received.data.donecnt),
+            price: calcPrice,
+            fee: feeamount,
+            description: stockdata.symbol + ' ҮЦ худалдсан'
           };
           let newtran = await this.stockTransactionService.participateTransaction(
             tranparam

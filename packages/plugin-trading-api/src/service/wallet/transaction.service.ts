@@ -130,11 +130,16 @@ class TransactionService {
         receiverWalletId = order.walletId;
       }
       if (order.stockOrderId == null || order.stockOrderId == undefined) {
+        let camount = parseFloat(order.doneprice) * parseInt(order.donecnt);
+        let feeamount = camount * (order.fee / 100);
         let stockOrder = await this.stockTransactionService.w2w({
           senderWalletId: nominalWallet.id,
           receiverWalletId: receiverWalletId,
           stockCount: order.donecnt,
-          stockCode: order.stockcode
+          stockCode: order.stockcode,
+          price: parseFloat(order.doneprice),
+          fee: feeamount,
+          description: stockdata.symbol + ' ҮЦ худалдан авсан'
         });
         order.stockOrderId = stockOrder.id;
       }
@@ -146,9 +151,14 @@ class TransactionService {
         order.stockOrderId
       );
       if (stockOrder.stockCount != order.donecnt) {
+        let camount = parseFloat(order.doneprice) * parseInt(order.donecnt);
+        let feeamount = camount * (order.fee / 100);
         let stockTransactionParams = {
           orderId: order.stockOrderId,
-          stockCount: order.donecnt
+          stockCount: order.donecnt,
+          price: parseFloat(order.doneprice),
+          fee: feeamount,
+          description: stockdata.symbol + ' ҮЦ худалдсан'
         };
         let oldStockOrder = order.stockOrderId;
         let newStockOrder = await this.stockTransactionService.participateTransaction(

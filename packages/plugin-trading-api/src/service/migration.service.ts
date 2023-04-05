@@ -26,6 +26,7 @@ import Helper from '../middleware/helper.service';
 import BaseRepository from '../repository/base.repository';
 import StockWalletValidator from './validator/wallet/stock.wallet.validator';
 import UserService from './user/user.service';
+import { sendFormsMessage } from '../messageBroker';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -156,7 +157,10 @@ export default class MigrationService {
           confirm: 1
         });
         addedTransaction++;
-      } else if (sortedData[i].transaction_type == 'Unet tsaasnii guilgee') {
+      } else if (
+        sortedData[i].transaction_type == 'Unet tsaasnii guilgee' ||
+        sortedData[i].transaction_type == 'Contract note'
+      ) {
         let stock = await this.stockRepository.findFirst({
           symbol: sortedData[i].asset_symbol
         });
@@ -210,11 +214,22 @@ export default class MigrationService {
     let userRegisters = data.map((obj: any) => {
       return obj.register_number;
     });
+
     const users = await this.userService.getUserByRegisterNumber(
       userRegisters,
       subdomain
     );
-    console.log(users);
+    let fields = await sendFormsMessage({
+      action: 'fields.findOne',
+      subdomain: subdomain,
+      data: {
+        query: {
+          code: 'registerNumber'
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
     let i = 0;
     //Компанийн бондын шимтгэл
     let feeCorpDebt = await Helper.getValue('FeeCorpDebt');
@@ -223,13 +238,19 @@ export default class MigrationService {
     //Хувьцааны шимтгэл
     let feeEquity = await Helper.getValue('FeeEquity');
     let addedUserCount = 0;
+    console.log('users', users);
     for (i = 0; i < users.length; i++) {
       let userMcsdAccount = await this.userMCSDAccountRepository.findUnique({
         userId: users[i]._id
       });
       if (!!userMcsdAccount == false) {
-        let registerNumber =
-          users[i].customFieldsDataByFieldCode?.registerNumber?.value;
+        console.log(users[i].customFieldsData);
+        let registerNumberField = users[i].customFieldsData.find(
+          x => x.field == fields._id
+        );
+        console.log(registerNumberField);
+        if (!registerNumberField) continue;
+        let registerNumber = registerNumberField.value;
         let userData = data.find(x => x.register_number == registerNumber);
         if (!!userData) {
           let splitSuffix = userData.suffix.split('/');

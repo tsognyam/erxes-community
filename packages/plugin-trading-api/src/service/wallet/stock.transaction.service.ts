@@ -242,7 +242,7 @@ export default class StockTransactionService {
         walletId: senderBalance.walletId,
         type: TransactionConst.OUTCOME,
         status: TransactionConst.STATUS_PENDING,
-        stockCount: params.stockCount,
+        stockCount: params.stockCount * -1,
         stockCode: params.stockCode,
         dater: params.dater,
         price: !params.price ? 0 : params.price,
@@ -322,7 +322,10 @@ export default class StockTransactionService {
             status: transaction.status,
             stockCount: data.stockCount,
             stockCode: order.stockCode,
-            dater: new Date()
+            dater: new Date(),
+            price: !params.price ? 0 : params.price,
+            fee: !params.fee ? 0 : params.fee,
+            description: params.description
           });
           break;
         case TransactionConst.OUTCOME:
@@ -335,7 +338,10 @@ export default class StockTransactionService {
             status: transaction.status,
             stockCount: data.stockCount * -1,
             stockCode: order.stockCode,
-            dater: new Date()
+            dater: new Date(),
+            price: !params.price ? 0 : params.price,
+            fee: !params.fee ? 0 : params.fee,
+            description: params.description
           });
           break;
       }

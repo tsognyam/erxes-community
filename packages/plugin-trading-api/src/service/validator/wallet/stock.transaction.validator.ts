@@ -166,7 +166,10 @@ export default class StockTransactionValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         orderId: this._joi.number().required(),
-        stockCount: this._joi.number().required()
+        stockCount: this._joi.number().required(),
+        price: this._joi.number(),
+        fee: this._joi.number(),
+        description: this._joi.string()
       },
       params
     );
