@@ -101,7 +101,6 @@ class BoardComp extends React.Component<Props, State> {
             x => x.stockcode == this.state.stockcode
           );
           let changedOrderBook = subscriptionData.data.orderBookChanged;
-          console.log(changedOrderBook);
           if (
             changedOrderBook.symbol == stock.externalid ||
             changedOrderBook.symbol == stock.symbol
@@ -241,7 +240,7 @@ class BoardComp extends React.Component<Props, State> {
     };
     return (
       <>
-        <StockDataContainer>
+        {/* <StockDataContainer>
           <StockData animationDuration={this.state.animationDuration}>
             {stockList.map(stock => (
               <div style={{ display: 'inline-table', width: '150px' }}>
@@ -285,7 +284,7 @@ class BoardComp extends React.Component<Props, State> {
               </div>
             ))}
           </StockData>
-        </StockDataContainer>
+        </StockDataContainer> */}
         <Filter>
           <Select
             placeholder={__('Filter by stock')}
@@ -295,10 +294,10 @@ class BoardComp extends React.Component<Props, State> {
             onChange={this.stockChange}
             loadingPlaceholder={__('Loading...')}
           />
-          <ControlLabel>
+          {/* <ControlLabel>
             <b>{__('Close Price')}:</b>{' '}
             {this.displayValue(this.state.closeprice)}
-          </ControlLabel>
+          </ControlLabel> */}
           <ControlLabel>
             <b>{__('Close Date')}:</b>{' '}
             {dayjs(this.state.closedate).format('YYYY-MM-DD HH:mm:ss')}

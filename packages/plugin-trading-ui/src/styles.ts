@@ -45,9 +45,9 @@ export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
 export const FormBox = styled.div`
   background: #fff;
   border: 1px solid #eee;
-  padding: ${dimensions.unitSpacing}px;
-  float: left;
-  width: 38%;
+  padding: 20px;
+  height: 600px;
+  flex-basis: 25%;
   form {
     width: 100%;
   }
@@ -169,15 +169,14 @@ export const ListContainer = styled.div`
 `;
 export const OrderBookListDiv = styled.div`
   overflow-y: auto;
-  height: 550px;
-  flex-basis: 20%;
-  margin-right: 10px;
+  height: 600px;
+  flex-basis: 25%;
+  margin-right: 5px;
 `;
 export const OrderBookList = styledTS<{ background: string }>(styled.table)`
   border-collapse: collapse;
   border: 1px solid #eee;
   width:100%;
-  th,
   td {
     border: 1px solid #eee;
   }
@@ -186,17 +185,20 @@ export const OrderBookList = styledTS<{ background: string }>(styled.table)`
   }
   text-align: center;
   thead {
-    text-align: center;
-    position: sticky; /* make the table heads sticky */
-    top: 0px;
+    th {
+      text-align: center;
+    }
+    position: sticky; 
+    top: -1px; 
+    z-index: 1;
     tr {
       &:first-child {
         height: 35px;
         background: ${props => props.background};
       }
-    }
-    th {
-      text-align: center;
+      &:last-child {
+        background:lightgrey;
+      }
     }
   }
 `;

@@ -58,11 +58,12 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
             <OrderBookList background={colors.colorCoreGreen}>
               <thead>
                 <tr>
-                  <th colSpan={2}>{__('Order to buy')}</th>
+                  <th colSpan={3}>{__('Order to buy')}</th>
                 </tr>
                 <tr>
                   <th>{__('Price to buy')}</th>
                   <th>{__('Quantity to buy')}</th>
+                  <th>{__('Total')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -75,6 +76,12 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                       })}
                     </td>
                     <td>{item.volume}</td>
+                    <td>
+                      {(item.price * item.volume).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -84,11 +91,12 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
             <OrderBookList background={colors.colorCoreRed}>
               <thead>
                 <tr>
-                  <th colSpan={2}>{__('Order to sell')}</th>
+                  <th colSpan={3}>{__('Order to sell')}</th>
                 </tr>
                 <tr>
                   <th>{__('Price to sell')}</th>
                   <th>{__('Quantity to sell')}</th>
+                  <th>{__('Total')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,6 +109,13 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                       })}
                     </td>
                     <td>{item.volume}</td>
+                    <td>
+                      {' '}
+                      {(item.price * item.volume).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -110,12 +125,13 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
             <OrderBookList background={colors.colorCoreBlue}>
               <thead>
                 <tr>
-                  <th colSpan={3}>{__('Successful deals')}</th>
+                  <th colSpan={4}>{__('Successful deals')}</th>
                 </tr>
                 <tr>
                   <th>{__('Date')}</th>
                   <th>{__('Price')}</th>
                   <th>{__('Quantity')}</th>
+                  <th>{__('Total')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -129,6 +145,12 @@ class ListComp extends React.Component<Props & ICommonFormProps> {
                       })}
                     </td>
                     <td>{item.volume}</td>
+                    <td>
+                      {(item.price * item.volume).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      })}
+                    </td>
                   </tr>
                 ))}
               </tbody>
