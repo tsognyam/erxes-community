@@ -2,11 +2,11 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { __, Alert } from '@erxes/ui/src/utils';
 import { TYPE, ORDER_TYPE, TIME_FRAME } from '../../constants';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Select from 'react-select-plus';
+import Select, { OptionsType } from 'react-select-plus';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import gql from 'graphql-tag';
@@ -44,7 +44,17 @@ type State = {
   isEditable: boolean;
   stockSymbol: string;
   stockBalance: number;
+  options: OptionsType<OptionType>;
+  loading: boolean;
+  hasMore: boolean;
+  searchText: string;
+  page: number;
 };
+interface OptionType {
+  value: string;
+  label: string;
+}
+const PAGE_SIZE = 50;
 class Forms extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -55,6 +65,12 @@ class Forms extends React.Component<Props, State> {
         parseFloat(object.price) +
         (parseFloat(object.price) * parseFloat(object.fee)) / 100;
     }
+    const prefixList = this.props.prefix.map(x => {
+      return {
+        value: x.userId,
+        label: x.prefix
+      };
+    });
     this.state = {
       isCanceled: false,
       userId: object?.userId,
@@ -73,7 +89,12 @@ class Forms extends React.Component<Props, State> {
       condid: object?.condid || 0,
       isEditable: object ? false : true,
       stockSymbol: object?.stock?.symbol,
-      stockBalance: 0
+      stockBalance: 0,
+      options: prefixList,
+      loading: false,
+      hasMore: true,
+      searchText: '',
+      page: 1
     };
   }
   generateDoc = (values: {
@@ -92,7 +113,6 @@ class Forms extends React.Component<Props, State> {
     if (object) {
       finalValues.txnid = object.txnid;
     }
-    console.log('finalValues', finalValues);
     return {
       txnid: finalValues.txnid,
       enddate: finalValues.enddate,
@@ -107,6 +127,9 @@ class Forms extends React.Component<Props, State> {
       condid: this.state.ordertype == 1 ? undefined : Number(this.state.condid)
     };
   };
+  private delay(duration: number) {
+    return new Promise(resolve => setTimeout(resolve, duration));
+  }
   prefixChange = (option: { value: string; label: string }) => {
     const value = !option ? '' : option.value;
     this.setState({ userId: value }, () => {
@@ -114,6 +137,59 @@ class Forms extends React.Component<Props, State> {
       this.getCustFee();
     });
     if (this.props.prefixChange != undefined) this.props.prefixChange(option);
+  };
+  loadOptions = async (searchText: string, page: number) => {
+    try {
+      this.setState({ loading: true });
+      await this.delay(1000);
+      client
+        .query({
+          query: gql(queries.UserQueries.tradingUserByPrefix),
+          fetchPolicy: 'network-only',
+          variables: { page: page, perPage: PAGE_SIZE, prefix: searchText }
+        })
+        .then(({ data }: any) => {
+          this.setState({ loading: false });
+          let newOptions =
+            data?.tradingUserByPrefix?.values.map(x => {
+              return {
+                value: x.userId,
+                label: x.prefix
+              };
+            }) || [];
+          this.setState(prevState => ({
+            options: [...prevState.options, ...newOptions],
+            hasMore: newOptions.length === PAGE_SIZE
+          }));
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  handleInputChange = (inputValue: string) => {
+    this.setState(
+      {
+        searchText: inputValue,
+        options: [],
+        page: 1,
+        hasMore: true,
+        loading: true
+      },
+      () => {
+        this.loadOptions(this.state.searchText, this.state.page);
+      }
+    );
+  };
+
+  handleMenuScrollToBottom = () => {
+    if (!this.state.loading && this.state.hasMore) {
+      this.setState(
+        prevState => ({ page: prevState.page + 1 }),
+        () => {
+          this.loadOptions(this.state.searchText, this.state.page);
+        }
+      );
+    }
   };
   changeTradeBalance = () => {
     if (this.state.userId != '' && this.state.userId != undefined)
@@ -269,7 +345,6 @@ class Forms extends React.Component<Props, State> {
     e.preventDefault();
     this.changeTradeBalance();
   };
-
   renderContent = (formProps: IFormProps) => {
     const order = this.props.object || ({} as any);
     const cancel = () => {
@@ -285,7 +360,6 @@ class Forms extends React.Component<Props, State> {
       isCancel
     } = this.props;
     const { values, isSubmitted } = formProps;
-    console.log(values);
     const prefixList = this.props.prefix.map(x => {
       return {
         value: x.userId,
@@ -320,7 +394,7 @@ class Forms extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__('Prefix')}</ControlLabel>
-          <Select
+          {/* <Select
             {...formProps}
             placeholder={__('Prefix')}
             value={this.state.userId}
@@ -329,6 +403,24 @@ class Forms extends React.Component<Props, State> {
             required={true}
             name="userId"
             disabled={this.state.isEditable ? false : true}
+          /> */}
+          <Select<OptionType>
+            placeholder={__('Prefix')}
+            value={this.state.userId}
+            onInputChange={this.handleInputChange}
+            onMenuScrollToBottom={this.handleMenuScrollToBottom}
+            options={this.state.options}
+            onChange={this.prefixChange}
+            isLoading={this.state.loading}
+            isMenuScrollable={true}
+            maxMenuHeight={200} // set the maximum height for the dropdown menu
+            menuShouldScrollIntoView={false} // disable automatic scrolling
+            required={true}
+            name="userId"
+            disabled={this.state.isEditable ? false : true}
+            noResultsText={
+              this.state.loading ? 'Loading...' : 'No results found'
+            }
           />
         </FormGroup>
         <FormGroup>

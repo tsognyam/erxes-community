@@ -11,10 +11,17 @@ const UserMcsdQueries = {
     params,
     { models, subdomain, user }: IContext
   ) => {
+    let page = params.page || 1;
+    let perPage = params.perPage || 20;
+    let sortField = params.sortField || 'prefix';
+    let sortDirection = params.sortDirection || '-1';
     let updatedParams = {
       ...params,
-      skip: params.page - 1 * params.perPage,
-      take: params.perPage
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: {
+        [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
+      }
     };
     return await userService.getFullInfo(updatedParams);
     // return await userService.getUser(subdomain, params.prefix);

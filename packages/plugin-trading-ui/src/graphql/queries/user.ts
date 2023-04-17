@@ -1,6 +1,6 @@
 const tradingUserByPrefix = `
-query TradingUserByPrefix($userId: String, $prefix: String) {
-  tradingUserByPrefix(userId: $userId, prefix: $prefix) {
+query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:Int) {
+  tradingUserByPrefix(userId: $userId, prefix: $prefix,page:$page,perPage:$perPage) {
     count
     total
     values {

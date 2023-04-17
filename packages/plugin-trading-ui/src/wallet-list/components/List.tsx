@@ -10,7 +10,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import Form from './Form';
-
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 type Props = {
   queryParams: any;
   history: any;
@@ -79,7 +79,7 @@ class ListComp extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('List')}
+            title={__('Wallet list')}
             breadcrumb={breadcrumb}
             queryParams={queryParams}
           />
@@ -94,7 +94,17 @@ class ListComp extends React.Component<Props> {
           />
         }
         // actionBar={this.renderActionBar()}
-        footer={<Pagination count={total} />}
+        footer={
+          <Wrapper.ActionBar
+            left={<Pagination count={total} />}
+            right={
+              <ControlLabel>
+                {__('Total=')}
+                {total}
+              </ControlLabel>
+            }
+          />
+        }
         hasBorder
       />
     );

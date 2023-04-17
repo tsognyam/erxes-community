@@ -146,6 +146,10 @@ class Index extends React.Component<FinalProps, State> {
       </FilterWrapper>
     );
   }
+  onClickWidget = (e: any, type: number) => {
+    const { history } = this.props;
+    if (type == 1) history.push('/trading/wallet-list');
+  };
   renderContent = () => {
     const {
       tradingNominalWalletQuery,
@@ -165,7 +169,7 @@ class Index extends React.Component<FinalProps, State> {
       <>
         <WidgetContainer>
           <Widgets>
-            <Widget>
+            <Widget onClick={e => this.onClickWidget(e, 1)}>
               <WidgetItem>
                 <Icon
                   icon="users-alt"

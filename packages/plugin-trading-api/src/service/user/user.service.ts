@@ -66,36 +66,37 @@ export default class UserService {
   getFullInfo = async params => {
     let where: any = {};
     let options: any = {
-      skip: 0,
-      take: 20
+      skip: params.skip,
+      take: params.take,
+      orderBy: params.orderBy
     };
-    if (!!params.skip) {
-      options.skip = params.skip;
-      options.take = params.take;
-    }
     if (params.prefix != undefined) {
       where.prefix = {
-        startsWith: params.prefix
+        contains: params.prefix
       };
     }
     if (params.userId != undefined) {
       where.userId = params.userId;
     }
 
-    let account = await this._userMcsdRepository.findAll(where, {
-      Wallet: {
-        select: {
-          id: true,
-          name: true,
-          currencyCode: true,
-          status: true,
-          createdAt: true,
-          walletNumber: true,
-          walletBalance: true,
-          stockBalances: true
+    let account = await this._userMcsdRepository.findAll(
+      where,
+      {
+        Wallet: {
+          select: {
+            id: true,
+            name: true,
+            currencyCode: true,
+            status: true,
+            createdAt: true,
+            walletNumber: true,
+            walletBalance: true,
+            stockBalances: true
+          }
         }
-      }
-    });
+      },
+      options
+    );
     let userIds = account.values.map(function(obj: any) {
       return obj.userId;
     });

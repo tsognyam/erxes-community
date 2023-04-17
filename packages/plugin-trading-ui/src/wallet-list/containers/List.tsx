@@ -9,6 +9,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   history: any;
@@ -92,8 +93,10 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
-      options: props => ({
-        variables: { ...props }
+      options: ({ queryParams }) => ({
+        variables: {
+          ...generatePaginationParams(queryParams)
+        }
       })
     })
   )(ListContainer)
