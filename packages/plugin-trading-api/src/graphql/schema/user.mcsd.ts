@@ -24,8 +24,10 @@ type TradingUserMcsdList {
 `;
 
 const inputParams = `
-userId:String
-prefix:String
+userId:String,
+prefix:String,
+page:Int,
+perPage:Int
 `;
 export const queries = `
 tradingUserByPrefix(${inputParams}):TradingUserMcsdList

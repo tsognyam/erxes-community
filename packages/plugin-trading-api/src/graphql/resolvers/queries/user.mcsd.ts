@@ -11,7 +11,12 @@ const UserMcsdQueries = {
     params,
     { models, subdomain, user }: IContext
   ) => {
-    return await userService.getFullInfo(params);
+    let updatedParams = {
+      ...params,
+      skip: params.page - 1 * params.perPage,
+      take: params.perPage
+    };
+    return await userService.getFullInfo(updatedParams);
     // return await userService.getUser(subdomain, params.prefix);
   }
 };

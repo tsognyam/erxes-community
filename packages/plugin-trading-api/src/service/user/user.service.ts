@@ -65,7 +65,14 @@ export default class UserService {
   // getFullInfo = (user) => this._userRepository.findById(+user.id, true);
   getFullInfo = async params => {
     let where: any = {};
-
+    let options: any = {
+      skip: 0,
+      take: 20
+    };
+    if (!!params.skip) {
+      options.skip = params.skip;
+      options.take = params.take;
+    }
     if (params.prefix != undefined) {
       where.prefix = {
         startsWith: params.prefix
