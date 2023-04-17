@@ -34,7 +34,10 @@ class IndexContainer extends React.Component<FinalProps, State> {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('type', type);
+        const controller = new AbortController();
+        setTimeout(() => controller.abort(), 3600000);
         fetch(`${url}`, {
+          signal: controller.signal,
           method: 'post',
           body: formData
         })
