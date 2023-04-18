@@ -74,7 +74,7 @@ export default class MigrationService {
     let data: any = await this.getCsvData(params.file.filename);
     if (params.body.type == '1') {
       const subdomain = getSubdomain(params);
-      count = await this.migrationUserMCSD(data, subdomain);
+      count = await this.migrationUserMCSDTest(data, subdomain);
       responseText = 'Нийт ' + count + ' харилцагч амжилттай импорт хийлээ';
     } else if (params.body.type == '2') {
       count = await this.migrationOrder(data);
@@ -253,6 +253,10 @@ export default class MigrationService {
         let registerNumber = registerNumberField.value;
         let userData = data.find(x => x.register_number == registerNumber);
         if (!!userData) {
+          userMcsdAccount = await this.userMCSDAccountRepository.findUnique({
+            prefix: userData.mit_prefix
+          });
+          if (!!userMcsdAccount) continue;
           let splitSuffix = userData.suffix.split('/');
           if (splitSuffix.length > 1) {
             let userMcsdAccountRequest = {
@@ -314,6 +318,106 @@ export default class MigrationService {
               {
                 name: users[i].firstName,
                 userId: users[i]._id,
+                type: WalletConst.TYPE_USER,
+                status: WalletConst.STATUS_ACTIVE,
+                currencyCode: 'USD'
+              }
+            ];
+            await this.userMCSDAccountRepository.create(userMcsdAccountRequest);
+            let j = 0;
+            for (j = 0; j < custfees.length; j++) {
+              await this.custFeeService.create(custfees[j]);
+            }
+            await this.walletService.createWallet(wallets[0], subdomain);
+            await this.walletService.createWallet(wallets[1], subdomain);
+            addedUserCount++;
+          } else continue;
+        }
+      }
+    }
+    return addedUserCount;
+  };
+  migrationUserMCSDTest = async (data: any, subdomain: string) => {
+    let i = 0;
+    //Компанийн бондын шимтгэл
+    let feeCorpDebt = await Helper.getValue('FeeCorpDebt');
+    //ЗГ бондын шимтгэл
+    let feeDebt = await Helper.getValue('FeeDebt');
+    //Хувьцааны шимтгэл
+    let feeEquity = await Helper.getValue('FeeEquity');
+    let addedUserCount = 0;
+    for (i = 0; i < data.length; i++) {
+      let userMcsdAccount = await this.userMCSDAccountRepository.findUnique({
+        userId: data[i].register_number
+      });
+      if (!!userMcsdAccount == false && !!data[i].register_number) {
+        let userData = data[i];
+        if (!!userData) {
+          userMcsdAccount = await this.userMCSDAccountRepository.findUnique({
+            prefix: userData.mit_prefix
+          });
+          if (!!userMcsdAccount) continue;
+          let splitSuffix = userData.suffix.split('/');
+          if (splitSuffix.length > 1) {
+            let userMcsdAccountRequest = {
+              userId: data[i].register_number,
+              prefix: userData.mit_prefix,
+              clientSuffix: splitSuffix[1].slice(-2),
+              bdcAccountId:
+                '00' +
+                userData.broker_code +
+                userData.account_number.padStart(8, '0'),
+              fullPrefix: userData.suffix,
+              createdAt: new Date(),
+              description: 'Импорт хийсэн',
+              status: 1
+            };
+            if (
+              !isNaN(userData.stock_fee) &&
+              !isNaN(parseFloat(userData.stock_fee))
+            ) {
+              feeEquity = userData.stock_fee;
+            }
+            if (
+              !isNaN(userData.bond_fee) &&
+              !isNaN(parseFloat(userData.bond_fee))
+            ) {
+              feeCorpDebt = userData.bond_fee;
+            }
+            let custfees = [
+              {
+                name: 'Хувьцааны шимтгэл',
+                name2: 'Securities fee',
+                userId: data[i].register_number,
+                stocktypeId: StockTypeConst.SEC,
+                value: parseFloat(feeEquity)
+              },
+              {
+                name: 'Компанийн бондын шимтгэл',
+                name2: 'Company bond fee',
+                userId: data[i].register_number,
+                stocktypeId: StockTypeConst.COMPANY_BOND,
+                value: parseFloat(feeCorpDebt)
+              },
+              {
+                name: 'ЗГ-ын бондын шимтгэл',
+                name2: 'Government bond fee',
+                userId: data[i].register_number,
+                stocktypeId: StockTypeConst.GOV_BOND,
+                value: parseFloat(feeDebt)
+              }
+            ];
+            let wallets = [
+              {
+                name: data[i].register_number,
+                userId: data[i].register_number,
+                type: WalletConst.TYPE_USER,
+                status: WalletConst.STATUS_ACTIVE,
+                currencyCode: 'MNT'
+              },
+              {
+                name: data[i].register_number,
+                userId: data[i].register_number,
                 type: WalletConst.TYPE_USER,
                 status: WalletConst.STATUS_ACTIVE,
                 currencyCode: 'USD'

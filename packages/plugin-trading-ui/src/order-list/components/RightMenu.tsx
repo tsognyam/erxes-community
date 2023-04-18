@@ -17,6 +17,7 @@ import {
 import { STATE_LIST, STOCK, TYPE, ORDER_TYPE } from '../../constants';
 import { IOption } from '@erxes/ui/src/types';
 import _ from 'lodash';
+import SelectWithPagination from '../../utils/SelectWithPagination';
 type Props = {
   queryParams: any;
   clearFilter: () => void;
@@ -29,7 +30,10 @@ type Props = {
 type State = {
   showMenu: boolean;
 };
-
+interface Option {
+  value: string;
+  label: string;
+}
 export default class RightMenu extends React.Component<Props, State> {
   private wrapperRef;
 
@@ -119,7 +123,7 @@ export default class RightMenu extends React.Component<Props, State> {
     }));
     const orderType = queryParams ? queryParams.ordertype : [];
 
-    const onFilterSelect = (ops: IOption[], type: string) => {
+    const onFilterSelect = (ops: Option[], type: string) => {
       let values: any = [];
       ops.map(item => {
         values.push(item.value);
@@ -164,7 +168,14 @@ export default class RightMenu extends React.Component<Props, State> {
           loadingPlaceholder={__('Loading...')}
         />
         <ControlLabel>{__('Prefix')}</ControlLabel>
-        <Select
+        <SelectWithPagination
+          placeholder={__('Filter by prefix')}
+          options={prefixList}
+          name="prefix"
+          onChange={ops => onFilterSelect(ops, 'prefix')}
+          isMulti={true}
+        />
+        {/* <Select
           placeholder={__('Filter by prefix')}
           value={userPrefix}
           options={prefixList}
@@ -172,7 +183,8 @@ export default class RightMenu extends React.Component<Props, State> {
           onChange={ops => onFilterSelect(ops, 'prefix')}
           loadingPlaceholder={__('Loading...')}
           multi={true}
-        />
+        /> */}
+
         <ControlLabel>{__('Buy/Sell')}</ControlLabel>
         <Select
           placeholder={__('Filter by buy and sell')}

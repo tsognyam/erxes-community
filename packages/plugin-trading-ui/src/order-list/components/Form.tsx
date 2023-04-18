@@ -16,6 +16,7 @@ import { Button, Icon, Label, TextInfo, Tip } from '@erxes/ui/src/components';
 //import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import SelectWithPagination from '../../utils/SelectWithPagination';
 type Props = {
   object: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,7 +24,7 @@ type Props = {
   stocks: any[];
   closeModal: () => void;
   stockChange: (option: { value: string; label: string }) => void;
-  prefixChange: (option: { value: string; label: string }) => void;
+  prefixChange: (option: { value: string; label: string } | null) => void;
   stockcode?: string;
   confirmationUpdate?: boolean;
   isCancel: boolean;
@@ -45,16 +46,12 @@ type State = {
   stockSymbol: string;
   stockBalance: number;
   options: OptionsType<OptionType>;
-  loading: boolean;
-  hasMore: boolean;
-  searchText: string;
-  page: number;
+  selectedOption: OptionsType | null;
 };
 interface OptionType {
   value: string;
   label: string;
 }
-const PAGE_SIZE = 50;
 class Forms extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -91,10 +88,7 @@ class Forms extends React.Component<Props, State> {
       stockSymbol: object?.stock?.symbol,
       stockBalance: 0,
       options: prefixList,
-      loading: false,
-      hasMore: true,
-      searchText: '',
-      page: 1
+      selectedOption: null
     };
   }
   generateDoc = (values: {
@@ -127,70 +121,16 @@ class Forms extends React.Component<Props, State> {
       condid: this.state.ordertype == 1 ? undefined : Number(this.state.condid)
     };
   };
-  private delay(duration: number) {
-    return new Promise(resolve => setTimeout(resolve, duration));
-  }
-  prefixChange = (option: { value: string; label: string }) => {
-    const value = !option ? '' : option.value;
-    this.setState({ userId: value }, () => {
+  prefixChange = (option: [{ value: string; label: string }] | null) => {
+    const value = !option ? '' : option[0].value;
+    this.setState({ userId: value, selectedOption: option }, () => {
       this.changeTradeBalance();
       this.getCustFee();
     });
-    if (this.props.prefixChange != undefined) this.props.prefixChange(option);
-  };
-  loadOptions = async (searchText: string, page: number) => {
-    try {
-      this.setState({ loading: true });
-      await this.delay(1000);
-      client
-        .query({
-          query: gql(queries.UserQueries.tradingUserByPrefix),
-          fetchPolicy: 'network-only',
-          variables: { page: page, perPage: PAGE_SIZE, prefix: searchText }
-        })
-        .then(({ data }: any) => {
-          this.setState({ loading: false });
-          let newOptions =
-            data?.tradingUserByPrefix?.values.map(x => {
-              return {
-                value: x.userId,
-                label: x.prefix
-              };
-            }) || [];
-          this.setState(prevState => ({
-            options: [...prevState.options, ...newOptions],
-            hasMore: newOptions.length === PAGE_SIZE
-          }));
-        });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  handleInputChange = (inputValue: string) => {
-    this.setState(
-      {
-        searchText: inputValue,
-        options: [],
-        page: 1,
-        hasMore: true,
-        loading: true
-      },
-      () => {
-        this.loadOptions(this.state.searchText, this.state.page);
-      }
-    );
+    if (this.props.prefixChange != undefined)
+      this.props.prefixChange(option[0]);
   };
 
-  handleMenuScrollToBottom = () => {
-    if (!this.state.loading && this.state.hasMore) {
-      this.setState(
-        prevState => ({ page: prevState.page + 1 }),
-        () => {
-          this.loadOptions(this.state.searchText, this.state.page);
-        }
-      );
-    }
-  };
   changeTradeBalance = () => {
     if (this.state.userId != '' && this.state.userId != undefined)
       client
@@ -229,7 +169,6 @@ class Forms extends React.Component<Props, State> {
             this.setState({ tradeBalance: 0 });
             this.setState({ stockBalance: 0 });
           }
-          Alert.success('Balance updated');
         });
     else Alert.warning('Choose prefix');
   };
@@ -394,33 +333,16 @@ class Forms extends React.Component<Props, State> {
         </FormGroup>
         <FormGroup>
           <ControlLabel required={true}>{__('Prefix')}</ControlLabel>
-          {/* <Select
-            {...formProps}
-            placeholder={__('Prefix')}
-            value={this.state.userId}
-            options={_.sortBy(prefixList, ['label'])}
-            onChange={this.prefixChange}
-            required={true}
+          <SelectWithPagination
             name="userId"
-            disabled={this.state.isEditable ? false : true}
-          /> */}
-          <Select<OptionType>
             placeholder={__('Prefix')}
-            value={this.state.userId}
-            onInputChange={this.handleInputChange}
-            onMenuScrollToBottom={this.handleMenuScrollToBottom}
+            disabled={this.state.isEditable ? false : true}
+            query={queries.UserQueries.tradingUserByPrefix}
             options={this.state.options}
+            selectedOptions={this.state.selectedOption}
             onChange={this.prefixChange}
-            isLoading={this.state.loading}
-            isMenuScrollable={true}
-            maxMenuHeight={200} // set the maximum height for the dropdown menu
-            menuShouldScrollIntoView={false} // disable automatic scrolling
-            required={true}
-            name="userId"
-            disabled={this.state.isEditable ? false : true}
-            noResultsText={
-              this.state.loading ? 'Loading...' : 'No results found'
-            }
+            selectedValue={this.state.userId}
+            isMulti={false}
           />
         </FormGroup>
         <FormGroup>
