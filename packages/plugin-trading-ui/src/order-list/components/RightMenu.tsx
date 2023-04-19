@@ -6,7 +6,7 @@ import { __, Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import dayjs from 'dayjs';
-import Select from 'react-select-plus';
+import Select, { OptionsType } from 'react-select-plus';
 import {
   CustomRangeContainer,
   FilterBox,
@@ -18,6 +18,9 @@ import { STATE_LIST, STOCK, TYPE, ORDER_TYPE } from '../../constants';
 import { IOption } from '@erxes/ui/src/types';
 import _ from 'lodash';
 import SelectWithPagination from '../../utils/SelectWithPagination';
+import queries from '../../graphql/queries';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 type Props = {
   queryParams: any;
   clearFilter: () => void;
@@ -29,19 +32,33 @@ type Props = {
 
 type State = {
   showMenu: boolean;
+  selectedOptions: Option[];
+  isLoading: boolean;
+  hasMore: boolean;
+  options: OptionsType<Option>;
 };
 interface Option {
   value: string;
   label: string;
 }
+const PAGE_SIZE = 50;
 export default class RightMenu extends React.Component<Props, State> {
   private wrapperRef;
 
   constructor(props) {
     super(props);
-
+    const prefixList = props.prefix.map(x => {
+      return {
+        value: x.prefix,
+        label: x.prefix
+      };
+    });
     this.state = {
-      showMenu: false
+      showMenu: false,
+      selectedOptions: [],
+      isLoading: false,
+      hasMore: true,
+      options: prefixList
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -91,19 +108,46 @@ export default class RightMenu extends React.Component<Props, State> {
       onSelect(formattedDate, kind);
     }
   };
-
+  loadOptions = _.debounce(async (inputValue: string, page: number) => {
+    this.setState({ isLoading: true });
+    try {
+      client
+        .query({
+          query: gql(queries.UserQueries.tradingUserByPrefix),
+          variables: {
+            perPage: PAGE_SIZE,
+            page,
+            prefix: inputValue
+          }
+        })
+        .then(({ data }: any) => {
+          let newOptions =
+            data?.tradingUserByPrefix?.values.map(x => {
+              return {
+                value: x.prefix,
+                label: x.prefix
+              };
+            }) || [];
+          this.setState(prevState => ({
+            options: [...prevState.options, ...newOptions],
+            hasMore: newOptions.length === PAGE_SIZE,
+            isLoading: false
+          }));
+        })
+        .catch(() => {
+          this.setState({ isLoading: false });
+        });
+    } catch (error) {
+      console.log(error);
+      this.setState({ isLoading: false });
+    }
+  }, 500);
   renderFilter() {
     const { queryParams, onSelect, stocks, prefix } = this.props;
     const stockList = stocks.map(x => {
       return {
         value: x.stockcode,
         label: x.symbol + ' - ' + x.stockname
-      };
-    });
-    const prefixList = prefix.map(x => {
-      return {
-        value: x.prefix,
-        label: x.prefix
       };
     });
     const stock = queryParams?.stockcode ? queryParams.stockcode : [];
@@ -128,6 +172,12 @@ export default class RightMenu extends React.Component<Props, State> {
       ops.map(item => {
         values.push(item.value);
       });
+      if (type == 'prefix') {
+        console.log(ops);
+        this.setState({
+          selectedOptions: ops
+        });
+      }
       onSelect(values, type);
     };
 
@@ -170,10 +220,16 @@ export default class RightMenu extends React.Component<Props, State> {
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
           placeholder={__('Filter by prefix')}
-          options={prefixList}
+          options={this.state.options}
           name="prefix"
           onChange={ops => onFilterSelect(ops, 'prefix')}
           isMulti={true}
+          disabled={false}
+          selectedOptions={this.state.selectedOptions}
+          selectedValue={userPrefix}
+          loadOptions={this.loadOptions}
+          isLoading={this.state.isLoading}
+          hasMore={this.state.hasMore}
         />
         {/* <Select
           placeholder={__('Filter by prefix')}

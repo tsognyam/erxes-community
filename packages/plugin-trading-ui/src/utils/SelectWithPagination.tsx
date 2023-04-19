@@ -1,20 +1,19 @@
 import React, { Component } from 'react';
 import Select, { OptionsType, Option, Options } from 'react-select-plus';
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
 import _ from 'lodash';
 type Props = {
-  query: any;
   options: Option[];
   selectedValue: string;
   disabled: boolean;
   placeholder: string;
   name: string;
   selectedOptions: Option[] | null;
-  onChange: (selectedOptions: Option[] | null) => void;
+  onChange: (selectedOptions: Option[] | Option) => void;
   isMulti: boolean;
+  isLoading: boolean;
+  loadOptions: (inputValue: string, page: number) => void;
+  hasMore: boolean;
 };
-const PAGE_SIZE = 50;
 type State = {
   options: OptionsType<OptionType>;
   isLoading: boolean;
@@ -34,49 +33,13 @@ class SelectWithPagination extends Component<Props, State> {
 
     this.state = {
       options: this.props.options,
-      isLoading: false,
+      isLoading: this.props.isLoading,
       inputValue: '',
       selectedValue: this.props.selectedValue,
-      hasMore: true,
+      hasMore: this.props.hasMore,
       page: 1
     };
   }
-  loadOptions = _.debounce(async (inputValue: string, page: number) => {
-    this.setState({ isLoading: true });
-
-    // Simulate an API call with pagination
-    try {
-      client
-        .query({
-          query: gql(this.props.query),
-          variables: {
-            perPage: PAGE_SIZE,
-            page,
-            prefix: inputValue
-          }
-        })
-        .then(({ data }: any) => {
-          let newOptions =
-            data?.tradingUserByPrefix?.values.map(x => {
-              return {
-                value: x.userId,
-                label: x.prefix
-              };
-            }) || [];
-          this.setState(prevState => ({
-            options: [...prevState.options, ...newOptions],
-            hasMore: newOptions.length === PAGE_SIZE,
-            isLoading: false
-          }));
-        })
-        .catch(() => {
-          this.setState({ isLoading: false });
-        });
-    } catch (error) {
-      console.log(error);
-      this.setState({ isLoading: false });
-    }
-  }, 500);
 
   handleInputChange = (inputValue: string) => {
     this.setState(
@@ -88,7 +51,7 @@ class SelectWithPagination extends Component<Props, State> {
         isLoading: true
       },
       () => {
-        this.loadOptions(this.state.inputValue, this.state.page);
+        this.props.loadOptions(this.state.inputValue, this.state.page);
       }
     );
   };
@@ -98,7 +61,7 @@ class SelectWithPagination extends Component<Props, State> {
       this.setState(
         prevState => ({ page: prevState.page + 1 }),
         () => {
-          this.loadOptions(this.state.inputValue, this.state.page);
+          this.props.loadOptions(this.state.inputValue, this.state.page);
         }
       );
     }

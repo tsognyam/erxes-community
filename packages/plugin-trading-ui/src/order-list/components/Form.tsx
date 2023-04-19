@@ -24,7 +24,7 @@ type Props = {
   stocks: any[];
   closeModal: () => void;
   stockChange: (option: { value: string; label: string }) => void;
-  prefixChange: (option: { value: string; label: string } | null) => void;
+  prefixChange: (option: { value: string; label: string }) => void;
   stockcode?: string;
   confirmationUpdate?: boolean;
   isCancel: boolean;
@@ -46,12 +46,15 @@ type State = {
   stockSymbol: string;
   stockBalance: number;
   options: OptionsType<OptionType>;
-  selectedOption: OptionsType | null;
+  selectedOptions: OptionsType | null;
+  isLoading: boolean;
+  hasMore: boolean;
 };
 interface OptionType {
   value: string;
   label: string;
 }
+const PAGE_SIZE = 50;
 class Forms extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -88,7 +91,9 @@ class Forms extends React.Component<Props, State> {
       stockSymbol: object?.stock?.symbol,
       stockBalance: 0,
       options: prefixList,
-      selectedOption: null
+      selectedOptions: null,
+      isLoading: false,
+      hasMore: true
     };
   }
   generateDoc = (values: {
@@ -121,16 +126,58 @@ class Forms extends React.Component<Props, State> {
       condid: this.state.ordertype == 1 ? undefined : Number(this.state.condid)
     };
   };
-  prefixChange = (option: [{ value: string; label: string }] | null) => {
-    const value = !option ? '' : option[0].value;
-    this.setState({ userId: value, selectedOption: option }, () => {
+  prefixChange = (option: OptionType) => {
+    const value = !option ? '' : option.value;
+    this.setState({ userId: value, selectedOptions: option }, () => {
       this.changeTradeBalance();
       this.getCustFee();
     });
     if (this.props.prefixChange != undefined)
       this.props.prefixChange(option[0]);
   };
-
+  loadOptions = _.debounce(async (inputValue: string, page: number) => {
+    this.setState({ isLoading: true });
+    try {
+      client
+        .query({
+          query: gql(queries.UserQueries.tradingUserByPrefix),
+          variables: {
+            perPage: PAGE_SIZE,
+            page,
+            prefix: inputValue
+          }
+        })
+        .then(({ data }: any) => {
+          let newOptions =
+            data?.tradingUserByPrefix?.values.map(x => {
+              return {
+                value: x.userId,
+                label: x.prefix
+              };
+            }) || [];
+          this.setState(
+            prevState => ({
+              options: [...prevState.options, ...newOptions],
+              hasMore: newOptions.length === PAGE_SIZE,
+              isLoading: false
+            }),
+            () => {
+              return {
+                options: this.state.options,
+                hasMore: this.state.hasMore,
+                isLoading: this.state.isLoading
+              };
+            }
+          );
+        })
+        .catch(() => {
+          this.setState({ isLoading: false });
+        });
+    } catch (error) {
+      console.log(error);
+      this.setState({ isLoading: false });
+    }
+  }, 500);
   changeTradeBalance = () => {
     if (this.state.userId != '' && this.state.userId != undefined)
       client
@@ -337,12 +384,14 @@ class Forms extends React.Component<Props, State> {
             name="userId"
             placeholder={__('Prefix')}
             disabled={this.state.isEditable ? false : true}
-            query={queries.UserQueries.tradingUserByPrefix}
             options={this.state.options}
-            selectedOptions={this.state.selectedOption}
+            selectedOptions={this.state.selectedOptions}
             onChange={this.prefixChange}
             selectedValue={this.state.userId}
             isMulti={false}
+            isLoading={this.state.isLoading}
+            loadOptions={this.loadOptions}
+            hasMore={this.state.hasMore}
           />
         </FormGroup>
         <FormGroup>
