@@ -40,7 +40,16 @@ class SelectWithPagination extends Component<Props, State> {
       page: 1
     };
   }
-
+  componentWillReceiveProps(nextProps: Props) {
+    const { isLoading, options, hasMore } = nextProps;
+    if (this.props.isLoading != isLoading) {
+      this.setState({
+        isLoading,
+        hasMore,
+        options
+      });
+    }
+  }
   handleInputChange = (inputValue: string) => {
     this.setState(
       {

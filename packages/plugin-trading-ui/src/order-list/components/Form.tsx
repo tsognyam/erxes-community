@@ -155,20 +155,11 @@ class Forms extends React.Component<Props, State> {
                 label: x.prefix
               };
             }) || [];
-          this.setState(
-            prevState => ({
-              options: [...prevState.options, ...newOptions],
-              hasMore: newOptions.length === PAGE_SIZE,
-              isLoading: false
-            }),
-            () => {
-              return {
-                options: this.state.options,
-                hasMore: this.state.hasMore,
-                isLoading: this.state.isLoading
-              };
-            }
-          );
+          this.setState(prevState => ({
+            options: [...prevState.options, ...newOptions],
+            hasMore: newOptions.length === PAGE_SIZE,
+            isLoading: false
+          }));
         })
         .catch(() => {
           this.setState({ isLoading: false });
