@@ -21,6 +21,7 @@ type State = {
   selectedValue: string;
   hasMore: boolean;
   page: number;
+  selectedOptions: Option[] | null;
 };
 interface OptionType {
   value: string;
@@ -37,16 +38,25 @@ class SelectWithPagination extends Component<Props, State> {
       inputValue: '',
       selectedValue: this.props.selectedValue,
       hasMore: this.props.hasMore,
-      page: 1
+      page: 1,
+      selectedOptions: this.props.selectedOptions
     };
   }
   componentWillReceiveProps(nextProps: Props) {
-    const { isLoading, options, hasMore } = nextProps;
+    const {
+      isLoading,
+      options,
+      hasMore,
+      selectedOptions,
+      selectedValue
+    } = nextProps;
     if (this.props.isLoading != isLoading) {
       this.setState({
         isLoading,
         hasMore,
-        options
+        options,
+        selectedValue,
+        selectedOptions
       });
     }
   }
