@@ -7,8 +7,8 @@ type Props = {
   disabled: boolean;
   placeholder: string;
   name: string;
-  selectedOptions: Option[] | null;
-  onChange: (selectedOptions: Option[] | Option) => void;
+  selectedOptions: Option | Option[] | null;
+  onChange: (value: Option | Option[] | null) => void;
   isMulti: boolean;
   isLoading: boolean;
   loadOptions: (inputValue: string, page: number) => void;
@@ -21,7 +21,7 @@ type State = {
   selectedValue: string;
   hasMore: boolean;
   page: number;
-  selectedOptions: Option[] | null;
+  selectedOptions: Option | Option[] | null;
 };
 interface OptionType {
   value: string;
@@ -29,9 +29,9 @@ interface OptionType {
 }
 
 class SelectWithPagination extends Component<Props, State> {
+  _isMounted = false;
   constructor(props: Props) {
     super(props);
-
     this.state = {
       options: this.props.options,
       isLoading: this.props.isLoading,
@@ -42,6 +42,13 @@ class SelectWithPagination extends Component<Props, State> {
       selectedOptions: this.props.selectedOptions
     };
   }
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
   componentWillReceiveProps(nextProps: Props) {
     const {
       isLoading,
@@ -50,21 +57,40 @@ class SelectWithPagination extends Component<Props, State> {
       selectedOptions,
       selectedValue
     } = nextProps;
+    console.log('selectedOptions', selectedOptions);
+    console.log('nextProps', nextProps.selectedOptions);
     if (this.props.isLoading != isLoading) {
-      this.setState({
-        isLoading,
-        hasMore,
-        options,
-        selectedValue,
-        selectedOptions
-      });
+      if (this._isMounted) {
+        this.setState({
+          isLoading,
+          hasMore,
+          options,
+          selectedOptions,
+          selectedValue
+        });
+      }
+    }
+    if (this.props.selectedValue != selectedValue) {
+      if (this._isMounted)
+        this.setState({
+          selectedOptions,
+          selectedValue
+        });
     }
   }
+  handleChange = (selectedOption: Option | Option[] | null) => {
+    const { onChange } = this.props;
+    onChange(selectedOption);
+  };
   handleInputChange = (inputValue: string) => {
+    let newOptions: any = [];
+    let { isMulti, options, selectedValue } = this.props;
+    if (isMulti)
+      newOptions = options.filter(x => selectedValue.includes(x.value));
     this.setState(
       {
         inputValue,
-        options: [],
+        options: newOptions,
         page: 1,
         hasMore: true,
         isLoading: true
@@ -86,14 +112,8 @@ class SelectWithPagination extends Component<Props, State> {
     }
   };
   render() {
-    const { options, isLoading } = this.state;
-    const {
-      placeholder,
-      disabled,
-      onChange,
-      selectedOptions,
-      isMulti
-    } = this.props;
+    const { options, isLoading, selectedOptions, selectedValue } = this.state;
+    const { placeholder, disabled, onChange, isMulti } = this.props;
     return (
       <Select
         placeholder={placeholder}
@@ -101,7 +121,7 @@ class SelectWithPagination extends Component<Props, State> {
         isLoading={isLoading}
         onInputChange={this.handleInputChange}
         onMenuScrollToBottom={this.handleMenuScrollToBottom}
-        onChange={selectedOption => onChange(selectedOption)}
+        onChange={this.handleChange}
         value={selectedOptions}
         disabled={disabled}
         isMenuScrollable={true}

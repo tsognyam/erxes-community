@@ -10,6 +10,9 @@ import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { isValidUsername, router as routerUtils } from '@erxes/ui/src/utils';
+import queryString from 'query-string';
+import Spinner from '@erxes/ui/src/components/Spinner';
 type Props = {
   queryParams: any;
   history: any;
@@ -17,7 +20,10 @@ type Props = {
 };
 
 type FinalProps = {} & Props & IRouterProps;
-
+const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
+const defaultParams = ['id'];
 class ListContainer extends React.Component<FinalProps> {
   renderButton = ({
     passedName,
@@ -44,9 +50,31 @@ class ListContainer extends React.Component<FinalProps> {
       />
     );
   };
+  onSearch = (search: string, type: string) => {
+    if (!search) {
+      return routerUtils.removeParams(this.props.history, type);
+    }
 
+    routerUtils.setParams(this.props.history, search);
+  };
+  clearFilter = () => {
+    const params = generateQueryParams(this.props.history);
+    const remainedParams = Object.keys(params).filter(
+      key => !defaultParams.includes(key)
+    );
+
+    routerUtils.removeParams(this.props.history, ...remainedParams);
+  };
+  onSelect = (values: string[] | string, key: string) => {
+    const params = generateQueryParams(this.props.history);
+    if (params[key] === values) {
+      return routerUtils.removeParams(this.props.history, key);
+    }
+
+    return routerUtils.setParams(this.props.history, { [key]: values });
+  };
   render() {
-    const { history, queryParams, tradingUserByPrefixQuery } = this.props;
+    const { tradingUserByPrefixQuery } = this.props;
     const total = tradingUserByPrefixQuery?.tradingUserByPrefix?.total || 0;
     const count = tradingUserByPrefixQuery?.tradingUserByPrefix?.count || 0;
     // let tradingStocks = tradingStocksQuery.tradingStocks || {};
@@ -68,12 +96,13 @@ class ListContainer extends React.Component<FinalProps> {
       total,
       count,
       renderButton: this.renderButton,
-      // searchValue,
-      queryParams
+      onSelect: this.onSelect,
+      clearFilter: this.clearFilter,
+      onSearch: this.onSearch
     };
-
-    // return <List history={history} queryParams={queryParams} />;
-    // return <List {...updatedProps} />;
+    if (tradingUserByPrefixQuery.loading) {
+      return <Spinner />;
+    }
     const content = props => {
       return <List {...updatedProps} {...props} />;
     };
@@ -95,7 +124,8 @@ export default withProps<Props>(
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
         variables: {
-          ...generatePaginationParams(queryParams)
+          ...generatePaginationParams(queryParams),
+          prefixs: queryParams.prefix
         }
       })
     })

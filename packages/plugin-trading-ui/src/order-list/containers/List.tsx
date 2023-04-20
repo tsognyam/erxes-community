@@ -248,7 +248,10 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
       name: 'tradingUserByPrefixQuery',
       options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
+        variables: {
+          prefixs: queryParams.prefix
+        }
       })
     }),
     graphql<Props>(gql(queries.StockQueries.TradingStocks), {

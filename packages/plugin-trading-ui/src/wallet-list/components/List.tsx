@@ -11,6 +11,8 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import Form from './Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Flex } from '@erxes/ui/src/styles/main';
+import RightMenu from './RightMenu';
 type Props = {
   queryParams: any;
   history: any;
@@ -18,12 +20,16 @@ type Props = {
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  clearFilter: () => void;
+  onSearch: (search: string, key?: string) => void;
+  onSelect: (values: string[] | string, key: string) => void;
 };
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingUserByPrefix, history } = this.props;
-
+    const { tradingUserByPrefix, history, queryParams } = this.props;
+    const currentPage = Number(queryParams.page) || 1;
+    const perPage = Number(queryParams.perPage) || 20;
     return (
       <Table>
         <thead>
@@ -33,14 +39,20 @@ class ListComp extends React.Component<Props> {
             <th>{__('Bdc Account')}</th>
             <th>{__('Lastname')}</th>
             <th>{__('Firstname')}</th>
+            <th style={{ textAlign: 'right' }}>{__('Balance')}</th>
             <th>{__('Status')}</th>
             <th>{__('Description')}</th>
             <th>{__('Updated At')}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="orders">
           {(tradingUserByPrefix || []).map((wallet, index) => (
-            <Row history={history} index={index} wallet={wallet} />
+            <Row
+              history={history}
+              index={index + (currentPage - 1) * perPage}
+              wallet={wallet}
+            />
           ))}
         </tbody>
       </Table>
@@ -69,8 +81,25 @@ class ListComp extends React.Component<Props> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
+  renderFilter() {
+    const {
+      queryParams,
+      onSearch,
+      onSelect,
+      clearFilter,
+      tradingUserByPrefix
+    } = this.props;
+    const rightMenuProps = {
+      queryParams,
+      onSearch,
+      onSelect,
+      clearFilter,
+      prefix: tradingUserByPrefix
+    };
+    return <RightMenu {...rightMenuProps} />;
+  }
   render() {
-    const { queryParams, total, count } = this.props;
+    const { queryParams, total, count, history } = this.props;
     const breadcrumb = [
       { title: __('Wallet List'), link: '/tradings/wallet-list' }
     ];
@@ -93,7 +122,9 @@ class ListComp extends React.Component<Props> {
             emptyImage="/images/actions/20.svg"
           />
         }
-        // actionBar={this.renderActionBar()}
+        actionBar={
+          <Wrapper.ActionBar right={<Flex>{this.renderFilter()}</Flex>} />
+        }
         footer={
           <Wrapper.ActionBar
             left={<Pagination count={total} />}

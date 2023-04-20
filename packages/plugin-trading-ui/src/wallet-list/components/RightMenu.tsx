@@ -26,7 +26,6 @@ type Props = {
   clearFilter: () => void;
   onSearch: (search: string, type: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
-  stocks: any[];
   prefix: any[];
 };
 
@@ -60,9 +59,10 @@ export default class RightMenu extends React.Component<Props, State> {
       isLoading: false,
       hasMore: true,
       options: prefixList,
-      selectedValue: props.queryParams?.prefix ? props.queryParams.prefix : []
+      selectedValue: this.props.queryParams?.prefix
+        ? this.props.queryParams.prefix
+        : []
     };
-
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
   }
@@ -113,46 +113,44 @@ export default class RightMenu extends React.Component<Props, State> {
   loadOptions = _.debounce(async (inputValue: string, page: number) => {
     this.setState({ isLoading: true });
     try {
-      client
-        .query({
-          query: gql(queries.UserQueries.tradingUserByPrefix),
-          variables: {
-            perPage: PAGE_SIZE,
-            page,
-            prefix: inputValue
-          }
-        })
-        .then(({ data }: any) => {
-          let newOptions =
-            data?.tradingUserByPrefix?.values.map(x => {
-              return {
-                value: x.prefix,
-                label: x.prefix
-              };
-            }) || [];
-          this.setState(prevState => ({
-            options: [...prevState.options, ...newOptions],
-            hasMore: newOptions.length === PAGE_SIZE,
-            isLoading: false
-          }));
-        })
-        .catch(() => {
-          this.setState({ isLoading: false });
-        });
+      new Promise((resolve, reject) => {
+        client
+          .query({
+            query: gql(queries.UserQueries.tradingUserByPrefix),
+            variables: {
+              perPage: PAGE_SIZE,
+              page,
+              prefix: inputValue
+            }
+          })
+          .then(({ data }: any) => {
+            let newOptions =
+              data?.tradingUserByPrefix?.values.map(x => {
+                return {
+                  value: x.prefix,
+                  label: x.prefix
+                };
+              }) || [];
+
+            this.setState(prevState => ({
+              options: [...prevState.options, ...newOptions],
+              hasMore: newOptions.length === PAGE_SIZE,
+              isLoading: false
+            }));
+            resolve('Time is up!');
+          })
+          .catch(() => {
+            this.setState({ isLoading: false });
+            resolve('Time is up');
+          });
+      }).then(value => {});
     } catch (error) {
       console.log(error);
       this.setState({ isLoading: false });
     }
   }, 500);
   renderFilter() {
-    const { queryParams, onSelect, stocks, prefix } = this.props;
-    const stockList = stocks.map(x => {
-      return {
-        value: x.stockcode,
-        label: x.symbol + ' - ' + x.stockname
-      };
-    });
-    const stock = queryParams?.stockcode ? queryParams.stockcode : [];
+    const { queryParams, onSelect, prefix } = this.props;
     const statusValues = STATE_LIST.map(p => ({
       label: p.statusName,
       value: p.status
@@ -173,10 +171,9 @@ export default class RightMenu extends React.Component<Props, State> {
       ops.map(item => {
         values.push(item.value);
       });
-      console.log(ops);
       onSelect(values, type);
     };
-
+    const selectedValue = queryParams?.prefix ? queryParams.prefix : [];
     return (
       <FilterBox>
         <CustomRangeContainer>
@@ -203,16 +200,6 @@ export default class RightMenu extends React.Component<Props, State> {
             />
           </div>
         </CustomRangeContainer>
-        <ControlLabel>{__('Stock')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by stock')}
-          value={stock}
-          options={stockList}
-          name="stockcode"
-          onChange={ops => onFilterSelect(ops, 'stockcode')}
-          multi={true}
-          loadingPlaceholder={__('Loading...')}
-        />
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
           placeholder={__('Filter by prefix')}
@@ -221,8 +208,8 @@ export default class RightMenu extends React.Component<Props, State> {
           onChange={ops => onFilterSelect(ops, 'prefix')}
           isMulti={true}
           disabled={false}
-          selectedOptions={this.state.selectedValue}
-          selectedValue={this.state.selectedValue}
+          selectedOptions={selectedValue}
+          selectedValue={selectedValue}
           loadOptions={this.loadOptions}
           isLoading={this.state.isLoading}
           hasMore={this.state.hasMore}

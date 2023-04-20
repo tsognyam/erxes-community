@@ -27,7 +27,8 @@ const inputParams = `
 userId:String,
 prefix:String,
 page:Int,
-perPage:Int
+perPage:Int,
+prefixs:[String]
 `;
 export const queries = `
 tradingUserByPrefix(${inputParams}):TradingUserMcsdList

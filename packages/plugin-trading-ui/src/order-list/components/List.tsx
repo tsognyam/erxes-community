@@ -85,11 +85,14 @@ class List extends React.Component<IProps> {
       stocks,
       prefix,
       onCancelOrder,
-      orderSummary
+      orderSummary,
+      queryParams
     } = this.props;
     const onChangeAll = () => {
       toggleAll(orders, 'orders');
     };
+    const currentPage = Number(queryParams.page) || 1;
+    const perPage = Number(queryParams.perPage) || 20;
     return (
       <Table bordered={true} striped={true}>
         <thead>
@@ -168,7 +171,7 @@ class List extends React.Component<IProps> {
         <tbody id="orders">
           {(orders || []).map((order, index) => (
             <Row
-              index={index}
+              index={index + (currentPage - 1) * perPage}
               order={order}
               totalCount={total}
               isChecked={bulk.includes(order)}

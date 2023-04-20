@@ -78,7 +78,11 @@ export default class UserService {
     if (params.userId != undefined) {
       where.userId = params.userId;
     }
-
+    if (params.prefixs != undefined) {
+      where.prefix = {
+        in: params.prefixs
+      };
+    }
     let account = await this._userMcsdRepository.findAll(
       where,
       {

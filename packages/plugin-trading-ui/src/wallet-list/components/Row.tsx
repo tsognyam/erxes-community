@@ -3,7 +3,7 @@ import { FinanceAmount, StyledTr } from '../../styles';
 import { __ } from '@erxes/ui/src/utils';
 import { StockChange } from '../../styles';
 import dayjs from 'dayjs';
-import { ActionButtons, Tip } from '@erxes/ui';
+import { ActionButtons, Tip, Icon } from '@erxes/ui/src/components';
 import { ModalTrigger, Button, confirm } from '@erxes/ui/src';
 import Form from './Form';
 type Props = {
@@ -14,7 +14,6 @@ type Props = {
 
 class Row extends React.Component<Props> {
   displayValue(value, type = 'number') {
-    console.log('value', value);
     if (type == 'number') {
       return (
         <FinanceAmount>
@@ -63,20 +62,27 @@ class Row extends React.Component<Props> {
   //     />
   //   );
   // };
-
-  render() {
-    const { index, wallet, history } = this.props;
-    console.log('userMcsd', wallet);
-    const onTrClick = () => {
-      history.push(`/trading/account/details/${wallet.userId}`);
-    };
+  onTrClick = (wallet: any) => {
+    this.props.history.push(`/trading/account/details/${wallet.userId}`);
+  };
+  renderActionButtons(wallet: any) {
     return (
-      <StyledTr onDoubleClick={onTrClick} key={index}>
+      <Button btnStyle="link" onClick={() => this.onTrClick(wallet)}>
+        View Details
+      </Button>
+    );
+  }
+  render() {
+    const { index, wallet } = this.props;
+    let walletMNTBalance = wallet.Wallet?.filter(x => x.currencyCode == 'MNT');
+    return (
+      <StyledTr onDoubleClick={() => this.onTrClick(wallet)} key={index}>
         <td>{index + 1}</td>
         <td>{wallet.prefix}</td>
         <td>{wallet.bdcAccountId}</td>
         <td>{wallet.lastName}</td>
         <td>{wallet.firstName}</td>
+        <td>{this.displayValue(walletMNTBalance?.walletBalance?.balance)}</td>
         <td>{wallet.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
         <td>{wallet.description}</td>
         <td>
@@ -85,11 +91,7 @@ class Row extends React.Component<Props> {
             : dayjs(wallet.createdAt).format('YYYY-MM-DD HH:mm:ss')}
         </td>
         <td>
-          {
-            <Button onClick={onTrClick} btnStyle="default" block>
-              View Detail
-            </Button>
-          }
+          <ActionButtons>{this.renderActionButtons(wallet)}</ActionButtons>
         </td>
       </StyledTr>
     );
