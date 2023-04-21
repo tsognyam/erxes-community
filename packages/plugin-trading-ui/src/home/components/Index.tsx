@@ -244,7 +244,7 @@ class Index extends React.Component<FinalProps, State> {
                 <span className="title">Дотоод номинал данс</span>
                 <span className="counter">
                   {displayValue(
-                    nominalWallet?.walletBalance.availableBalance,
+                    nominalWallet?.walletBalance?.availableBalance,
                     'noDiv'
                   ) + '₮'}
                 </span>

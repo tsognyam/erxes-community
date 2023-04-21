@@ -200,8 +200,8 @@ model Stock {
   exchangeid        Int
   ipotype           Int?
   ipoexecution      Decimal?           @default(0.0000) @db.Decimal(30, 4)
-  iposystem Int?
-  lstCouponDate DateTime?
+  iposystem         Int?
+  lstCouponDate     DateTime?
   url               String?            @db.VarChar(100)
   image             String?            @db.VarChar(500)
   currencyCode      String             @default("MNT") @db.VarChar(6)
@@ -493,6 +493,7 @@ model TransactionMCSD {
 model UserMCSDAccount {
   id             Int              @id @default(autoincrement())
   userId         String           @unique
+  registerNumber String?          @unique
   prefix         String?          @unique(map: "prefix")
   clientSuffix   String?
   fullPrefix     String?

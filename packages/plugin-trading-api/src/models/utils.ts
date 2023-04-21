@@ -1,4 +1,8 @@
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendCPMessage
+} from '../messageBroker';
 export const defaultCurrency = async (subdomain: string) => {
   let dealCurrency = await sendCoreMessage({
     subdomain,
@@ -61,4 +65,18 @@ export const getSystemUsers = async (
     isRPC: true
   });
   return users;
+};
+export const getClientPortalUser = async (
+  data: any,
+  subdomain: string = 'localhost'
+) => {
+  let cpUser = await sendCPMessage({
+    subdomain,
+    action: 'clientPortalUsers.findOne',
+    data: {
+      _id: data.userId
+    },
+    isRPC: true
+  });
+  return cpUser;
 };

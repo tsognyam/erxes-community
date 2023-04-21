@@ -228,6 +228,7 @@ export default class UserService {
         //change status on customer erxes
         await this._userMcsdRepository.create({
           userId: data.userId,
+          registerNumber: data.registerNumber,
           createdAt: new Date()
         });
         await this._custFeeService.create({

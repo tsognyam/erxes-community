@@ -74,7 +74,9 @@ export default class MigrationService {
     let data: any = await this.getCsvData(params.file.filename);
     if (params.body.type == '1') {
       const subdomain = getSubdomain(params);
-      count = await this.migrationUserMCSDTest(data, subdomain);
+      if (process.env.NODE_ENV === 'development')
+        count = await this.migrationUserMCSDTest(data, subdomain);
+      else count = await this.migrationUserMCSD(data, subdomain);
       responseText = 'Нийт ' + count + ' харилцагч амжилттай импорт хийлээ';
     } else if (params.body.type == '2') {
       count = await this.migrationOrder(data);
@@ -261,6 +263,7 @@ export default class MigrationService {
           if (splitSuffix.length > 1) {
             let userMcsdAccountRequest = {
               userId: users[i]._id,
+              registerNumber: userData[i].register_number,
               prefix: userData.mit_prefix,
               clientSuffix: splitSuffix[1].slice(-2),
               bdcAccountId:
@@ -361,6 +364,7 @@ export default class MigrationService {
           if (splitSuffix.length > 1) {
             let userMcsdAccountRequest = {
               userId: data[i].register_number,
+              registerNumber: data[i].register_number,
               prefix: userData.mit_prefix,
               clientSuffix: splitSuffix[1].slice(-2),
               bdcAccountId:

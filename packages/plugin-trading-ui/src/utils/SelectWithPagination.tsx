@@ -114,6 +114,7 @@ class SelectWithPagination extends Component<Props, State> {
   render() {
     const { options, isLoading, selectedOptions, selectedValue } = this.state;
     const { placeholder, disabled, onChange, isMulti } = this.props;
+
     return (
       <Select
         placeholder={placeholder}
