@@ -493,7 +493,7 @@ model TransactionMCSD {
 model UserMCSDAccount {
   id             Int              @id @default(autoincrement())
   userId         String           @unique
-  registerNumber String?          @unique
+  registerNumber String?          @unique @default("")
   prefix         String?          @unique(map: "prefix")
   clientSuffix   String?
   fullPrefix     String?
