@@ -246,7 +246,6 @@ export default class MigrationService {
         let registerNumberField = users[i].customFieldsData.find(
           x => x.field == fields._id
         );
-        console.log(registerNumberField);
         if (!registerNumberField) continue;
         let registerNumber = registerNumberField.value;
         let userData = data.find(x => x.register_number == registerNumber);
@@ -308,14 +307,14 @@ export default class MigrationService {
             ];
             let wallets = [
               {
-                name: users[i].firstName,
+                name: userData.first_name,
                 userId: users[i]._id,
                 type: WalletConst.TYPE_USER,
                 status: WalletConst.STATUS_ACTIVE,
                 currencyCode: 'MNT'
               },
               {
-                name: users[i].firstName,
+                name: userData.first_name,
                 userId: users[i]._id,
                 type: WalletConst.TYPE_USER,
                 status: WalletConst.STATUS_ACTIVE,
