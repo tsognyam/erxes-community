@@ -36,6 +36,7 @@ class IndexContainer extends React.Component<FinalProps, State> {
         formData.append('type', type);
         const controller = new AbortController();
         setTimeout(() => controller.abort(), 3600000);
+        console.log('TRADING UI WORKING');
         fetch(`${url}`, {
           signal: controller.signal,
           method: 'post',
