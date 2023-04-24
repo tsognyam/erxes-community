@@ -15,10 +15,11 @@ export default class CustFeeService {
   }
   get = async data => {
     let res = await this.custFeeValidator.validateGetFee(data);
+    console.log('res', res);
     return res;
   };
   getFee = async (userId, stockcode) => {
-    let fee: number;
+    let fee: string;
     let stock = await this.stockRepository.getByStockcode(stockcode);
     if (stock.ipo == 0) {
       fee = stock.stockfee;
@@ -28,9 +29,9 @@ export default class CustFeeService {
       if (res.length == 0) {
         // res = await this._custFeeRepository.getFee(stock.stocktypeId);
         // fee = res[0].feevalue;
-        if (stock.stocktypeId == StockTypeConst.SEC) fee = 0.1;
-        else if (stock.stocktypeId == StockTypeConst.COMPANY_BOND) fee = 0.1;
-        else if (stock.stocktypeId == StockTypeConst.GOV_BOND) fee = 0.1;
+        if (stock.stocktypeId == StockTypeConst.SEC) fee = '0.1';
+        else if (stock.stocktypeId == StockTypeConst.COMPANY_BOND) fee = '0.1';
+        else if (stock.stocktypeId == StockTypeConst.GOV_BOND) fee = '0.1';
         else {
           fee = stock.stockfee;
         }
@@ -38,7 +39,7 @@ export default class CustFeeService {
         fee = res[0].value;
       }
     }
-    return fee;
+    return parseFloat(fee);
   };
 
   getbyUserId = async id => {

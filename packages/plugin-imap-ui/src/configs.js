@@ -7,6 +7,7 @@ module.exports = {
     "./inboxIntegrationSettings": "./src/components/IntegrationSettings.tsx",
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
     "./inboxConversationDetail": "./src/components/ConversationDetail.tsx",
+    './activityLog': './src/components/ActivityLog.tsx',
   },
   routes: {
     url: 'http://localhost:3014/remoteEntry.js',
@@ -16,7 +17,7 @@ module.exports = {
   inboxIntegrationSettings: './inboxIntegrationSettings',
   inboxIntegrationForm: './inboxIntegrationForm',
   inboxConversationDetail: './inboxConversationDetail',
-  inboxIntegration: {
+  inboxIntegrations: [{
     name: 'IMAP',
     description:
       'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
@@ -25,8 +26,9 @@ module.exports = {
     kind: 'imap',
     logo: '/images/integrations/email.png',
     createModal: 'imap',
-    createUrl: '/settings/integrations/imap',
     category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
-  }
+      'All integrations, For support teams, Marketing automation, Email marketing',
+    components: ['inboxConversationDetail'],
+  }],
+  activityLog: './activityLog',
 };

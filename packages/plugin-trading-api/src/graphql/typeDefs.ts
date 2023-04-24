@@ -26,6 +26,73 @@ import {
   queries as BankQueries,
   mutations as BankMutations
 } from './schema/bank';
+
+import {
+  types as UserBankTypes,
+  queries as UserBankQueries,
+  mutations as UserBankMutations
+} from './schema/userBank';
+
+import {
+  types as UserTypes,
+  queries as UserQueries,
+  mutations as UserMutations
+} from './schema/user';
+
+import {
+  types as StockTypes,
+  queries as StockQueries,
+  mutations as StockMutations
+} from './schema/stock';
+
+import {
+  types as UserMcsdTypes,
+  queries as UserMcsdQueries
+  // mutations as StockMutations
+} from './schema/user.mcsd';
+
+import {
+  types as WithdrawTypes,
+  queries as WithdrawQueries,
+  mutations as WithdrawMutations
+} from './schema/withdraw';
+
+import {
+  types as TransactionTypes,
+  queries as TransactionQueries,
+  mutations as TransactionMutations
+} from './schema/transaction';
+
+import {
+  types as StockTransactionTypes,
+  queries as StockTransactionQueries,
+  mutations as StockTransactionMutations
+} from './schema/stock.transaction';
+
+import {
+  types as CustFeeTypes,
+  queries as CustFeeQueries,
+  mutations as CustFeeMutations
+} from './schema/custFee';
+
+import {
+  types as AdminTypes,
+  queries as AdminQueries,
+  mutations as AdminMutations
+} from './schema/admin';
+
+import {
+  types as ReportTypes,
+  queries as ReportQueries
+} from './schema/report';
+import {
+  types as MigrationTypes,
+  mutations as MigrationMutations
+} from './schema/migration';
+import {
+  types as SettlementTypes,
+  queries as SettlementQueries
+} from './schema/settlement';
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -36,13 +103,35 @@ const typeDefs = async _serviceDiscovery => {
     ${BankTransactionTypes}
     ${OrderTypes}
     ${BankTypes}
-    
+    ${UserBankTypes}
+    ${UserTypes}
+    ${StockTypes}
+    ${UserMcsdTypes}
+    ${WithdrawTypes}
+    ${TransactionTypes}
+    ${StockTransactionTypes}
+    ${CustFeeTypes}
+    ${AdminTypes}
+    ${MigrationTypes}
+    ${ReportTypes}
+    ${SettlementTypes}
     extend type Query {
       ${WalletQueries}
       ${SystemQueries}
       ${BankTransactionQueries}
       ${OrderQueries}
       ${BankQueries}
+      ${UserBankQueries}
+      ${UserQueries}
+      ${StockQueries}
+      ${UserMcsdQueries}
+      ${WithdrawQueries}
+      ${TransactionQueries}
+      ${StockTransactionQueries}
+      ${CustFeeQueries}
+      ${AdminQueries}
+      ${ReportQueries}
+      ${SettlementQueries}
     }
     
     extend type Mutation {
@@ -51,6 +140,15 @@ const typeDefs = async _serviceDiscovery => {
       ${BankTransactionMutations}
       ${OrderMutations}
       ${BankMutations}
+      ${UserBankMutations}
+      ${UserMutations}
+      ${StockMutations}
+      ${WithdrawMutations}
+      ${StockTransactionMutations}
+      ${CustFeeMutations}
+      ${TransactionMutations}
+      ${AdminMutations}
+      ${MigrationMutations}
     }
   `;
 };

@@ -132,6 +132,27 @@ const fillDealProductValue = async (subdomain, column, item) => {
       case 'productsData.taxPercent':
         value = productData.taxPercent;
         break;
+
+      case 'productsData.quantity':
+        value = productData.quantity;
+        break;
+
+      case 'productsData.unitPrice':
+        value = productData.unitPrice;
+        break;
+
+      case 'productsData.tickUsed':
+        value = productData.tickUsed;
+        break;
+
+      case 'productsData.isVatApplied':
+        value = productData.isVatApplied;
+        break;
+
+      case 'productsData.maxQuantity':
+        console.log('productData.maxQuantity', productData.maxQuantity);
+        value = productData.maxQuantity;
+        break;
     }
   }
 
@@ -211,6 +232,37 @@ const fillValue = async (
       value = labels.map(label => label.name).join(', ');
 
       break;
+
+    case 'branchIds':
+      const branches = await sendCoreMessage({
+        subdomain,
+        action: `branches.find`,
+        data: {
+          query: { _id: { $in: item.branchIds || [] } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = branches.map(branch => branch.title).join(', ');
+
+      break;
+
+    case 'departmentIds':
+      const departments = await sendCoreMessage({
+        subdomain,
+        action: 'departments.find',
+        data: {
+          query: { _id: { $in: item.departmentIds || [] } }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = departments.map(department => department.title).join(', ');
+
+      break;
+
     case 'stageId':
       const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId

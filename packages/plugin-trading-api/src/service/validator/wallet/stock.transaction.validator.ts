@@ -28,7 +28,11 @@ export default class StockTransactionValidator extends BaseValidator {
         receiverWalletId: this._joi.number(),
         stockCount: this._joi.number().required(),
         stockCode: this._joi.number().required(),
-        type: this._joi.number().default(TransactionConst.TYPE_W2W)
+        type: this._joi.number().default(TransactionConst.TYPE_W2W),
+        price: this._joi.number(),
+        fee: this._joi.number(),
+        description: this._joi.string(),
+        dater: this._joi.date()
       },
       params
     );
@@ -50,13 +54,17 @@ export default class StockTransactionValidator extends BaseValidator {
     if (senderBalance == undefined && receiverBalance == undefined) {
       CustomException(ErrorCode.InvalidParamException);
     }
+    console.log('senderBalance', {
+      senderBalance,
+      receiverBalance
+    });
     return { data, senderBalance, receiverBalance };
   };
   validateStatement = async params => {
     var { error, data } = this.validate(
       {
         walletId: this._joi.number().required(),
-        userId: this._joi.number().required(),
+        // userId: this._joi.number().required(),
         startDate: this._joi.date().required(),
         endDate: this._joi.date().required(),
         skip: this._joi.number(),
@@ -65,10 +73,10 @@ export default class StockTransactionValidator extends BaseValidator {
       params
     );
 
-    this.walletValidator.checkWallet({
-      id: data.walletId,
-      userId: data.userId
-    });
+    // this.walletValidator.checkWallet({
+    //   id: data.walletId,
+    //   userId: data.userId
+    // });
 
     return data;
   };
@@ -83,18 +91,18 @@ export default class StockTransactionValidator extends BaseValidator {
       if (senderBalance.wallet.userId == receiverBalance.wallet.userId) {
         CustomException(ErrorCode.DuplicateUserException);
       }
-      if (senderBalance.wallet.type + receiverBalance.wallet.type !== 3) {
+      if (senderBalance.wallet.type + receiverBalance.wallet.type == 6) {
         CustomException(ErrorCode.InvalidWalletException);
       }
       if (
-        senderBalance.wallet.currency.id != receiverBalance.wallet.currency.id
+        senderBalance.wallet.currencyCode != receiverBalance.wallet.currencyCode
       ) {
         CustomException(ErrorCode.WalletCurrencyException);
       }
     }
     if (
       senderBalance != undefined &&
-      senderBalance.wallet.type != WalletConst.WALLET_TYPES.NOMINAL
+      senderBalance.wallet.type != WalletConst.NOMINAL
     )
       this.checkBalance(
         senderBalance.wallet,
@@ -104,7 +112,7 @@ export default class StockTransactionValidator extends BaseValidator {
       );
     if (
       receiverBalance != undefined &&
-      receiverBalance.wallet.type != WalletConst.WALLET_TYPES.NOMINAL
+      receiverBalance.wallet.type != WalletConst.NOMINAL
     )
       this.checkBalance(
         receiverBalance.wallet,
@@ -158,7 +166,10 @@ export default class StockTransactionValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         orderId: this._joi.number().required(),
-        stockCount: this._joi.number().required()
+        stockCount: this._joi.number().required(),
+        price: this._joi.number(),
+        fee: this._joi.number(),
+        description: this._joi.string()
       },
       params
     );

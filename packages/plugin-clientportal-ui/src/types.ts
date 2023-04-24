@@ -1,3 +1,4 @@
+import { IAttachment } from './../../../client-portal/modules/common/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -15,6 +16,19 @@ export type MailConfig = {
   registrationContent: string;
   invitationContent: string;
 };
+
+export type ManualVerificationConfig = {
+  userIds: string[];
+  verifyCustomer: boolean;
+  verifyCompany: boolean;
+};
+
+export interface IVerificationRequest {
+  status: string;
+  attachments: IAttachment[];
+  description: string;
+  verifiedBy: string;
+}
 
 export interface IClientPortalUserDoc {
   firstName: string;
@@ -41,12 +55,18 @@ export interface IClientPortalUserDoc {
   lastSeenAt: Date;
   sessionCount: number;
   isOnline: boolean;
+
+  customFieldsData: JSON;
+  avatar: string;
+
+  verificationRequest: IVerificationRequest;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
   _id: string;
   createdAt: Date;
   modifiedAt: Date;
+  forumSubscriptionEndsAfter?: string;
 }
 
 export type ClientPortalUsersQueryResponse = {
@@ -89,6 +109,7 @@ export type ClientPortalConfig = {
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
+  dealLabel?: string;
   taskPublicBoardId?: string;
   taskPublicPipelineId?: string;
   taskLabel?: string;
@@ -98,6 +119,9 @@ export type ClientPortalConfig = {
   ticketStageId?: string;
   ticketBoardId?: string;
   ticketPipelineId?: string;
+  dealStageId?: string;
+  dealBoardId?: string;
+  dealPipelineId?: string;
   styles?: Styles;
   mobileResponsive?: boolean;
   googleCredentials?: object;
@@ -105,9 +129,11 @@ export type ClientPortalConfig = {
   kbToggle?: boolean;
   publicTaskToggle?: boolean;
   ticketToggle?: boolean;
+  dealToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
   mailConfig?: MailConfig;
+  manualVerificationConfig?: ManualVerificationConfig;
 };
 
 export type Styles = {

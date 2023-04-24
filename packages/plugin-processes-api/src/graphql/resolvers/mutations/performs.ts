@@ -21,6 +21,8 @@ const performMutations = {
   ) {
     const perform = await models.Performs.createPerform({
       ...docModifier({ ...doc }),
+      type: doc.overallWorkKey.type,
+      typeId: doc.overallWorkKey.typeId,
       createdAt: new Date(),
       createdBy: user._id
     });
@@ -80,11 +82,17 @@ const performMutations = {
     // to update count status, inProducts, outProducts
 
     const perform = await models.Performs.getPerform(doc._id);
-    const updatedPerform = await models.Performs.updatePerform(doc._id, {
-      ...docModifier(doc),
-      modifiedAt: new Date(),
-      modifiedBy: user._id
-    });
+    const updatedPerform = await models.Performs.updatePerform(
+      doc._id,
+      {
+        ...docModifier(doc),
+        type: doc.overallWorkKey.type,
+        typeId: doc.overallWorkKey.typeId,
+        modifiedAt: new Date(),
+        modifiedBy: user._id
+      },
+      perform
+    );
 
     const inProductsByProductId = {};
     for (const data of perform.inProducts) {

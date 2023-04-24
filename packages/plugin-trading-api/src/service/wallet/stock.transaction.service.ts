@@ -20,7 +20,7 @@ export default class StockTransactionService {
   }
   statement = async params => {
     var data = await this.stockTransactionValidator.validateStatement(params);
-    let options: any = [];
+    let options: any = {};
     options.take = data.take;
     options.skip = data.skip;
     options.orderBy = data.orderBy;
@@ -66,9 +66,18 @@ export default class StockTransactionService {
         GROUP BY tr.walletId, tr.stockCode
         `;
     let endBalance = await this.stockTransactionRepository._prisma
-      .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} AND tr.status=1 Group BY tr.walletId, tr.stockCode UNION all SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} Group BY tr.walletId, tr.stockCode ) ss group by ss.walletId, ss.stockCode;`;
+      .$queryRaw`SELECT IFNULL(sum(ss.stockCount),0) AS stockCount, ss.walletId, ss.stockCode FROM 
+      (SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId, tr.stockCode FROM \`StockTransaction\` tr 
+       WHERE tr.walletId=${data.walletId} AND tr.dater<${data.startDate} AND tr.status=1 
+       Group BY tr.walletId, tr.stockCode 
+       UNION all 
+       SELECT IFNULL(SUM(tr.stockCount),0) AS stockCount,tr.walletId,tr.stockCode FROM \`StockTransaction\` tr 
+       WHERE tr.walletId=${data.walletId} AND tr.dater BETWEEN ${data.startDate} AND ${data.endDate} AND tr.status=${TransactionConst.STATUS_ACTIVE} 
+       Group BY tr.walletId, tr.stockCode ) ss 
+       group by ss.walletId, ss.stockCode;`;
     res.beginBalance = beginBalance;
     res.endBalance = endBalance;
+
     return res;
   };
   w2w = async params => {
@@ -96,6 +105,7 @@ export default class StockTransactionService {
   };
   confirmTransactionOrder = async (order, status) => {
     var transactions: any = [];
+
     for (const transaction of order.stockTransactions) {
       var stockBalance = await this.stockWalletValidator.validateBalance({
         walletId: transaction.walletId,
@@ -226,15 +236,18 @@ export default class StockTransactionService {
       CustomException(ErrorCode.InvalidParamException);
     }
     var transactions: any = [];
-
+    if (!params.dater) params.dater = new Date();
     if (senderBalance != undefined) {
       transactions.push({
         walletId: senderBalance.walletId,
         type: TransactionConst.OUTCOME,
         status: TransactionConst.STATUS_PENDING,
-        stockCount: params.stockCount,
+        stockCount: params.stockCount * -1,
         stockCode: params.stockCode,
-        dater: new Date()
+        dater: params.dater,
+        price: !params.price ? 0 : params.price,
+        fee: !params.fee ? 0 : params.fee,
+        description: params.description
       });
       var walletBalanceUpdate = {
         holdBalance: {
@@ -263,7 +276,10 @@ export default class StockTransactionService {
         status: TransactionConst.STATUS_PENDING,
         stockCount: params.stockCount,
         stockCode: params.stockCode,
-        dater: new Date()
+        dater: params.dater,
+        price: !params.price ? 0 : params.price,
+        fee: !params.fee ? 0 : params.fee,
+        description: params.description
       });
     }
 
@@ -276,7 +292,7 @@ export default class StockTransactionService {
       stockCode: params.stockCode,
       type: params.type,
       status: TransactionConst.STATUS_PENDING,
-      dater: new Date(),
+      dater: params.dater,
       stockTransactions: {
         create: transactions
       }
@@ -306,7 +322,10 @@ export default class StockTransactionService {
             status: transaction.status,
             stockCount: data.stockCount,
             stockCode: order.stockCode,
-            dater: new Date()
+            dater: new Date(),
+            price: !params.price ? 0 : params.price,
+            fee: !params.fee ? 0 : params.fee,
+            description: params.description
           });
           break;
         case TransactionConst.OUTCOME:
@@ -319,7 +338,10 @@ export default class StockTransactionService {
             status: transaction.status,
             stockCount: data.stockCount * -1,
             stockCode: order.stockCode,
-            dater: new Date()
+            dater: new Date(),
+            price: !params.price ? 0 : params.price,
+            fee: !params.fee ? 0 : params.fee,
+            description: params.description
           });
           break;
       }

@@ -1,11 +1,11 @@
 import formSubmissionMutations from './formSubmissions';
-import RiskAssessmentMutations from './riskAssessment';
-import RiskAssessmentCategoryMutation from './category';
-import RiskConfimityMutations from './confimity';
+import IndicatorMutations from './indicators';
+import OperationMutations from './operation';
+import RiskAssessmentMutations from './riskAssessments';
 
 export default {
-  ...RiskAssessmentMutations,
-  ...RiskConfimityMutations,
-  ...RiskAssessmentCategoryMutation,
-  ...formSubmissionMutations
+  ...IndicatorMutations,
+  ...formSubmissionMutations,
+  ...OperationMutations,
+  ...RiskAssessmentMutations
 };

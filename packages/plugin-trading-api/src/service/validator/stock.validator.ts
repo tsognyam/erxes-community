@@ -34,14 +34,8 @@ class StockValidator extends BaseValidator {
     var { error, data } = this.validate(
       {
         stockcode: this._joi.number().required(),
-        beginDate: this._joi
-          .string()
-          .required()
-          .pattern(new RegExp(/20\d\d-(0|1)\d-(0|1|2|3)\d \d{2}:\d{2}:\d{2}/)),
-        endDate: this._joi
-          .string()
-          .required()
-          .pattern(new RegExp(/20\d\d-(0|1)\d-(0|1|2|3)\d \d{2}:\d{2}:\d{2}/))
+        beginDate: this._joi.date().required(),
+        endDate: this._joi.date().required()
       },
       params
     );
@@ -78,7 +72,8 @@ class StockValidator extends BaseValidator {
     let currencies = await defaultCurrencies(subdomain);
     var { error, data } = this.validate(
       {
-        stockcode: this._joi.number().required(),
+        id: this._joi.number().required(),
+        stockcode: this._joi.number(),
         symbol: this._joi
           .string()
           .min(3)
@@ -129,7 +124,7 @@ class StockValidator extends BaseValidator {
       params
     );
 
-    let stock = await this.checkStock(data.stockcode);
+    let stock = await this.stockRepository.findById(data.id);
     if (!stock) {
       CustomException(ErrorCode.StockNotFoundException);
     }
@@ -165,12 +160,11 @@ class StockValidator extends BaseValidator {
         intrate: this._joi
           .number()
           .min(0)
-          .max(100)
-          .required(),
-        userId: this._joi.number().required(),
+          .max(100),
+        userId: this._joi.string(),
         brchno: this._joi.string().allow(''),
         no: this._joi.string(),
-        cnt: this._joi.number().required(),
+        cnt: this._joi.number(),
         boardname: this._joi.string(),
         inducode: this._joi.string().allow(''),
         lsttxndate: this._joi.date(),
@@ -186,7 +180,7 @@ class StockValidator extends BaseValidator {
         order_begindate: this._joi.date(),
         order_enddate: this._joi.date(),
         notiftype: this._joi.number().allow(''),
-        stockfee: this._joi.number().required(),
+        stockfee: this._joi.number(),
         exchangeid: this._joi
           .number()
           .allow(
@@ -217,7 +211,42 @@ class StockValidator extends BaseValidator {
 
     return data;
   };
+  validateBond = async params => {
+    var { error, data } = this.validate(
+      {
+        stockcode: this._joi
+          .custom(this.isNumber, 'custom validation')
+          .required(),
+        price: this._joi.custom(this.isNumber, 'custom validation').required(),
+        cnt: this._joi.custom(this.isNumber, 'custom validation').required(),
+        orderEndDate: this._joi.date().required(),
+        userId: this._joi.custom(this.isNumber, 'custom validation')
+      },
+      params
+    );
 
+    let stock = await this.checkStock(data.stockcode);
+    if (!stock) {
+      CustomException(ErrorCode.NotBondException);
+    }
+    if (
+      stock.stocktypeId != StockTypeConst.COMPANY_BOND &&
+      stock.stocktypeId != StockTypeConst.GOV_BOND
+    ) {
+      CustomException(ErrorCode.NotBondException);
+    }
+    if (
+      stock.notiftype == null ||
+      stock.startdate > stock.enddate ||
+      stock.intrate == null ||
+      stock.enddate < new Date() ||
+      stock.startdate > stock.lstCouponDate
+    ) {
+      CustomException(ErrorCode.NotQualifyDataException);
+    }
+
+    return { stock, data };
+  };
   checkExchange = async exchangeid => {
     var exchange = await this.exchangeRepository.findUnique({
       id: exchangeid
@@ -237,7 +266,7 @@ class StockValidator extends BaseValidator {
   validatePosition = async (subdomain: string, params: any) => {
     let schema = {
       stockcode: this._joi.number(),
-      userId: this._joi.number().required(),
+      userId: this._joi.string().required(),
       beginDate: this._joi.date().required(),
       endDate: this._joi.date().required()
     };

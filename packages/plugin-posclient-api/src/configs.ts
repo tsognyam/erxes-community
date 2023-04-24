@@ -4,12 +4,13 @@ import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { callBackQpay, posInitialSetup } from './routes';
+import { posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
+import { PubSub } from 'graphql-subscriptions';
 
 export let debug;
 export let graphqlPubsub;
@@ -29,15 +30,10 @@ export default {
   },
   hasSubscriptions: true,
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
-  ],
+
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
   ],
 
   apolloServerContext: async (context, req, res) => {
@@ -60,9 +56,11 @@ export default {
     context.config =
       req.posConfig && req.posConfig._id
         ? req.posConfig
-        : await models.Configs.findOne({})
-            .sort({ createdAt: 1 })
-            .lean();
+        : (models &&
+            (await models.Configs.findOne({})
+              .sort({ createdAt: 1 })
+              .lean())) ||
+          {};
 
     if (req.posUser) {
       context.posUser = req.posUser;
@@ -100,3 +98,9 @@ export default {
     debug = options.debug;
   }
 };
+
+setTimeout(() => {
+  if (process.env.SKIP_REDIS && !graphqlPubsub) {
+    graphqlPubsub = new PubSub();
+  }
+}, 10000);

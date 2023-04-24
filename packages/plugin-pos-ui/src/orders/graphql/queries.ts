@@ -14,6 +14,7 @@ const listParamsDef = `
   $paidDate: String
   $userId: String
   $customerId: String
+  $customerType: String
   $posId: String
 `;
 
@@ -30,6 +31,7 @@ const listParamsValue = `
   paidDate: $paidDate
   userId: $userId
   customerId: $customerId
+  customerType: $customerType
   posId: $posId
 `;
 
@@ -40,10 +42,10 @@ export const orderFields = `
   paidDate
   number
   customerId
-  cardAmount
+  customerType
   cashAmount
-  receivableAmount
   mobileAmount
+  paidAmounts
   totalAmount
   finalAmount
   shouldPrintEbarimt
@@ -65,21 +67,6 @@ export const orderFields = `
     _id
     email
   }
-  ${
-    isEnabled('contacts')
-      ? `
-        customer {
-          _id
-          firstName
-          lastName
-          middleName
-          primaryEmail
-          primaryPhone
-        }
-      `
-      : ``
-  }
-
 `;
 
 const posOrders = `
@@ -100,6 +87,20 @@ const posOrderDetail = `
   query posOrderDetail($_id: String) {
     posOrderDetail(_id: $_id) {
       ${orderFields}
+      ${
+        isEnabled('contacts')
+          ? `
+        customer {
+          _id
+          code
+          firstName
+          lastName
+          primaryEmail
+          primaryPhone
+        }
+      `
+          : ``
+      }
       syncErkhetInfo
       putResponses
       deliveryInfo

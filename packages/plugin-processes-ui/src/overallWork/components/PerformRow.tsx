@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import Form from '../containers/PerformForm';
+import Form from '../../performs/containers/Form';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import moment from 'moment';
@@ -9,7 +9,8 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __, confirm } from '@erxes/ui/src/utils';
 import { FinanceAmount } from '../../styles';
-import { IOverallWorkDet, IPerform } from '../types';
+import { IOverallWorkDet } from '../types';
+import { IPerform } from '../../performs/types';
 
 type Props = {
   overallWork: IOverallWorkDet;
@@ -17,6 +18,7 @@ type Props = {
   history: any;
   queryParams: any;
   removePerform: (_id: string) => void;
+  minPotentialCount: number;
 };
 
 class PerformRow extends React.Component<Props> {
@@ -72,7 +74,7 @@ class PerformRow extends React.Component<Props> {
   };
 
   render() {
-    const { perform } = this.props;
+    const { perform, minPotentialCount } = this.props;
     const onTrClick = () => {};
 
     const onClick = e => {
@@ -84,6 +86,7 @@ class PerformRow extends React.Component<Props> {
         {...props}
         perform={perform}
         overallWorkDetail={this.props.overallWork}
+        max={minPotentialCount}
       />
     );
 
@@ -98,7 +101,7 @@ class PerformRow extends React.Component<Props> {
         <td key={'actions'} onClick={onClick}>
           <ActionButtons>
             <ModalTrigger
-              title="Edit perform"
+              title={__(`Edit perform`)}
               trigger={
                 <Button btnStyle="link">
                   <Tip text={__('Edit')} placement="bottom">

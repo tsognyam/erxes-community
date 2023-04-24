@@ -2,12 +2,18 @@ const userFields = `
   _id
   username
   email
+  employeeId
   details {
     avatar
     fullName
+    firstName
+    lastName
+    position
   }
-  department{
-    _id
+  departments {
+    title
+  }
+  branches {
     title
   }
 `;
@@ -20,60 +26,114 @@ const attachmentFields = `
   duration
 `;
 
-const list = `
-  query listQuery($startDate: Date, $endDate: Date, $userIds: [String]) {
-    timeclocks(startDate: $startDate, endDate: $endDate, userIds: $userIds) {
-      _id
-      shiftStart
-      shiftEnd
-      shiftActive
-      user {
-        ${userFields}
+const listParamsDef = `
+  $page: Int
+  $perPage: Int
+  $startDate: Date
+  $endDate: Date
+  $userIds: [String]
+  $branchIds: [String]
+  $departmentIds: [String]
+  $reportType: String
+`;
+
+const listParamsValue = `
+  page: $page
+  perPage: $perPage
+  startDate: $startDate
+  endDate: $endDate
+  userIds: $userIds
+  branchIds: $branchIds
+  departmentIds: $departmentIds
+  reportType: $reportType
+`;
+
+const timelogsMain = `
+  query timelogsMain(${listParamsDef}){
+    timelogsMain(${listParamsValue}){
+      list{
+        _id
+        user {
+          ${userFields}
+        }
+        timelog
+        deviceName
       }
+      totalCount
+    }
+  }`;
+
+const timeclocksMain = `
+  query timeclocksMain(${listParamsDef}) {
+    timeclocksMain(${listParamsValue}) {
+      list {
+            _id
+            shiftStart
+            shiftEnd
+            shiftActive
+            user {
+              ${userFields}
+            }
+            employeeUserName
+            branchName
+            employeeId
+            deviceName
+            deviceType
+        }
+        totalCount
+    }
+}
+`;
+const schedulesMain = `
+  query schedulesMain(${listParamsDef}) {
+    schedulesMain(${listParamsValue}) {
+      list {
+          _id
+          shifts{
+            _id
+            shiftStart
+            shiftEnd
+            solved
+            status
+          }
+          scheduleConfigId
+          solved
+          status
+          user {
+            ${userFields}
+          }
+          scheduleChecked
+          submittedByAdmin
+        }
+        totalCount
+  }
+}
+`;
+const requestsMain = `
+  query requestsMain(${listParamsDef}) {
+    requestsMain(${listParamsValue}) {
+      list {
+          _id
+          startTime
+          endTime
+          reason
+          explanation
+          solved
+          status
+          user {
+            ${userFields}
+          }
+          attachment{
+            ${attachmentFields}
+          }
+        }
+        totalCount
   }
 }
 `;
 
-const listAbsence = `
-query listAbsenceQuery($startDate: Date, $endDate: Date, $userId: String){
-  absences(startDate: $startDate, endDate: $endDate, userId: $userId){
-    _id
-    startTime
-    endTime
-    reason
-    explanation
-    solved
-    status
-    user {
-      ${userFields}
-    }
-    attachment{
-      ${attachmentFields}
-    }
-  }
-}`;
-
-const listSchedule = `
-query listScheduleQuery($startDate: Date, $endDate: Date, $userId: String){
-  schedules(startDate: $startDate, endDate: $endDate, userId: $userId){
-    _id
-    shifts{
-      _id
-      shiftStart
-      shiftEnd
-      solved
-      status
-    }
-    solved
-    status
-    user {
-      ${userFields}
-    }
-  }
-}`;
-
-const listBranches = `
-  query listBranchesQuery($searchValue: String){
+const branches = `
+  query branches($searchValue: String){
     branches(searchValue: $searchValue){
       _id
       title
@@ -81,68 +141,83 @@ const listBranches = `
   }
 `;
 
-const listReports = `
-  query listReportsQuery($departmentIds: [String], $branchIds: [String]){
-    timeclockReports(departmentIds:$departmentIds, branchIds: $branchIds){
-      groupTitle
-      groupReport{
-        user {
-          ${userFields}
-        }
-        scheduleReport {
-          date
-          scheduleStart
-          scheduleEnd
-          recordedStart
-          recordedEnd
-          minsLate
-          minsWorked
-        }
-        totalMinsLate
-        totalAbsenceMins
-        totalMinsWorked
-        totalMinsScheduled
-      }
-      groupTotalMinsLate
-      groupTotalAbsenceMins
-      groupTotalMinsWorked
-      groupTotalMinsScheduled
+const timeclockReports = `
+  query timeclockReports(${listParamsDef}){
+    timeclockReports(${listParamsValue}){
+      list {
+              groupTitle
+            groupReport{
+              user {
+                ${userFields}
+              }
+              scheduleReport {
+                timeclockDate
+                timeclockStart
+                timeclockEnd
+                timeclockDuration
+            
+                deviceName
+                deviceType
+            
+                scheduledStart
+                scheduledEnd
+                scheduledDuration
+                
+                totalMinsLate
+                totalHoursOvertime
+                totalHoursOvernight
+              }
+              totalMinsLate
+              totalAbsenceMins
+              totalMinsWorked
+              totalMinsScheduled
+
+              totalRegularHoursWorked
+              totalHoursWorked
+              totalMinsWorkedThisMonth
+              totalDaysWorked
+
+              totalHoursOvertime
+              totalHoursOvernight
+            
+              totalMinsScheduledThisMonth
+              totalDaysScheduled
+              totalHoursScheduled
+          
+              absenceInfo {
+                totalHoursWorkedAbroad
+                totalHoursPaidAbsence
+                totalHoursUnpaidAbsence
+                totalHoursSick
+              }
+
+            }
+            groupTotalMinsLate
+            groupTotalAbsenceMins
+            groupTotalMinsWorked
+            groupTotalMinsScheduled
+          }
+          totalCount  
     }
   }`;
 
-const listReportByUser = `
-  query timeclockReportByUser($selectedUser: String){
-    timeclockReportByUser(selectedUser:$selectedUser){
-      user {
-        ${userFields}
-      }
-      scheduleReport {
-        date
-        scheduleStart
-        scheduleEnd
-        recordedStart
-        recordedEnd
-        minsLate
-        minsWorked
-      }
-      totalMinsLate
-      totalAbsenceMins
-      totalMinsWorked
-    }
-  }`;
-
-const listAbsenceTypes = `
+const absenceTypes = `
   query absenceTypes{
     absenceTypes{
       _id
       name
       explRequired
       attachRequired
+      shiftRequest
+
+      requestType
+      requestTimeType
+      requestHoursPerDay
     }
   }
 `;
 
-const listPayDates = `
+const payDates = `
   query payDates{
     payDates{
       _id
@@ -151,7 +226,7 @@ const listPayDates = `
   }
 `;
 
-const listHolidays = `
+const holidays = `
 query holidays {
   holidays {
     _id
@@ -160,14 +235,64 @@ query holidays {
     endTime
   }
 }`;
+
+const scheduleConfigs = `
+  query scheduleConfigs {
+    scheduleConfigs{
+      _id
+      scheduleName
+      shiftStart
+      shiftEnd
+      configDays{
+        _id
+        configName
+        configShiftStart
+        configShiftEnd
+        overnightShift
+      }
+    }
+  }
+
+`;
+
+const deviceConfigs = `
+query deviceConfigs (${listParamsDef}){
+  deviceConfigs(${listParamsValue}) {
+    list {
+      _id 
+      deviceName
+      serialNo
+      extractRequired
+    }
+    totalCount
+  }
+}`;
+
+const timeLogsPerUser = `
+  query timeLogsPerUser($userId: String, $startDate: String, $endDate: String){
+    timeLogsPerUser(userId: $userId, startDate: $startDate, endDate: $endDate){
+      _id
+      timelog
+      deviceSerialNo
+    }
+  }
+`;
+
 export default {
-  listReports,
-  listReportByUser,
-  listSchedule,
-  listBranches,
-  list,
-  listAbsence,
-  listAbsenceTypes,
-  listPayDates,
-  listHolidays
+  timeclockReports,
+  branches,
+
+  timeclocksMain,
+  timelogsMain,
+  timeLogsPerUser,
+
+  schedulesMain,
+  requestsMain,
+
+  absenceTypes,
+  payDates,
+  holidays,
+
+  scheduleConfigs,
+  deviceConfigs
 };

@@ -1,15 +1,17 @@
 export const types = `
 type TradingOrder @key(fields:"txnid") {
     txnid: Int!
-    orderType:Int
-    txnType:Int!
+    ordertype:Int
+    txntype:Int!
     walletId:Int
-    wallet:JSON!
-    orderno:String!
+    wallet:JSON
+    orderno:String
     stockcode:Int!
-    stock:JSON!
+    stock:JSON
     txndate:Date!
     originalCnt:Int!
+    originalPrice:Float
+    originalDonePrice:Float
     cnt:Int!
     price:Float!
     fee:Float!
@@ -27,10 +29,10 @@ type TradingOrder @key(fields:"txnid") {
     regdate:Date
     status:Int
     updatedate:Date
-    updateUserId:Int
+    updateUserId:String
     ostatus:Int
     oupdatedate:Date
-    oupdateUserId:Int
+    oupdateUserId:String
     tradecode:String
     yield:Int
     msgid:Int
@@ -47,30 +49,75 @@ type TradingOrder @key(fields:"txnid") {
     settlementMCSD:JSON
     transactionOrder:JSON
     stockOrder:JSON
+    user:JSON
+}
+type TradingOrderList {
+    total:Int,
+    count:Int,
+    values:[TradingOrder]
+}
+type TradingOrderSummary {
+    total:Float,
+    fee:Float
 }
 `;
 export const queries = `
-tradingOrders(params:JSON):[TradingOrder]
+tradingOrders(
+    page:Int!,
+    perPage:Int!,
+    stockcode:[Int],
+    status:[Int],
+    txntype:[Int],
+    ordertype:[Int],
+    sortField:String,
+    sortDirection:String,
+    startDate:Date,
+    endDate:Date,
+    userId:String,
+    prefix:[String]
+):TradingOrderList
 tradingOrderDetail(id:Int!):TradingOrder
-tradingOrderTypes:[JSON]
+tradingOrderSummary(
+    stockcode:[Int],
+    status:[Int],
+    txntype:[Int],
+    ordertype:[Int],
+    startDate:Date,
+    endDate:Date,
+    userId:String,
+    prefix:[String],
+    startDate:Date,
+    endDate:Date,
+):TradingOrderSummary
 `;
-const params = `
+const addParams = `
 ordertype:Int!,
 txntype:Int!,
 stockcode:Int!,
 cnt:Int!,
-price:Float!,
-enddate:Date!,
-condid:Int!,
+price:Float,
+enddate:Date,
+condid:Int,
 txnsource:Int!,
 userId:String
 `;
-const cancelParams = `
-stockcode:Int!,
+const editParams = `
 txnid:Int!,
-userId:Int
+cnt:Int!,
+price:Float,
+`;
+const cancelParams = `
+txnid:Int!
+`;
+const confirmParams = `
+orderId: Int!
+doneprice: Float!
+donecnt: Int!
+donedate: Date!
 `;
 export const mutations = `
-tradingOrderAdd(${params}):TradingOrder,
-tradingOrderEdit(${params}):TradingOrder,
-tradingOrderCancel(${cancelParams}):JSON`;
+tradingOrderAdd(${addParams}):TradingOrder,
+tradingOrderEdit(${editParams}):TradingOrder,
+tradingOrderCancel(${cancelParams}):TradingOrder,
+tradingOrderConfirm(${confirmParams}):TradingOrder
+`;

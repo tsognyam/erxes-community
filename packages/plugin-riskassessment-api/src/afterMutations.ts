@@ -40,14 +40,14 @@ export const afterMutationHandlers = async (subdomain, params) => {
       pipelineId: stage.pipelineId
     };
 
-    const addedConformities: any[] = [];
+    const addedRiskAssessment: any[] = [];
     const conformity = {
       cardId: _id,
       cardType: type.replace('cards:', '')
     } as IRiskConformityField;
 
     for (const data of customFieldsData) {
-      const config = await models.RiskAssessmentConfigs.findOne({
+      const config = await models.RiskAssessmentsConfigs.findOne({
         $or: [
           { ...commonFilter, stageId, customFieldId: data.field },
           { ...commonFilter, stageId: '', customFieldId: data.field }
@@ -60,18 +60,34 @@ export const afterMutationHandlers = async (subdomain, params) => {
           item => item.value === data.value
         );
         if (customField) {
-          const addedConformity = await models.RiskConformity.riskConformityAdd(
-            { ...conformity, riskAssessmentId: customField.riskAssessmentId }
-          );
-          addedConformities.push(addedConformity);
+          if (!!customField?.indicatorIds?.length) {
+            for (const indicatorId of customField.indicatorIds) {
+              const addedConformity = await models.RiskAssessments.addRiskAssessment(
+                {
+                  ...conformity,
+                  indicatorId: indicatorId || undefined
+                }
+              );
+              addedRiskAssessment.push(addedConformity);
+            }
+          } else {
+            const addedConformity = await models.RiskAssessments.addRiskAssessment(
+              {
+                ...conformity,
+                indicatorId: customField.indicatorId,
+                groupId: customField.groupId
+              }
+            );
+            addedRiskAssessment.push(addedConformity);
+          }
         }
       }
     }
 
-    if (!addedConformities.length) {
+    if (!addedRiskAssessment.length) {
       const filter = { ...commonFilter, customFieldId: null, configs: [] };
 
-      const config = await models.RiskAssessmentConfigs.findOne({
+      const config = await models.RiskAssessmentsConfigs.findOne({
         $or: [
           { ...filter, stageId },
           { ...filter, stageId: '' }
@@ -79,10 +95,21 @@ export const afterMutationHandlers = async (subdomain, params) => {
       })
         .sort({ createdAt: -1 })
         .limit(1);
-      if (config?.riskAssessmentId) {
-        await models.RiskConformity.riskConformityAdd({
+
+      if (!!config?.indicatorIds?.length) {
+        for (const indicatorId of config?.indicatorIds) {
+          await models.RiskAssessments.addRiskAssessment({
+            ...conformity,
+            indicatorId: indicatorId || undefined
+          });
+        }
+      }
+
+      if (config?.indicatorId || config?.groupId) {
+        await models.RiskAssessments.addRiskAssessment({
           ...conformity,
-          riskAssessmentId: String(config?.riskAssessmentId)
+          indicatorId: config?.indicatorId || undefined,
+          groupId: config?.groupId || undefined
         });
       }
     }

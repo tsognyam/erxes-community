@@ -39,7 +39,7 @@ export default class StockWalletValidator extends BaseValidator {
 
     // var stockBalances = await this.#stockBalanceRepository.findByWalletId(data.walletId, WalletConst.STATUS_ACTIVE, data.stockCode, { stock: true });
     if (data.stockCode != undefined) {
-      stockBalances = await this.stockBalanceRepository.findMany(
+      stockBalances = await this.stockBalanceRepository.findAll(
         {
           walletId: data.walletId,
           wallet: { status: WalletConst.STATUS_ACTIVE },
@@ -48,7 +48,7 @@ export default class StockWalletValidator extends BaseValidator {
         { stock: true, wallet: true },
         options
       );
-      if (stockBalances.length > 0) {
+      if (stockBalances.total > 0) {
         return stockBalances.values[0];
       } else {
         return {
@@ -89,11 +89,7 @@ export default class StockWalletValidator extends BaseValidator {
       WalletConst.STATUS_ACTIVE,
       data.stockCode,
       {
-        wallet: {
-          include: {
-            currency: true
-          }
-        }
+        wallet: true
       }
     );
     if (data.stockCode != undefined) {
@@ -108,11 +104,69 @@ export default class StockWalletValidator extends BaseValidator {
           stockCode: data.stockCode,
           wallet: await this.walletValidator.checkWallet(
             { id: data.walletId },
-            undefined
+            { walletBalance: true }
           )
         };
       }
     }
+    return stockBalances;
+  };
+  validateWalletList = async params => {
+    var { error, data } = this.validate(
+      {
+        walletId: this._joi.number(),
+        stockCode: this._joi.number(),
+        skip: this._joi.number(),
+        take: this._joi.number(),
+        orderBy: this._joi.any()
+      },
+      params
+    );
+    let options: any = [];
+    options.take = data.take;
+    options.skip = data.skip;
+    options.orderBy = data.orderBy;
+    data.skip = undefined;
+    data.take = undefined;
+    data.orderBy = undefined;
+    if (data.stockCode)
+      await this.stockValidator.validateGetStockCode({
+        stockcode: data.stockCode
+      });
+    let stockBalances: any = undefined;
+    let where: any = undefined;
+    where = {
+      walletId: data.walletId,
+      wallet: { status: WalletConst.STATUS_ACTIVE },
+      stockCode: data.stockCode,
+      NOT: {
+        walletId: WalletConst.NOMINAL
+      },
+      OR: [
+        {
+          balance: {
+            gt: 0
+          }
+        },
+        {
+          holdBalance: {
+            gt: 0
+          }
+        }
+      ]
+    };
+    stockBalances = await this.stockBalanceRepository.findAll(
+      where,
+      {
+        stock: true,
+        wallet: {
+          include: {
+            user: true
+          }
+        }
+      },
+      options
+    );
     return stockBalances;
   };
 }

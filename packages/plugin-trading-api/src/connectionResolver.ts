@@ -6,10 +6,14 @@ import { ITradingSystemsDocument } from './models/definitions/systems';
 export interface IModels {
   TradingSystems: ITradingSystemsModel;
 }
-
+export interface ICpUser {
+  userId: string;
+  type?: string | null;
+}
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  cpUser?: ICpUser;
 }
 
 export let models: IModels | null = null;

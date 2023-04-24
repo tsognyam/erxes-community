@@ -7,6 +7,7 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
+import { menuSyncerkhet } from '../../constants';
 
 type Props = {
   totalCount: number;
@@ -25,18 +26,17 @@ type Props = {
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedDealIds: string[];
   syncedDealInfos: any;
-  toSyncDeals: (dealIds: string[]) => void;
+  toSyncDeals: (
+    dealIds: string[],
+    configStageId: string,
+    dateType: string
+  ) => void;
+  dateType: string;
 };
 
 type State = {
   contentLoading: boolean;
 };
-export const menuPos = [
-  { title: 'Check deals', link: '/check-synced-deals' },
-  { title: 'Check orders', link: '/check-pos-orders' },
-  { title: 'Check Category', link: '/inventory-category' },
-  { title: 'Check Products', link: '/inventory-products' }
-];
 
 class CheckSyncedDeals extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -51,12 +51,17 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const {
       deals,
       history,
+      queryParams,
       toggleBulk,
       bulk,
       unSyncedDealIds,
       toSyncDeals,
       syncedDealInfos
     } = this.props;
+
+    const toSync = dealIds => {
+      toSyncDeals(dealIds, queryParams.configStageId, queryParams.dateType);
+    };
 
     return deals.map(deal => (
       <Row
@@ -66,7 +71,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(deal)}
         isUnsynced={unSyncedDealIds.includes(deal._id)}
-        toSync={toSyncDeals}
+        toSync={toSync}
         syncedInfo={syncedDealInfos[deal._id] || {}}
       />
     ));
@@ -95,12 +100,12 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       isAllSelected,
       bulk,
       unSyncedDealIds,
-      toSyncDeals,
-      syncedDealInfos
+      toSyncDeals
     } = this.props;
-    console.log(syncedDealInfos);
+
     const tablehead = [
       'deal name',
+      'deal number',
       'Amount',
       'created At',
       'modified At',
@@ -154,7 +159,11 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const onClickSync = () =>
       confirm()
         .then(() => {
-          toSyncDeals(unSyncedDealIds);
+          toSyncDeals(
+            unSyncedDealIds,
+            queryParams.configStageId,
+            queryParams.dateType
+          );
         })
         .catch(error => {
           Alert.error(error.message);
@@ -179,7 +188,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             icon="sync"
             onClick={onClickSync}
           >
-            Sync all
+            {`Sync all (${unSyncedDealIds.length})`}
           </Button>
         )}
       </BarItems>
@@ -201,7 +210,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
           <Wrapper.Header
             title={__(`Check erkhet`)}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={menuSyncerkhet}
           />
         }
         leftSidebar={sidebar}
@@ -209,8 +218,6 @@ class CheckSyncedDeals extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>Deals</Title>}
             right={actionBarRight}
-            // withMargin
-            // wide
             background="colorWhite"
           />
         }

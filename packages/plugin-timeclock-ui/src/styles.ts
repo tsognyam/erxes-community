@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer } from '@erxes/ui/src/styles/main';
+import { DateContainer, SimpleButton } from '@erxes/ui/src/styles/main';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 const FilterWrapper = styled.div`
@@ -14,6 +14,12 @@ const FilterWrapper = styled.div`
 
   strong {
     margin-right: 2 0px;
+  }
+`;
+
+const ConfigFormWrapper = styled.div`
+  label > span:before {
+    border-radius: 0;
   }
 `;
 
@@ -157,6 +163,11 @@ const SidebarActions = styled.div`
   }
 `;
 
+const ToggleButton = styled(SimpleButton)`
+  margin-left: -5px;
+  margin-right: 10px;
+`;
+
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
@@ -164,17 +175,119 @@ const FlexRow = styled.div`
   justify-content: space-between;
 `;
 
-const FlexColumn = styled.div`
+const InlineBlock = styled.div`
+  display: inline;
+  align-items: center;
+`;
+
+const CustomLabel = styledTS<{ uppercase?: boolean }>(styled.label)`
+  text-transform: ${props => (props.uppercase ? 'uppercase' : 'none')};
+  display: inline-block;
+  margin: 10px 0;
+  font-weight: ${typography.fontWeightRegular};
+  font-size: 14px;
+  color: ${colors.textPrimary};
+
+  > span {
+    color: ${colors.colorCoreRed};
+  }
+`;
+
+const FlexRowEven = styled.div`
   display: flex;
-  flex: 1;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px
+  justify-content: space-even;
+`;
+
+const FlexColumn = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap:${props => props.marginNum}px;
+`;
+
+const FlexColumnMargined = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.marginNum}px
+  margin-top:${props => props.marginNum * 2}px;
+`;
+
+const FlexColumnCustom = styledTS<{
+  marginNum: number;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+  gap: ${props => props.marginNum}px
+  margin: 20px 20px
+
+  div:first-child {
+    margin-bottom: 0;
+  }
+
+  `;
+
+const TextAlignCenter = styled.div`
+  text-align: center;
+`;
+
+const ToggleDisplay = styledTS<{
+  display: boolean;
+}>(styled.div)`
+  display: ${props => (props.display ? 'inline' : 'none')};
 `;
 
 const DateName = styled.div`
   text-transform: uppercase;
   margin: ${dimensions.unitSpacing}px 0;
   text-align: center;
+`;
+
+const Margin = styled.div`
+  margin: 0 ${dimensions.coreSpacing}px;
+`;
+
+const RowField = styled.div`
+  width: 33%;
+  border-top: 1px solid ${colors.borderPrimary};
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  &:last-child {
+    width: 10%;
+    padding: 8px 20px 8px 0;
+    text-align: right;
+  }
+`;
+
+const CustomCollapseRow = styledTS<{ isChild: boolean }>(styled.div)`
+  font-size: 15px;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-between;
+  align-items: center;
+  padding: ${props =>
+    props.isChild ? dimensions.unitSpacing : dimensions.coreSpacing}px;
+  margin: 0px;
+  background: ${colors.colorWhite};
+  
+  div {
+    display: flex
+    flex: 1
+    gap: 10px
+  }
+  span {
+    font-size: 12px;
+    color: ${colors.colorCoreGray};
+    margin-left: 5px;
+  }
 `;
 
 export {
@@ -187,8 +300,20 @@ export {
   Input,
   FlexRow,
   FlexColumn,
+  FlexColumnMargined,
+  FlexColumnCustom,
   DateName,
   CustomRangeContainer,
   SidebarHeader,
-  CustomRow
+  CustomRow,
+  FlexRowEven,
+  ToggleDisplay,
+  ConfigFormWrapper,
+  ToggleButton,
+  InlineBlock,
+  Margin,
+  RowField,
+  TextAlignCenter,
+  CustomCollapseRow,
+  CustomLabel
 };

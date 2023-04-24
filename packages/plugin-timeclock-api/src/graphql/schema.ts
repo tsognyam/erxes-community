@@ -16,6 +16,19 @@ export const types = `
     shiftStart: Date
     shiftEnd: Date
     shiftActive: Boolean
+    employeeUserName: String
+    branchName: String
+    deviceName: String
+    employeeId: String
+    deviceType: String
+  }
+
+  type Timelog {
+    _id: String!
+    user: User
+    timelog: Date
+    deviceSerialNo: String
+    deviceName: String
   }
 
   type Absence {
@@ -36,10 +49,18 @@ export const types = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
+
+    requestType: String
+    requestTimeType: String
+    requestHoursPerDay: Float
   }
 
   
   input ShiftsRequestInput {
+    _id: String
+    overnightShift: Boolean
+    configName: String
     shiftStart: Date
     shiftEnd: Date
   }
@@ -59,35 +80,64 @@ export const types = `
     shifts: [ShiftsRequest]
     solved: Boolean
     status: String
+    scheduleConfigId: String
+    scheduleChecked: Boolean
+    submittedByAdmin: Boolean
+  }
+
+  type IUserAbsenceInfo{ 
+    totalHoursWorkedAbroad: Float
+    totalHoursPaidAbsence: Float
+    totalHoursUnpaidAbsence: Float
+    totalHoursSick: Float
   }
 
   type ScheduleReport{
-    date: String
-    scheduleStart: Date
-    scheduleEnd: Date
-    recordedStart: Date
-    recordedEnd: Date
-    minsLate: Int
-    minsWorked: Int
-    minsScheduled: Int
+    timeclockDate: String
+    timeclockStart: Date
+    timeclockEnd: Date
+    timeclockDuration: String
+
+    deviceName: String
+    deviceType: String
+
+    scheduledStart: Date
+    scheduledEnd: Date
+    scheduledDuration:String
+    
+    totalMinsLate: String
+    totalHoursOvertime: String
+    totalHoursOvernight: String
   }
 
   type UserReport{
     user: User
     scheduleReport: [ScheduleReport]
-    totalMinsLate: Int
+    totalMinsLate: Float
     totalAbsenceMins: Int
     totalMinsWorked: Int
     totalMinsWorkedToday: Int
     totalMinsWorkedThisMonth: Int
+    totalRegularHoursWorked: Float
+    totalHoursWorked: Float
+    totalDaysWorked:Int
+    
     totalMinsScheduled: Int
+    totalHoursScheduled: Float
+    totalDaysScheduled: Int
     totalMinsScheduledToday: Int
     totalMinsScheduledThisMonth: Int
+    
+    totalHoursOvertime: Float
+    totalHoursOvernight: Float
+
     totalMinsLateToday: Int
     totalMinsLateThisMonth: Int
     totalMinsAbsenceThisMonth: Int
-  }
 
+    absenceInfo: IUserAbsenceInfo
+  }
+  
   type Report {
     groupTitle: String
     groupReport: [UserReport]
@@ -102,20 +152,67 @@ export const types = `
     payDates: [Int]
   }
 
-`;
+  
+  type ScheduleConfig {
+    _id: String!
+    scheduleName: String
+    shiftStart: String
+    shiftEnd: String
+    configDays: [ConfigDay]
+  }
 
-export const queries = `
-  timeclocks(startDate: Date, endDate: Date, userIds: [String]): [Timeclock]
-  absences(startDate: Date, endDate: Date, userId: String): [Absence]
-  absenceTypes:[AbsenceType]
-  timeclockReports(departmentIds: [String], branchIds: [String], userIds: [String]): [Report]
-  timeclockReportByUser(selectedUser: String): UserReport
-  schedules(startDate: Date, endDate: Date, userId: String): [Schedule]
-  timeclockDetail(_id: String!): Timeclock
-  absenceDetail(_id: String!): Absence
-  scheduleDetail(_id: String!): Schedule
-  payDates: [PayDate]
-  holidays: [Absence]
+  type ConfigDay {
+    _id: String!
+    configName: String
+    overnightShift: Boolean
+    scheduleConfigId: String
+    configShiftStart: String
+    configShiftEnd: String
+  }
+
+  type DeviceConfig{
+    _id: String!
+    deviceName: String
+    serialNo: String
+    extractRequired: Boolean
+  }
+
+  type CheckReport{
+    _id: String!
+    userId: String
+    startDate: String
+    endDate: String
+  }
+
+  type TimeClocksListResponse {
+    list: [Timeclock]
+    totalCount: Float
+  }
+  
+  type SchedulesListResponse {
+    list: [Schedule]
+    totalCount: Float
+  }
+  
+  type RequestsListResponse {
+    list: [Absence]
+    totalCount: Float
+  }
+
+  type ReportsListResponse {
+    list: [Report]
+    totalCount: Float
+  }
+  
+  type TimelogListResponse {
+    list: [Timelog]
+    totalCount: Float
+  }
+
+  type DeviceConfigsListResponse {
+    list: [DeviceConfig]
+    totalCount: Float
+  }
 `;
 
 const params = `
@@ -123,6 +220,18 @@ const params = `
   _id: String
   longitude: Float
   latitude: Float
+  deviceType: String
+`;
+
+const queryParams = `
+  page: Int
+  perPage: Int
+  startDate: Date 
+  endDate: Date
+  userIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
+  reportType: String
 `;
 
 const absence_params = `
@@ -132,36 +241,92 @@ const absence_params = `
     reason: String
     explanation: String
     attachment: AttachmentInput
+    absenceTypeId: String
 `;
 
 const absenceType_params = `
     name: String
     explRequired: Boolean
     attachRequired: Boolean
+    shiftRequest: Boolean
+
+    requestType: String
+    requestTimeType: String
+    requestHoursPerDay: Float
+  
 `;
 
-const schedule_params = `
-    userId: String
-    shifts: [ShiftsRequestInput]
-  `;
+export const queries = `
+  timeclocksMain(${queryParams}): TimeClocksListResponse
+  schedulesMain(${queryParams}): SchedulesListResponse
+  requestsMain(${queryParams}): RequestsListResponse
+  timelogsMain(${queryParams}): TimelogListResponse
+  
+  timeLogsPerUser(userId: String, startDate: String, endDate: String ): [Timelog]
+  schedulesPerUser(userId: String, startDate: String, endDate: String): [Schedule]
+  absenceTypes:[AbsenceType]
+  
+  timeclockReports(${queryParams}): ReportsListResponse
+  timeclockReportByUser(selectedUser: String): UserReport
+  timeclockDetail(_id: String!): Timeclock
+  
+  timeclockActivePerUser(userId: String): Timeclock
+
+  absenceDetail(_id: String!): Absence
+  scheduleDetail(_id: String!): Schedule
+  scheduleConfigs: [ScheduleConfig]
+  
+  deviceConfigs(${queryParams}): DeviceConfigsListResponse
+  payDates: [PayDate]
+  holidays: [Absence]
+
+  checkedReportsPerUser(userId: String): [CheckReport]
+`;
 
 export const mutations = `
   timeclockStart(${params}): Timeclock
   timeclockStop(${params}): Timeclock
-  timeclockRemove(_id : String): Timeclock
+  timeclockRemove(_id : String): JSON
+  timeclockEdit(_id: String, shiftStart: Date, shiftEnd: Date, shiftActive: Boolean): Timeclock
+  
   absenceTypeRemove(_id: String): JSON
   absenceTypeAdd(${absenceType_params}): AbsenceType
   absenceTypeEdit(_id: String, ${absenceType_params}): AbsenceType
   sendAbsenceRequest(${absence_params}): Absence
-  sendScheduleRequest(${schedule_params}): Schedule
-  submitShift(userIds: [String], shifts:[ShiftsRequestInput]): Schedule
+  
+  submitCheckInOutRequest(checkType: String,userId: String, checkTime: Date): AbsenceType
+  
+  sendScheduleRequest(userId: String, shifts: [ShiftsRequestInput], scheduleConfigId: String): Schedule
+  submitSchedule(branchIds:[String],departmentIds:[String], userIds: [String], shifts:[ShiftsRequestInput], scheduleConfigId: String): Schedule
+  
   solveAbsenceRequest(_id: String, status: String): Absence
   solveScheduleRequest(_id: String, status: String): Schedule
   solveShiftRequest(_id: String, status: String): ShiftsRequest
+  
+  scheduleConfigAdd(scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigEdit(_id : String ,scheduleName: String, scheduleConfig: [ShiftsRequestInput], configShiftStart: String, configShiftEnd: String): ScheduleConfig
+  scheduleConfigRemove(_id : String ): JSON
+  
   payDateAdd(dateNums: [Int]): PayDate
   payDateEdit(_id: String, dateNums: [Int]): PayDate
   payDateRemove(_id: String): JSON
+  
   holidayAdd(name: String, startDate: Date, endDate: Date): Absence
   holidayEdit(_id: String, name: String, startDate: Date, endDate: Date): Absence
   holidayRemove(_id: String): JSON
+  
+  scheduleRemove(_id: String): JSON
+  scheduleShiftRemove(_id: String): JSON
+  
+  deviceConfigAdd(deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigEdit(_id: String, deviceName: String, serialNo: String,extractRequired: Boolean): DeviceConfig
+  deviceConfigRemove(_id: String): JSON
+  
+  checkReport(userId: String, startDate: String, endDate: String): CheckReport
+  checkSchedule(scheduleId: String): JSON
+
+  createTimeClockFromLog(userId: String, timelog: Date): Timeclock
+
+  extractAllDataFromMsSQL(startDate: String, endDate: String): [Timeclock]
+  extractTimeLogsFromMsSQL(startDate: String, endDate: String): [Timelog]
 `;

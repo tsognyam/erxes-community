@@ -18,6 +18,7 @@ export const types = `
   type PosProductCategory {
     ${commonFieldDefs}
     parentId: String
+    meta: String
     order: String!
     isRoot: Boolean
     productCount: Int
@@ -27,35 +28,65 @@ export const types = `
     ${commonFieldDefs}
     type: String
     sku: String
+    barcodes: [String]
+    barcodeDescription: String
     unitPrice: Float
     categoryId: String
     customFieldsData: JSON
+    customFieldsDataByFieldCode: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: Attachment
+    attachmentMore: [Attachment]
+    supply: String
+    productCount: Int
+    minimiumCount: Int
+    uomId: String
+    subUoms: JSON
     category: PosProductCategory
     remainder: Int
   }
 `;
 
+const productsQueryParams = `
+  type: String,
+  categoryId: String,
+  searchValue: String,
+  tag: String,
+  ids: [String],
+  excludeIds: Boolean,
+  segment: String,
+  segmentData: String,
+`;
+
+const productCategoriesParams = `
+  parentId: String, 
+  searchValue: String, 
+  excludeEmpty: Boolean, 
+  meta: String,
+`;
+const commonParams = `
+  page: Int,
+  perPage: Int,
+  sortField: String,
+  sortDirection: Int,
+`;
+
 export const queries = `
-  poscProductCategories(parentId: String, searchValue: String, excludeEmpty: Boolean): [PosProductCategory]
-  poscProductCategoriesTotalCount(parentId: String, searchValue: String): Int
+  poscProductCategories(
+    ${productCategoriesParams} 
+    ${commonParams}
+  ): [PosProductCategory]
+  poscProductCategoriesTotalCount(${productCategoriesParams}): Int
   poscProductCategoryDetail(_id: String): PosProductCategory
 
   poscProducts(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    branchId: String,
-    page: Int,
-    perPage: Int,
+    ${productsQueryParams}
+    ${commonParams}
   ): [PoscProduct]
   poscProductsTotalCount(
-    type: String,
-    categoryId: String,
-    searchValue: String,
+    ${productsQueryParams}
   ): Int
   poscProductDetail(_id: String): PoscProduct
+  getPriceInfo(productId: String!): String
 `;

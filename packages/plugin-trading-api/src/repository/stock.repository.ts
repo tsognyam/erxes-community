@@ -6,7 +6,7 @@ export default class StockRepository extends BaseRepository {
   }
   update = async (entity: any, select: any = undefined) => {
     return await this._prisma[this._model].update({
-      where: { stockcode: entity.stockcode },
+      where: { id: entity.id },
       data: entity,
       include: select
     });

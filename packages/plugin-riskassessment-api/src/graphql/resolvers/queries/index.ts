@@ -1,10 +1,10 @@
-import RiskAssessmentQueries from './riskAssessment';
-import RiskConfimityQuries from './confirmity';
-import RiskAssessmentsCategoryQueries from './category';
 import RiskFormSubmissionQueries from './formSubmissions';
+import OperationQueries from './operations';
+import RiskAssessmentQueries from './riskAssessments';
+import RiskIndicatorQueries from './riskIndicators';
 export default {
+  ...RiskIndicatorQueries,
   ...RiskAssessmentQueries,
-  ...RiskConfimityQuries,
-  ...RiskAssessmentsCategoryQueries,
-  ...RiskFormSubmissionQueries
+  ...RiskFormSubmissionQueries,
+  ...OperationQueries
 };

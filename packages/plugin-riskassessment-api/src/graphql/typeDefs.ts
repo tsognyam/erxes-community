@@ -2,47 +2,70 @@ import { gql } from 'apollo-server-express';
 
 import {
   mutations as formSubmissionsMutations,
-  queries as formSubmissionsQueries,
-  types as formSubmissionsTypes
+  types as formSubmissionsType
 } from './schema/formSubmissions';
 import {
-  mutations as RiskAssessmentMutations,
-  queries as RiskAssessmentQueries,
-  types as RiskAssessmentTypes
-} from './schema/riskassessment';
+  mutations as RiskIndicatorsMutations,
+  queries as RiskIndicatorsQueries,
+  types as RiskIndicatorsTypes
+} from './schema/riskIndicator';
+
 import {
-  mutations as RiskAssessmentCategoryMutations,
-  queries as RiskAssessmentCategoryQueries,
-  types as RiskAssessmentCategoryTypes
-} from './schema/category';
+  mutations as OpearionMutations,
+  queries as OpearionQueries,
+  types as OpearionTypes
+} from './schema/operations';
 import {
-  mutations as RiskConfirmityMutations,
-  queries as RiskConfirmityQueries,
-  types as RiskConfirmityTypes
-} from './schema/confirmity';
+  mutations as RiskAsessmentMutations,
+  queries as RiskAsessmentQueries,
+  types as RiskAsessmentTypes
+} from './schema/riskAssessment';
 
 const typeDefs = async _serviceDiscovery => {
+  const tagsAvailable = await _serviceDiscovery.isEnabled('tags');
   return gql`
     scalar JSON
     scalar Date
 
-    ${RiskAssessmentTypes}
-    ${RiskAssessmentCategoryTypes}
-    ${RiskConfirmityTypes}
-    ${formSubmissionsTypes}
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+      submitStatus:String
+    }
+
+    extend type Branch @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    extend type Department @key(fields: "_id") {
+          _id: String! @external
+    }
+
+    ${
+      tagsAvailable
+        ? `
+        extend type Tag @key(fields: "_id") {
+          _id: String! @external
+        }
+        `
+        : ''
+    }
+
+    ${RiskIndicatorsTypes(tagsAvailable)}
+    ${OpearionTypes}
+    ${RiskAsessmentTypes}
+    ${formSubmissionsType}
     
     extend type Query {
-      ${RiskAssessmentQueries}
-      ${RiskAssessmentCategoryQueries}
-      ${RiskConfirmityQueries}
-      ${formSubmissionsQueries}
+      ${RiskIndicatorsQueries}
+      ${OpearionQueries}
+      ${RiskAsessmentQueries}
     }
     
     extend type Mutation {
-      ${RiskAssessmentMutations}
-      ${RiskAssessmentCategoryMutations}
-      ${RiskConfirmityMutations}
-      ${formSubmissionsMutations}
+      ${RiskIndicatorsMutations}
+      ${formSubmissionsMutations},
+      ${OpearionMutations}
+      ${RiskAsessmentMutations}
     }
   `;
 };

@@ -19,7 +19,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
 
     const config = await getConfig(subdomain, 'ERKHET', {});
 
-    const document = {
+    const document: any = {
       name: doc.nickname || doc.name,
       type: doc.is_service ? 'service' : 'product',
       unitPrice: doc.unit_price,
@@ -32,8 +32,38 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
         ? productCategory.code
         : product.categoryCode,
       description: eval('`' + config.consumeDescription + '`'),
-      status: 'active'
+      status: 'active',
+      taxType: doc.vat_type || '',
+      taxCode: doc.vat_type_code || ''
     };
+    ``;
+
+    const uoms = await sendProductsMessage({
+      subdomain,
+      action: 'uoms.find',
+      data: {
+        code: { $in: [doc.measure_unit_code, doc.sub_measure_unit_code] }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (uoms.length) {
+      const uom = uoms.find(uom => uom.code === doc.measure_unit_code);
+      if (uom) {
+        document.uomId = uom._id;
+      }
+
+      const subUom = uoms.find(uom => uom.code === doc.sub_measure_unit_code);
+      if (subUom) {
+        document.subUoms = [
+          {
+            uomId: subUom._id,
+            ratio: doc.ratio_measure_unit || 1
+          }
+        ];
+      }
+    }
 
     if (product) {
       await sendProductsMessage({

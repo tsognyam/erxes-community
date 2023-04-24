@@ -1,0 +1,57 @@
+name: Plugin trading MIT Api CI
+
+on:
+  push:
+    branches:
+      - trading
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-trading-mit-api/**'
+      - '.github/workflows/plugin-trading-mit-api.yaml'
+
+jobs:
+  api:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js 14.20.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.20.x
+
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-plugin-trading-mit-api-${{ hashFiles('yarn.lock', 'plugin-trading-mit-api/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-plugin-trading-mit-api-
+            ${{ runner.os }}-yarn-
+
+      - name: Build
+        run: |
+          cp -r builder dist
+          cd dist
+          yarn install
+          ls -la
+          yarn build plugin trading-mit
+          cd plugin-trading-mit-api
+          cat package.json
+          cd .erxes
+          cd dist/main/.erxes/src
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/trading'  )
+        run: |
+          cd dist/plugin-trading-mit-api/.erxes
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login https://registry.erxes.io -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker build -t registry.erxes.io/erxes/plugin-trading-mit-api:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push registry.erxes.io/erxes/plugin-trading-mit-api:${GITHUB_REF#refs/heads/}

@@ -5,16 +5,35 @@ import {
   SystemMutations,
   BankTransactionMutations,
   OrderMutations,
-  BankMutations
+  BankMutations,
+  UserBankMutations,
+  UserMutations,
+  StockMutations,
+  WithdrawMutations,
+  StockTransactionsMutations,
+  CustFeeMutations,
+  TransactionMutations,
+  AdminMutations,
+  MigrationMutations
 } from './mutations';
 import {
   WalletQueries,
   SystemQueries,
   BankTransactionQueries,
   OrderQueries,
-  BankQueries
+  BankQueries,
+  UserBankQueries,
+  UserQueries,
+  StockQueries,
+  UserMcsdQueries,
+  WithdrawQueries,
+  TransactionQueries,
+  StockTransactionQueries,
+  CustFeeQueries,
+  AdminQueries,
+  ReportQueries,
+  SettlementQueries
 } from './queries';
-
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   Mutation: {
@@ -22,14 +41,34 @@ const resolvers: any = async serviceDiscovery => ({
     ...SystemMutations,
     ...BankTransactionMutations,
     ...OrderMutations,
-    ...BankMutations
+    ...BankMutations,
+    ...UserBankMutations,
+    ...UserMutations,
+    ...StockMutations,
+    ...WithdrawMutations,
+    ...StockTransactionsMutations,
+    ...TransactionMutations,
+    ...CustFeeMutations,
+    ...AdminMutations,
+    ...MigrationMutations
   },
   Query: {
     ...WalletQueries,
     ...SystemQueries,
     ...BankTransactionQueries,
     ...OrderQueries,
-    ...BankQueries
+    ...BankQueries,
+    ...UserBankQueries,
+    ...UserQueries,
+    ...StockQueries,
+    ...UserMcsdQueries,
+    ...WithdrawQueries,
+    ...TransactionQueries,
+    ...StockTransactionQueries,
+    ...CustFeeQueries,
+    ...AdminQueries,
+    ...ReportQueries,
+    ...SettlementQueries
   }
 });
 

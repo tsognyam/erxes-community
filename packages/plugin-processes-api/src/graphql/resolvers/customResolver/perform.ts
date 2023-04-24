@@ -1,10 +1,42 @@
 import { IPerformDocument } from '../../../models/definitions/performs';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../../messageBroker';
+import { getProductAndUoms } from './utils';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
     return models.Performs.findOne({ _id });
+  },
+
+  async inProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+    const inProducts = perform.inProducts || [];
+
+    const { productById, uomById } = await getProductAndUoms(
+      subdomain,
+      inProducts
+    );
+
+    for (let need of inProducts) {
+      need.product = productById[need.productId] || {};
+      need.uom = uomById[need.uomId] || {};
+    }
+
+    return inProducts;
+  },
+  async outProducts(perform: IPerformDocument, {}, { subdomain }: IContext) {
+    const outProducts = perform.outProducts || [];
+
+    const { productById, uomById } = await getProductAndUoms(
+      subdomain,
+      outProducts
+    );
+
+    for (const result of outProducts) {
+      result.product = productById[result.productId] || {};
+      result.uom = uomById[result.uomId] || {};
+    }
+
+    return outProducts;
   },
 
   async inBranch(perform: IPerformDocument, {}, { subdomain }: IContext) {
@@ -95,5 +127,40 @@ export default {
       },
       isRPC: true
     });
+  },
+
+  async customer(perform: IPerformDocument, _, { subdomain }: IContext) {
+    if (!perform.customerId) {
+      return;
+    }
+
+    return sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: perform.customerId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  },
+
+  async company(perform: IPerformDocument, _, { subdomain }: IContext) {
+    if (!perform.companyId) {
+      return;
+    }
+
+    return sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: { _id: perform.companyId },
+      isRPC: true,
+      defaultValue: {}
+    });
+  },
+
+  inProductsLen(perform: IPerformDocument, _, {}) {
+    return (perform.inProducts || []).length;
+  },
+  outProductsLen(perform: IPerformDocument, _, {}) {
+    return (perform.outProducts || []).length;
   }
 };

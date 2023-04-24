@@ -5,18 +5,25 @@ import { TransactionConst } from '../../constants/wallet';
 import { UserConst } from '../../constants/user';
 import TransactionService from './transaction.service';
 import { Prisma } from '@prisma/client';
+import NotificationService from '../notification.service';
+import WalletService from './wallet.service';
+import { CustomException, ErrorCode } from '../../exception/error-code';
 class BankTransactionService {
   private bankTransactionRepository: BankTransactionRepository;
   private bankTransactionValidator: BankTransactionValidator;
   private transactionService: TransactionService;
+  private notificationService: NotificationService;
+  private walletService: WalletService;
   constructor() {
     this.bankTransactionRepository = new BankTransactionRepository();
     this.bankTransactionValidator = new BankTransactionValidator();
     this.transactionService = new TransactionService();
+    this.notificationService = new NotificationService();
+    this.walletService = new WalletService();
   }
   chargeV2 = async (params: any, subdomain: string) => {
-    // if (process.env.NODE_ENV !== "development") {
-    //   throw new Error("This service only working dev mode");
+    // if (process.env.NODE_ENV !== 'development') {
+    //   throw new Error('This service only working dev mode');
     // }
     var {
       data,
@@ -52,6 +59,9 @@ class BankTransactionService {
         order: true
       }
     );
+    bankTransaction.wallet.walletBalance.balance =
+      parseFloat(bankTransaction.wallet.walletBalance.balance) +
+      parseFloat(bankTransaction.amount);
     let order = await this.transactionService.createTransactionOrder(
       undefined,
       wallet,
@@ -68,8 +78,24 @@ class BankTransactionService {
     });
     await this.bankTransactionRepository.update(bankTransaction.id, {
       status: TransactionConst.STATUS_SUCCESS,
-      message: 'test success'
+      message: 'test success',
+      orderId: order.id
     });
+    let sendParams = {
+      subdomain: subdomain,
+      subject: 'Орлого',
+      content: 'Deposit',
+      action: 'deposit',
+      data:
+        'Таны данс ' +
+        data.amount +
+        ' ' +
+        (wallet.currencyCode == 'MNT' ? 'MNT' : 'USD') +
+        '  цэнэглэгдлээ.',
+      userId: wallet.userId,
+      createdUserId: '1'
+    };
+    this.notificationService.send(sendParams);
     return bankTransaction;
   };
   chargeRequest = async (params: any, subdomain: string) => {
@@ -168,16 +194,6 @@ class BankTransactionService {
           description: bankTransaction.description
         }
       );
-      let nominalOrder = await this.transactionService.createTransactionOrder(
-        undefined,
-        nominalWallet,
-        {
-          amount: bankTransaction.amount,
-          feeAmount: 0,
-          type: TransactionConst.TYPE_CHARGE,
-          description: bankTransaction.description
-        }
-      );
       await this.bankTransactionRepository.update(bankTransaction.id, {
         orderId: order.id,
         status: TransactionConst.STATUS_BLOCKED,
@@ -186,10 +202,6 @@ class BankTransactionService {
 
       order = await this.transactionService.confirmTransaction({
         orderId: order.id,
-        confirm: 1
-      });
-      nominalOrder = await this.transactionService.confirmTransaction({
-        orderId: nominalOrder.id,
         confirm: 1
       });
       if (
@@ -241,17 +253,44 @@ class BankTransactionService {
     });
     return bankTransaction;
   };
-  getBankTransactionList = async (ids?: Number[]) => {
+  getBankTransactionList = async params => {
+    var data = await this.bankTransactionValidator.validateBankTransactionList(
+      params
+    );
     let where: any = {};
-    if (ids != null) where.id = { in: ids };
+    let options: any = {};
+    options.take = data.take;
+    options.skip = data.skip;
+    options.orderBy = data.orderBy;
+    let dateFilter;
+    if (data.startDate != undefined && data.endDate != undefined) {
+      dateFilter = {
+        dater: {
+          gte: data.startDate,
+          lte: data.endDate
+        }
+      };
+    }
+    where = {
+      ...dateFilter,
+      status: data.status
+    };
     let include: Prisma.BankTransactionInclude = {
       order: true,
       withdraw: true,
-      wallet: true,
-      bank: true
+      wallet: {
+        include: {
+          user: true
+        }
+      }
+      // bank: true
     };
-    let wallets = await this.bankTransactionRepository.findMany(where, include);
-    return wallets;
+    let bankTransactionList = await this.bankTransactionRepository.findAll(
+      where,
+      include,
+      options
+    );
+    return bankTransactionList;
   };
   getBankTransaction = async (id: Number) => {
     let where: any = {};
@@ -266,6 +305,79 @@ class BankTransactionService {
       include
     );
     return wallets;
+  };
+  editBankTransactionWallet = async (params: any) => {
+    let bankTransaction = await this.bankTransactionRepository.findById(
+      params.id
+    );
+    if (!bankTransaction) throw new Error('Bank transaction cannot find');
+    if (
+      bankTransaction.status == TransactionConst.STATUS_PENDING &&
+      bankTransaction.walletId == undefined &&
+      bankTransaction.orderId == undefined
+    ) {
+      let wallet = await this.walletService.getWalletWithUser({
+        userId: params.userId,
+        currencyCode: bankTransaction.currencyCode
+      });
+      if (wallet.length == 0)
+        CustomException(ErrorCode.WalletNotFoundException);
+      var order = await this.transactionService.createTransactionOrder(
+        undefined,
+        wallet[0],
+        {
+          amount: bankTransaction.amount,
+          feeAmount: 0,
+          type: TransactionConst.TYPE_CHARGE,
+          description: bankTransaction.description
+        }
+      );
+      bankTransaction = await this.bankTransactionRepository.update(
+        bankTransaction.id,
+        {
+          orderId: order.id,
+          walletId: wallet[0].id,
+          status: TransactionConst.STATUS_BLOCKED,
+          message: 'create transaction error'
+        },
+        {
+          order: true,
+          withdraw: true,
+          wallet: {
+            include: {
+              user: true
+            }
+          }
+        }
+      );
+
+      order = await this.transactionService.confirmTransaction({
+        orderId: order.id,
+        confirm: 1
+      });
+      if (
+        order != undefined &&
+        order.status === TransactionConst.STATUS_SUCCESS
+      ) {
+        bankTransaction = await this.bankTransactionRepository.update(
+          bankTransaction.id,
+          {
+            status: TransactionConst.STATUS_SUCCESS,
+            message: 'Хэрэглэгчийг гараар тохируулав'
+          },
+          {
+            order: true,
+            withdraw: true,
+            wallet: {
+              include: {
+                user: true
+              }
+            }
+          }
+        );
+      }
+      return bankTransaction;
+    } else throw new Error('Cannot edit bank transaction');
   };
 }
 export default BankTransactionService;

@@ -13,10 +13,8 @@ export default class SettlementMSCCRepository extends BaseRepository {
       settlementDate: {
         gte: startDate,
         lt: endDate
-      },
-      status: BaseConst.STATUS_ACTIVE
+      }
     };
-
     return await this.findMany(where);
   };
 }

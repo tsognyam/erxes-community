@@ -33,7 +33,6 @@ const inventoryMutations = {
     });
 
     const productCodes = products.map(p => p.code) || [];
-
     const response = await sendRequest({
       url: process.env.ERKHET_URL + '/get-api/',
       method: 'GET',
@@ -72,9 +71,11 @@ const inventoryMutations = {
         const product = productByCode[resProd.code];
 
         if (
-          resProd.name === product.name &&
+          (resProd.name === product.name ||
+            resProd.nickname === product.name) &&
           resProd.unit_price === product.unitPrice &&
-          resProd.barcodes === (product.barcodes || []).join(',')
+          resProd.barcodes === (product.barcodes || []).join(',') &&
+          (resProd.vat_type || '') === (product.taxType || '')
         ) {
           matchedCount = matchedCount + 1;
         } else {

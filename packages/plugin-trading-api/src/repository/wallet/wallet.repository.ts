@@ -2,6 +2,15 @@ import BaseRepository from '../base.repository';
 import { WalletConst } from '../../constants/wallet';
 import { getUser } from '../../models/utils';
 export default class WalletRepository extends BaseRepository {
+  static instance: WalletRepository;
+
+  static get() {
+    if (this.instance == null) {
+      this.instance = new WalletRepository();
+    }
+
+    return this.instance;
+  }
   constructor() {
     super('wallet');
   }
@@ -15,9 +24,11 @@ export default class WalletRepository extends BaseRepository {
         walletBalance: {
           select: {
             balance: true,
-            holdBalance: true
+            holdBalance: true,
+            incomingBalance: true
           }
-        }
+        },
+        stockBalances: true
       }
     });
   };
@@ -25,7 +36,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         currencyCode: currencyCode,
-        type: WalletConst.WALLET_TYPES.NOMINAL
+        type: WalletConst.NOMINAL
       },
       include: {
         walletBalance: true
@@ -78,7 +89,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        type: WalletConst.NOMINAL_FEE,
         currencyCode: currencyCode
       },
       include: {
@@ -90,7 +101,7 @@ export default class WalletRepository extends BaseRepository {
     return await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL,
+        type: WalletConst.NOMINAL,
         currencyCode: currencyCode
       },
       include: {
@@ -109,13 +120,13 @@ export default class WalletRepository extends BaseRepository {
       }
     });
     if (wallet) {
-      let user = await getUser(subdomain, { _id: wallet.userId });
+      let user = await getUser({ _id: wallet.userId });
       wallet.user = user;
     }
     return wallet;
   };
 
-  findUserByWalletId = async (walletId: number, subdomain: string) => {
+  findUserByWalletId = async (walletId: number) => {
     let wallet = await this._prisma[this._model].findFirst({
       where: {
         status: WalletConst.STATUS_ACTIVE,
@@ -123,7 +134,7 @@ export default class WalletRepository extends BaseRepository {
       }
     });
     if (wallet) {
-      let user = await getUser(subdomain, { _id: wallet.userId });
+      let user = await getUser({ _id: wallet.userId });
       wallet.user = user;
     }
     return wallet;
@@ -139,5 +150,14 @@ export default class WalletRepository extends BaseRepository {
         user: true
       }
     });
+  };
+  getNominalWalletBalance = async (currencyCode: string) => {
+    let sumBalances = await this._prisma
+      .$queryRaw`SELECT IFNULL(SUM(wb.balance),0) balance,IFNULL(SUM(wb.holdBalance),0) holdBalance,
+    IFNULL(SUM(wb.incomingBalance),0) incomingBalance
+     FROM Wallet wl
+    inner join WalletBalance wb ON wb.walletId=wl.id
+    where wl.type!=${WalletConst.NOMINAL} and wl.currencyCode=${currencyCode} limit 1`;
+    return sumBalances[0];
   };
 }

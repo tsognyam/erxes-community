@@ -14,7 +14,7 @@ class WalletService {
     this.walletRepository = new WalletRepository();
     this.walletValidator = new WalletValidator();
   }
-  create = async (params: Prisma.WalletCreateInput, subdomain: string) => {
+  createWallet = async (params: any, subdomain: string) => {
     let { data } = await this.walletValidator.validateCreate(params, subdomain);
     await this.createNominal(data.currencyCode);
     let walletNumber = await this.walletNumberService.generate();
@@ -28,7 +28,7 @@ class WalletService {
         create: {
           balance: 0,
           holdBalance: 0,
-          tradeBalance: 0
+          incomingBalance: 0
         }
       },
       walletNumber: walletNumber.number,
@@ -38,7 +38,7 @@ class WalletService {
     let query = {
       _id: wallet.userId
     };
-    let user = await getUser(subdomain, query);
+    let user = await getUser(query);
     console.log(user);
     wallet.user = user;
     return wallet;
@@ -59,24 +59,35 @@ class WalletService {
     let include = {
       walletNumberModel: true,
       walletBalance: true,
-      stockBalances: true,
-      stockTransactions: true
+      stockBalances: {
+        select: {
+          id: true,
+          stockCode: true,
+          walletId: true,
+          balance: true,
+          holdBalance: true,
+          createdAt: true,
+          updatedAt: true,
+          stock: true
+        }
+      },
+      //stockTransactions: true,
+      user: true
     };
     let wallets = await this.walletRepository.findMany(where, include);
     let userIds = wallets.map(function(obj: any) {
       return obj.userId;
     });
     let query = {
-      query: {
-        _id: { $in: userIds }
-      }
+      _id: { $in: userIds }
     };
-    let users = await getUsers(subdomain, query);
+    let users = await getUsers(query);
     let user: any;
-    wallets.forEach((el: any) => {
+    wallets.forEach((el: any, index) => {
       user = users.find((x: any) => x._id == el.userId);
-      if (user != undefined && user.details != undefined) {
-        el.user = user.details;
+      if (user != undefined) {
+        wallets[index].firstName = user.firstName;
+        wallets[index].lastName = user.lastName;
       }
     });
     return wallets;
@@ -92,11 +103,16 @@ class WalletService {
       params
     );
     let i = 0;
-    // for (i = 0; i < userWallet.length; i++) {
-    //   userWallet[i].walletBalance.availableBalance =
-    //     userWallet[i].walletBalance.balance -
-    //     userWallet[i].walletBalance.holdBalance;
-    // }
+    if (userWallet.length > 0) {
+      for (i = 0; i < userWallet.length; i++) {
+        userWallet[i].walletBalance.availableBalance =
+          parseFloat(userWallet[i].walletBalance.balance) -
+          parseFloat(userWallet[i].walletBalance.holdBalance);
+        userWallet[i].walletBalance.tradeBalance =
+          userWallet[i].walletBalance.availableBalance +
+          parseFloat(userWallet[i].walletBalance.incomingBalance);
+      }
+    }
     return userWallet;
   };
   getNominalWallet = async params => {
@@ -107,7 +123,26 @@ class WalletService {
       CustomException(ErrorCode.NominalWalletNotFoundException);
     return nominalWallet;
   };
-
+  getNominalWalletBalance = async (params: any) => {
+    let nominalWallet = await this.walletValidator.validateGetNominalWallet(
+      params
+    );
+    if (!nominalWallet)
+      CustomException(ErrorCode.NominalWalletNotFoundException);
+    let nominalBalance = await this.walletRepository.getNominalWalletBalance(
+      nominalWallet.currencyCode
+    );
+    nominalWallet.walletBalance.balance = nominalBalance.balance;
+    nominalWallet.walletBalance.holdBalance = nominalBalance.holdBalance;
+    nominalWallet.walletBalance.incomingBalance =
+      nominalBalance.incomingBalance;
+    nominalWallet.walletBalance.availableBalance =
+      nominalBalance.balance - nominalBalance.holdBalance;
+    nominalWallet.walletBalance.tradeBalance =
+      parseFloat(nominalWallet.walletBalance.availableBalance) +
+      parseFloat(nominalWallet.walletBalance.incomingBalance);
+    return nominalWallet;
+  };
   getBalance = async params => {
     var wallet = await this.walletValidator.validateGet(params, true);
 
@@ -115,7 +150,11 @@ class WalletService {
       balance: wallet.walletBalance.balance,
       holdBalance: wallet.walletBalance.holdBalance,
       availableBalance:
-        wallet.walletBalance.balance - wallet.walletBalance.holdBalance
+        wallet.walletBalance.balance - wallet.walletBalance.holdBalance,
+      tradeBalance:
+        wallet.walletBalance.balance -
+        wallet.walletBalance.holdBalance +
+        wallet.walletBalance.incomingBalance
     };
   };
   createNominal = async (currencyCode: string) => {
@@ -127,16 +166,16 @@ class WalletService {
       let walletNumberNominal = await this.walletNumberService.generate();
       let walletNumberNominalFee = await this.walletNumberService.generate();
       let nominalWallet = {
-        name: 'Үндсэн номинал',
+        name: 'Үндсэн номинал ' + currencyCode,
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL,
+        type: WalletConst.NOMINAL,
         walletBalance: {
           create: {
             balance: 0,
             holdBalance: 0,
-            tradeBalance: 0
+            incomingBalance: 0
           }
         },
         walletNumber: walletNumberNominal.number,
@@ -144,16 +183,16 @@ class WalletService {
       };
       await this.walletRepository.create(nominalWallet);
       let nominalWalletFee = {
-        name: 'Шимтгэлийн номинал',
+        name: 'Шимтгэлийн номинал ' + currencyCode,
         currencyCode: currencyCode,
         userId: null,
         status: WalletConst.STATUS_ACTIVE,
-        type: WalletConst.WALLET_TYPES.NOMINAL_FEE,
+        type: WalletConst.NOMINAL_FEE,
         walletBalance: {
           create: {
             balance: 0,
             holdBalance: 0,
-            tradeBalance: 0
+            incomingBalance: 0
           }
         },
         walletNumber: walletNumberNominalFee.number,

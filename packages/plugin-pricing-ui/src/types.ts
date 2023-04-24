@@ -4,6 +4,14 @@ export type Rule = {
   discountType?: string;
   discountValue?: string;
   discountBonusProduct?: string;
+  priceAdjustType?:
+    | 'none'
+    | 'default'
+    | 'round'
+    | 'floor'
+    | 'ceil'
+    | 'endsWith9';
+  priceAdjustFactor?: number;
 };
 
 export type RepeatValue = {
@@ -11,19 +19,34 @@ export type RepeatValue = {
   value: string;
 };
 
-export type DiscountData = {
+export type RepeatRule = {
+  type: string;
+  dayStartValue?: Date;
+  dayEndValue?: Date;
+  weekValue?: RepeatValue[];
+  monthValue?: RepeatValue[];
+  yearStartValue?: Date;
+  yearEndValue?: Date;
+};
+
+export type PricingPlan = {
   name: string;
   status: 'active' | 'archive' | 'draft' | 'completed';
-  value: number;
   type: 'fixed' | 'subtraction' | 'percentage' | 'bonus';
+  value: number;
+  priceAdjustType: 'none' | 'round' | 'floor' | 'ceil' | 'endsWith9';
+  priceAdjustFactor: number;
   bonusProduct?: string;
+  isPriority: boolean;
 
-  applyType: 'category' | 'product';
+  applyType: 'category' | 'product' | 'segment' | 'bundle';
 
   products: string[];
   productsExcluded: string[];
+  productsBundle: string[];
   categories: string[];
   categoriesExcluded: string[];
+  segments: string[];
 
   isStartDateEnabled: boolean;
   isEndDateEnabled: boolean;
@@ -47,9 +70,5 @@ export type DiscountData = {
   expiryRules: Rule[];
 
   isRepeatEnabled: boolean;
-  repeatRules: [
-    {
-      type?: string;
-    }
-  ];
+  repeatRules: RepeatRule[];
 };

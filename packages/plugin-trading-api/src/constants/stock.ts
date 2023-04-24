@@ -11,6 +11,7 @@ export class StockTypeConst extends BaseConst {
   static PCKG = 4;
   static INT_SEC = 5;
   static INT_BOND = 6;
+  static PRIVATE = 7;
 
   static getTypes = () => [
     StockTypeConst.SEC,
@@ -35,6 +36,7 @@ export class OrderType extends BaseConst {
 export class TxnSourceConst extends BaseConst {
   static Self = 1;
   static Broker = 2;
+  static ContractNote = 3;
 }
 
 export class OrderCondition extends BaseConst {

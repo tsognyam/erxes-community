@@ -10,7 +10,7 @@ export type IConfig = {
 
 // query types
 export type ConfigsQueryResponse = {
-  configs: IConfig[];
+  configsGetValue: IConfig;
   loading: boolean;
   refetch: () => void;
 };
@@ -50,6 +50,13 @@ export type IPutResponse = {
 export type PutResponsesQueryResponse = {
   putResponses: IPutResponse[];
   loading: boolean;
+  refetch: () => void;
+};
+
+export type PutResponsesByDateQueryResponse = {
+  putResponsesByDate: any[];
+  loading: boolean;
+  error?: Error;
   refetch: () => void;
 };
 

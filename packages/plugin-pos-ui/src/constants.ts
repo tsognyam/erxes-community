@@ -11,6 +11,12 @@ export const TEXT_COLORS = [
   '#000'
 ];
 
+export const ALLOW_TYPES = [
+  { value: 'eat', label: 'Eat' },
+  { value: 'take', label: 'Take' },
+  { value: 'delivery', label: 'Delivery' }
+];
+
 export const DISTRICTS = [
   { value: '01', label: 'Архангай' },
   { value: '02', label: 'Баян-Өлгий' },
@@ -47,6 +53,7 @@ export const DISTRICTS = [
 export const FILTER_PARAMS = [
   'search',
   'customerId',
+  'customerType',
   'billType',
   'registerNumber',
   'type',
@@ -59,4 +66,37 @@ export const FILTER_PARAMS = [
   'paidDate',
   'userId',
   'hasntUser'
+];
+
+export const PAYMENT_TYPE_ICONS = [
+  'sign-alt',
+  'trees',
+  'food',
+  'fast-mail',
+  'euro',
+  'dollar-alt',
+  'dollar-sign',
+  'calcualtor',
+  'at',
+  'briefcase-alt',
+  'atm-card',
+  'hold',
+  'shoppingcart',
+  'scale',
+  'piggybank',
+  'pencil',
+  'clicker',
+  'alarm',
+  'diamond',
+  'medal',
+  'bell',
+  'capsule',
+  'cart',
+  'coffee',
+  'attach',
+  'pound',
+  'usd-circle',
+  'yen',
+  'ticket',
+  'sync'
 ];

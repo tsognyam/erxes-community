@@ -63,7 +63,7 @@ export const initBroker = async cl => {
             break;
           case 'slots':
             const { slots = [] } = data;
-            await importSlots(models, slots);
+            await importSlots(models, slots, token);
             break;
           default:
             break;
@@ -76,14 +76,14 @@ export const initBroker = async cl => {
     `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
-      const { responseId, orderId } = data;
+      const { responseIds, orderId } = data;
 
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }
       );
-      await models.PutResponses.updateOne(
-        { _id: responseId },
+      await models.PutResponses.updateMany(
+        { _id: { $in: responseIds } },
         { $set: { synced: true } }
       );
     }
@@ -126,7 +126,8 @@ export const initBroker = async cl => {
           ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
     }
@@ -160,13 +161,27 @@ export const initBroker = async cl => {
   );
 };
 
-const sendMessageWrapper = async (
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
+  });
+};
+
+export const sendMessageWrapper = async (
   serviceName: string,
   args: ISendMessageArgs
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    const { action, isRPC } = args;
+    const { action, isRPC, defaultValue } = args;
+
+    if (!client) {
+      return defaultValue;
+    }
 
     // check connected gateway on server and check some plugins isAvailable
     if (isRPC) {
@@ -184,7 +199,7 @@ const sendMessageWrapper = async (
       );
 
       if (!response) {
-        return args.defaultValue;
+        return defaultValue;
       }
     }
 
@@ -236,6 +251,35 @@ export const sendPricingMessage = async (
 ): Promise<any> => {
   return sendMessageWrapper('pricing', args);
 };
+
+export const sendTagsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageWrapper('tags', args);
+};
+
+export const sendSegmentsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('segments', args);
+};
+
+export const sendFormsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('forms', args);
+};
+
+export const fetchSegment = (
+  subdomain: string,
+  segmentId: string,
+  options?,
+  segmentData?: any
+) =>
+  sendSegmentsMessage({
+    subdomain,
+    action: 'fetchSegment',
+    data: { segmentId, options, segmentData },
+    isRPC: true
+  });
 
 export default function() {
   return client;

@@ -9,7 +9,6 @@ import { checkPricing } from '../../utils/pricing';
 import {
   checkOrderAmount,
   checkOrderStatus,
-  checkUnpaidInvoices,
   cleanOrderItems,
   generateOrderNumber,
   getDistrictName,
@@ -27,6 +26,7 @@ import { IConfig } from '../../../models/definitions/configs';
 import { IContext } from '../../types';
 import { IOrderInput } from '../../types';
 import { sendPosMessage } from '../../../messageBroker';
+import { IPaidAmount } from '../../../models/definitions/orders';
 
 interface IPaymentBase {
   billType: string;
@@ -39,9 +39,8 @@ interface ISettlePaymentParams extends IPaymentBase {
 
 export interface IPayment extends IPaymentBase {
   cashAmount?: number;
-  receivableAmount?: number;
   mobileAmount?: number;
-  cardAmount?: number;
+  paidAmounts?: IPaidAmount[];
 }
 
 interface IPaymentParams {
@@ -69,7 +68,10 @@ const orderMutations = {
     doc: IOrderInput,
     { posUser, config, models, subdomain }: IContext
   ) {
-    const { totalAmount, type, customerId, branchId } = doc;
+    const { totalAmount, type, customerId, customerType, branchId } = doc;
+    if (!posUser && !doc.customerId) {
+      throw new Error('order has not owner');
+    }
 
     await validateOrder(models, doc);
     const number = await generateOrderNumber(models, config);
@@ -80,6 +82,7 @@ const orderMutations = {
       type,
       branchId,
       customerId,
+      customerType,
       userId: posUser ? posUser._id : ''
     };
 
@@ -91,7 +94,7 @@ const orderMutations = {
       const order = await models.Orders.createOrder({
         ...doc,
         ...orderDoc,
-        totalAmount: preparedDoc.totalAmount,
+        totalAmount: getTotalAmount(preparedDoc.items),
         posToken: config.token,
         departmentId: config.departmentId,
         taxInfo: getTaxInfo(config)
@@ -118,7 +121,8 @@ const orderMutations = {
           ...order,
           _id: order._id,
           status: order.status,
-          customerId: order.customerId
+          customerId: order.customerId,
+          customerType: order.customerType
         }
       });
 
@@ -135,7 +139,7 @@ const orderMutations = {
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
-    { config, models, subdomain }: IContext
+    { posUser, config, models, subdomain }: IContext
   ) {
     const order = await models.Orders.getOrder(doc._id);
 
@@ -171,6 +175,8 @@ const orderMutations = {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
       customerId: doc.customerId,
+      customerType: doc.customerType,
+      userId: posUser ? posUser._id : '',
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
@@ -187,7 +193,8 @@ const orderMutations = {
         ...updatedOrder,
         _id: updatedOrder._id,
         status: updatedOrder.status,
-        customerId: updatedOrder.customerId
+        customerId: updatedOrder.customerId,
+        customerType: order.customerType
       }
     });
 
@@ -226,7 +233,8 @@ const orderMutations = {
         ...order,
         _id,
         status: order.status,
-        customerId: order.customerId
+        customerId: order.customerId,
+        customerType: order.customerType
       }
     });
 
@@ -271,39 +279,46 @@ const orderMutations = {
 
     checkOrderStatus(order);
 
-    await checkUnpaidInvoices(_id, models);
-
     const items = await models.OrderItems.find({
       orderId: order._id
     }).lean();
 
     await validateOrderPayment(order, doc);
+    const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
 
-    const data = await prepareEbarimtData(
-      models,
-      order,
-      ebarimtConfig,
-      items,
-      doc.billType,
-      doc.registerNumber || order.registerNumber
-    );
-
-    ebarimtConfig.districtName = getDistrictName(
-      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
-    );
-
     try {
-      const response = await models.PutResponses.putData({
-        ...data,
-        config: ebarimtConfig,
-        models
-      });
+      const ebarimtResponses: any[] = [];
 
-      if (response && response.success === 'true') {
-        const now = new Date();
+      const ebarimtDatas = await prepareEbarimtData(
+        models,
+        order,
+        ebarimtConfig,
+        items,
+        doc.billType,
+        doc.registerNumber || order.registerNumber
+      );
 
+      ebarimtConfig.districtName = getDistrictName(
+        (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
+      );
+
+      for (const data of ebarimtDatas) {
+        let response;
+
+        response = await models.PutResponses.putData({
+          ...data,
+          config: ebarimtConfig,
+          models
+        });
+        ebarimtResponses.push(response);
+      }
+
+      if (
+        ebarimtResponses.length &&
+        !ebarimtResponses.filter(er => er.success !== 'true').length
+      ) {
         await models.Orders.updateOne(
           { _id },
           {
@@ -317,6 +332,7 @@ const orderMutations = {
       }
 
       order = await models.Orders.getOrder(_id);
+
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           ...order,
@@ -331,8 +347,9 @@ const orderMutations = {
           subdomain,
           action: 'createOrUpdateOrders',
           data: {
+            posToken: config.token,
             action: 'makePayment',
-            response,
+            responses: ebarimtResponses,
             order,
             items
           }
@@ -341,7 +358,7 @@ const orderMutations = {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
       }
 
-      return response;
+      return ebarimtResponses;
     } catch (e) {
       debugError(e);
 
@@ -353,19 +370,23 @@ const orderMutations = {
     _root,
     {
       _id,
-      cashAmount = 0,
-      receivableAmount = 0,
-      cardAmount = 0,
-      mobileAmount = 0,
-      cardInfo
+      cashAmount,
+      mobileAmount,
+      paidAmounts
+    }: {
+      _id: string;
+      cashAmount?: number;
+      mobileAmount?: number;
+      paidAmounts?: IPaidAmount[];
     },
     { models }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
-    const amount = Number(
-      (cashAmount + receivableAmount + cardAmount).toFixed(2)
-    );
+    const amount =
+      (cashAmount || 0) +
+      (mobileAmount || 0) +
+      (paidAmounts || []).reduce((sum, i) => Number(sum) + Number(i.amount), 0);
 
     checkOrderStatus(order);
     checkOrderAmount(order, amount);
@@ -375,27 +396,12 @@ const orderMutations = {
         cashAmount: cashAmount
           ? (order.cashAmount || 0) + Number(cashAmount.toFixed(2))
           : order.cashAmount || 0,
-        receivableAmount: receivableAmount
-          ? (order.receivableAmount || 0) + Number(receivableAmount.toFixed(2))
-          : order.receivableAmount || 0,
         mobileAmount: mobileAmount
           ? (order.mobileAmount || 0) + Number(mobileAmount.toFixed(2))
           : order.mobileAmount || 0,
-        cardAmount: cardAmount
-          ? (order.cardAmount || 0) + Number(cardAmount.toFixed(2))
-          : order.cardAmount || 0
+        paidAmounts: (order.paidAmounts || []).concat(paidAmounts || [])
       }
     };
-
-    if (cardInfo) {
-      modifier.$push = {
-        cardPayments: {
-          amount: cardAmount + mobileAmount,
-          cardInfo,
-          _id: Random.id()
-        }
-      };
-    }
 
     await models.Orders.updateOne({ _id: order._id }, modifier);
 
@@ -406,18 +412,11 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
-    await checkUnpaidInvoices(_id, models);
 
-    const paidInvoices = await models.QPayInvoices.countDocuments({
-      senderInvoiceNo: _id,
-      status: 'PAID'
-    });
-
-    if (paidInvoices > 0) {
-      throw new Error('There are paid QPay invoices for this order');
-    }
-
-    if ((order.cardPayments || []).length > 0) {
+    if (
+      (order.paidAmounts || []).filter(pa => Object.keys(pa.info).length)
+        .length > 0
+    ) {
       throw new Error('Card payment exists for this order');
     }
 
@@ -431,7 +430,7 @@ const orderMutations = {
   },
 
   /**
-   * Захиалгын cashAmount, cardAmount, mobileAmount талбарууд тусдаа mutation-р
+   * Захиалгын cashAmount, mobileAmount талбарууд тусдаа mutation-р
    * утга авах учир энд эдгээр мөнгөн дүн талбар хүлээж авахгүйгээр хадгалагдсан дүнг
    * шалган тооцоо хаана.
    */
@@ -444,8 +443,6 @@ const orderMutations = {
 
     checkOrderStatus(order);
 
-    await checkUnpaidInvoices(_id, models);
-
     const items = await models.OrderItems.find({
       orderId: order._id
     }).lean();
@@ -454,12 +451,11 @@ const orderMutations = {
     const now = new Date();
 
     const ebarimtConfig: any = config.ebarimtConfig;
-
     try {
-      let response;
+      const ebarimtResponses: any[] = [];
 
       if (billType !== BILL_TYPES.INNER) {
-        const data = await prepareEbarimtData(
+        const ebarimtDatas = await prepareEbarimtData(
           models,
           order,
           ebarimtConfig,
@@ -472,16 +468,22 @@ const orderMutations = {
           (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
         );
 
-        response = await models.PutResponses.putData({
-          ...data,
-          config: ebarimtConfig,
-          models
-        });
+        for (const data of ebarimtDatas) {
+          let response;
+
+          response = await models.PutResponses.putData({
+            ...data,
+            config: ebarimtConfig,
+            models
+          });
+          ebarimtResponses.push(response);
+        }
       }
 
       if (
         billType === BILL_TYPES.INNER ||
-        (response && response.success === 'true')
+        (ebarimtResponses.length &&
+          !ebarimtResponses.filter(er => er.success !== 'true').length)
       ) {
         await models.Orders.updateOne(
           { _id },
@@ -514,7 +516,7 @@ const orderMutations = {
           data: {
             posToken: config.token,
             action: 'makePayment',
-            response,
+            responses: ebarimtResponses,
             order,
             items
           }
@@ -523,7 +525,7 @@ const orderMutations = {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
       }
 
-      return response;
+      return ebarimtResponses;
     } catch (e) {
       debugError(e);
 

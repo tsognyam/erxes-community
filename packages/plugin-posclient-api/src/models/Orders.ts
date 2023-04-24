@@ -5,7 +5,6 @@ export interface IOrderModel extends Model<IOrderDocument> {
   getOrder(_id: string): Promise<IOrderDocument>;
   createOrder(doc: IOrder): Promise<IOrderDocument>;
   updateOrder(_id: string, doc: IOrder): Promise<IOrderDocument>;
-  deleteOrder(_id: string): Promise<{ n: number; ok: number }>;
   getPaidAmount(order: IOrderDocument): number;
 }
 
@@ -35,18 +34,14 @@ export const loadOrderClass = models => {
       return models.Orders.findOne({ _id });
     }
 
-    public static async deleteOrder(_id: string) {
-      await models.Orders.getOrder(_id);
-
-      return models.Orders.deleteOne({ _id });
-    }
-
     public static getPaidAmount(order: IOrderDocument) {
       return (
-        (order.cardAmount || 0) +
         (order.cashAmount || 0) +
-        (order.receivableAmount || 0) +
-        (order.mobileAmount || 0)
+        (order.mobileAmount || 0) +
+        (order.paidAmounts || []).reduce(
+          (sum, i) => Number(sum) + Number(i.amount),
+          0
+        )
       );
     }
   }

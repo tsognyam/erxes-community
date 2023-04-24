@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const paginateDefs = `
   $page: Int
   $perPage: Int
@@ -22,7 +24,8 @@ const listParamsDef = `
   $inDepartmentId: String
   $outDepartmentId: String
   $productCategoryId: String
-  $productId: String
+  $productIds: [String]
+  $vendorIds: [String]
   $jobCategoryId: String
   $jobReferId: String
 `;
@@ -37,7 +40,8 @@ const listParamsValue = `
   inDepartmentId: $inDepartmentId
   outDepartmentId: $outDepartmentId
   productCategoryId: $productCategoryId
-  productId: $productId
+  productIds: $productIds
+  vendorIds: $vendorIds
   jobCategoryId: $jobCategoryId
   jobReferId: $jobReferId
 `;
@@ -50,7 +54,7 @@ const detailParamsDef = `
   $outBranchId: String
   $inDepartmentId: String
   $outDepartmentId: String
-  $productId: String
+  $productIds: [String]
   $productCategoryId: String
   $jobReferId: String
 `;
@@ -63,7 +67,7 @@ const detailParamsValue = `
   outBranchId: $outBranchId
   inDepartmentId: $inDepartmentId
   outDepartmentId: $outDepartmentId
-  productId: $productId
+  productIds: $productIds
   productCategoryId: $productCategoryId
   jobReferId: $jobReferId
 `;
@@ -176,34 +180,25 @@ export const performFields = `
     type
     typeId
   }
+  type
   status
   startAt
   dueDate
   endAt
   count
+  description
+  appendix
+  assignedUserIds
+  customerId
+  companyId
   inBranchId
   inDepartmentId
   outBranchId
   outDepartmentId
- 
-  createdAt
-  createdBy
-  modifiedAt
-  modifiedBy
-  createdUser {
-    ${userFields}
-  }
-  modifiedUser {
-    ${userFields}
-  }
-`;
 
-const performDetailFields = `
-  ${performFields}
-  needProducts
-  resultProducts
-  inProducts
-  outProducts
+  inProductsLen
+  outProductsLen
+
   inDepartment {
     _id
     code
@@ -229,35 +224,41 @@ const performDetailFields = `
     parentId
   }
 
-`;
-
-const performs = `
-  query performs(${detailParamsDef}, ${paginateDefs}) {
-    performs(${detailParamsValue}, ${paginateParams}) {
-      ${performFields}
-    }
+  createdAt
+  createdBy
+  modifiedAt
+  modifiedBy
+  createdUser {
+    ${userFields}
   }
-`;
-
-const performsCount = `
-  query performsCount(${detailParamsDef}) {
-    performsCount(${detailParamsValue})
+  modifiedUser {
+    ${userFields}
   }
-`;
-
-const performDetail = `
-  query performDetail($_id: String) {
-    performDetail(_id: $_id) {
-      ${performDetailFields}
-    }
+  ${
+    isEnabled('contacts')
+      ? `
+          customer {
+            _id
+            firstName
+            lastName
+            middleName
+            primaryEmail
+            primaryPhone
+          }
+          company {
+            _id
+            primaryEmail
+            primaryName
+            primaryPhone
+          }
+        `
+      : ``
   }
+
 `;
 
 export default {
   overallWorks,
   overallWorksCount,
-  overallWorkDetail,
-  performs,
-  performsCount,
-  performDetail
+  overallWorkDetail
 };

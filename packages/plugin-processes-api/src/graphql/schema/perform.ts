@@ -1,15 +1,22 @@
-export const types = `
+export const types = contactsAvailable => `
 
   type Perform @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
 
     overallWorkId: String
     overallWorkKey: OverallWorkKey
+    type: String
+    typeId: String
     status: String
     startAt: Date
     dueDate: Date
     endAt: Date
     count: Float
+    description: String
+    appendix: String
+    assignedUserIds: [String]
+    customerId: String
+    companyId: String
     inBranchId: String
     inDepartmentId: String
     outBranchId: String
@@ -18,11 +25,22 @@ export const types = `
     resultProducts: JSON
     inProducts: JSON
     outProducts: JSON
+    inProductsLen: Int
+    outProductsLen: Int
 
     inBranch: Branch
     inDepartment: Department
     outBranch: Branch
     outDepartment: Department
+
+    ${
+      contactsAvailable
+        ? `
+          company: Company
+          customer: Customer
+        `
+        : ''
+    }
 
     createdAt: Date
     createdBy: String
@@ -30,6 +48,7 @@ export const types = `
     modifiedBy: String
     createdUser: User
     modifiedUser: User
+    series: String
   }
 `;
 
@@ -50,7 +69,7 @@ const qryParams = `
   inDepartmentId: String
   outDepartmentId: String
   productCategoryId: String
-  productId: String
+  productIds: [String]
   jobCategoryId: String
   jobReferId: String
 `;
@@ -59,6 +78,7 @@ export const queries = `
   performs(${paginateParams}, ${qryParams}): [Perform]
   performDetail(_id: String): Perform
   performsCount(${qryParams}): Int
+  series(search: String, productId: String, ids: [String], excludeIds: Boolean, page: Int, perPage: Int): [JSON]
 `;
 
 const performParams = `
@@ -69,6 +89,11 @@ const performParams = `
   dueDate: Date
   endAt: Date
   count: Float
+  description: String
+  appendix: String
+  assignedUserIds: [String]
+  customerId: String
+  companyId: String
   inBranchId: String
   inDepartmentId: String
   outBranchId: String

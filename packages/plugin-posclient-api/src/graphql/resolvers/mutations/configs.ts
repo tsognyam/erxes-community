@@ -39,7 +39,6 @@ const configMutations = {
           adminUsers = [],
           cashiers = [],
           productGroups = [],
-          qpayConfig,
           slots = []
         } = response;
 
@@ -47,13 +46,12 @@ const configMutations = {
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token
         });
 
         await importUsers(models, cashiers, token);
         await importUsers(models, adminUsers, token, true);
-        await importSlots(models, slots);
+        await importSlots(models, slots, token);
         await importProducts(subdomain, models, token, productGroups);
       } else {
         await models.Configs.deleteOne({ token });
@@ -91,7 +89,8 @@ const configMutations = {
       url: `${address}/pos-sync-config`,
       method: 'get',
       headers: { 'POS-TOKEN': config.token || '' },
-      body: { token, type }
+      body: { token, type },
+      timeout: 300000
     });
 
     if (!response) {
@@ -100,29 +99,24 @@ const configMutations = {
 
     switch (type) {
       case 'config':
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          slots = [],
-          qpayConfig
-        } = response;
-
+        const { pos = {}, adminUsers = [], cashiers = [] } = response;
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          qpayConfig,
           token: config.token
         });
 
         await importUsers(models, cashiers, config.token);
         await importUsers(models, adminUsers, config.token, true);
-        await importSlots(models, slots);
 
         break;
       case 'products':
         const { productGroups = [] } = response;
         await preImportProducts(models, token, productGroups);
         await importProducts(subdomain, models, token, productGroups);
+        break;
+      case 'slots':
+        const { slots = [] } = response;
+        await importSlots(models, slots, token);
         break;
     }
     return 'success';
@@ -204,17 +198,17 @@ const configMutations = {
   },
 
   async deleteOrders(_root, _param, { models }: IContext) {
-    const orderFilter = {
-      synced: false,
-      status: ORDER_STATUSES.NEW
-    };
+    // const orderFilter = {
+    //   synced: false,
+    //   status: ORDER_STATUSES.NEW
+    // };
 
-    const count = await models.Orders.find({ ...orderFilter }).count();
+    // const count = await models.Orders.find({ ...orderFilter }).count();
 
-    await models.Orders.deleteMany({ ...orderFilter });
+    // await models.Orders.deleteMany({ ...orderFilter });
 
     return {
-      deletedCount: count
+      deletedCount: 0
     };
   },
 

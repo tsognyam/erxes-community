@@ -15,12 +15,12 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
-    'riskassessment:riskConformity:find',
+    'riskassessment:riskAssessments:find',
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
       return {
-        data: await models.RiskConformity.riskConformity(data),
+        data: await models.RiskAssessments.find(data),
         status: 'success'
       };
     }
@@ -51,6 +51,14 @@ export const sendCoreMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+export const sendTagsMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'tags',
     ...args
   });
 };

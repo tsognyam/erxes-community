@@ -1,7 +1,5 @@
-import { IOrdersSummary, QueryResponse } from '../types';
+import { QueryResponse } from '../types';
 import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
-
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IOrder = {
@@ -11,9 +9,9 @@ export type IOrder = {
   paidDate: Date;
   number: string;
   customerId: string;
-  cardAmount: number;
+  customerType: string;
   cashAmount: number;
-  receivableAmount: number;
+  paidAmounts: any;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;
@@ -30,7 +28,14 @@ export type IOrder = {
   posToken: string;
   posName: string;
   user: IUser;
-  customer: ICustomer;
+  customer: {
+    _id: string;
+    code: string;
+    primaryPhone: string;
+    firstName: string;
+    primaryEmail: string;
+    lastName: string;
+  };
   origin?: string;
   syncedErkhet: boolean;
 };
@@ -60,7 +65,7 @@ export type ListQueryVariables = {
 };
 
 export type OrdersSummaryQueryResponse = {
-  posOrdersSummary: IOrdersSummary;
+  posOrdersSummary: any;
   loading: boolean;
   refetch: () => void;
 };
@@ -97,9 +102,8 @@ export type PosOrderChangePaymentsMutationResponse = {
     variables: {
       _id: string;
       cashAmount: number;
-      receivableAmount: number;
-      cardAmount: number;
       mobileAmount: number;
+      paidAmounts: any[];
     };
   }) => Promise<any>;
 };

@@ -1,5 +1,9 @@
 import { generateModels, IModels } from './connectionResolver';
-import { sendPosclientMessage, sendProductsMessage } from './messageBroker';
+import {
+  sendPosclientMessage,
+  sendPricingMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories } from './utils';
 
@@ -26,10 +30,22 @@ const isInProduct = async (
 ) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
-  let allProductIds: string[] = [];
+  const followProductIds: string[] = [];
 
   if (pos.deliveryConfig && pos.deliveryConfig.productId) {
-    allProductIds.push(pos.deliveryConfig.productId);
+    followProductIds.push(pos.deliveryConfig.productId);
+  }
+
+  if (pos.catProdMappings && pos.catProdMappings.length) {
+    for (const map of pos.catProdMappings) {
+      if (!followProductIds.includes(map.productId)) {
+        followProductIds.push(map.productId);
+      }
+    }
+  }
+
+  if (followProductIds.includes(productId)) {
+    return true;
   }
 
   let allExcludedProductIds: string[] = [];
@@ -136,7 +152,44 @@ export const afterMutationHandlers = async (subdomain, params) => {
   if (type === 'products:product') {
     for (const pos of poss) {
       if (await isInProduct(subdomain, models, pos, params.object._id)) {
-        await handler(subdomain, params, action, 'product', pos);
+        const item = params.updatedDocument || params.object;
+
+        const pricing = await sendPricingMessage({
+          subdomain,
+          action: 'checkPricing',
+          data: {
+            prioritizeRule: 'only',
+            totalAmount: 0,
+            departmentId: pos.departmentId,
+            branchId: pos.branchId,
+            products: [
+              {
+                productId: item._id,
+                quantity: 1,
+                price: item.unitPrice
+              }
+            ]
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+
+        const discount = pricing[item._id] || {};
+
+        if (Object.keys(discount).length) {
+          let unitPrice = (item.unitPrice -= discount.value);
+          if (unitPrice < 0) {
+            unitPrice = 0;
+          }
+
+          if (params.updatedDocument) {
+            params.updatedDocument.unitPrice = unitPrice;
+          } else {
+            params.object.unitPrice = unitPrice;
+          }
+        }
+
+        await handler(subdomain, { ...params }, action, 'product', pos);
       }
     }
     return;

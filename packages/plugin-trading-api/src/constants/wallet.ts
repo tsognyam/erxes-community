@@ -1,13 +1,27 @@
 import BaseConst from './base';
 export class WalletConst extends BaseConst {
-  static readonly WALLET_TYPES = {
-    NOMINAL: 1,
-    NOMINAL_FEE: 2,
-    USER: 3,
-    ADMIN: 4,
-    MCSD: 5
-  };
+  // static readonly WALLET_TYPES = {
+  //   NOMINAL: 1,
+  //   NOMINAL_FEE: 2,
+  //   USER: 3,
+  //   ADMIN: 4,
+  //   MCSD: 5
+  // };
+
+  //check
+  static NOMINAL = 1;
+  static NOMINAL_FEE = 2;
+  // static TYPE_NOMINAL = 1;
+  static TYPE_USER = 3;
+  static TYPE_ADMIN = 4;
+  static TYPE_MCSD = 5;
+
   static STATUS_BLOCKED = 3;
+}
+
+export class CurrencyConst extends BaseConst {
+  static DEFAULT = process.env.DEFAULT_CURRENCY;
+  static USD = 'USD';
 }
 export class TransactionConst extends BaseConst {
   static STATUS_SUCCESS = 1;

@@ -196,3 +196,39 @@ export const CustomSideContent = styledTS<{
 }>(styled(SideContent))`
   width: ${props => (props.wide ? '550px' : '290px')};
 `;
+
+export const AddTrigger = styled.div`
+  display: block;
+  margin: ${dimensions.coreSpacing}px;
+  text-align: center;
+
+  button {
+    font-size: 11px;
+    padding-bottom: 7px;
+  }
+`;
+
+export const PrintableWrapper = styled.div`
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  display: none;
+  pointer-events: none;
+`;
+
+export const SidebarContent = styled.div`
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+`;
+
+export const PrintContents = styledTS<{ hasBorder?: boolean }>(styled.div)`
+  display: flex;
+  flex: 1;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  overflow-x: auto;
+  border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
+`;

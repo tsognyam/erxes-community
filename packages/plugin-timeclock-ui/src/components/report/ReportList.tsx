@@ -1,193 +1,268 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { menuTimeClock } from '../../menu';
-import { router, __ } from '@erxes/ui/src/utils';
+import { loadDynamicComponent, router, __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Select from 'react-select-plus';
-import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 import Button from '@erxes/ui/src/components/Button';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ReportRow from './ReportRow';
 import { IReport } from '../../types';
-import {
-  FilterWrapper,
-  Row,
-  FilterItem,
-  CustomRangeContainer
-} from '../../styles';
+import { FilterItem, FlexRow, InlineBlock, ToggleButton } from '../../styles';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   queryParams: any;
   history: any;
-  branchesList: any;
   reports: IReport[];
+  totalCount: number;
+
+  showSideBar: (sideBar: boolean) => void;
+  getActionBar: (actionBar: any) => void;
+  getPagination: (pagination: any) => void;
+
+  exportReport: () => void;
 };
 
 function ReportList(props: Props) {
-  const { history, branchesList, reports } = props;
-  const [selectedBranchId, setBranches] = useState(['']);
-  const [selectedDeptId, setDepartments] = useState('');
-  const [selectedType, setType] = useState('By Employee');
-  const content = (
-    <Table>
-      <thead>
-        <tr>
-          <th>{__('Team member')}</th>
-          <th>{__('Shift date')}</th>
-          <th>{__('Shift duration')}</th>
-          <th>{__('Mins late')}</th>
-          <th>{__('Shifts total')}</th>
-          <th>{__('Total mins late')}</th>
-          <th>{__('Total mins absent')}</th>
-        </tr>
-      </thead>
-      {reports &&
-        reports.map(reportt => (
-          <ReportRow
-            key={Math.random()}
-            displayType={selectedType}
-            report={reportt}
-          />
-        ))}
-    </Table>
+  const {
+    history,
+    reports,
+    queryParams,
+    totalCount,
+    getActionBar,
+    getPagination,
+    exportReport,
+    showSideBar
+  } = props;
+
+  const [reportType, setType] = useState(queryParams.reportType);
+  const [isSideBarOpen, setIsOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true' ? true : false
   );
+
+  const onToggleSidebar = () => {
+    const toggleIsOpen = !isSideBarOpen;
+    setIsOpen(toggleIsOpen);
+    localStorage.setItem('isSideBarOpen', toggleIsOpen.toString());
+  };
+
+  const renderTableHead = () => {
+    switch (reportType) {
+      case 'Урьдчилсан':
+        return (
+          <tr>
+            <th>{__('Team member Id')}</th>
+            <th>{__('Last Name')}</th>
+            <th>{__('First Name')}</th>
+            <th>{__('Position')}</th>
+            <th>{__('Scheduled days')}</th>
+            <th>{__('Worked days')}</th>
+            <th>{__('Explanation')}</th>
+          </tr>
+        );
+      case 'Сүүлд':
+        return (
+          <>
+            <tr>
+              <th rowSpan={2}>{__('Team member Id')}</th>
+              <th rowSpan={2}>{__('Last Name')}</th>
+              <th rowSpan={2}>{__('First Name')}</th>
+              <th rowSpan={2}>{__('Position')}</th>
+              <th colSpan={2}>{__('Scheduled time')}</th>
+              <th colSpan={6} style={{ textAlign: 'center' }}>
+                {__('Timeclock info')}
+              </th>
+              <th colSpan={4} style={{ textAlign: 'center' }}>
+                {__('Absence info')}
+              </th>
+              <th rowSpan={2}>{__('Checked by member')}</th>
+            </tr>
+            <tr>
+              <td>{__('Days')}</td>
+              <td>{__('Hours')}</td>
+              <td>{__('Worked days')}</td>
+              <td>{__('Worked hours')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Total')}</td>
+              <td>{__('Mins Late')}</td>
+              <td>{__('Томилолтоор ажилласан цаг')}</td>
+              <td>{__('Чөлөөтэй цаг цалинтай')}</td>
+              <td>{__('Чөлөөтэй цаг цалингүй')}</td>
+              <td>{__('Өвдсөн цаг /ХЧТАТ бодох цаг/')}</td>
+            </tr>
+          </>
+        );
+      case 'Сүүлд 2':
+        return (
+          <>
+            <tr>
+              <th rowSpan={2}>{__('Branch name')}</th>
+              <th rowSpan={2}>{__('Department name')}</th>
+              <th rowSpan={2}>{__('Number of employees')}</th>
+              <th rowSpan={2}>{__('Planned hours')}</th>
+
+              <th colSpan={4} style={{ textAlign: 'center' }}>
+                {__('Timeclock info')}
+              </th>
+
+              <th rowSpan={2}>{__('Total worked')}</th>
+              <th rowSpan={2}>{__('Overnight')}</th>
+              <th rowSpan={2}>{__('Late mins')}</th>
+
+              <th colSpan={2} style={{ textAlign: 'center' }}>
+                {__('Absence info')}
+              </th>
+            </tr>
+            <tr>
+              <td rowSpan={2}>{__('Worked hours')}</td>
+              <td rowSpan={2}>{__('Face terminal')}</td>
+              <td rowSpan={2}>{__('Shift request')}</td>
+              <td rowSpan={2}>{__('Overtime')}</td>
+
+              <td rowSpan={2}>{__('Paid absence')}</td>
+              <td rowSpan={2}>{__('Unpaid absence')}</td>
+            </tr>
+          </>
+        );
+      case 'Pivot':
+        return (
+          <>
+            <tr>
+              <th
+                colSpan={4}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('General Information')}
+              </th>
+              <th>{__('Time')}</th>
+              <th
+                colSpan={3}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Schedule')}
+              </th>
+              <th
+                colSpan={8}
+                style={{ textAlign: 'center', border: '1px solid #EEE' }}
+              >
+                {__('Performance')}
+              </th>
+            </tr>
+            <tr>
+              <td>{__('Team member Id')}</td>
+              <td>{__('Last Name')}</td>
+              <td>{__('First Name')}</td>
+              <td>{__('Position')}</td>
+              <td>{__('Date')}</td>
+              <td>{__('Planned Check In')}</td>
+              <td>{__('Planned Check Out')}</td>
+              <td>{__('Planned Duration')}</td>
+              <td>{__('Check In')}</td>
+              <td>{__('In Device')}</td>
+              <td>{__('Check Out')}</td>
+              <td>{__('Out Device')}</td>
+              <td>{__('Location')}</td>
+              <td>{__('Duration')}</td>
+              <td>{__('Overtime')}</td>
+              <td>{__('Overnight')}</td>
+              <td>{__('Mins Late')}</td>
+            </tr>
+          </>
+        );
+    }
+  };
+
+  const content = () => {
+    // custom report for bichil-globus
+    const bichilTable = loadDynamicComponent('bichilReportTable', {
+      reportType,
+      queryParams
+    });
+
+    if (bichilTable) {
+      return bichilTable;
+    }
+
+    return (
+      <Table>
+        <thead>{renderTableHead()}</thead>
+        {reports &&
+          reports.map(reportt => (
+            <ReportRow
+              key={Math.random()}
+              reportType={reportType}
+              report={reportt}
+            />
+          ))}
+      </Table>
+    );
+  };
 
   const renderSelectionBar = () => {
     const onTypeSelect = type => {
-      localStorage.setItem('displayType', JSON.stringify(type));
-      const selType = JSON.parse(localStorage.getItem('displayType') || '[]')
-        .value;
-      setType(selType);
+      router.setParams(history, { reportType: type.value });
+      setType(type.value);
     };
 
     return (
-      <>
+      <FlexRow>
+        <ToggleButton
+          id="btn-inbox-channel-visible"
+          isActive={isSideBarOpen}
+          onClick={onToggleSidebar}
+        >
+          <Icon icon="subject" />
+        </ToggleButton>
         <FilterItem>
           <FormGroup>
             <ControlLabel>Select type</ControlLabel>
             <Select
-              value={JSON.parse(localStorage.getItem('displayType') || '[]')}
+              value={reportType}
               onChange={onTypeSelect}
               placeholder="Select type"
               multi={false}
-              options={['By Employee', 'By Group'].map(ipt => ({
+              options={['Урьдчилсан', 'Сүүлд', 'Сүүлд 2', 'Pivot'].map(ipt => ({
                 value: ipt,
                 label: __(ipt)
               }))}
             />
           </FormGroup>
         </FilterItem>
-        <FilterItem>
-          <CustomRangeContainer>
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Starting date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <DateControl
-              // value={new Date()}
-              required={false}
-              name="startDate"
-              // onChange={onSelectDateChange}
-              placeholder={'Ending date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-            <Button btnStyle="primary">Filter</Button>
-          </CustomRangeContainer>
-        </FilterItem>
-      </>
+      </FlexRow>
     );
   };
-  const renderFilter = () => {
-    const renderBranchOptions = (branches: any[]) => {
-      return branches.map(branch => ({
-        value: branch._id,
-        label: branch.title
-      }));
-    };
+  const renderExportBtn = () => {
+    const bichilExportReportBtn = loadDynamicComponent(
+      'bichilExportReportBtn',
+      { queryParams }
+    );
 
-    const onBranchSelect = selectedBranch => {
-      setBranches(selectedBranch);
-
-      const branchIds: any[] = [];
-      selectedBranch.map(branch => branchIds.push(branch.value));
-
-      router.setParams(history, {
-        branchIds: `${branchIds}`
-      });
-    };
-
-    const onDepartmentSelect = dept => {
-      setDepartments(dept);
-      const departmentIds: any[] = [];
-
-      dept.map(department => departmentIds.push(department));
-
-      router.setParams(history, {
-        departmentIds: `${departmentIds}`
-      });
-    };
-
+    if (bichilExportReportBtn) {
+      return bichilExportReportBtn;
+    }
     return (
-      <FilterWrapper>
-        <FilterItem>
-          <SelectDepartments
-            isRequired={false}
-            defaultValue={selectedDeptId}
-            onChange={onDepartmentSelect}
-          />
-        </FilterItem>
-        <FilterItem>
-          <FormGroup>
-            <ControlLabel>Branches</ControlLabel>
-            <Row>
-              <Select
-                value={selectedBranchId}
-                onChange={onBranchSelect}
-                placeholder="Select branch"
-                multi={true}
-                options={branchesList && renderBranchOptions(branchesList)}
-              />
-            </Row>
-          </FormGroup>
-        </FilterItem>
-        <div style={{ justifySelf: 'end' }}>
-          <Button>Export</Button>
-        </div>
-      </FilterWrapper>
+      <div>
+        <Button onClick={exportReport}>Export</Button>
+      </div>
     );
   };
 
   const actionBar = (
     <Wrapper.ActionBar
       left={renderSelectionBar()}
-      right={renderFilter()}
+      right={renderExportBtn()}
       hasFlex={true}
     />
   );
 
-  return (
-    <Wrapper
-      header={<Wrapper.Header title={__('Reports')} submenu={menuTimeClock} />}
-      actionBar={actionBar}
-      content={
-        <DataWithLoader
-          data={content}
-          loading={false}
-          emptyText={__('Theres no timeclock')}
-          emptyImage="/images/actions/8.svg"
-        />
-      }
-      transparent={false}
-      hasBorder={true}
-    />
-  );
+  getPagination(<Pagination count={totalCount} />);
+  showSideBar(isSideBarOpen);
+  getActionBar(actionBar);
+
+  return content();
 }
 
 export default ReportList;

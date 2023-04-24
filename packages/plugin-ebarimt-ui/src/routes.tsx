@@ -23,21 +23,41 @@ const PutResponses = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './containers/PutResponses')
 );
 
+const PutResponsesByDate = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/PutResponsesByDate'
+  )
+);
+
 const GeneralSetting = () => {
-  return <Settings component={GeneralSettings} />;
+  return <Settings component={GeneralSettings} configCode="EBARIMT" />;
 };
 
 const StageSetting = () => {
-  return <Settings component={StageSettings} />;
+  return <Settings component={StageSettings} configCode="stageInEbarimt" />;
 };
 
 const ReturnStageSetting = () => {
-  return <Settings component={ReturnStageSettings} />;
+  return (
+    <Settings
+      component={ReturnStageSettings}
+      configCode="returnStageInEbarimt"
+    />
+  );
 };
 
 const PutResponsesComponent = ({ location, history }) => {
   return (
     <PutResponses
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const PutResponsesByDateComponent = ({ location, history }) => {
+  return (
+    <PutResponsesByDate
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -60,6 +80,10 @@ const routes = () => {
         component={ReturnStageSetting}
       />
       <Route path="/put-responses" component={PutResponsesComponent} />
+      <Route
+        path="/put-responses-by-date"
+        component={PutResponsesByDateComponent}
+      />
     </React.Fragment>
   );
   // response: returnResponse

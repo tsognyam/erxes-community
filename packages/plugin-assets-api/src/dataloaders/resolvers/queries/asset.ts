@@ -1,23 +1,27 @@
 import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { ASSET_STATUSES } from '../../../common/constant/asset';
-import { IContext } from '../../../connectionResolver';
+import { IContext, IModels } from '../../../connectionResolver';
 import messageBroker from '../../../messageBroker';
 
-const generateCommonAssetFilter = async (
+export const generateCommonAssetFilter = async (
+  models: IModels,
   {
     categoryId,
     parentId,
     searchValue,
     ids,
     excludeIds,
+    withKnowledgebase,
     pipelineId,
     boardId,
     ignoreIds,
+    irregular,
     ...pagintationArgs
   }: {
     ids: string[];
     excludeIds: boolean;
+    withKnowledgebase: boolean;
     categoryId: string;
     parentId: string;
     searchValue: string;
@@ -26,10 +30,11 @@ const generateCommonAssetFilter = async (
     pipelineId: string;
     boardId: string;
     ignoreIds: string[];
-  },
-  models
+    irregular: boolean;
+  }
 ) => {
   const filter: any = {};
+
   if (ignoreIds) {
     filter._id = { $nin: ignoreIds };
   }
@@ -69,13 +74,35 @@ const generateCommonAssetFilter = async (
   if (searchValue) {
     const fields = [
       {
-        name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        name: {
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+        }
       },
-      { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+      {
+        code: {
+          $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+        }
+      }
     ];
 
     filter.$or = fields;
   }
+
+  if (withKnowledgebase) {
+    filter.$and = [
+      { kbArticleIds: { $exists: true } },
+      { 'kbArticleIds.0': { $exists: true } }
+    ];
+  }
+
+  if (irregular) {
+    const irregularAssets = await models.Assets.find({
+      categoryId: { $in: ['', null, undefined] },
+      parentId: { $in: ['', null, undefined] }
+    });
+    filter._id = { $in: irregularAssets.map(asset => asset._id) };
+  }
+
   return filter;
 };
 
@@ -95,6 +122,8 @@ const assetQueries = {
     }: {
       ids: string[];
       excludeIds: boolean;
+      withKnowledgebase: boolean;
+      irregular: boolean;
       categoryId: string;
       parentId: string;
       searchValue: string;
@@ -108,20 +137,17 @@ const assetQueries = {
   ) {
     let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(
-      {
-        categoryId,
-        parentId,
-        searchValue,
-        ids,
-        excludeIds,
-        pipelineId,
-        boardId,
-        ignoreIds,
-        ...pagintationArgs
-      },
-      models
-    );
+    filter = await generateCommonAssetFilter(models, {
+      categoryId,
+      parentId,
+      searchValue,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      ignoreIds,
+      ...pagintationArgs
+    });
 
     filter.status = { $ne: ASSET_STATUSES.DELETED };
 
@@ -137,16 +163,20 @@ const assetQueries = {
         boardId,
         ...pagintationArgs
       },
+
       await paginate(
         models.Assets.find(filter)
           .sort({ order: 1 })
           .lean(),
         pagintationArgs
       ),
+
       messageBroker(),
+
       user
     );
   },
+
   async assetsTotalCount(
     _root,
     params,
@@ -154,11 +184,12 @@ const assetQueries = {
   ) {
     let filter: any = commonQuerySelector;
 
-    filter = await generateCommonAssetFilter(params, models);
+    filter = await generateCommonAssetFilter(models, params);
     filter.status = { $ne: ASSET_STATUSES.DELETED };
 
     return models.Assets.find(filter).countDocuments();
   },
+
   assetDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Assets.findOne({ _id }).lean();
   }

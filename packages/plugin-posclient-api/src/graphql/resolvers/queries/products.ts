@@ -3,29 +3,56 @@ import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
-import { sendInventoriesMessage } from '../../../messageBroker';
+import {
+  sendInventoriesMessage,
+  sendPricingMessage
+} from '../../../messageBroker';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { Builder } from '../../../utils';
 
-interface IProductParams {
+interface ICommonParams {
+  sortField?: string;
+  sortDirection?: number;
+  page?: number;
+  perPage?: number;
+}
+interface IProductParams extends ICommonParams {
+  ids?: string[];
+  excludeIds?: boolean;
   type?: string;
   categoryId?: string;
   searchValue?: string;
   branchId?: string;
-  page?: number;
-  perPage?: number;
+  tag?: string;
+  pipelineId?: string;
+  boardId?: string;
+  segment?: string;
+  segmentData?: string;
 }
 
-interface ICategoryParams {
+interface ICategoryParams extends ICommonParams {
   parentId: string;
   searchValue: string;
   excludeEmpty?: boolean;
+  meta?: string;
 }
 
 const generateFilter = async (
+  subdomain: string,
   models: IModels,
   token: string,
-  { type, categoryId, searchValue }: IProductParams
+  {
+    type,
+    categoryId,
+    searchValue,
+    tag,
+    ids,
+    excludeIds,
+    segment,
+    segmentData,
+    ...paginationArgs
+  }: IProductParams
 ) => {
   const filter: any = {
     status: { $ne: PRODUCT_STATUSES.DELETED },
@@ -49,6 +76,18 @@ const generateFilter = async (
     filter.categoryId = { $in: relatedCategoryIds };
   }
 
+  if (ids && ids.length > 0) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+    if (!paginationArgs.page && !paginationArgs.perPage) {
+      paginationArgs.page = 1;
+      paginationArgs.perPage = 100;
+    }
+  }
+
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
+  }
+
   // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
@@ -59,14 +98,34 @@ const generateFilter = async (
       { barcodes: { $in: [searchValue] } }
     ];
   }
+
+  if (segment || segmentData) {
+    const qb = new Builder(models, subdomain, { segment, segmentData }, {});
+
+    await qb.buildAllQueries();
+
+    const { list } = await qb.runQueries();
+
+    filter._id = { $in: list.map(l => l._id) };
+  }
+
   return filter;
 };
 
-const generateFilterCat = ({ token, parentId, searchValue }) => {
+const generateFilterCat = ({ token, parentId, searchValue, meta }) => {
   const filter: any = { tokens: { $in: [token] } };
+  filter.status = { $nin: ['disabled', 'archived'] };
 
   if (parentId) {
     filter.parentId = parentId;
+  }
+
+  if (meta) {
+    if (!isNaN(meta)) {
+      filter.meta = { $lte: Number(meta) };
+    } else {
+      filter.meta = meta;
+    }
   }
 
   if (searchValue) {
@@ -84,19 +143,34 @@ const productQueries = {
       categoryId,
       branchId,
       searchValue,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      segment,
+      segmentData,
+      sortField,
+      sortDirection,
       ...paginationArgs
     }: IProductParams,
     { models, subdomain, config }: IContext
   ) {
-    let filter = await generateFilter(models, config.token, {
+    let filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
       searchValue
     });
 
+    let sortParams: any = { code: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
     const paginatedProducts = await paginate(
       models.Products.find(filter)
-        .sort('code')
+        .sort(sortParams)
         .lean(),
       paginationArgs
     );
@@ -201,9 +275,9 @@ const productQueries = {
   async poscProductsTotalCount(
     _root,
     { type, categoryId, searchValue }: IProductParams,
-    { models, config }: IContext
+    { models, config, subdomain }: IContext
   ) {
-    const filter = await generateFilter(models, config.token, {
+    const filter = await generateFilter(subdomain, models, config.token, {
       type,
       categoryId,
       searchValue
@@ -214,18 +288,36 @@ const productQueries = {
 
   async poscProductCategories(
     _root,
-    { parentId, searchValue, excludeEmpty }: ICategoryParams,
+    {
+      parentId,
+      searchValue,
+      excludeEmpty,
+      meta,
+      sortDirection,
+      sortField,
+      ...paginationArgs
+    }: ICategoryParams,
     { models, config }: IContext
   ) {
     const filter = generateFilterCat({
       token: config.token,
       parentId,
-      searchValue
+      searchValue,
+      meta
     });
 
-    const categories = await models.ProductCategories.find(filter).sort({
-      order: 1
-    });
+    let sortParams: any = { order: 1 };
+
+    if (sortField) {
+      sortParams = { [sortField]: sortDirection };
+    }
+
+    const categories = await paginate(
+      models.ProductCategories.find(filter)
+        .sort(sortParams)
+        .lean(),
+      paginationArgs
+    );
     const list: IProductCategoryDocument[] = [];
 
     if (excludeEmpty) {
@@ -248,13 +340,18 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    { parentId, searchValue }: { parentId: string; searchValue: string },
+    {
+      parentId,
+      searchValue,
+      meta
+    }: { parentId: string; searchValue: string; meta: string },
     { models, config }: IContext
   ) {
     const filter = await generateFilterCat({
       token: config.token,
       parentId,
-      searchValue
+      searchValue,
+      meta
     });
     return models.ProductCategories.find(filter).countDocuments();
   },
@@ -269,6 +366,30 @@ const productQueries = {
     { models }: IContext
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
+  },
+
+  async getPriceInfo(
+    _root,
+    { productId }: { productId: string },
+    { models, subdomain, config }: IContext
+  ) {
+    const product = await models.Products.getProduct({ _id: productId });
+
+    const d = await sendPricingMessage({
+      subdomain,
+      action: 'getQuanityRules',
+      data: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [
+          { ...product, unitPrice: (product.prices || {})[config.token] }
+        ]
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+
+    return JSON.stringify(d);
   }
 };
 

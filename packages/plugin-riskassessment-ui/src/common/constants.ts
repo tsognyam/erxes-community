@@ -58,13 +58,19 @@ export const calculateMethods = [
   {
     value: 'Multiply',
     label: 'Multiply'
+  },
+  {
+    value: 'Average',
+    label: 'Average'
   }
 ];
 
 export const subMenu = [
-  { title: 'Risk assessments', link: '/settings/risk-assessments' },
-  { title: 'Configs', link: '/settings/risk-assessment-configs' },
-  { title: 'Submissions', link: '/settings/risk-assessment-submissions' }
+  { title: 'Indicators', link: '/settings/risk-indicators' },
+  { title: 'Groups', link: '/settings/risk-indicators-groups' },
+  { title: 'Assessments', link: '/settings/risk-assessments' },
+  { title: 'Operations', link: '/settings/operations' },
+  { title: 'Configs', link: '/settings/risk-indicators-configs' }
 ];
 
 export const cardTypes = [

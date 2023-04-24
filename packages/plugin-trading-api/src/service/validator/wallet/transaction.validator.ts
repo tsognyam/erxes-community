@@ -21,7 +21,8 @@ export class TransactionValidator extends WalletValidator {
             TransactionConst.TYPE_ORDER
           )
           .required(),
-        description: this._joi.string().default('')
+        description: this._joi.string().default(''),
+        dater: this._joi.date().default(new Date())
       },
       params
     );
@@ -94,7 +95,7 @@ export class TransactionValidator extends WalletValidator {
   ) => {
     var maxBalance = 1000000000;
     var minBalance = 0;
-    if (wallet.type == WalletConst.WALLET_TYPES.NOMINAL) {
+    if (wallet.type == WalletConst.NOMINAL) {
       minBalance = -1000000000;
     }
 
@@ -146,25 +147,25 @@ export class TransactionValidator extends WalletValidator {
   validateStatement = async (params: any) => {
     var { data } = this.validate(
       {
-        walletId: this._joi.number().required(),
-        userId: this._joi.number().required(),
-        startDate: this._joi.date().required(),
-        endDate: this._joi.date().required(),
+        startDate: this._joi.date(),
+        endDate: this._joi.date(),
         skip: this._joi.number(),
-        take: this._joi.number()
+        take: this._joi.number(),
+        orderBy: this._joi.any(),
+        status: this._joi.number()
       },
       params
     );
-    this.checkWallet(
-      {
-        id: data.walletId,
-        status: WalletConst.STATUS_ACTIVE,
-        userId: data.userId
-      },
-      {
-        walletBalance: true
-      }
-    );
+    // this.checkWallet(
+    //   {
+    //     id: data.walletId,
+    //     status: WalletConst.STATUS_ACTIVE,
+    //     userId: data.userId
+    //   },
+    //   {
+    //     walletBalance: true
+    //   }
+    // );
 
     return data;
   };

@@ -19,18 +19,29 @@ interface IAttachment {
   size: number;
 }
 
+export interface ISubUom {
+  uomId: string;
+  ratio: number;
+}
 interface IProductCommonFields {
   name: string;
   code: string;
   description?: string;
   attachment?: IAttachment;
+  tokens: string[];
+}
+
+export interface IPrice {
+  [token: string]: number;
 }
 
 export interface IProduct extends IProductCommonFields {
   categoryId?: string;
   type?: string;
   sku?: string;
-  unitPrice?: number;
+  barcodes?: string[];
+  barcodeDescription?: string;
+  prices: IPrice;
   customFieldsData?: ICustomField[];
   tagIds?: string[];
   status?: string;
@@ -38,6 +49,10 @@ export interface IProduct extends IProductCommonFields {
   vendorCode?: string;
   mergedIds?: string[];
   attachmentMore?: IAttachment[];
+  uomId?: string;
+  subUoms?: ISubUom[];
+  taxType?: string;
+  taxCode?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -107,10 +122,9 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Sum unit of measurements'
     }),
-    unitPrice: field({
-      type: Number,
-      optional: true,
-      label: 'Unit price'
+    prices: field({
+      type: Object,
+      label: 'Unit price by token'
     }),
     customFieldsData: field({
       type: [customFieldSchema],
@@ -129,7 +143,9 @@ export const productSchema = schemaWrapper(
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
     attachmentMore: field({ type: [attachmentSchema] }),
-    tokens: field({ type: [String] })
+    tokens: field({ type: [String] }),
+    taxType: field({ type: String, optional: true, label: 'VAT type' }),
+    taxCode: field({ type: String, optional: true, label: '' })
   })
 );
 
@@ -141,6 +157,7 @@ export const productCategorySchema = schemaHooksWrapper(
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
     description: field({ type: String, optional: true, label: 'Description' }),
+    meta: field({ type: String, optional: true, label: 'Meta' }),
     attachment: field({ type: attachmentSchema }),
     status: field({
       type: String,

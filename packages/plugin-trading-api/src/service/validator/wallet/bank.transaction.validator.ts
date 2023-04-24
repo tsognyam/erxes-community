@@ -17,7 +17,7 @@ export default class BankTransactionValidator extends BaseValidator {
       { id: data.walletId },
       { walletBalance: true }
     );
-    if (wallet.type != WalletConst.WALLET_TYPES.USER)
+    if (wallet.type != WalletConst.TYPE_USER)
       throw new Error('Only user wallet can deposit');
     let nominalWallet = await this.walletValidator.validateGetNominalWallet({
       currencyCode: wallet.currencyCode
@@ -80,6 +80,20 @@ export default class BankTransactionValidator extends BaseValidator {
       params
     );
 
+    return data;
+  };
+  validateBankTransactionList = async (params: any) => {
+    var { data } = this.validate(
+      {
+        startDate: this._joi.date(),
+        endDate: this._joi.date(),
+        skip: this._joi.number(),
+        take: this._joi.number(),
+        orderBy: this._joi.any(),
+        status: this._joi.number()
+      },
+      params
+    );
     return data;
   };
 }

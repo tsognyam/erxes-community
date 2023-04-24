@@ -10,12 +10,12 @@ let stockService = new StockService();
 const StockMutations = {
   tradingStockAdd: async (
     _root: any,
-    params: Prisma.OrderCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
     if (params.userId == null || params.userId == undefined) {
-      if (user != null) params.userId = user._id;
-      else CustomException(ErrorCode.UserNotFoundException);
+      // if (user != null) params.userId = user._id;
+      // else CustomException(ErrorCode.UserNotFoundException);
     }
     return await stockService.createStock(subdomain, params);
   },
@@ -34,5 +34,7 @@ const StockMutations = {
     return await stockService.deleteStock(params);
   }
 };
-//requireLogin(walletMutations, 'tradingWalletAdd');
+// requireLogin(StockMutations, 'tradingWalletAdd');
+// requireLogin(StockMutations, 'tradingStockEdit');
+// requireLogin(StockMutations, 'tradingStockRemove');
 export default StockMutations;

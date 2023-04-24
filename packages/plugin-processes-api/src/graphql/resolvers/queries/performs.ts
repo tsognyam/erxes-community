@@ -16,7 +16,8 @@ interface IParam {
   inDepartmentId: string;
   outDepartmentId: string;
   productCategoryId: string;
-  productId: string;
+  vendorIds: string[];
+  productIds: string[];
   jobReferId: string;
 }
 
@@ -36,7 +37,8 @@ const generateFilter = async (
     type,
     jobReferId,
     productCategoryId,
-    productId
+    vendorIds,
+    productIds
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -69,6 +71,8 @@ const generateFilter = async (
     selector.inDepartmentId = inDepartmentId;
   }
 
+  let filterProductIds: string[] = [];
+  let hasFilterProductIds: boolean = false;
   if (productCategoryId) {
     const limit = await sendProductsMessage({
       subdomain,
@@ -84,11 +88,47 @@ const generateFilter = async (
       isRPC: true
     });
 
-    selector.typeId = { $in: products.map(pr => pr._id) };
+    filterProductIds = products.map(pr => pr._id);
+    hasFilterProductIds = true;
   }
 
-  if (productId) {
-    selector.typeId = productId;
+  if (vendorIds && vendorIds.length) {
+    const limit = await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: { query: { vendorId: { $in: vendorIds } } },
+      isRPC: true
+    });
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        limit,
+        query: { vendorId: { $in: vendorIds } },
+        fields: { _id: 1 }
+      },
+      isRPC: true
+    });
+
+    filterProductIds = filterProductIds.concat(products.map(pr => pr._id));
+    hasFilterProductIds = true;
+  }
+
+  if (
+    productIds &&
+    productIds.length &&
+    productIds.filter(p => p !== '').length
+  ) {
+    filterProductIds = filterProductIds.concat(productIds);
+    hasFilterProductIds = true;
+  }
+
+  if (hasFilterProductIds) {
+    selector.$or = [
+      { 'inProducts.productId': { $in: filterProductIds } },
+      { 'outProducts.productId': { $in: filterProductIds } }
+    ];
   }
 
   if (jobReferId) {
@@ -132,6 +172,68 @@ const performQueries = {
 
   performDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Performs.getPerform(_id);
+  },
+
+  async series(
+    _root,
+    {
+      search,
+      productId,
+      ids,
+      excludeIds,
+      selfSeries,
+      ...paginationArgs
+    }: {
+      search?: string;
+      selfSeries?: string;
+      productId?: string;
+      ids?: string[];
+      excludeIds?: boolean;
+      page?: number;
+      perPage?: number;
+    },
+    { models }: IContext
+  ) {
+    const filter: any = {
+      $and: [{ series: { $nin: ['', undefined, null, 0, selfSeries] } }]
+    };
+
+    if (ids && ids.length > 0) {
+      filter.$and.push({
+        series: { [excludeIds ? '$nin' : '$in']: ids }
+      });
+      if (!paginationArgs.page && !paginationArgs.perPage) {
+        paginationArgs.page = 1;
+        paginationArgs.perPage = 100;
+      }
+    }
+
+    if (productId) {
+      filter.$and.push({ ['outProducts.productId']: { $in: [productId] } });
+    }
+
+    if (search) {
+      filter.$and.push({ series: { $regex: new RegExp(search) } });
+    }
+
+    const performs = await paginate(
+      models.Performs.find(filter, { series: 1 })
+        .sort({ series: -1 })
+        .lean(),
+      { ...paginationArgs }
+    );
+
+    const series = performs.map(p => p.series);
+
+    let notPerformSeries: string[] = [];
+    if (ids && ids.length && !excludeIds) {
+      notPerformSeries = ids.filter(id => !series.includes(id));
+    }
+
+    return series.concat(notPerformSeries).map(ser => ({
+      _id: ser,
+      series: ser
+    }));
   }
 };
 

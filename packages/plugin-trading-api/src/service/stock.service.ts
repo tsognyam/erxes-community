@@ -1,19 +1,31 @@
 import OrderRepository from '../repository/order.repository';
 import StockRepository from '../repository/stock.repository';
 import StockTransactionRepository from '../repository/wallet/stock.transaction.repository';
-import Helper from './helper.service';
+import Helper from '../middleware/helper.service';
 import StockValidator from './validator/stock.validator';
 import { ErrorCode, CustomException } from '../exception/error-code';
+import { CurrencyConst } from '../constants/wallet';
+import moment = require('moment');
+import CustFeeService from './custfee.service';
+import CalendarService from './calendar.service';
+import MarketService from './market.service';
+import { graphqlPubsub } from '../configs';
 class StockService {
   private stockValidator: StockValidator;
   private stockRepository: StockRepository;
   private stockTransactionRepository: StockTransactionRepository;
   private orderRepository: OrderRepository;
+  private custFeeService: CustFeeService;
+  private calendarService: CalendarService;
+  private marketService: MarketService;
   constructor() {
     this.stockValidator = new StockValidator();
     this.stockRepository = new StockRepository();
     this.stockTransactionRepository = new StockTransactionRepository();
     this.orderRepository = new OrderRepository();
+    this.custFeeService = new CustFeeService();
+    this.calendarService = new CalendarService();
+    this.marketService = new MarketService();
   }
   getStockCode = async params => {
     var stock = await this.stockValidator.validateGetStockCode(params);
@@ -44,7 +56,6 @@ class StockService {
     data.favourite = undefined;
     let detail = data.detail;
     data.detail = undefined;
-
     let stock = await this.stockRepository.findAll(data, select, options);
     if (!stock) {
       CustomException(ErrorCode.StockNotFoundException);
@@ -58,8 +69,11 @@ class StockService {
 
     let mse_market: any = [];
     if (detail != undefined && detail == true) {
-      //let marketdata = await getMarketByStock(listIds, new Date());
-      let marketdata: any = [];
+      let marketdata = await this.marketService.getMarketByStock(
+        listIds,
+        new Date()
+      );
+      // let marketdata: any = [];
 
       if (marketdata.length != 0 && stock.values != 0) {
         for (let i = 0; i < stock.count; i++) {
@@ -75,11 +89,10 @@ class StockService {
       } else {
         mse_market = stock.values;
       }
-
       return {
         total: stock.total,
         count: mse_market.length,
-        data: mse_market
+        values: mse_market
       };
     }
     return stock;
@@ -100,7 +113,7 @@ class StockService {
 
   createStock = async (subdomain: string, params) => {
     var stock = await this.stockValidator.validateCreate(subdomain, params);
-
+    console.log('stock', stock);
     stock.startdate = new Date(stock.startdate);
     stock.enddate = new Date(stock.enddate);
     if (
@@ -111,9 +124,125 @@ class StockService {
       stock.order_enddate = new Date(stock.order_enddate);
     }
 
-    return this.stockRepository.create(stock);
+    return await this.stockRepository.create(stock);
   };
+  calculateBond = async params => {
+    let multiplier = 1;
+    let { stock, data } = await this.stockValidator.validateBond(params);
+    if (stock.currencyCode == CurrencyConst.DEFAULT) {
+      multiplier = 1000;
+    }
+    if (stock.currencyCode == CurrencyConst.USD) {
+      multiplier = 100;
+    }
+    if (data.price % multiplier == data.price) {
+      data.price = data.price * multiplier;
+    }
+    let accruedDate: number = await this.findAccrueDate(
+      stock.startdate,
+      stock.enddate,
+      stock.notiftype,
+      data.orderEndDate,
+      stock.lstCouponDate
+    );
+    let accrued = (stock.intrate / 100 / 365) * accruedDate;
+    let amount = parseFloat(
+      (stock.stockprice * data.cnt * parseFloat(accrued.toFixed(8))).toFixed(2)
+    );
+    let netAmount = parseFloat((data.price * data.cnt + amount).toFixed(2));
+    let dirtyPrice = parseFloat((data.price + amount / data.cnt).toFixed(2));
+    if (data.userId) {
+      let custFee = await this.custFeeService.getFee(
+        data.userId,
+        stock.stockcode
+      );
+      let netFeeAmount = parseFloat(((netAmount * custFee) / 100).toFixed(2));
+      let netObligation = parseFloat((netAmount - netFeeAmount).toFixed(2));
+      return { amount, dirtyPrice, netAmount, netFeeAmount, netObligation };
+    }
+    return { amount, dirtyPrice, netAmount };
+  };
+  findAccrueDate = async (
+    beginDate,
+    endDate,
+    notifType,
+    orderEndDate,
+    lstCouponDate
+  ) => {
+    let resDate = new Date();
+    let addDate = 0;
+    switch (notifType) {
+      case 1:
+        addDate = 1;
+        break;
+      case 2:
+        addDate = 3;
+        break;
+      case 3:
+        addDate = 6;
+        break;
+      case 4:
+        addDate = 12;
+        break;
+      case 5:
+        {
+          var a = moment(beginDate);
+          var b = moment(endDate);
+          addDate = b.diff(a, 'months');
+          // console.log('addDate',addDate)
+          // beginDate = endDate;
+        }
+        break;
+      default:
+        break;
+    }
+    // while (beginDate < resDate && beginDate < endDate) {
+    //   beginDate.setMonth(beginDate.getMonth() + addDate);
+    // }
+    // beginDate.setMonth(beginDate.getMonth() - addDate);
 
+    lstCouponDate.setHours(0, 0, 0, 0);
+    orderEndDate.setHours(0, 0, 0, 0);
+    console.log('orderEndDate.getDay()', orderEndDate.getDay());
+    let settleDate = new Date(orderEndDate);
+    let oEndDate = new Date(orderEndDate);
+    settleDate.setDate(oEndDate.getDate() + 2); //settlement date added
+    console.log(oEndDate.getDate());
+    if (settleDate.getDay() == 6 || settleDate.getDay() == 0) {
+      settleDate.setDate(settleDate.getDate() + 2);
+    }
+    console.log('orderEndDate settleDate', oEndDate, settleDate);
+    let d1 = new Date(new Date(oEndDate).setHours(23, 59, 59, 0));
+    let d2 = new Date(new Date(settleDate).setHours(23, 59, 59, 0));
+    let addDay = await this.calendarService.dateBetween({
+      fullDate: {
+        gte: d1,
+        lte: d2
+      }
+    });
+    console.log('addDay.total', addDay.total);
+    oEndDate.setDate(oEndDate.getDate() + addDay.total); //vacation days added
+    oEndDate.setDate(oEndDate.getDate() + 2); //settlement date added
+    // if(orderEndDate.getDay() == 4 || orderEndDate.getDay() == 5){
+    //   orderEndDate.setDate(orderEndDate.getDate() + 2)
+    // }
+    if (oEndDate.getDay() == 6 || oEndDate.getDay() == 0) {
+      oEndDate.setDate(oEndDate.getDate() + 2);
+    }
+    console.log('diff dates', lstCouponDate, oEndDate);
+    var a = moment(lstCouponDate);
+    // var b = moment(resDate);
+    var b = moment(oEndDate);
+    let diff = b.diff(a, 'days');
+
+    if (diff > 30 * addDate) {
+      CustomException(ErrorCode.NotQualifyDataException);
+    }
+
+    console.log('diff', diff);
+    // console.log('diff2', diff)
+    return diff;
+  };
   getPosition = async (subdomain: string, params) => {
     let data = await this.stockValidator.validatePosition(subdomain, params);
 

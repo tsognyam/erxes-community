@@ -3,6 +3,9 @@ export const types = `
     id: Int! 
     currencyCode:String 
     userId:String
+    name:String
+    firstName:String
+    lastName:String
     status:Int
     createdAt:Date
     createUserId:String
@@ -15,9 +18,37 @@ export const types = `
     stockBalances:JSON
     user:JSON
  }
+ type TradingStockWallet @key(fields:"id") {
+   id:Int!
+   stockCode:Int
+   walletId:Int
+   balance:Int
+   holdBalance:Int
+   createdAt:Date
+   createuserId:String
+   updatedAt:Date
+   updatedUserId:String
+   stock:TradingStock
+   wallet:TradingWallet
+ }
+ type TradingStockWalletList {
+   total:Int,
+   count:Int,
+   values:[TradingStockWallet]
+ }
 `;
 export const queries = `
 tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
+tradingUserWallets(userId:String!,currencyCode:String):[TradingWallet]
+tradingStockWallets(
+   page:Int!,
+   perPage:Int!,
+   walletId:Int,
+   stockCode:Int,
+   sortField:String,
+   sortDirection:String
+):TradingStockWalletList
+tradingNominalWallet(currencyCode:String!):TradingWallet
 `;
 const params = `
 currencyCode:String,

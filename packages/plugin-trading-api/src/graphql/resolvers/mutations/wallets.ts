@@ -9,12 +9,14 @@ let walletService = new WalletService();
 const WalletMutations = {
   tradingWalletAdd: async (
     _root: any,
-    params: Prisma.WalletCreateInput,
+    params: any,
     { user, models, subdomain }: IContext
   ) => {
-    if (params.userId == null || params.userId == undefined)
+    if (params.userId == null || params.userId == undefined) {
+      if (!user) throw new Error('User not found');
       params.userId = user._id;
-    return await walletService.create(params, subdomain);
+    }
+    return await walletService.createWallet(params, subdomain);
   }
 };
 requireLogin(WalletMutations, 'tradingWalletAdd');
