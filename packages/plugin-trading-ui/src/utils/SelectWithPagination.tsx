@@ -57,8 +57,6 @@ class SelectWithPagination extends Component<Props, State> {
       selectedOptions,
       selectedValue
     } = nextProps;
-    console.log('selectedOptions', selectedOptions);
-    console.log('nextProps', nextProps.selectedOptions);
     if (this.props.isLoading != isLoading) {
       if (this._isMounted) {
         this.setState({

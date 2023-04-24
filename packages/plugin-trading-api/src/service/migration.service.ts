@@ -74,9 +74,7 @@ export default class MigrationService {
     let data: any = await this.getCsvData(params.file.filename);
     if (params.body.type == '1') {
       const subdomain = getSubdomain(params);
-      if (process.env.NODE_ENV === 'development')
-        count = await this.migrationUserMCSDTest(data, subdomain);
-      else count = await this.migrationUserMCSD(data, subdomain);
+      count = await this.migrationUserMCSD(data, subdomain);
       responseText = 'Нийт ' + count + ' харилцагч амжилттай импорт хийлээ';
     } else if (params.body.type == '2') {
       count = await this.migrationOrder(data);
@@ -240,13 +238,11 @@ export default class MigrationService {
     //Хувьцааны шимтгэл
     let feeEquity = await Helper.getValue('FeeEquity');
     let addedUserCount = 0;
-    console.log('users', users);
     for (i = 0; i < users.length; i++) {
       let userMcsdAccount = await this.userMCSDAccountRepository.findUnique({
         userId: users[i]._id
       });
       if (!!userMcsdAccount == false) {
-        console.log(users[i].customFieldsData);
         let registerNumberField = users[i].customFieldsData.find(
           x => x.field == fields._id
         );
@@ -263,7 +259,7 @@ export default class MigrationService {
           if (splitSuffix.length > 1) {
             let userMcsdAccountRequest = {
               userId: users[i]._id,
-              registerNumber: userData[i].register_number,
+              registerNumber: userData.register_number,
               prefix: userData.mit_prefix,
               clientSuffix: splitSuffix[1].slice(-2),
               bdcAccountId:
