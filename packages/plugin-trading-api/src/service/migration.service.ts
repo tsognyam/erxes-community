@@ -500,11 +500,16 @@ export default class MigrationService {
     if (wallets.length == 0) {
       CustomException(ErrorCode.WalletNotFoundException);
     }
-    let nominalWallet = await this.walletService.getNominalWallet({
-      currencyCode: stockdata.currencyCode
-    });
+    let dataValid = {
+      ...data,
+      startdate: data.txndate,
+      enddate: !!data.enddate ? data.enddate : data.txndate
+    };
+    // let nominalWallet = await this.walletService.getNominalWallet({
+    //   currencyCode: stockdata.currencyCode
+    // });
     data.walletId = wallets[0].id;
-    let dataValid = await this.orderValidator.validateCreateSO(data);
+    //let dataValid = await this.orderValidator.validateCreateSO(data);
     let userMCSD = await this.userMCSDAccountRepository.findFirst({
       userId: data.userId
     });
