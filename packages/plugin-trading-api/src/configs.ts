@@ -42,7 +42,7 @@ export default {
     const app = options.app;
     app.use(
       bodyParser.urlencoded({
-        limit: '50mb',
+        limit: '100mb',
         extended: true
       })
     );
