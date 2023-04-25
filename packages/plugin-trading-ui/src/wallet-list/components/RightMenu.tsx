@@ -113,37 +113,32 @@ export default class RightMenu extends React.Component<Props, State> {
   loadOptions = _.debounce(async (inputValue: string, page: number) => {
     this.setState({ isLoading: true });
     try {
-      new Promise((resolve, reject) => {
-        client
-          .query({
-            query: gql(queries.UserQueries.tradingUserByPrefix),
-            variables: {
-              perPage: PAGE_SIZE,
-              page,
-              prefix: inputValue
-            }
-          })
-          .then(({ data }: any) => {
-            let newOptions =
-              data?.tradingUserByPrefix?.values.map(x => {
-                return {
-                  value: x.prefix,
-                  label: x.prefix
-                };
-              }) || [];
-
-            this.setState(prevState => ({
-              options: [...prevState.options, ...newOptions],
-              hasMore: newOptions.length === PAGE_SIZE,
-              isLoading: false
-            }));
-            resolve('Time is up!');
-          })
-          .catch(() => {
-            this.setState({ isLoading: false });
-            resolve('Time is up');
-          });
-      }).then(value => {});
+      client
+        .query({
+          query: gql(queries.UserQueries.tradingUsers),
+          variables: {
+            perPage: PAGE_SIZE,
+            page,
+            prefix: inputValue
+          }
+        })
+        .then(({ data }: any) => {
+          let newOptions =
+            data?.tradingUserByPrefix?.values.map(x => {
+              return {
+                value: x.prefix,
+                label: x.prefix
+              };
+            }) || [];
+          this.setState(prevState => ({
+            options: [...prevState.options, ...newOptions],
+            hasMore: newOptions.length === PAGE_SIZE,
+            isLoading: false
+          }));
+        })
+        .catch(() => {
+          this.setState({ isLoading: false });
+        });
     } catch (error) {
       console.log(error);
       this.setState({ isLoading: false });
@@ -176,30 +171,6 @@ export default class RightMenu extends React.Component<Props, State> {
     const selectedValue = queryParams?.prefix ? queryParams.prefix : [];
     return (
       <FilterBox>
-        <CustomRangeContainer>
-          <div>
-            <ControlLabel>{__('Start date')}:</ControlLabel>
-            <DateControl
-              value={queryParams.startDate}
-              required={false}
-              name="startDate"
-              onChange={date => this.onChangeRangeFilter('startDate', date)}
-              placeholder={'Start date'}
-              dateFormat={'YYYY-MM-DD'}
-            />
-          </div>
-          <div>
-            <ControlLabel>{__('End date')}:</ControlLabel>
-            <DateControl
-              value={queryParams.endDate}
-              required={false}
-              name="endDate"
-              placeholder={'End date'}
-              onChange={date => this.onChangeRangeFilter('endDate', date)}
-              dateFormat={'YYYY-MM-DD'}
-            />
-          </div>
-        </CustomRangeContainer>
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
           placeholder={__('Filter by prefix')}
@@ -223,37 +194,6 @@ export default class RightMenu extends React.Component<Props, State> {
           loadingPlaceholder={__('Loading...')}
           multi={true}
         /> */}
-
-        <ControlLabel>{__('Buy/Sell')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by buy and sell')}
-          value={type}
-          options={typeValues}
-          name="type"
-          onChange={ops => onFilterSelect(ops, 'txntype')}
-          loadingPlaceholder={__('Loading...')}
-          multi={true}
-        />
-        <ControlLabel>{__('Order Type')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by order type')}
-          value={orderType}
-          options={orderTypeValues}
-          name="orderType"
-          onChange={ops => onFilterSelect(ops, 'ordertype')}
-          loadingPlaceholder={__('Loading...')}
-          multi={true}
-        />
-        <ControlLabel>{__('Status')}</ControlLabel>
-        <Select
-          placeholder={__('Filter by Status')}
-          value={status}
-          options={_.sortBy(statusValues, ['label'])}
-          name="status"
-          onChange={ops => onFilterSelect(ops, 'orderstatus')}
-          loadingPlaceholder={__('Loading...')}
-          multi={true}
-        />
       </FilterBox>
     );
   }

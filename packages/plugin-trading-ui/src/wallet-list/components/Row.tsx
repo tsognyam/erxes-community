@@ -74,7 +74,7 @@ class Row extends React.Component<Props> {
   }
   render() {
     const { index, wallet } = this.props;
-    let walletMNTBalance = wallet.Wallet?.filter(x => x.currencyCode == 'MNT');
+    let walletMNTBalance = wallet.Wallet?.find(x => x.currencyCode == 'MNT');
     return (
       <StyledTr onDoubleClick={() => this.onTrClick(wallet)} key={index}>
         <td>{index + 1}</td>
@@ -82,7 +82,11 @@ class Row extends React.Component<Props> {
         <td>{wallet.bdcAccountId}</td>
         <td>{wallet.lastName}</td>
         <td>{wallet.firstName}</td>
-        <td>{this.displayValue(walletMNTBalance?.walletBalance?.balance)}</td>
+        <td>
+          {this.displayValue(
+            parseFloat(walletMNTBalance?.walletBalance?.balance || 0)
+          )}
+        </td>
         <td>{wallet.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
         <td>{wallet.description}</td>
         <td>

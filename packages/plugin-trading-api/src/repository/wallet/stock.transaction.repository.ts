@@ -55,7 +55,7 @@ export default class StockTransactionRepository extends BaseRepository {
       where wl.type!=${WalletConst.NOMINAL} and wl.type!=${WalletConst.NOMINAL_FEE} and (str.status=${TransactionConst.STATUS_ACTIVE} or str.status=${TransactionConst.STATUS_PENDING})` +
       dateFilter +
       filter +
-      ' order by str.createdAt,str.dater';
+      ' order by str.createdAt,str.dater desc';
     let statementList = await this._prisma.$queryRaw(
       Prisma.raw(selectSql + sql + paginationFilter)
     );

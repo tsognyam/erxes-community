@@ -17,6 +17,7 @@ type Props = {
   queryParams: any;
   history: any;
   tradingUserByPrefixQuery: any;
+  tradingUsersQuery: any;
 };
 
 type FinalProps = {} & Props & IRouterProps;
@@ -74,13 +75,13 @@ class ListContainer extends React.Component<FinalProps> {
     return routerUtils.setParams(this.props.history, { [key]: values });
   };
   render() {
-    const { tradingUserByPrefixQuery } = this.props;
+    const { tradingUserByPrefixQuery, tradingUsersQuery } = this.props;
     const total = tradingUserByPrefixQuery?.tradingUserByPrefix?.total || 0;
     const count = tradingUserByPrefixQuery?.tradingUserByPrefix?.count || 0;
     // let tradingStocks = tradingStocksQuery.tradingStocks || {};
     let tradingUserByPrefix =
       tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
-    console.log('tradingWallets', tradingUserByPrefix);
+    let tradingUsers = tradingUsersQuery?.tradingUserByPrefix?.values || [];
     // if ('values' in tradingStocks) {
     //   tradingStocks = tradingStocks.values;
     // } else {
@@ -92,6 +93,7 @@ class ListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       tradingUserByPrefix,
+      tradingUsers,
       loading: tradingUserByPrefixQuery.loading,
       total,
       count,
@@ -125,6 +127,14 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
+          prefixs: queryParams.prefix
+        }
+      })
+    }),
+    graphql<Props>(gql(queries.UserQueries.tradingUsers), {
+      name: 'tradingUsersQuery',
+      options: ({ queryParams }) => ({
+        variables: {
           prefixs: queryParams.prefix
         }
       })

@@ -236,8 +236,8 @@ class List extends React.Component<IProps> {
   };
   render() {
     const { queryParams, bulk, orders, total, count, full } = this.props;
-    console.log('full', full);
     const breadcrumb = [
+      { title: __('Dashboard'), link: '/trading/home' },
       { title: __('Дотоод арилжаа'), link: '/trading/order-list' }
     ];
     let actionBarLeft: React.ReactNode;

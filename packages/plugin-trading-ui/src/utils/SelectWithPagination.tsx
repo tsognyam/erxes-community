@@ -62,9 +62,7 @@ class SelectWithPagination extends Component<Props, State> {
         this.setState({
           isLoading,
           hasMore,
-          options,
-          selectedOptions,
-          selectedValue
+          options
         });
       }
     }
@@ -81,14 +79,12 @@ class SelectWithPagination extends Component<Props, State> {
     onChange(selectedOption);
   };
   handleInputChange = (inputValue: string) => {
-    let newOptions: any = [];
-    let { isMulti, options, selectedValue } = this.props;
-    if (isMulti)
-      newOptions = options.filter(x => selectedValue.includes(x.value));
+    //let newOptions: any = [];
+    //let { isMulti, options, selectedValue } = this.props;
     this.setState(
       {
         inputValue,
-        options: newOptions,
+        options: [],
         page: 1,
         hasMore: true,
         isLoading: true
@@ -110,13 +106,17 @@ class SelectWithPagination extends Component<Props, State> {
     }
   };
   render() {
-    const { options, isLoading, selectedOptions, selectedValue } = this.state;
+    const { isLoading, selectedOptions, selectedValue } = this.state;
     const { placeholder, disabled, onChange, isMulti } = this.props;
-
+    let { options } = this.state;
+    const uniqueArr = options.filter(
+      (obj, index, self) =>
+        index === self.findIndex(t => t.id === obj.id && t.name === obj.name)
+    );
     return (
       <Select
         placeholder={placeholder}
-        options={options}
+        options={uniqueArr}
         isLoading={isLoading}
         onInputChange={this.handleInputChange}
         onMenuScrollToBottom={this.handleMenuScrollToBottom}

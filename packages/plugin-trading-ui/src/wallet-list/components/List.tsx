@@ -17,6 +17,7 @@ type Props = {
   queryParams: any;
   history: any;
   tradingUserByPrefix: any[];
+  tradingUsers: any;
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -87,21 +88,22 @@ class ListComp extends React.Component<Props> {
       onSearch,
       onSelect,
       clearFilter,
-      tradingUserByPrefix
+      tradingUsers
     } = this.props;
     const rightMenuProps = {
       queryParams,
       onSearch,
       onSelect,
       clearFilter,
-      prefix: tradingUserByPrefix
+      prefix: tradingUsers
     };
     return <RightMenu {...rightMenuProps} />;
   }
   render() {
     const { queryParams, total, count, history } = this.props;
     const breadcrumb = [
-      { title: __('Wallet List'), link: '/tradings/wallet-list' }
+      { title: __('Dashboard'), link: '/trading/home' },
+      { title: __('Wallet List'), link: '/trading/wallet-list' }
     ];
 
     return (

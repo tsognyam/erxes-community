@@ -1,6 +1,7 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { TextInfo } from '@erxes/ui/src/components';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { __, Alert, router } from '@erxes/ui/src/utils';
@@ -33,6 +34,7 @@ import {
 } from '@erxes/ui-settings/src/permissions/styles';
 import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
+import { dashboardMenus } from '../../utils/dashboardMenus';
 type Props = {
   history?: any;
   queryParams: any;
@@ -222,7 +224,7 @@ class Index extends React.Component<FinalProps, State> {
                 />
               </WidgetItem>
               <WidgetItem>
-                <span className="title">Нийт татвар</span>
+                <span className="title">Дотоод арилжааны шимтгэл</span>
                 <span className="counter">
                   {displayValue(0, 'noDiv') + '₮'}
                 </span>
@@ -299,47 +301,45 @@ class Index extends React.Component<FinalProps, State> {
         </WidgetContainer>
         <BoxContentContainer>
           <BoxContent>
-            <Box
+            {/* <Box
               title="Дансан дахь үнэт цаас, ширхэгээр"
               name="stockByAmount"
               isOpen={true}
-            >
-              <Table>
-                <thead>
-                  <tr>
-                    <th>№</th>
-                    <th>ҮЦ нэр</th>
-                    <th>Тоо ширхэг</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stockByAmountData.map((item, index) => {
+            > */}
+            <h3>Дансан дахь үнэт цаас, ширхэгээр</h3>
+            <Table>
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>ҮЦ нэр</th>
+                  <th>Тоо ширхэг</th>
+                  <th>Мөнгөн дүн</th>
+                </tr>
+              </thead>
+              <tbody>
+                {_.sortBy(stockByAmountData, 'amount')
+                  .reverse()
+                  .map((item, index) => {
                     return (
                       <tr>
                         <td>{index + 1}</td>
                         <td>{item.symbol}</td>
                         <td>{item.cnt}</td>
+                        <td>{displayValue(item.amount, 'noDiv') + '₮'}</td>
                       </tr>
                     );
                   })}
-                </tbody>
-              </Table>
-              <Pagination count={stockByAmountData.length} />
-            </Box>
+              </tbody>
+            </Table>
           </BoxContent>
           <BoxContent>
-            <Box
-              title="Дотоод арилжааны үнэт цаас"
-              name="stockByPercentage"
-              isOpen={true}
-            >
-              <Chart
-                chartType="stockByPercentage"
-                data={stockByAmountData}
-                colors={PIE_COLORS}
-                years={this.state.years}
-              />
-            </Box>
+            <h3>Дотоод арилжааны үнэт цаас</h3>
+            <Chart
+              chartType="stockByPercentage"
+              data={stockByAmountData}
+              colors={PIE_COLORS}
+              years={this.state.years}
+            />
           </BoxContent>
         </BoxContentContainer>
         <ChartContentContainer>
@@ -364,9 +364,10 @@ class Index extends React.Component<FinalProps, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Trading dashboard')}
-            breadcrumb={breadcrumb}
+            title={__('Номинал хуулга')}
+            //breadcrumb={breadcrumb}
             queryParams={queryParams}
+            submenu={dashboardMenus}
           />
         }
         content={

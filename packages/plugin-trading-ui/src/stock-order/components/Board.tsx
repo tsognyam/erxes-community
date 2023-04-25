@@ -326,7 +326,8 @@ class BoardComp extends React.Component<Props, State> {
   render() {
     const { queryParams } = this.props;
     const breadcrumb = [
-      { title: __('Stock Order'), link: '/tradings/stock-order' }
+      { title: __('Dashboard'), link: '/trading/home' },
+      { title: __('Stock Order'), link: '/trading/stock-order' }
     ];
 
     return (

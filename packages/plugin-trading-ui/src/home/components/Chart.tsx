@@ -1,5 +1,5 @@
 import { Box } from '@erxes/ui/src/components';
-import React, { PureComponent } from 'react';
+import React, { Component, useCallback } from 'react';
 import {
   BarChart,
   Bar,
@@ -11,7 +11,8 @@ import {
   ResponsiveContainer,
   Cell,
   PieChart,
-  Pie
+  Pie,
+  Sector
 } from 'recharts';
 import { displayValue } from '../../App';
 type Props = {
@@ -21,8 +22,19 @@ type Props = {
   years: [];
 };
 const RADIAN = Math.PI / 180;
+type State = {
+  activeIndex: number;
+  activeItem: any;
+};
+class Chart extends Component<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeIndex: -1,
+      activeItem: null
+    };
+  }
 
-export default class Chart extends PureComponent<Props> {
   // renderLegend = (props) => {
   //   const { payload } = props;
 
@@ -39,11 +51,13 @@ export default class Chart extends PureComponent<Props> {
   renderToolTipstockByAmount = ({ payload }) => {
     return (
       <div
-        style={{
-          background: 'white',
-          border: '1px solid green',
-          width: '150px'
-        }}
+        style={
+          {
+            //background: 'white',
+            //border: '1px solid green',
+            //width: '150px'
+          }
+        }
       >
         {
           <>
@@ -53,6 +67,7 @@ export default class Chart extends PureComponent<Props> {
             <p>Дүн: {displayValue(payload?.[0]?.payload?.amount, '1')}</p>
             <p>Үнэ: {payload?.[0]?.payload?.price}</p>
             <p>Тоо ширхэг: {payload?.[0]?.payload?.cnt}</p>
+            <p>Мөнгөн дүнд эзлэх хувь: </p>
           </>
         }
       </div>
@@ -67,6 +82,14 @@ export default class Chart extends PureComponent<Props> {
       </div>
     );
   };
+  // handleLegendClick = (data, index) => {
+  //   console.log(index);
+  //   this.setState((prevState)=>{
+  //     prevState.activeIndex === index ? null : index
+  //   },()=> {
+  //     console.log(this.state.activeIndex);
+  //   })
+  // };
   renderCustomizedLabel = ({
     cx,
     cy,
@@ -88,12 +111,67 @@ export default class Chart extends PureComponent<Props> {
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
       >
-        {`${(percent * 100).toFixed(0)}%`}
+        {`${this.props.data[index].symbol} ${(percent * 100).toFixed(0)}%`}
       </text>
     );
   };
+  renderActiveShape = props => {
+    const RADIAN = Math.PI / 180;
+    const {
+      cx,
+      cy,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
+      midAngle
+    } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius - 40) * cos;
+    const sy = cy + (outerRadius - 40) * sin;
+    return (
+      <Sector
+        cx={sx}
+        cy={sy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill="red"
+      />
+    );
+  };
+  onClick = (data, index) => {
+    this.setState({ activeIndex: index });
+  };
+  handleMouseEnter = (data: any, index: number) => {
+    this.setState({
+      activeIndex: index
+    });
+  };
+
+  handleMouseLeave = () => {
+    this.setState({
+      activeIndex: -1
+    });
+  };
   render() {
     const { data, chartType, colors, years } = this.props;
+    const handleLegendMouseEnter = (data, index) => {
+      this.setState({
+        activeItem: data.name
+      });
+    };
+
+    const handleLegendMouseLeave = () => {
+      this.setState({
+        activeItem: null
+      });
+    };
+    const activeIndex = this.state.activeItem
+      ? data.findIndex(item => item.name === this.state.activeItem)
+      : undefined;
     switch (chartType) {
       case 'stockByAmount': {
         return (
@@ -146,39 +224,54 @@ export default class Chart extends PureComponent<Props> {
       }
       case 'stockByPercentage': {
         return (
-          <PieChart width={500} height={500}>
-            {/* <Legend content={this.renderLegend} /> */}
-            <Legend
-              formatter={(value, entry, index) => (
-                <span className="text-color-class">{data[index].symbol}</span>
-              )}
-              layout="vertical"
-              verticalAlign="middle"
-              align="right"
-            />
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={this.renderCustomizedLabel}
-              outerRadius={150}
-              fill="#8884d8"
-              dataKey="amount"
-            >
-              {data.map((entry, index) => {
-                return (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={colors[index % colors.length]}
-                  />
-                );
-              })}
-            </Pie>
-            <Tooltip content={this.CustomTooltip} />
-          </PieChart>
+          <ResponsiveContainer width="100%">
+            <PieChart>
+              {/* <Legend content={this.renderLegend} /> */}
+              <Legend
+                formatter={(value, entry, index) => (
+                  <span className="text-color-class">
+                    {data[index].symbol}{' '}
+                    {(
+                      (data[index].amount /
+                        data.reduce((sum, entry) => sum + entry.amount, 0)) *
+                      100
+                    ).toFixed()}
+                    %
+                  </span>
+                )}
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                onMouseEnter={handleLegendMouseEnter}
+                onMouseLeave={handleLegendMouseLeave}
+              />
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={this.renderCustomizedLabel}
+                outerRadius={200}
+                fill="#8884d8"
+                paddingAngle={1}
+                dataKey="amount"
+                activeIndex={activeIndex}
+              >
+                {data.map((entry, index) => {
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colors[index % colors.length]}
+                    />
+                  );
+                })}
+              </Pie>
+              <Tooltip content={this.renderToolTipstockByAmount} />
+            </PieChart>
+          </ResponsiveContainer>
         );
       }
     }
   }
 }
+export default Chart;

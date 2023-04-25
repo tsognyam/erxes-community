@@ -28,6 +28,7 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
 import _ from 'lodash';
 import Select from 'react-select-plus';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   history: any;
@@ -61,8 +62,8 @@ class List extends React.Component<Props, State> {
     };
   }
   renderContent = () => {
-    const { tradingStatements, tradingStatementSum } = this.props;
-
+    const { tradingStatements, tradingStatementSum, queryParams } = this.props;
+    let paginationParams = generatePaginationParams(queryParams);
     return (
       <>
         <Table>
@@ -101,7 +102,12 @@ class List extends React.Component<Props, State> {
           </thead>
           <tbody id="transactions">
             {(tradingStatements || []).map((transaction, index) => (
-              <Row index={index} transaction={transaction} />
+              <Row
+                index={
+                  index + (paginationParams.page - 1) * paginationParams.perPage
+                }
+                transaction={transaction}
+              />
             ))}
           </tbody>
         </Table>
@@ -173,7 +179,6 @@ class List extends React.Component<Props, State> {
   }
   render() {
     const { queryParams, total, count, full } = this.props;
-    console.log('full', full);
     if (full) {
       return (
         <Wrapper

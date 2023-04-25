@@ -311,6 +311,7 @@ export const BoxContentContainer = styled.div`
     margin-right: auto;
   }
   padding-top: 30px;
+  height: 100%;
 `;
 export const ChartContentContainer = styled.div`
   height: 50vh;

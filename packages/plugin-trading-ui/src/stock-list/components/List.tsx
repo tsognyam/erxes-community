@@ -12,7 +12,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Form from './Form';
 import RightMenu from './RightMenu';
 import { Flex } from '@erxes/ui/src/styles/main';
-
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   queryParams: any;
   history: any;
@@ -27,7 +27,8 @@ type Props = {
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingStocks, renderButton } = this.props;
+    const { tradingStocks, renderButton, queryParams } = this.props;
+    let paginationParams = generatePaginationParams(queryParams);
     return (
       <Table>
         <thead>
@@ -48,7 +49,13 @@ class ListComp extends React.Component<Props> {
         </thead>
         <tbody id="orders">
           {(tradingStocks || []).map((stock, index) => (
-            <Row renderButton={renderButton} index={index} stock={stock} />
+            <Row
+              renderButton={renderButton}
+              index={
+                index + (paginationParams.page - 1) * paginationParams.perPage
+              }
+              stock={stock}
+            />
           ))}
         </tbody>
       </Table>
@@ -100,7 +107,8 @@ class ListComp extends React.Component<Props> {
   render() {
     const { queryParams, total, count } = this.props;
     const breadcrumb = [
-      { title: __('Stock List'), link: '/tradings/stock-list' }
+      { title: __('Dashboard'), link: '/trading/home' },
+      { title: __('Stock List'), link: '/trading/stock-list' }
     ];
 
     return (
