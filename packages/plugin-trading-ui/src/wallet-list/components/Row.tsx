@@ -42,26 +42,6 @@ class Row extends React.Component<Props> {
   renderForm = props => {
     return <Form {...props} />;
   };
-  // renderModal = object => {
-  //   const content = props => {
-  //     console.log('button');
-  //     return this.renderForm({ ...props, object });
-  //   };
-
-  //   const viewTrigger = (
-  //     <Button onClick={onTrClick} btnStyle="default" block>
-  //       View Detail
-  //     </Button>
-  //   );
-  //   return (
-  //     <ModalTrigger
-  //       size="xl"
-  //       title="View"
-  //       trigger={viewTrigger}
-  //       content={content}
-  //     />
-  //   );
-  // };
   onTrClick = (wallet: any) => {
     this.props.history.push(`/trading/account/details/${wallet.userId}`);
   };
@@ -74,21 +54,19 @@ class Row extends React.Component<Props> {
   }
   render() {
     const { index, wallet } = this.props;
-    let walletMNTBalance = wallet.Wallet?.find(x => x.currencyCode == 'MNT');
     return (
       <StyledTr onDoubleClick={() => this.onTrClick(wallet)} key={index}>
         <td>{index + 1}</td>
-        <td>{wallet.prefix}</td>
-        <td>{wallet.bdcAccountId}</td>
-        <td>{wallet.lastName}</td>
-        <td>{wallet.firstName}</td>
+        <td>{wallet.user?.prefix}</td>
+        <td>{wallet.user?.bdcAccountId}</td>
+        <td>{wallet.user?.lastName}</td>
+        <td>{wallet.user?.firstName}</td>
+        <td>{wallet.currencyCode}</td>
         <td>
-          {this.displayValue(
-            parseFloat(walletMNTBalance?.walletBalance?.balance || 0)
-          )}
+          {this.displayValue(parseFloat(wallet.walletBalance?.balance || 0))}
         </td>
-        <td>{wallet.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
-        <td>{wallet.description}</td>
+        <td>{wallet.user?.status == 1 ? 'Идэвхитэй' : 'Идэвхигүй'}</td>
+        <td>{wallet.user?.description}</td>
         <td>
           {wallet.updatedAt != null
             ? dayjs(wallet.updatedAt).format('YYYY-MM-DD HH:mm:ss')

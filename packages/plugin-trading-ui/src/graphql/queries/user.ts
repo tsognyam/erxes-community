@@ -8,9 +8,7 @@ query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:In
         createUserId
         createdAt
         currencyCode
-        firstName
         id
-        lastName
         name
         status
         stockBalances

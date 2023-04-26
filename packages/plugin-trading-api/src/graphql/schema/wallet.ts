@@ -4,8 +4,6 @@ export const types = `
     currencyCode:String 
     userId:String
     name:String
-    firstName:String
-    lastName:String
     status:Int
     createdAt:Date
     createUserId:String
@@ -36,9 +34,26 @@ export const types = `
    count:Int,
    values:[TradingStockWallet]
  }
+ type TradingWalletList {
+  total:Int,
+  count:Int,
+  values:[TradingWallet]
+ }
 `;
 export const queries = `
-tradingWallets(type:Int,status:Int, walletIds:[Int]):[TradingWallet]
+tradingWallets(
+  type:Int,
+  status:Int, 
+  walletIds:[Int],
+  page:Int,
+  perPage:Int,
+  prefix:[String],
+  currencyCode: [String],
+  sortDirection:String,
+  sortField:String,
+  companyIds:[String],
+  customerIds:[String]
+  ):TradingWalletList
 tradingUserWallets(userId:String!,currencyCode:String):[TradingWallet]
 tradingStockWallets(
    page:Int!,

@@ -24,12 +24,10 @@ class Row extends React.Component<Props> {
             ? 'Зарлага'
             : ''}
         </td>
-        <td>{displayValue(transaction.beforeBalance)}</td>
         <td>{displayValue(transaction.income)}</td>
         <td>{displayValue(transaction.outcome)}</td>
         <td>{displayValue(transaction.expectedIncome)}</td>
         <td>{displayValue(transaction.expectedOutcome)}</td>
-        <td>{displayValue(transaction.afterBalance)}</td>
         <td>{transaction.description}</td>
         <td>{dayjs(transaction.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
       </StyledTr>

@@ -10,14 +10,18 @@ let stockWalletService = new StockWalletService();
 const WalletQueries = {
   tradingWallets: async (
     _root: any,
-    { type, status, walletIds },
+    params,
     { models, subdomain, user }: IContext
   ) => {
+    let page = params.page || 1;
+    let perPage = params.perPage || 20;
     return await walletService.getWalletList(
-      subdomain,
-      type,
-      status,
-      walletIds
+      {
+        ...params,
+        skip: (page - 1) * perPage,
+        take: perPage
+      },
+      subdomain
     );
   },
   tradingUserWallets: async (

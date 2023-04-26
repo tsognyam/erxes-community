@@ -318,7 +318,7 @@ class Forms extends React.Component<Props, State> {
     const generateOptions = (array: any = []): any => {
       return array.map(item => {
         return {
-          value: item.prefix,
+          value: item.userId,
           label: item.prefix
         };
       });
@@ -358,15 +358,17 @@ class Forms extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{__('Prefix')}</ControlLabel>
           <SelectWithPagination
+            queryName="tradingUserByPrefix"
             label={__('Filter by prefix')}
             name="prefix"
             onSelect={onSelect}
-            multi={true}
+            multi={false}
             disabled={false}
             customQuery={queries.UserQueries.tradingUsers}
             generateOptions={generateOptions}
             initialValue={this.state.userId}
             generateFilterParams={generateFilterParams}
+            uniqueValue="userId"
           />
         </FormGroup>
         <FormGroup>

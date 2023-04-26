@@ -18,14 +18,6 @@ const UserMcsdQueries = {
     let orderBy: any = {
       [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
     };
-
-    let orderByWalletBlance: any = undefined;
-    if (sortField == 'balance') {
-      orderByWalletBlance = {
-        [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
-      };
-      orderBy = undefined;
-    }
     let updatedParams = {
       ...params,
       skip: (page - 1) * perPage,

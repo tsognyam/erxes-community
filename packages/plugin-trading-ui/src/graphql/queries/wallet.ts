@@ -1,12 +1,13 @@
 const tradingWallets = `
-query TradingWallets($status: Int, $type: Int, $walletIds: [Int]) {
-  tradingWallets(status: $status, type: $type, walletIds: $walletIds) {
+query TradingWallets($status: Int, $type: Int, $walletIds: [Int],$page:Int,$perPage:Int,$prefix:[String],$currencyCode: [String],$sortDirection:String,$sortField:String) {
+  tradingWallets(status: $status, type: $type, walletIds: $walletIds,page:$page,perPage:$perPage,prefix:$prefix,currencyCode:$currencyCode,sortDirection:$sortDirection,sortField:$sortField) {
+    total,
+    count,
+    values {
     createUserId
     createdAt
     currencyCode
     name
-    firstName
-    lastName
     id
     status
     stockBalances
@@ -19,6 +20,7 @@ query TradingWallets($status: Int, $type: Int, $walletIds: [Int]) {
     walletNumberId
     walletNumberModel
   }
+  }
 }
 `;
 const tradingUserWallets = `
@@ -27,9 +29,7 @@ query TradingUserWallets($userId: String!, $currencyCode: String) {
     createUserId
     createdAt
     currencyCode
-    firstName
     id
-    lastName
     name
     status
     updatedAt

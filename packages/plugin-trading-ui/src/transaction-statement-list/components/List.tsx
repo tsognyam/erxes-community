@@ -5,7 +5,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { STOCK_LIST } from '../../constants';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -81,24 +80,28 @@ class List extends React.Component<Props, State> {
               <th>{__('Prefix')}</th>
               <th>{__('Огноо')}</th>
               <th>{__('Төрөл')}</th>
-              <th>{__('Эхний үлдэгдэл')}</th>
-              <th>{__('Орлого')}</th>
-              <th>{__('Зарлага')}</th>
-              <th>{__('ХБО')}</th>
-              <th>{__('ХБЗ')}</th>
-              <th>{__('Эцсийн үлдэгдэл')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Орлого')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Зарлага')}</th>
+              <th style={{ textAlign: 'right' }}>{__('ХБО')}</th>
+              <th style={{ textAlign: 'right' }}>{__('ХБЗ')}</th>
               <th>{__('Гүйлгээний утга')}</th>
               <th>Үүсгэсэн огноо</th>
             </tr>
             <tr>
-              <th colSpan={4}></th>
-              <th>{displayValue(tradingStatementSum?.beginBalance)}</th>
+              <th colSpan={3}></th>
+              <th>
+                Эх.Үлд=
+                {displayValue(tradingStatementSum?.beginBalance, 'beginBlance')}
+              </th>
               <th>{displayValue(tradingStatementSum?.income)}</th>
               <th>{displayValue(tradingStatementSum?.outcome)}</th>
               <th>{displayValue(tradingStatementSum?.expectedIncome)}</th>
               <th>{displayValue(tradingStatementSum?.expectedOutcome)}</th>
-              <th>{displayValue(tradingStatementSum?.endBalance)}</th>
-              <th colSpan={3}></th>
+              <th>
+                Эц.Үлд=
+                {displayValue(tradingStatementSum?.endBalance, 'endBalance')}
+              </th>
+              <th colSpan={2}></th>
             </tr>
           </thead>
           <tbody id="transactions">

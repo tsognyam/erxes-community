@@ -20,21 +20,17 @@ import SelectWithPagination from '../../utils/SelectWithPagination';
 import queries from '../../graphql/queries';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+
 type Props = {
   queryParams: any;
   clearFilter: () => void;
   onSearch: (search: string, type: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
-  prefix: any[];
+  configs: any;
 };
 
 type State = {
   showMenu: boolean;
-  selectedOptions: Option[];
-  isLoading: boolean;
-  hasMore: boolean;
-  options: OptionsType<Option>;
-  selectedValue: any;
 };
 interface Option {
   value: string;
@@ -46,21 +42,8 @@ export default class RightMenu extends React.Component<Props, State> {
 
   constructor(props) {
     super(props);
-    const prefixList = props.prefix.map(x => {
-      return {
-        value: x.prefix,
-        label: x.prefix
-      };
-    });
     this.state = {
-      showMenu: false,
-      selectedOptions: [],
-      isLoading: false,
-      hasMore: true,
-      options: prefixList,
-      selectedValue: this.props.queryParams?.prefix
-        ? this.props.queryParams.prefix
-        : []
+      showMenu: false
     };
     this.setWrapperRef = this.setWrapperRef.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
@@ -111,29 +94,16 @@ export default class RightMenu extends React.Component<Props, State> {
   };
 
   renderFilter() {
-    const { queryParams, onSelect, prefix } = this.props;
-    const statusValues = STATE_LIST.map(p => ({
-      label: p.statusName,
-      value: p.status
-    }));
-    const status = queryParams ? queryParams.orderstatus : [];
-
-    const typeValues = TYPE.map(p => ({ label: p.label, value: p.value }));
-    const type = queryParams ? queryParams.txntype : [];
-
-    const orderTypeValues = ORDER_TYPE.map(p => ({
-      label: p.label,
-      value: p.value
-    }));
-    const orderType = queryParams ? queryParams.ordertype : [];
-
-    const onFilterSelect = (ops: Option[], type: string) => {
-      let values: any = [];
-      ops.map(item => {
-        values.push(item.value);
-      });
-      onSelect(values, type);
-    };
+    const { queryParams, onSelect, configs } = this.props;
+    const selectedCurrencies = queryParams ? queryParams.currencyCode : [];
+    const dealCurrency =
+      configs.find(x => x.code == 'dealCurrency')?.value || [];
+    const currencies = dealCurrency.map(item => {
+      return {
+        value: item,
+        label: item
+      };
+    });
     const generateOptions = (array: any = []): Option[] => {
       return array.map(item => {
         return {
@@ -148,11 +118,19 @@ export default class RightMenu extends React.Component<Props, State> {
         prefixs: value
       };
     };
+    const onFilterSelect = (ops: Option[], type: string) => {
+      let values: any = [];
+      ops.map(item => {
+        values.push(item.value);
+      });
+      onSelect(values, type);
+    };
     const selectedValue = queryParams?.prefix;
     return (
       <FilterBox>
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
+          queryName="tradingUserByPrefix"
           label={__('Filter by prefix')}
           name="prefix"
           onSelect={onSelect}
@@ -162,16 +140,15 @@ export default class RightMenu extends React.Component<Props, State> {
           generateOptions={generateOptions}
           initialValue={selectedValue}
           generateFilterParams={generateFilterParams}
+          uniqueValue="prefix"
         />
-        {/* <Select
-          placeholder={__('Filter by prefix')}
-          value={userPrefix}
-          options={prefixList}
-          name="stockcode"
-          onChange={ops => onFilterSelect(ops, 'prefix')}
-          loadingPlaceholder={__('Loading...')}
+        <ControlLabel>Currency</ControlLabel>
+        <Select
+          options={currencies}
+          value={selectedCurrencies}
+          onChange={ops => onFilterSelect(ops, 'currencyCode')}
           multi={true}
-        /> */}
+        />
         <SelectCompanies
           label={__('Filter by companies')}
           name="companyIds"

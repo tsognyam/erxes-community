@@ -13,14 +13,18 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { isValidUsername, router as routerUtils } from '@erxes/ui/src/utils';
 import queryString from 'query-string';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as configQueries } from '@erxes/ui-settings/src/general/graphql';
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 type Props = {
   queryParams: any;
   history: any;
-  tradingUserByPrefixQuery: any;
-  tradingUsersQuery: any;
+  tradingWalletQuery: any;
 };
 
-type FinalProps = {} & Props & IRouterProps;
+type FinalProps = {
+  configsQuery: ConfigsQueryResponse;
+} & Props &
+  IRouterProps;
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
 };
@@ -75,36 +79,25 @@ class ListContainer extends React.Component<FinalProps> {
     return routerUtils.setParams(this.props.history, { [key]: values });
   };
   render() {
-    const { tradingUserByPrefixQuery, tradingUsersQuery } = this.props;
-    const total = tradingUserByPrefixQuery?.tradingUserByPrefix?.total || 0;
-    const count = tradingUserByPrefixQuery?.tradingUserByPrefix?.count || 0;
-    // let tradingStocks = tradingStocksQuery.tradingStocks || {};
-    let tradingUserByPrefix =
-      tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
-    let tradingUsers = tradingUsersQuery?.tradingUserByPrefix?.values || [];
-    // if ('values' in tradingStocks) {
-    //   tradingStocks = tradingStocks.values;
-    // } else {
-    //   tradingStocks = [];
-    // }
-    // console.log('stockList',tradingStocks)
-    // tradingStocks = []
-    // tradingStocks = []
+    const { tradingWalletQuery, configsQuery } = this.props;
+    if (tradingWalletQuery.loading || configsQuery.loading) {
+      return <Spinner />;
+    }
+    const total = tradingWalletQuery?.tradingWallets?.total || 0;
+    const count = tradingWalletQuery?.tradingWallets?.count || 0;
+    let tradingWallets = tradingWalletQuery?.tradingWallets?.values || [];
     const updatedProps = {
       ...this.props,
-      tradingUserByPrefix,
-      tradingUsers,
-      loading: tradingUserByPrefixQuery.loading,
+      tradingWallets,
+      loading: tradingWalletQuery.loading,
       total,
       count,
       renderButton: this.renderButton,
       onSelect: this.onSelect,
       clearFilter: this.clearFilter,
-      onSearch: this.onSearch
+      onSearch: this.onSearch,
+      configs: configsQuery.configs || []
     };
-    if (tradingUserByPrefixQuery.loading) {
-      return <Spinner />;
-    }
     const content = props => {
       return <List {...updatedProps} {...props} />;
     };
@@ -118,28 +111,24 @@ class ListContainer extends React.Component<FinalProps> {
   }
 }
 const getRefetchQueries = () => {
-  return ['tradingUserByPrefix'];
+  return ['tradingWalletQuery'];
 };
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
+    graphql<Props>(gql(queries.WalletQueries.tradingWallets), {
+      name: 'tradingWalletQuery',
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          prefixs: queryParams.prefix,
           sortField: queryParams.sortField,
-          sortDirection: queryParams.sortDirection
+          sortDirection: queryParams.sortDirection,
+          currencyCode: queryParams.currencyCode,
+          prefix: queryParams.prefix
         }
       })
     }),
-    graphql<Props>(gql(queries.UserQueries.tradingUsers), {
-      name: 'tradingUsersQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          prefixs: queryParams.prefix
-        }
-      })
+    graphql<{}, ConfigsQueryResponse>(gql(configQueries.configs), {
+      name: 'configsQuery'
     })
   )(ListContainer)
 );

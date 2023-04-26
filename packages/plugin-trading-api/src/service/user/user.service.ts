@@ -70,7 +70,7 @@ export default class UserService {
       take: params.take,
       orderBy: params.orderBy
     };
-    if (params.prefix != undefined) {
+    if (!!params.prefix) {
       where.prefix = {
         contains: params.prefix
       };
@@ -78,29 +78,37 @@ export default class UserService {
     if (params.userId != undefined) {
       where.userId = params.userId;
     }
+    if (!!params.prefixs && params.prefixs.length > 0) {
+      where.prefix = { in: params.prefixs };
+    }
+    if (!!params.searchValue) {
+      where.prefix = {
+        contains: params.searchValue
+      };
+    }
     where.OR = [];
-    if (params.prefixs != undefined || params.searchValue != undefined) {
+    if (
+      params.prefixs != undefined &&
+      params.prefixs.length > 0 &&
+      !!params.searchValue
+    ) {
       where.prefix = undefined;
-
-      if (!!params.searchValue) {
-        where.OR.push({
-          prefix: {
-            contains: params.searchValue
-          }
-        });
-      }
-      if (params.prefixs.length > 0)
-        where.OR.push({ prefix: { in: params.prefixs } });
+      where.OR.push({
+        prefix: {
+          contains: params.searchValue
+        }
+      });
+      where.OR.push({ prefix: { in: params.prefixs } });
     }
     if (where.OR.length == 0) where.OR = undefined;
+    console.log(params);
+    console.log(where);
     let account = await this._userMcsdRepository.findAll(
       where,
       {
         Wallet: {
           include: {
-            walletBalance: {
-              orderBy: params.orderByWalletBlance
-            },
+            walletBalance: true,
             stockBalances: true
           }
         }

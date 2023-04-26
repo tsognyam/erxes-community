@@ -46,16 +46,29 @@ class WalletService {
 
   edit = async (params: any) => {};
   remove = async () => {};
-  getWalletList = async (
-    subdomain: string,
-    type?: Number,
-    status?: Number,
-    walletIds?: Number[]
-  ) => {
+  getWalletList = async (params, subdomain) => {
     let where: any = {};
-    if (type != null) where.type = type;
-    if (status != null) where.status = status;
-    if (walletIds != null) where.id = { in: walletIds };
+    if (params.type != null) where.type = params.type;
+    if (params.status != null) where.status = params.status;
+    if (params.walletIds != null) where.id = { in: params.walletIds };
+    if (!!params.currencyCode) where.currencyCode = { in: params.currencyCode };
+    where.AND = [];
+    if (!!params.companyIds)
+      where.AND.push({ userId: { in: params.companyIds } });
+    if (!!params.userIds) where.AND.push({ userId: { in: params.userIds } });
+    if (!!params.prefix) where.user = { prefix: { in: params.prefix } };
+    if (where.AND.length == 0) where.AND = undefined;
+    if (!!params.sortField)
+      params.orderBy = {
+        [params.sortField]: params.sortDirection == '-1' ? 'asc' : 'desc'
+      };
+    if (params.sortField == 'balance') {
+      params.orderBy = {
+        walletBalance: {
+          [params.sortField]: params.sortDirection == '-1' ? 'asc' : 'desc'
+        }
+      };
+    }
     let include = {
       walletNumberModel: true,
       walletBalance: true,
@@ -74,20 +87,25 @@ class WalletService {
       //stockTransactions: true,
       user: true
     };
-    let wallets = await this.walletRepository.findMany(where, include);
-    let userIds = wallets.map(function(obj: any) {
+    let options: any = {
+      skip: params.skip,
+      take: params.take,
+      orderBy: params.orderBy
+    };
+    let wallets = await this.walletRepository.findAll(where, include, options);
+    let userIds = wallets.values.map(function(obj: any) {
       return obj.userId;
     });
     let query = {
       _id: { $in: userIds }
     };
-    let users = await getUsers(query);
+    let users = await getUsers(query, subdomain);
     let user: any;
-    wallets.forEach((el: any, index) => {
+    wallets.values.forEach((el: any, index) => {
       user = users.find((x: any) => x._id == el.userId);
       if (user != undefined) {
-        wallets[index].firstName = user.firstName;
-        wallets[index].lastName = user.lastName;
+        wallets.values[index].user.firstName = user.firstName;
+        wallets.values[index].user.lastName = user.lastName;
       }
     });
     return wallets;

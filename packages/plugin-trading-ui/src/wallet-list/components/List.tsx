@@ -4,7 +4,6 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { STOCK_LIST } from '../../constants';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -17,19 +16,19 @@ import SortHandler from '@erxes/ui/src/components/SortHandler';
 type Props = {
   queryParams: any;
   history: any;
-  tradingUserByPrefix: any[];
-  tradingUsers: any;
+  tradingWallets: any[];
   total: number;
   count: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   clearFilter: () => void;
   onSearch: (search: string, key?: string) => void;
   onSelect: (values: string[] | string, key: string) => void;
+  configs: any;
 };
 
 class ListComp extends React.Component<Props> {
   renderContent = () => {
-    const { tradingUserByPrefix, history, queryParams } = this.props;
+    const { tradingWallets, history, queryParams } = this.props;
     const currentPage = Number(queryParams.page) || 1;
     const perPage = Number(queryParams.perPage) || 20;
     return (
@@ -41,6 +40,7 @@ class ListComp extends React.Component<Props> {
             <th>{__('Bdc Account')}</th>
             <th>{__('Lastname')}</th>
             <th>{__('Firstname')}</th>
+            <th>{__('CurrencyCode')}</th>
             <th style={{ textAlign: 'right' }}>
               <SortHandler sortField={'balance'} label={__('Balance')} />
             </th>
@@ -51,7 +51,7 @@ class ListComp extends React.Component<Props> {
           </tr>
         </thead>
         <tbody id="orders">
-          {(tradingUserByPrefix || []).map((wallet, index) => (
+          {(tradingWallets || []).map((wallet, index) => (
             <Row
               history={history}
               index={index + (currentPage - 1) * perPage}
@@ -91,14 +91,14 @@ class ListComp extends React.Component<Props> {
       onSearch,
       onSelect,
       clearFilter,
-      tradingUsers
+      configs
     } = this.props;
     const rightMenuProps = {
       queryParams,
       onSearch,
       onSelect,
       clearFilter,
-      prefix: tradingUsers
+      configs
     };
     return <RightMenu {...rightMenuProps} />;
   }

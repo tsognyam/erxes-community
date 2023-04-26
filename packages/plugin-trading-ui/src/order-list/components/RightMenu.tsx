@@ -229,6 +229,7 @@ export default class RightMenu extends React.Component<Props, State> {
         />
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
+          queryName="tradingUserByPrefix"
           label={__('Filter by prefix')}
           name="prefix"
           onSelect={onSelect}
@@ -238,6 +239,7 @@ export default class RightMenu extends React.Component<Props, State> {
           generateOptions={generateOptions}
           initialValue={selectedValue}
           generateFilterParams={generateFilterParams}
+          uniqueValue="prefix"
         />
         {/* <Select
           placeholder={__('Filter by prefix')}
