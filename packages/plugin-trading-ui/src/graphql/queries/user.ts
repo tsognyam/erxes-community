@@ -1,6 +1,6 @@
 const tradingUserByPrefix = `
-query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:Int,$prefixs:[String]) {
-  tradingUserByPrefix(userId: $userId, prefix: $prefix,page:$page,perPage:$perPage,prefixs:$prefixs) {
+query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:Int,$prefixs:[String],$sortDirection:String,$sortField:String,$searchValue:String) {
+  tradingUserByPrefix(userId: $userId, prefix: $prefix,page:$page,perPage:$perPage,prefixs:$prefixs,sortDirection:$sortDirection,sortField:$sortField,searchValue:$searchValue) {
     count
     total
     values {
@@ -41,8 +41,8 @@ query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:In
 }
 `;
 const tradingUsers = `
-query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:Int,$prefixs:[String]) {
-  tradingUserByPrefix(userId: $userId, prefix: $prefix,page:$page,perPage:$perPage,prefixs:$prefixs) {
+query TradingUserByPrefix($userId: String, $prefix: String,$page:Int,$perPage:Int,$prefixs:[String],$searchValue:String) {
+  tradingUserByPrefix(userId: $userId, prefix: $prefix,page:$page,perPage:$perPage,prefixs:$prefixs,searchValue:$searchValue) {
     count
     total
     values {

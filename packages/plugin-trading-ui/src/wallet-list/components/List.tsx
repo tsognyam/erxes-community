@@ -13,6 +13,7 @@ import Form from './Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Flex } from '@erxes/ui/src/styles/main';
 import RightMenu from './RightMenu';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
 type Props = {
   queryParams: any;
   history: any;
@@ -40,7 +41,9 @@ class ListComp extends React.Component<Props> {
             <th>{__('Bdc Account')}</th>
             <th>{__('Lastname')}</th>
             <th>{__('Firstname')}</th>
-            <th style={{ textAlign: 'right' }}>{__('Balance')}</th>
+            <th style={{ textAlign: 'right' }}>
+              <SortHandler sortField={'balance'} label={__('Balance')} />
+            </th>
             <th>{__('Status')}</th>
             <th>{__('Description')}</th>
             <th>{__('Updated At')}</th>

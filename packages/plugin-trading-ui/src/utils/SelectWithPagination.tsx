@@ -1,24 +1,29 @@
 import React, { Component } from 'react';
 import Select, { OptionsType, Option, Options } from 'react-select-plus';
 import _ from 'lodash';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { withProps } from '@erxes/ui/src/utils';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
+import { __, Alert } from '@erxes/ui/src/utils';
+type IInitialValue = string | string[] | undefined;
 type Props = {
-  options: Option[];
-  selectedValue: string;
   disabled: boolean;
-  placeholder: string;
+  label: string;
   name: string;
-  selectedOptions: Option | Option[] | null;
-  onChange: (value: Option | Option[] | null) => void;
-  isMulti: boolean;
-  isLoading: boolean;
-  loadOptions: (inputValue: string, page: number) => void;
-  hasMore: boolean;
+  multi: boolean;
+  onSelect: (values: string[] | string, name: string) => void;
+  initialValue: IInitialValue;
+  customQuery: any;
+  generateOptions: (data: any[]) => Option[];
+  generateFilterParams: (data: any, searchValue: string) => any;
 };
 type State = {
   options: OptionsType<OptionType>;
   isLoading: boolean;
   inputValue: string;
-  selectedValue: string;
+  selectedValues: string[];
   hasMore: boolean;
   page: number;
   selectedOptions: Option | Option[] | null;
@@ -27,110 +32,149 @@ interface OptionType {
   value: string;
   label: string;
 }
-
+const PAGE_SIZE = 50;
 class SelectWithPagination extends Component<Props, State> {
-  _isMounted = false;
   constructor(props: Props) {
     super(props);
+    const { initialValue } = this.props;
+    let initialValues: string[] = [];
+
+    if (initialValue) {
+      initialValues =
+        typeof initialValue === 'string' ? [initialValue] : initialValue;
+    }
     this.state = {
-      options: this.props.options,
-      isLoading: this.props.isLoading,
+      options: undefined,
+      isLoading: false,
       inputValue: '',
-      selectedValue: this.props.selectedValue,
-      hasMore: this.props.hasMore,
+      selectedValues: initialValues,
+      hasMore: true,
       page: 1,
-      selectedOptions: this.props.selectedOptions
+      selectedOptions: undefined
     };
   }
   componentDidMount() {
-    this._isMounted = true;
+    this.loadOptions('', 1);
   }
-
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-  componentWillReceiveProps(nextProps: Props) {
-    const {
-      isLoading,
-      options,
-      hasMore,
-      selectedOptions,
-      selectedValue
-    } = nextProps;
-    if (this.props.isLoading != isLoading) {
-      if (this._isMounted) {
-        this.setState({
-          isLoading,
-          hasMore,
-          options
+  loadOptions = async (inputValue: string, page: number) => {
+    this.setState({ isLoading: true });
+    const { customQuery, generateOptions, generateFilterParams } = this.props;
+    const { selectedValues } = this.state;
+    try {
+      let variables: any = {
+        perPage: PAGE_SIZE,
+        page,
+        ...generateFilterParams(selectedValues, inputValue)
+      };
+      client
+        .query({
+          query: gql(customQuery),
+          variables: variables
+        })
+        .then(({ data }: any) => {
+          let newOptions = generateOptions(data?.tradingUserByPrefix?.values);
+          const totalOptions = newOptions || [];
+          const totalOptionsValues = totalOptions.map(option => option.value);
+          const uniqueLoadedOptions = newOptions.filter(
+            data => !totalOptionsValues.includes(data.value)
+          );
+          const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
+          this.setState({
+            options: updatedTotalOptions,
+            hasMore: newOptions.length === PAGE_SIZE,
+            isLoading: false
+          });
+        })
+        .catch(() => {
+          this.setState({ isLoading: false });
         });
-      }
+    } catch (error) {
+      console.log(error);
+      this.setState({ isLoading: false });
     }
-    if (this.props.selectedValue != selectedValue) {
-      if (this._isMounted)
-        this.setState({
-          selectedOptions,
-          selectedValue
-        });
-    }
-  }
-  handleChange = (selectedOption: Option | Option[] | null) => {
-    const { onChange } = this.props;
-    onChange(selectedOption);
   };
-  handleInputChange = (inputValue: string) => {
-    //let newOptions: any = [];
-    //let { isMulti, options, selectedValue } = this.props;
-    this.setState(
-      {
-        inputValue,
-        options: [],
-        page: 1,
-        hasMore: true,
-        isLoading: true
-      },
-      () => {
-        this.props.loadOptions(this.state.inputValue, this.state.page);
-      }
-    );
-  };
-
   handleMenuScrollToBottom = () => {
     if (!this.state.isLoading && this.state.hasMore) {
       this.setState(
         prevState => ({ page: prevState.page + 1 }),
         () => {
-          this.props.loadOptions(this.state.inputValue, this.state.page);
+          this.loadOptions(this.state.inputValue, this.state.page);
         }
       );
     }
   };
   render() {
-    const { isLoading, selectedOptions, selectedValue } = this.state;
-    const { placeholder, disabled, onChange, isMulti } = this.props;
+    const { isLoading, selectedOptions, selectedValues } = this.state;
+    const { label, disabled, multi, onSelect, name } = this.props;
     let { options } = this.state;
-    const uniqueArr = options.filter(
-      (obj, index, self) =>
-        index === self.findIndex(t => t.id === obj.id && t.name === obj.name)
-    );
+    const selectMultiple = (ops: OptionType[]) => {
+      const selectedOptionsValues = ops.map(option => option.value);
+      onSelect(selectedOptionsValues, name);
+      this.setState({
+        selectedValues: selectedOptionsValues,
+        selectedOptions: [...ops]
+      });
+    };
+    const selectSingle = (option: OptionType) => {
+      const selectedOptionValue = option ? option.value : '';
+
+      onSelect(selectedOptionValue, name);
+
+      this.setState({
+        selectedValues: [selectedOptionValue],
+        selectedOptions: [{ ...option }]
+      });
+    };
+    const onChange = multi ? selectMultiple : selectSingle;
+
+    const onSearch = async (searchValue: string) => {
+      this.setState(
+        {
+          inputValue: searchValue,
+          page: 1,
+          hasMore: true,
+          isLoading: true
+        },
+        () => {
+          _.debounce(() => {
+            this.loadOptions(this.state.inputValue, this.state.page);
+          }, 1000)();
+        }
+      );
+    };
+
+    const onOpen = () => {
+      this.setState(
+        {
+          page: 1,
+          hasMore: true,
+          isLoading: true
+        },
+        () => {
+          this.loadOptions('', this.state.page);
+        }
+      );
+    };
+
+    const selectOptions = [...(options || [])];
     return (
       <Select
-        placeholder={placeholder}
-        options={uniqueArr}
+        placeholder={__(label)}
+        options={selectOptions}
         isLoading={isLoading}
-        onInputChange={this.handleInputChange}
+        onInputChange={onSearch}
         onMenuScrollToBottom={this.handleMenuScrollToBottom}
-        onChange={this.handleChange}
-        value={selectedOptions}
+        onChange={onChange}
+        onOpen={onOpen}
+        value={multi ? selectedValues : selectedValues[0]}
         disabled={disabled}
         isMenuScrollable={true}
         maxMenuHeight={200}
         menuShouldScrollIntoView={false}
-        noResultsText={this.state.isLoading ? 'Loading...' : 'No results found'}
-        multi={isMulti}
+        noResultsText={isLoading ? 'Loading...' : 'No results found'}
+        multi={multi}
       />
     );
   }
 }
-
 export default SelectWithPagination;

@@ -15,12 +15,11 @@ import {
   MenuFooter
 } from '../../styles';
 import { STATE_LIST, STOCK, TYPE, ORDER_TYPE } from '../../constants';
-import { IOption } from '@erxes/ui/src/types';
 import _ from 'lodash';
 import SelectWithPagination from '../../utils/SelectWithPagination';
 import queries from '../../graphql/queries';
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 type Props = {
   queryParams: any;
   clearFilter: () => void;
@@ -110,40 +109,7 @@ export default class RightMenu extends React.Component<Props, State> {
       onSelect(formattedDate, kind);
     }
   };
-  loadOptions = _.debounce(async (inputValue: string, page: number) => {
-    this.setState({ isLoading: true });
-    try {
-      client
-        .query({
-          query: gql(queries.UserQueries.tradingUsers),
-          variables: {
-            perPage: PAGE_SIZE,
-            page,
-            prefix: inputValue
-          }
-        })
-        .then(({ data }: any) => {
-          let newOptions =
-            data?.tradingUserByPrefix?.values.map(x => {
-              return {
-                value: x.prefix,
-                label: x.prefix
-              };
-            }) || [];
-          this.setState(prevState => ({
-            options: [...prevState.options, ...newOptions],
-            hasMore: newOptions.length === PAGE_SIZE,
-            isLoading: false
-          }));
-        })
-        .catch(() => {
-          this.setState({ isLoading: false });
-        });
-    } catch (error) {
-      console.log(error);
-      this.setState({ isLoading: false });
-    }
-  }, 500);
+
   renderFilter() {
     const { queryParams, onSelect, prefix } = this.props;
     const statusValues = STATE_LIST.map(p => ({
@@ -168,22 +134,34 @@ export default class RightMenu extends React.Component<Props, State> {
       });
       onSelect(values, type);
     };
-    const selectedValue = queryParams?.prefix ? queryParams.prefix : [];
+    const generateOptions = (array: any = []): Option[] => {
+      return array.map(item => {
+        return {
+          value: item.prefix,
+          label: item.prefix
+        };
+      });
+    };
+    const generateFilterParams = (value: any, searchValue: string) => {
+      return {
+        searchValue: searchValue,
+        prefixs: value
+      };
+    };
+    const selectedValue = queryParams?.prefix;
     return (
       <FilterBox>
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
-          placeholder={__('Filter by prefix')}
-          options={this.state.options}
+          label={__('Filter by prefix')}
           name="prefix"
-          onChange={ops => onFilterSelect(ops, 'prefix')}
-          isMulti={true}
+          onSelect={onSelect}
+          multi={true}
           disabled={false}
-          selectedOptions={selectedValue}
-          selectedValue={selectedValue}
-          loadOptions={this.loadOptions}
-          isLoading={this.state.isLoading}
-          hasMore={this.state.hasMore}
+          customQuery={queries.UserQueries.tradingUsers}
+          generateOptions={generateOptions}
+          initialValue={selectedValue}
+          generateFilterParams={generateFilterParams}
         />
         {/* <Select
           placeholder={__('Filter by prefix')}
@@ -194,6 +172,18 @@ export default class RightMenu extends React.Component<Props, State> {
           loadingPlaceholder={__('Loading...')}
           multi={true}
         /> */}
+        <SelectCompanies
+          label={__('Filter by companies')}
+          name="companyIds"
+          queryParams={queryParams}
+          onSelect={onSelect}
+        />
+        <SelectCustomers
+          label="Filter by customers"
+          name="customerIds"
+          queryParams={queryParams}
+          onSelect={onSelect}
+        />
       </FilterBox>
     );
   }

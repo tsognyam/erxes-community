@@ -15,13 +15,22 @@ const UserMcsdQueries = {
     let perPage = params.perPage || 20;
     let sortField = params.sortField || 'prefix';
     let sortDirection = params.sortDirection || '-1';
+    let orderBy: any = {
+      [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
+    };
+
+    let orderByWalletBlance: any = undefined;
+    if (sortField == 'balance') {
+      orderByWalletBlance = {
+        [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
+      };
+      orderBy = undefined;
+    }
     let updatedParams = {
       ...params,
       skip: (page - 1) * perPage,
       take: perPage,
-      orderBy: {
-        [sortField]: sortDirection == '-1' ? 'asc' : 'desc'
-      }
+      orderBy
     };
     return await userService.getFullInfo(updatedParams);
     // return await userService.getUser(subdomain, params.prefix);

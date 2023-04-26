@@ -135,40 +135,6 @@ class Forms extends React.Component<Props, State> {
     if (this.props.prefixChange != undefined)
       this.props.prefixChange(option[0]);
   };
-  loadOptions = _.debounce(async (inputValue: string, page: number) => {
-    this.setState({ isLoading: true });
-    try {
-      client
-        .query({
-          query: gql(queries.UserQueries.tradingUserByPrefix),
-          variables: {
-            perPage: PAGE_SIZE,
-            page,
-            prefix: inputValue
-          }
-        })
-        .then(({ data }: any) => {
-          let newOptions =
-            data?.tradingUserByPrefix?.values.map(x => {
-              return {
-                value: x.userId,
-                label: x.prefix
-              };
-            }) || [];
-          this.setState(prevState => ({
-            options: [...prevState.options, ...newOptions],
-            hasMore: newOptions.length === PAGE_SIZE,
-            isLoading: false
-          }));
-        })
-        .catch(() => {
-          this.setState({ isLoading: false });
-        });
-    } catch (error) {
-      console.log(error);
-      this.setState({ isLoading: false });
-    }
-  }, 500);
   changeTradeBalance = () => {
     if (this.state.userId != '' && this.state.userId != undefined)
       client
@@ -349,6 +315,26 @@ class Forms extends React.Component<Props, State> {
         label: x.symbol + ' - ' + x.stockname
       };
     });
+    const generateOptions = (array: any = []): any => {
+      return array.map(item => {
+        return {
+          value: item.prefix,
+          label: item.prefix
+        };
+      });
+    };
+    const generateFilterParams = (value: any, searchValue: string) => {
+      return {
+        searchValue: searchValue,
+        prefixs: value
+      };
+    };
+    const onSelect = (values: string[] | string, key: string) => {
+      this.prefixChange({
+        label: values as string,
+        value: values as string
+      });
+    };
     return (
       <>
         <FormGroup>
@@ -372,17 +358,15 @@ class Forms extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{__('Prefix')}</ControlLabel>
           <SelectWithPagination
-            name="userId"
-            placeholder={__('Prefix')}
-            disabled={this.state.isEditable ? false : true}
-            options={this.state.options}
-            selectedOptions={this.state.selectedOptions}
-            onChange={this.prefixChange}
-            selectedValue={this.state.userId}
-            isMulti={false}
-            isLoading={this.state.isLoading}
-            loadOptions={this.loadOptions}
-            hasMore={this.state.hasMore}
+            label={__('Filter by prefix')}
+            name="prefix"
+            onSelect={onSelect}
+            multi={true}
+            disabled={false}
+            customQuery={queries.UserQueries.tradingUsers}
+            generateOptions={generateOptions}
+            initialValue={this.state.userId}
+            generateFilterParams={generateFilterParams}
           />
         </FormGroup>
         <FormGroup>

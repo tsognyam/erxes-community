@@ -78,23 +78,29 @@ export default class UserService {
     if (params.userId != undefined) {
       where.userId = params.userId;
     }
-    if (params.prefixs != undefined) {
-      where.prefix = {
-        in: params.prefixs
-      };
+    where.OR = [];
+    if (params.prefixs != undefined || params.searchValue != undefined) {
+      where.prefix = undefined;
+
+      if (!!params.searchValue) {
+        where.OR.push({
+          prefix: {
+            contains: params.searchValue
+          }
+        });
+      }
+      if (params.prefixs.length > 0)
+        where.OR.push({ prefix: { in: params.prefixs } });
     }
+    if (where.OR.length == 0) where.OR = undefined;
     let account = await this._userMcsdRepository.findAll(
       where,
       {
         Wallet: {
-          select: {
-            id: true,
-            name: true,
-            currencyCode: true,
-            status: true,
-            createdAt: true,
-            walletNumber: true,
-            walletBalance: true,
+          include: {
+            walletBalance: {
+              orderBy: params.orderByWalletBlance
+            },
             stockBalances: true
           }
         }

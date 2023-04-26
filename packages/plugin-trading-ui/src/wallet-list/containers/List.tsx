@@ -127,7 +127,9 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           ...generatePaginationParams(queryParams),
-          prefixs: queryParams.prefix
+          prefixs: queryParams.prefix,
+          sortField: queryParams.sortField,
+          sortDirection: queryParams.sortDirection
         }
       })
     }),

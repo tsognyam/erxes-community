@@ -176,7 +176,21 @@ export default class RightMenu extends React.Component<Props, State> {
       console.log(ops);
       onSelect(values, type);
     };
-
+    const generateOptions = (array: any = []): Option[] => {
+      return array.map(item => {
+        return {
+          value: item.prefix,
+          label: item.prefix
+        };
+      });
+    };
+    const generateFilterParams = (value: any, searchValue: string) => {
+      return {
+        searchValue: searchValue,
+        prefixs: value
+      };
+    };
+    const selectedValue = queryParams?.prefix;
     return (
       <FilterBox>
         <CustomRangeContainer>
@@ -215,17 +229,15 @@ export default class RightMenu extends React.Component<Props, State> {
         />
         <ControlLabel>{__('Prefix')}</ControlLabel>
         <SelectWithPagination
-          placeholder={__('Filter by prefix')}
-          options={this.state.options}
+          label={__('Filter by prefix')}
           name="prefix"
-          onChange={ops => onFilterSelect(ops, 'prefix')}
-          isMulti={true}
+          onSelect={onSelect}
+          multi={true}
           disabled={false}
-          selectedOptions={this.state.selectedValue}
-          selectedValue={this.state.selectedValue}
-          loadOptions={this.loadOptions}
-          isLoading={this.state.isLoading}
-          hasMore={this.state.hasMore}
+          customQuery={queries.UserQueries.tradingUsers}
+          generateOptions={generateOptions}
+          initialValue={selectedValue}
+          generateFilterParams={generateFilterParams}
         />
         {/* <Select
           placeholder={__('Filter by prefix')}

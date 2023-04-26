@@ -28,7 +28,10 @@ userId:String,
 prefix:String,
 page:Int,
 perPage:Int,
-prefixs:[String]
+prefixs:[String],
+sortDirection:String,
+sortField:String,
+searchValue:String
 `;
 export const queries = `
 tradingUserByPrefix(${inputParams}):TradingUserMcsdList
