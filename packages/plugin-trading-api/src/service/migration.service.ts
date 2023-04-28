@@ -1,5 +1,6 @@
 import * as csv from 'csv-parser';
 import * as fs from 'fs';
+import { stringify } from 'csv-stringify';
 import OrderService from './order.service';
 import StockRepository from '../repository/stock.repository';
 import UserMCSDAccountRepository from '../repository/user/user.mcsd.repository';
@@ -27,6 +28,7 @@ import BaseRepository from '../repository/base.repository';
 import StockWalletValidator from './validator/wallet/stock.wallet.validator';
 import UserService from './user/user.service';
 import { sendFormsMessage } from '../messageBroker';
+import ExportService from './export.service';
 export default class MigrationService {
   private orderService: OrderService;
   private stockRepository: StockRepository;
@@ -40,6 +42,7 @@ export default class MigrationService {
   private custFeeService: CustFeeService;
   private stockWalletValidator: StockWalletValidator;
   private userService: UserService;
+  private exportService: ExportService;
   constructor() {
     this.orderService = new OrderService();
     this.stockRepository = new StockRepository();
@@ -53,6 +56,7 @@ export default class MigrationService {
     this.custFeeService = new CustFeeService();
     this.stockWalletValidator = new StockWalletValidator();
     this.userService = new UserService();
+    this.exportService = new ExportService();
   }
   getCsvData = async fileName => {
     return new Promise(function(resolve, reject) {
@@ -84,6 +88,9 @@ export default class MigrationService {
       count = await this.migrationTransaction(data);
       responseText =
         'Орлого зарлагын нийт ' + count + ' гүйлгээ амжилттай импорт хийлээ';
+    } else if (params.body.type == '4') {
+      await this.checkBalance(data);
+      responseText = 'Balance checked';
     }
     return responseText;
   };
@@ -550,5 +557,97 @@ export default class MigrationService {
     order.descr2 = 'Filled';
     order.status = OrderStatus.STATUS_FILLED;
     await this.orderRepository.update(order);
+  };
+  checkBalance = async (data: any) => {
+    let i = 0;
+    let uncreatedUsers: any = [
+      {
+        prefix: '123'
+      }
+    ];
+    let uncreatedWalletUsers: any = [];
+    let invalidBalances: any = [];
+    let uncreatedStocks: any = [];
+    for (i = 0; i < data.length; i++) {
+      try {
+        let userMCSD = await this.userMCSDAccountRepository.findUnique({
+          prefix: data[i].mit_prefix
+        });
+        if (userMCSD) {
+          let params: any = {
+            userId: userMCSD.userId,
+            currencyCode: 'MNT'
+          };
+          const wallets = await this.walletService.getWalletWithUser(params);
+          if (wallets.length == 0) {
+            uncreatedWalletUsers.push(userMCSD.prefix);
+            continue;
+          }
+          if (data[i].asset_csd_code == '9995') {
+            if (data[i].balance != wallets[0].walletBalance!.balance) {
+              invalidBalances.push({
+                prefix: data[i].mit_prefix,
+                balance: data[i].balance,
+                asset_csd_code: data[i].asset_csd_code,
+                asset_symbol: data[i].asset_symbol
+              });
+            }
+          } else if (!data[i].asset_csd_code.startsWith('999')) {
+            let stock = await this.stockRepository.findFirst({
+              symbol: data[i].asset_symbol
+            });
+            if (!!stock) {
+              let stockWalletBalance = await this.stockWalletValidator.validateBalanceWithWallet(
+                {
+                  walletId: wallets[0].id,
+                  stockCode: stock.stockcode
+                }
+              );
+              if (data[i].walletBalance != stockWalletBalance.balance) {
+                invalidBalances.push({
+                  prefix: data[i].mit_prefix,
+                  balance: data[i].balance,
+                  asset_csd_code: data[i].asset_csd_code,
+                  asset_symbol: data[i].asset_symbol
+                });
+              }
+            } else {
+              uncreatedStocks.push({ symbol: data[i].asset_symbol });
+            }
+          }
+        } else {
+          uncreatedUsers.push({ prefix: data[i].mit_prefix });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    await this.exportService.arrayToCsv(uncreatedUsers, 'uncreatedUsers.csv', {
+      prefix: 'Prefix'
+    });
+    await this.exportService.arrayToCsv(
+      uncreatedWalletUsers,
+      'uncreatedWalletUsers.csv',
+      {
+        prefix: 'Prefix'
+      }
+    );
+    await this.exportService.arrayToCsv(
+      invalidBalances,
+      'invalidBalances.csv',
+      {
+        prefix: 'Prefix',
+        balance: 'Balance',
+        asset_csd_code: 'ASSET_CSD_CODE',
+        asset_symbol: 'ASSET_SYMBOL'
+      }
+    );
+    await this.exportService.arrayToCsv(
+      uncreatedStocks,
+      'uncreatedStocks.csv',
+      {
+        symbol: 'Symbol'
+      }
+    );
   };
 }

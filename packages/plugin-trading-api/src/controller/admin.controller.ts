@@ -2,6 +2,7 @@ import { Router } from 'express';
 import AdminService from '../service/admin.service';
 import multer = require('multer');
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import * as fs from 'fs';
 const upload = multer({ dest: './data/uploads' });
 const router = Router();
 const adminService = new AdminService();
@@ -23,5 +24,9 @@ router.post(
       });
   }
 );
-
+router.get('/download/csvFile', async (req, res) => {
+  let fileName = req.query.fileName;
+  const filePath = `./data/downloads/csv/` + fileName;
+  res.download(filePath);
+});
 export default router;

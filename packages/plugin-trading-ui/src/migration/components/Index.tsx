@@ -105,6 +105,10 @@ class Index extends React.Component<FinalProps, State> {
       {
         label: 'Transaction',
         value: '3'
+      },
+      {
+        label: 'CheckBalance',
+        value: 4
       }
     ];
     const content = (

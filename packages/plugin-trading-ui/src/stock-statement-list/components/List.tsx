@@ -4,7 +4,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Table from '@erxes/ui/src/components/table';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { STOCK_LIST } from '../../constants';
+import { Icon } from '@erxes/ui/src/components';
 import Row from './Row';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
@@ -189,7 +189,12 @@ class List extends React.Component<Props, State> {
               submenu={nominalStatementMenus}
             />
           }
-          actionBar={<Wrapper.ActionBar left={this.renderActionBar()} />}
+          actionBar={
+            <Wrapper.ActionBar
+              left={this.renderActionBar()}
+              right={<Button icon="csv-export">Export</Button>}
+            />
+          }
           content={
             <DataWithLoader
               data={this.renderContent()}
