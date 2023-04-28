@@ -77,6 +77,8 @@ tradingStocks(
     symbol:JSON
 ):TradingStockList
 
+tradingTop20:TradingStockList
+
 tradingGetPosition(
     stockcode:Int,
     userId:String!,

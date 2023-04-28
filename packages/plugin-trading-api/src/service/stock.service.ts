@@ -32,6 +32,37 @@ class StockService {
 
     return stock;
   };
+  getTop20 = async () => {
+    let stocks = await this.getStock({
+      detail: true,
+      symbol: {
+        in: [
+          'APU',
+          'GLMT',
+          'AARD',
+          'ERDN',
+          'INV',
+          'SBM',
+          'CUMN',
+          'GOV',
+          'UID',
+          'TTL',
+          'TUM',
+          'MFC',
+          'MNDL',
+          'SUU',
+          'BOGD',
+          'ADB',
+          'AIC',
+          'MNP',
+          'SEND',
+          'BODI'
+        ]
+      }
+    });
+    console.log('stocks', stocks);
+    return stocks;
+  };
   getStock = async params => {
     var data = await this.stockValidator.validateGet(params);
     let options: any = [];

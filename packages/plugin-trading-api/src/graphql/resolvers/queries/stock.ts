@@ -17,6 +17,13 @@ const StockQueries = {
   ) => {
     return await stockService.getStock(params);
   },
+  tradingTop20: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await stockService.getTop20();
+  },
   tradingStockList: async (
     _root: any,
     params,
