@@ -220,5 +220,6 @@ class WalletService {
       return 'success';
     } else return 'Already created';
   };
+  getAssetBalances = async (params: any) => {};
 }
 export default WalletService;

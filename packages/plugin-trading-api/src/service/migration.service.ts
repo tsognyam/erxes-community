@@ -1,6 +1,5 @@
 import * as csv from 'csv-parser';
 import * as fs from 'fs';
-import { stringify } from 'csv-stringify';
 import OrderService from './order.service';
 import StockRepository from '../repository/stock.repository';
 import UserMCSDAccountRepository from '../repository/user/user.mcsd.repository';
@@ -560,11 +559,7 @@ export default class MigrationService {
   };
   checkBalance = async (data: any) => {
     let i = 0;
-    let uncreatedUsers: any = [
-      {
-        prefix: '123'
-      }
-    ];
+    let uncreatedUsers: any = [];
     let uncreatedWalletUsers: any = [];
     let invalidBalances: any = [];
     let uncreatedStocks: any = [];
@@ -580,11 +575,16 @@ export default class MigrationService {
           };
           const wallets = await this.walletService.getWalletWithUser(params);
           if (wallets.length == 0) {
-            uncreatedWalletUsers.push(userMCSD.prefix);
+            if (
+              !uncreatedWalletUsers.some(
+                element => element.prefix == userMCSD.prefix
+              )
+            )
+              uncreatedWalletUsers.push({ prefix: userMCSD.prefix });
             continue;
           }
           if (data[i].asset_csd_code == '9995') {
-            if (data[i].balance != wallets[0].walletBalance!.balance) {
+            if (data[i].balance != wallets[0].walletBalance?.balance) {
               invalidBalances.push({
                 prefix: data[i].mit_prefix,
                 balance: data[i].balance,
@@ -612,11 +612,21 @@ export default class MigrationService {
                 });
               }
             } else {
-              uncreatedStocks.push({ symbol: data[i].asset_symbol });
+              if (
+                !uncreatedStocks.some(
+                  element => element.symbol == data[i].asset_symbol
+                )
+              )
+                uncreatedStocks.push({ symbol: data[i].asset_symbol });
             }
           }
         } else {
-          uncreatedUsers.push({ prefix: data[i].mit_prefix });
+          if (
+            !uncreatedUsers.some(
+              element => element.prefix == data[i].mit_prefix
+            )
+          )
+            uncreatedUsers.push({ prefix: data[i].mit_prefix });
         }
       } catch (e) {
         console.log(e);

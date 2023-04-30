@@ -24,6 +24,13 @@ const WalletQueries = {
       subdomain
     );
   },
+  tradingAssetBalances: async (
+    _root: any,
+    params,
+    { models, subdomain, user }: IContext
+  ) => {
+    return await walletService.getAssetBalances(params);
+  },
   tradingUserWallets: async (
     _root: any,
     { userId, currencyCode },

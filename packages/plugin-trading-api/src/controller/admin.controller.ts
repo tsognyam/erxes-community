@@ -25,6 +25,7 @@ router.post(
   }
 );
 router.get('/download/csvFile', async (req, res) => {
+  console.log('fileName', req.query.fileName);
   let fileName = req.query.fileName;
   const filePath = `./data/downloads/csv/` + fileName;
   res.download(filePath);
