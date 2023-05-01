@@ -10,6 +10,7 @@ export default class ExportService {
       header: true,
       columns: columns
     };
+    fs.mkdirSync(path, { recursive: true });
     const writableStream = fs.createWriteStream(path + `/${fileName}`, {
       encoding: 'utf8'
     });
