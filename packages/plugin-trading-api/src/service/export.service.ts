@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { stringify } from 'csv-stringify';
-const path = './data/downloads/csv';
+const path = `./data/downloads/csv`;
 export default class ExportService {
   arrayToCsv = async (data, fileName, columns) => {
     const options = {
@@ -10,7 +10,7 @@ export default class ExportService {
       header: true,
       columns: columns
     };
-    const writableStream = fs.createWriteStream(path + '/' + fileName, {
+    const writableStream = fs.createWriteStream(path + `/${fileName}`, {
       encoding: 'utf8'
     });
     const transform = stringify(options);
@@ -30,7 +30,6 @@ export default class ExportService {
     });
 
     data.forEach(row => {
-      console.log(row);
       transform.write(row);
     });
 
