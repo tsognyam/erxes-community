@@ -163,10 +163,7 @@ export default class MigrationService {
           confirm: 1
         });
         addedTransaction++;
-      } else if (
-        sortedData[i].transaction_type == 'Unet tsaasnii guilgee' ||
-        sortedData[i].transaction_type == 'Contract note'
-      ) {
+      } else if (!sortedData[i].asset_symbol.startsWith('999')) {
         let stock = await this.stockRepository.findFirst({
           symbol: sortedData[i].asset_symbol
         });
