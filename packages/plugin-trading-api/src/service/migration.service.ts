@@ -584,10 +584,14 @@ export default class MigrationService {
             continue;
           }
           if (data[i].asset_csd_code == '9995') {
-            if (data[i].balance != wallets[0].walletBalance?.balance) {
+            if (
+              parseFloat(data[i].balance) !=
+              parseFloat(wallets[0].walletBalance?.balance)
+            ) {
               invalidBalances.push({
                 prefix: data[i].mit_prefix,
-                balance: data[i].balance,
+                dbxBalance: data[i].balance,
+                tradingBalance: wallets[0].walletBalance?.balance,
                 asset_csd_code: data[i].asset_csd_code,
                 asset_symbol: data[i].asset_symbol
               });
@@ -603,10 +607,14 @@ export default class MigrationService {
                   stockCode: stock.stockcode
                 }
               );
-              if (data[i].walletBalance != stockWalletBalance.balance) {
+              if (
+                parseFloat(data[i].balance) !=
+                parseFloat(stockWalletBalance.balance)
+              ) {
                 invalidBalances.push({
                   prefix: data[i].mit_prefix,
-                  balance: data[i].balance,
+                  dbxBalance: data[i].balance,
+                  tradingBalance: stockWalletBalance.balance,
                   asset_csd_code: data[i].asset_csd_code,
                   asset_symbol: data[i].asset_symbol
                 });
@@ -647,7 +655,8 @@ export default class MigrationService {
       'invalidBalances.csv',
       {
         prefix: 'Prefix',
-        balance: 'Balance',
+        dbxBalance: 'DBX_BALANCE',
+        tradingBalance: 'TRADING_BALANCE',
         asset_csd_code: 'ASSET_CSD_CODE',
         asset_symbol: 'ASSET_SYMBOL'
       }
