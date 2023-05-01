@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
@@ -29,6 +29,12 @@ import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
 import _ from 'lodash';
 import Select from 'react-select-plus';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { queries } from '../../graphql';
+import SelectWithPagination from '../../utils/SelectWithPagination';
+interface Option {
+  value: string;
+  label: string;
+}
 type Props = {
   queryParams: any;
   history: any;
@@ -38,13 +44,8 @@ type Props = {
   total: number;
   count: number;
   loading: boolean;
-  renderButton: (props: any) => JSX.Element;
   closeModal: () => void;
-  startDate: string;
-  endDate: string;
-  userId?: string;
   tradingStatementSum: any;
-  prefix: any;
   full: boolean;
 };
 type State = {
@@ -55,10 +56,15 @@ type State = {
 class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+    const qp = props.queryParams || {
+      startDate: '',
+      endDate: '',
+      userId: ''
+    };
     this.state = {
-      startDate: this.props.startDate,
-      endDate: this.props.endDate,
-      userId: this.props.userId
+      startDate: qp.startDate,
+      endDate: qp.endDate,
+      userId: qp.userId
     };
   }
   renderContent = () => {
@@ -70,23 +76,24 @@ class List extends React.Component<Props, State> {
           <thead>
             <tr>
               <th>{__('Index')}</th>
+              <th>{__('Prefix')}</th>
               <th>{__('Огноо')}</th>
               <th>{__('Төрөл')}</th>
               <th>{__('Үнэт цаасны нэр')}</th>
               <th>{__('Симбол')}</th>
-              <th>{__('Код')}</th>
-              <th>{__('Орлого')}</th>
-              <th>{__('Зарлага')}</th>
-              <th>{__('ХБО')}</th>
-              <th>{__('ХБЗ')}</th>
-              <th>{__('Үнэ')}</th>
-              <th>{__('Шимтгэл')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Код')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Орлого')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Зарлага')}</th>
+              <th style={{ textAlign: 'right' }}>{__('ХБО')}</th>
+              <th style={{ textAlign: 'right' }}>{__('ХБЗ')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Үнэ')}</th>
+              <th style={{ textAlign: 'right' }}>{__('Шимтгэл')}</th>
               <th>{__('Тайлбар')}</th>
             </tr>
           </thead>
           <thead>
             <tr>
-              <th colSpan={4}></th>
+              <th colSpan={5}></th>
               <th colSpan={2}>
                 Эхний үлдэгдэл:{displayValue(tradingStatementSum?.beginBalance)}
               </th>
@@ -124,14 +131,37 @@ class List extends React.Component<Props, State> {
       this.setState({ startDate: formattedDate });
     } else this.setState({ endDate: formattedDate });
   };
-  renderActionBar() {
-    const { renderButton } = this.props;
-    const prefixList = this.props.prefix.map(x => {
-      return {
-        value: x.userId,
-        label: x.prefix
-      };
+  onClick = () => {
+    const { history } = this.props;
+    const { startDate, endDate, userId } = this.state;
+    router.setParams(history, {
+      startDate,
+      endDate,
+      userId
     });
+  };
+  renderActionBar() {
+    const generateOptions = (array: any = []): Option[] => {
+      return array.map(item => {
+        return {
+          value: item.userId,
+          label: item.prefix,
+          value2: item.registerNumber
+        };
+      });
+    };
+    const generateFilterParams = (value: any, searchValue: string) => {
+      return {
+        searchValue: searchValue,
+        userIds: value
+      };
+    };
+    const onSelect = (values: string[] | string, key: string) => {
+      this.prefixChange({
+        label: values as string,
+        value: values as string
+      });
+    };
     const actionBarLeft = (
       <FormWrapper>
         <FormColumn>
@@ -155,22 +185,36 @@ class List extends React.Component<Props, State> {
           />
         </FormColumn>
         <FormColumn>
-          <Select
+          <SelectWithPagination
+            queryName="tradingUserByPrefix"
+            label={__('Filter by prefix and registerNumber')}
+            name="userId"
+            onSelect={onSelect}
+            multi={false}
+            disabled={false}
+            customQuery={queries.UserQueries.tradingUsers}
+            generateOptions={generateOptions}
+            initialValue={this.state.userId}
+            generateFilterParams={generateFilterParams}
+            uniqueValue="userId"
+          />
+          {/* <Select
             placeholder={__('Prefix')}
             value={this.state.userId}
             options={_.sortBy(prefixList, ['label'])}
             onChange={this.prefixChange}
             name="userId"
-          />
+          /> */}
         </FormColumn>
         <FormColumn>
-          {renderButton({
-            values: {
-              startDate: this.state.startDate,
-              endDate: this.state.endDate,
-              userId: this.state.userId
-            }
-          })}
+          <Button
+            btnStyle="primary"
+            icon="filter-1"
+            onClick={this.onClick}
+            size="small"
+          >
+            {__('Filter')}
+          </Button>
         </FormColumn>
       </FormWrapper>
     );

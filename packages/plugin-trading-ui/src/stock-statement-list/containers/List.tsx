@@ -20,69 +20,18 @@ type Props = {
 type FinalProps = {
   tradingStockTransactionStatementQuery: any;
   tradingStockTransactionStatementSumQuery: any;
-  tradingUserByPrefixQuery: any;
 } & Props &
   IRouterProps;
 const date = new Date();
-class ListContainer extends React.Component<
-  FinalProps,
-  {
-    isLoading: boolean;
-    startDate?: Date;
-    endDate?: Date;
-    userId?: string;
-  }
-> {
+class ListContainer extends React.Component<FinalProps> {
   constructor(props: FinalProps) {
     super(props);
-
-    this.state = {
-      isLoading: false
-    };
   }
-  renderButton = ({
-    passedName,
-    values,
-    isSubmitted,
-    callback,
-    object
-  }: IButtonMutateProps) => {
-    //const { isLoading } = this.state;
-    return (
-      <Button btnStyle="primary" onClick={() => this.onSearchList(values)}>
-        ХАЙХ
-      </Button>
-    );
-  };
-  onSearchList = values => {
-    const {
-      tradingStockTransactionStatementQuery,
-      tradingStockTransactionStatementSumQuery
-    } = this.props;
-    this.setState({
-      startDate: values.startDate,
-      endDate: values.endDate,
-      userId: values.userId
-    });
-    tradingStockTransactionStatementQuery.refetch({
-      startDate: values.startDate,
-      endDate: values.endDate,
-      userId: values.userId
-    });
-    tradingStockTransactionStatementSumQuery.refetch({
-      startDate: values.startDate,
-      endDate: values.endDate,
-      userId: values.userId
-    });
-  };
   render() {
     const {
-      history,
       queryParams,
       tradingStockTransactionStatementQuery,
-      tradingStockTransactionStatementSumQuery,
-      tradingUserByPrefixQuery,
-      walletId
+      tradingStockTransactionStatementSumQuery
     } = this.props;
     const total =
       tradingStockTransactionStatementQuery?.tradingStockTransactionStatement
@@ -95,20 +44,14 @@ class ListContainer extends React.Component<
         ?.values || [];
     let tradingStatementSum =
       tradingStockTransactionStatementSumQuery?.tradingStockTransactionStatementSummary;
-    let prefix = tradingUserByPrefixQuery?.tradingUserByPrefix?.values || [];
     const updatedProps = {
       ...this.props,
       tradingStatements,
       loading: tradingStockTransactionStatementQuery.loading,
       total,
       count,
-      renderButton: this.renderButton,
-      startDate: this.state.startDate,
-      endDate: this.state.endDate,
-      userId: this.state.userId,
       queryParams,
-      tradingStatementSum,
-      prefix
+      tradingStatementSum
     };
     if (tradingStockTransactionStatementQuery.loading) {
       return <Spinner />;
@@ -129,7 +72,10 @@ export default withProps<Props>(
         options: ({ walletId, queryParams }) => ({
           variables: {
             walletId: walletId,
-            ...generatePaginationParams(queryParams)
+            ...generatePaginationParams(queryParams),
+            userId: queryParams.userId,
+            startDate: queryParams.startDate,
+            endDate: queryParams.endDate
           },
           fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true
@@ -142,20 +88,17 @@ export default withProps<Props>(
       ),
       {
         name: 'tradingStockTransactionStatementSumQuery',
-        options: ({ walletId }) => ({
+        options: ({ walletId, queryParams }) => ({
           variables: {
-            walletId: walletId
+            walletId: walletId,
+            userId: queryParams.userId,
+            startDate: queryParams.startDate,
+            endDate: queryParams.endDate
           },
           fetchPolicy: 'network-only',
           notifyOnNetworkStatusChange: true
         })
       }
-    ),
-    graphql<Props>(gql(queries.UserQueries.tradingUserByPrefix), {
-      name: 'tradingUserByPrefixQuery',
-      options: ({ queryParams }) => ({
-        fetchPolicy: 'network-only'
-      })
-    })
+    )
   )(ListContainer)
 );

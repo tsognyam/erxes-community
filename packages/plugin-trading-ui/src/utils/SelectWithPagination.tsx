@@ -101,8 +101,9 @@ class SelectWithPagination extends Component<Props, State> {
           data => !totalOptionsValues.includes(data[uniqueValue])
         )
       );
-      const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
 
+      const updatedTotalOptions = [...totalOptions, ...uniqueLoadedOptions];
+      console.log(updatedTotalOptions);
       const selectedOptions = updatedTotalOptions.filter(option =>
         selectedValues.includes(option.value)
       );
@@ -173,6 +174,7 @@ class SelectWithPagination extends Component<Props, State> {
   //     this.setState({ isLoading: false });
   //   }
   // };
+
   render() {
     const { selectedOptions, selectedValues } = this.state;
     const {
@@ -210,7 +212,24 @@ class SelectWithPagination extends Component<Props, State> {
         _.debounce(() => search(searchValue), 1000)();
       }
     };
-
+    const customOptionRenderer = option => {
+      return (
+        <div style={{ display: 'flex' }}>
+          <div style={{ flex: 1, marginRight: '5px' }}>{option.label}</div>
+          <div style={{ flex: 1 }}>{option.value2}</div>
+        </div>
+      );
+    };
+    const filterOption = (option, inputValue) => {
+      if (inputValue) {
+        return (
+          option.label.toLowerCase().includes(inputValue.toLowerCase()) || // filter by value
+          (option.value2 &&
+            option.value2.toLowerCase().includes(inputValue.toLowerCase())) // filter by value2 (if defined)
+        );
+      }
+      return true;
+    };
     const onOpen = () => search('reload');
     const selectOptions = [...(options || [])];
     return (
@@ -229,6 +248,8 @@ class SelectWithPagination extends Component<Props, State> {
           noResultsText={
             customQuery.loading ? 'Loading...' : 'No results found'
           }
+          optionRenderer={customOptionRenderer}
+          filterOption={filterOption}
         />
         {this.renderClearButton()}
       </SelectWrapper>

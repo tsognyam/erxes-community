@@ -16,6 +16,7 @@ class Row extends React.Component<Props> {
     return (
       <StyledTr key={index}>
         <td>{index + 1}</td>
+        <td>{transaction.prefix}</td>
         <td>{dayjs(transaction.dater).format('YYYY-MM-DD')}</td>
         <td>
           {transaction.type == 1

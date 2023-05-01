@@ -81,12 +81,22 @@ export default class UserService {
     if (!!params.prefixs && params.prefixs.length > 0) {
       where.prefix = { in: params.prefixs };
     }
-    if (!!params.searchValue) {
-      where.prefix = {
-        contains: params.searchValue
-      };
+    if (!!params.userIds && params.userIds.length > 0) {
+      where.userId = { in: params.userIds };
     }
     where.OR = [];
+    if (!!params.searchValue) {
+      where.OR.push({
+        prefix: {
+          contains: params.searchValue
+        }
+      });
+      where.OR.push({
+        registerNumber: {
+          contains: params.searchValue
+        }
+      });
+    }
     if (
       params.prefixs != undefined &&
       params.prefixs.length > 0 &&
@@ -98,11 +108,14 @@ export default class UserService {
           contains: params.searchValue
         }
       });
+      where.OR.push({
+        registerNumber: {
+          contains: params.searchValue
+        }
+      });
       where.OR.push({ prefix: { in: params.prefixs } });
     }
     if (where.OR.length == 0) where.OR = undefined;
-    console.log(params);
-    console.log(where);
     let account = await this._userMcsdRepository.findAll(
       where,
       {

@@ -123,7 +123,9 @@ export default withProps<Props>(
           sortField: queryParams.sortField,
           sortDirection: queryParams.sortDirection,
           currencyCode: queryParams.currencyCode,
-          prefix: queryParams.prefix
+          prefix: queryParams.prefix,
+          companyIds: queryParams.companyIds,
+          userIds: queryParams.customerIds
         }
       })
     }),

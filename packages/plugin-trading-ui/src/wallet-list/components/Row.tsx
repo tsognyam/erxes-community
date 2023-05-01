@@ -61,6 +61,7 @@ class Row extends React.Component<Props> {
         <td>{wallet.user?.bdcAccountId}</td>
         <td>{wallet.user?.lastName}</td>
         <td>{wallet.user?.firstName}</td>
+        <td>{wallet.user?.registerNumber}</td>
         <td>{wallet.currencyCode}</td>
         <td>
           {this.displayValue(parseFloat(wallet.walletBalance?.balance || 0))}

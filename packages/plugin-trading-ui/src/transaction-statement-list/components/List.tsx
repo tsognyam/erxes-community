@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils';
+import { __, router } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -28,6 +28,8 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { nominalStatementMenus } from '../../utils/nominalStatementMenus';
 import _ from 'lodash';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import { queries } from '../../graphql';
+import SelectWithPagination from '../../utils/SelectWithPagination';
 type Props = {
   queryParams: any;
   history: any;
@@ -37,27 +39,31 @@ type Props = {
   total: number;
   count: number;
   loading: boolean;
-  renderButton: (props: any) => JSX.Element;
   closeModal: () => void;
-  startDate: string;
-  endDate: string;
   full: boolean;
   tradingStatementSum: any;
-  prefix: any;
-  userId?: string;
 };
 type State = {
   startDate: string;
   endDate: string;
   userId?: string;
 };
+interface Option {
+  value: string;
+  label: string;
+}
 class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
+    const qp = props.queryParams || {
+      startDate: '',
+      endDate: '',
+      userId: ''
+    };
     this.state = {
-      startDate: this.props.startDate,
-      endDate: this.props.endDate,
-      userId: this.props.userId
+      startDate: qp.startDate,
+      endDate: qp.endDate,
+      userId: qp.userId
     };
   }
   prefixChange = (option: { value: string; label: string }) => {
@@ -118,20 +124,44 @@ class List extends React.Component<Props, State> {
       </>
     );
   };
+  onClick = () => {
+    const { history } = this.props;
+    const { startDate, endDate, userId } = this.state;
+    router.setParams(history, {
+      startDate,
+      endDate,
+      userId
+    });
+  };
   onChangeDate = (kind: string, date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
     if (kind == 'startDate') {
       this.setState({ startDate: formattedDate });
     } else this.setState({ endDate: formattedDate });
   };
+
   renderActionBar() {
-    const { renderButton } = this.props;
-    const prefixList = this.props.prefix.map(x => {
+    const generateOptions = (array: any = []): Option[] => {
+      return array.map(item => {
+        return {
+          value: item.userId,
+          label: item.prefix,
+          value2: item.registerNumber
+        };
+      });
+    };
+    const generateFilterParams = (value: any, searchValue: string) => {
       return {
-        value: x.userId,
-        label: x.prefix
+        searchValue: searchValue,
+        userIds: value
       };
-    });
+    };
+    const onSelect = (values: string[] | string, key: string) => {
+      this.prefixChange({
+        label: values as string,
+        value: values as string
+      });
+    };
     const actionBarLeft = (
       <FormWrapper>
         <FormColumn>
@@ -155,22 +185,29 @@ class List extends React.Component<Props, State> {
           />
         </FormColumn>
         <FormColumn>
-          <Select
-            placeholder={__('Prefix')}
-            value={this.state.userId}
-            options={_.sortBy(prefixList, ['label'])}
-            onChange={this.prefixChange}
+          <SelectWithPagination
+            queryName="tradingUserByPrefix"
+            label={__('Filter by prefix and registerNumber')}
             name="userId"
+            onSelect={onSelect}
+            multi={false}
+            disabled={false}
+            customQuery={queries.UserQueries.tradingUsers}
+            generateOptions={generateOptions}
+            initialValue={this.state.userId}
+            generateFilterParams={generateFilterParams}
+            uniqueValue="userId"
           />
         </FormColumn>
         <FormColumn>
-          {renderButton({
-            values: {
-              startDate: this.state.startDate,
-              endDate: this.state.endDate,
-              userId: this.state.userId
-            }
-          })}
+          <Button
+            btnStyle="primary"
+            icon="filter-1"
+            onClick={this.onClick}
+            size="small"
+          >
+            {__('Filter')}
+          </Button>
         </FormColumn>
       </FormWrapper>
     );

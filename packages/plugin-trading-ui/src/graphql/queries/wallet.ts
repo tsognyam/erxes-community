@@ -1,6 +1,6 @@
 const tradingWallets = `
-query TradingWallets($status: Int, $type: Int, $walletIds: [Int],$page:Int,$perPage:Int,$prefix:[String],$currencyCode: [String],$sortDirection:String,$sortField:String) {
-  tradingWallets(status: $status, type: $type, walletIds: $walletIds,page:$page,perPage:$perPage,prefix:$prefix,currencyCode:$currencyCode,sortDirection:$sortDirection,sortField:$sortField) {
+query TradingWallets($status: Int, $type: Int, $walletIds: [Int],$page:Int,$perPage:Int,$prefix:[String],$currencyCode: [String],$sortDirection:String,$sortField:String,$companyIds:[String],$userIds:[String]) {
+  tradingWallets(status: $status, type: $type, walletIds: $walletIds,page:$page,perPage:$perPage,prefix:$prefix,currencyCode:$currencyCode,sortDirection:$sortDirection,sortField:$sortField,companyIds:$companyIds,userIds:$userIds) {
     total,
     count,
     values {

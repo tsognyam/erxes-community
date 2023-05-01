@@ -40,6 +40,7 @@ class ListComp extends React.Component<Props> {
             <th>{__('Bdc Account')}</th>
             <th>{__('Lastname')}</th>
             <th>{__('Firstname')}</th>
+            <th>{__('RegisterNumber')}</th>
             <th>{__('CurrencyCode')}</th>
             <th style={{ textAlign: 'right' }}>
               <SortHandler sortField={'balance'} label={__('Balance')} />

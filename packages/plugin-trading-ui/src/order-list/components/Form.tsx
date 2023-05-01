@@ -319,14 +319,15 @@ class Forms extends React.Component<Props, State> {
       return array.map(item => {
         return {
           value: item.userId,
-          label: item.prefix
+          label: item.prefix,
+          value2: item.registerNumber
         };
       });
     };
     const generateFilterParams = (value: any, searchValue: string) => {
       return {
         searchValue: searchValue,
-        prefixs: value
+        userIds: value
       };
     };
     const onSelect = (values: string[] | string, key: string) => {
@@ -363,7 +364,7 @@ class Forms extends React.Component<Props, State> {
             name="prefix"
             onSelect={onSelect}
             multi={false}
-            disabled={false}
+            disabled={this.state.isEditable ? false : true}
             customQuery={queries.UserQueries.tradingUsers}
             generateOptions={generateOptions}
             initialValue={this.state.userId}

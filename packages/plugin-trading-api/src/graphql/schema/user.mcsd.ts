@@ -5,6 +5,7 @@ type TradingUserMcsd @key(fields:"id") {
     lastName:String
     userId:String
     prefix:String
+    registerNumber:String
     clientPrefix: String
     fullPrefix:String
     bdcAccountId:String
@@ -29,6 +30,7 @@ prefix:String,
 page:Int,
 perPage:Int,
 prefixs:[String],
+userIds:[String],
 sortDirection:String,
 sortField:String,
 searchValue:String

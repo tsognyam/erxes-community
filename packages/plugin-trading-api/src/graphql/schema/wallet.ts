@@ -52,7 +52,7 @@ tradingWallets(
   sortDirection:String,
   sortField:String,
   companyIds:[String],
-  customerIds:[String]
+  userIds:[String]
   ):TradingWalletList
 tradingUserWallets(userId:String!,currencyCode:String):[TradingWallet]
 tradingStockWallets(

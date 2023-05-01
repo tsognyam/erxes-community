@@ -108,7 +108,8 @@ export default class RightMenu extends React.Component<Props, State> {
       return array.map(item => {
         return {
           value: item.prefix,
-          label: item.prefix
+          label: item.prefix,
+          value2: item.registerNumber
         };
       });
     };
@@ -128,10 +129,10 @@ export default class RightMenu extends React.Component<Props, State> {
     const selectedValue = queryParams?.prefix;
     return (
       <FilterBox>
-        <ControlLabel>{__('Prefix')}</ControlLabel>
+        <ControlLabel>{__('Prefix&RegisterNumber')}</ControlLabel>
         <SelectWithPagination
           queryName="tradingUserByPrefix"
-          label={__('Filter by prefix')}
+          label={__('Filter by prefix and registerNumber')}
           name="prefix"
           onSelect={onSelect}
           multi={true}
