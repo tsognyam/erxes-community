@@ -637,17 +637,21 @@ export default class MigrationService {
         console.log(e);
       }
     }
-    await this.exportService.arrayToCsv(uncreatedUsers, 'uncreatedUsers.csv', {
-      prefix: 'Prefix'
-    });
-    await this.exportService.arrayToCsv(
+    await this.exportService.arrayToCsvWriteFile(
+      uncreatedUsers,
+      'uncreatedUsers.csv',
+      {
+        prefix: 'Prefix'
+      }
+    );
+    await this.exportService.arrayToCsvWriteFile(
       uncreatedWalletUsers,
       'uncreatedWalletUsers.csv',
       {
         prefix: 'Prefix'
       }
     );
-    await this.exportService.arrayToCsv(
+    await this.exportService.arrayToCsvWriteFile(
       invalidBalances,
       'invalidBalances.csv',
       {
@@ -658,7 +662,7 @@ export default class MigrationService {
         asset_symbol: 'ASSET_SYMBOL'
       }
     );
-    await this.exportService.arrayToCsv(
+    await this.exportService.arrayToCsvWriteFile(
       uncreatedStocks,
       'uncreatedStocks.csv',
       {

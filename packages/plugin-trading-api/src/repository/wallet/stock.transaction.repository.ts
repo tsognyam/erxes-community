@@ -2,7 +2,6 @@ import BaseRepository from '../base.repository';
 import { TransactionConst, WalletConst } from '../../constants/wallet';
 import * as moment from 'moment';
 import { Prisma } from '@prisma/client';
-
 export default class StockTransactionRepository extends BaseRepository {
   constructor() {
     super('stockTransaction');

@@ -1,4 +1,4 @@
-import { __, router } from '@erxes/ui/src/utils';
+import { Alert, __, router } from '@erxes/ui/src/utils';
 import Select from 'react-select-plus';
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -30,6 +30,7 @@ import _ from 'lodash';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import { queries } from '../../graphql';
 import SelectWithPagination from '../../utils/SelectWithPagination';
+import { getEnv } from '@erxes/ui/src/utils';
 type Props = {
   queryParams: any;
   history: any;
@@ -52,6 +53,7 @@ interface Option {
   value: string;
   label: string;
 }
+const { REACT_APP_API_URL } = getEnv();
 class List extends React.Component<Props, State> {
   constructor(props) {
     super(props);
@@ -139,7 +141,35 @@ class List extends React.Component<Props, State> {
       this.setState({ startDate: formattedDate });
     } else this.setState({ endDate: formattedDate });
   };
-
+  handleExport = async () => {
+    try {
+      const { startDate, endDate, userId } = this.state;
+      const params: any = {
+        type: 'transactions'
+      };
+      if (userId != undefined) params.userId = userId;
+      if (startDate != undefined) params.startDate = startDate;
+      if (endDate != undefined) params.endDate = endDate;
+      const response = await fetch(
+        `${REACT_APP_API_URL}/pl:trading/admin/export?` +
+          new URLSearchParams(params).toString()
+      );
+      if (!response.ok) {
+        Alert.error(`HTTP error! status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'transactions.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.log(err);
+    }
+  };
   renderActionBar() {
     const generateOptions = (array: any = []): Option[] => {
       return array.map(item => {
@@ -228,7 +258,16 @@ class List extends React.Component<Props, State> {
               submenu={nominalStatementMenus}
             />
           }
-          actionBar={<Wrapper.ActionBar left={this.renderActionBar()} />}
+          actionBar={
+            <Wrapper.ActionBar
+              left={this.renderActionBar()}
+              right={
+                <Button icon="csv-export" onClick={this.handleExport}>
+                  Export
+                </Button>
+              }
+            />
+          }
           content={
             <DataWithLoader
               data={this.renderContent()}
